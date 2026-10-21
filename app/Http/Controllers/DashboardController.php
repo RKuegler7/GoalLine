@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         return view('dashboard', [
-            'goals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
+            'goals' => $request->user()->goals()->active()->with('weeks')->orderBy('target_date')->get(),
         ]);
     }
 }

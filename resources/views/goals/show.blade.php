@@ -32,17 +32,5 @@
         </section>
     @endif
 
-    <section class="mt-6 overflow-hidden rounded-2xl border border-line bg-white">
-        <div class="relative h-28 overflow-hidden bg-club">
-            <x-field-backdrop class="absolute inset-0 size-full" />
-        </div>
-        <x-goal-line />
-        <div class="px-8 py-10 text-center">
-            <p class="eyebrow text-club">Your roadmap</p>
-            <h2 class="mt-3 font-serif text-2xl font-medium text-club">Your game plan is next</h2>
-            <p class="mx-auto mt-2 max-w-md text-ink/70">
-                Soon GoalLine will turn this goal into a dated, week-by-week roadmap built for {{ Str::lower($goal->category->label()) }} goals.
-            </p>
-        </div>
-    </section>
+    <x-roadmap :goal="$goal" />
 </x-layouts.app>

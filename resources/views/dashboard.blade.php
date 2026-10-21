@@ -65,10 +65,15 @@
         </section>
     @endif
 
-    {{-- Secondary: daily execution, pace, and the optional league. --}}
+    {{-- Secondary: this week's focus, pace, and the optional league. --}}
+    @php
+        $thisWeek = $goals->map(fn ($goal) => $goal->currentWeek())->filter()->first();
+    @endphp
     <dl class="mt-6 grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-3">
         @foreach ([
-            ['Today', 'No steps yet', 'Your daily steps appear once your roadmap is ready.'],
+            $thisWeek
+                ? ['This '.Str::lower($thisWeek->goal->stretchName()), $thisWeek->focus, 'For '.$thisWeek->goal->title]
+                : ['This gameweek', 'No steps yet', 'Your current focus appears once a roadmap is ready.'],
             ['On pace', '—', 'We\'ll tell you if you\'re in line for your deadline.'],
             ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
         ] as [$label, $value, $note])

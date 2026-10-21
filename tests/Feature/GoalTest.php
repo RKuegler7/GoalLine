@@ -7,6 +7,7 @@ use App\GoalStatus;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class GoalTest extends TestCase
@@ -21,6 +22,7 @@ class GoalTest extends TestCase
 
     public function test_user_can_set_a_goal(): void
     {
+        Queue::fake();
         $user = User::factory()->create();
 
         $response = $this->actingAs($user)->post(route('goals.store'), [

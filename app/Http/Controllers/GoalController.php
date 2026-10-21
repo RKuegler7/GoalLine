@@ -23,6 +23,7 @@ class GoalController extends Controller
     public function store(GoalRequest $request): RedirectResponse
     {
         $goal = $request->user()->goals()->create($request->validated());
+        $goal->requestRoadmap();
 
         return redirect()->route('goals.show', $goal)->with('status', 'Goal set. You\'re in line.');
     }
@@ -32,7 +33,7 @@ class GoalController extends Controller
      */
     public function show(Goal $goal): View
     {
-        return view('goals.show', ['goal' => $goal]);
+        return view('goals.show', ['goal' => $goal->load('weeks.tasks')]);
     }
 
     /**
