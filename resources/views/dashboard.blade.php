@@ -5,27 +5,65 @@
             <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">
                 Welcome, {{ Str::before(auth()->user()->name, ' ') }}.
             </h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Let's set the goal you're working toward. Everything else builds from there.</p>
+            <p class="mt-3 max-w-xl text-ivory/85">
+                @if ($goals->isEmpty())
+                    Let's set the goal you're working toward. Everything else builds from there.
+                @else
+                    Here's what you're working toward.
+                @endif
+            </p>
         </div>
     </x-slot:hero>
 
-    {{-- Primary: the user's own goal. --}}
-    <section class="overflow-hidden rounded-2xl border border-line bg-white">
-        <div class="relative h-36 overflow-hidden bg-club">
-            <x-field-backdrop class="absolute inset-0 size-full" />
-        </div>
-        <x-goal-line />
-        <div class="px-8 py-10 text-center">
-            <p class="eyebrow text-club">Your goal</p>
-            <h2 class="mt-3 font-serif text-2xl font-medium text-club">What do you want to accomplish?</h2>
-            <p class="mx-auto mt-2 max-w-md text-ink/70">
-                Name a goal and its date, and GoalLine will build your personal roadmap. Goal setup is coming next.
-            </p>
-            <button type="button" disabled class="mt-6 cursor-not-allowed rounded-full bg-club/40 px-6 py-2.5 font-semibold text-ivory">
-                Set your first goal
-            </button>
-        </div>
-    </section>
+    {{-- Primary: the user's own goals. --}}
+    @if ($goals->isEmpty())
+        <section class="overflow-hidden rounded-2xl border border-line bg-white">
+            <div class="relative h-36 overflow-hidden bg-club">
+                <x-field-backdrop class="absolute inset-0 size-full" />
+            </div>
+            <x-goal-line />
+            <div class="px-8 py-10 text-center">
+                <p class="eyebrow text-club">Your goal</p>
+                <h2 class="mt-3 font-serif text-2xl font-medium text-club">What do you want to accomplish?</h2>
+                <p class="mx-auto mt-2 max-w-md text-ink/70">
+                    Name a goal and its date, and GoalLine will build your personal roadmap.
+                </p>
+                <a href="{{ route('goals.create') }}" class="mt-6 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory transition hover:bg-club-dark">
+                    Set your first goal
+                </a>
+            </div>
+        </section>
+    @else
+        <section>
+            <div class="flex items-end justify-between gap-4">
+                <h2 class="eyebrow text-club">Your goals</h2>
+                <a href="{{ route('goals.create') }}" class="text-sm font-semibold text-club hover:underline">+ Add a goal</a>
+            </div>
+
+            <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+                @foreach ($goals as $goal)
+                    <li>
+                        <a href="{{ route('goals.show', $goal) }}" class="group flex items-center justify-between gap-6 px-6 py-5 transition hover:bg-mint/50">
+                            <div class="min-w-0">
+                                <p class="eyebrow text-[0.68rem] text-ink/50">{{ $goal->category->label() }}</p>
+                                <h3 class="mt-1 font-serif text-xl font-medium text-club">{{ $goal->title }}</h3>
+                                <p class="mt-0.5 text-sm text-ink/60">By {{ $goal->target_date->format('F j, Y') }}</p>
+                                <p class="mt-2 inline-block rounded-full bg-mint px-3 py-1 text-sm font-medium text-club sm:hidden">
+                                    <x-days-left :days="$goal->daysRemaining()" />
+                                </p>
+                            </div>
+                            <div class="hidden shrink-0 items-center gap-4 sm:flex">
+                                <span class="rounded-full bg-mint px-3 py-1 text-sm font-medium text-club">
+                                    <x-days-left :days="$goal->daysRemaining()" />
+                                </span>
+                                <span class="text-ink/30 transition group-hover:translate-x-0.5 group-hover:text-club" aria-hidden="true">&rarr;</span>
+                            </div>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 
     {{-- Secondary: daily execution, pace, and the optional league. --}}
     <dl class="mt-6 grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-3">
