@@ -6,4 +6,26 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+
+    /* GoalLine brand palette. */
+    --color-club: #176b45;
+    --color-club-dark: #115535;
+    --color-grass: #43b96a;
+    --color-mint: #e5f3e8;
+    --color-ivory: #fafaf5;
+    --color-ink: #1e2922;
+    --color-gold: #d4ac58;
+
+    /* Supporting neutrals. */
+    --color-chalk: #ffffff;
+    --color-line: #e3e6dc;
+}
+
+/* Small capitals label, like a scoreboard caption. */
+@utility eyebrow {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
 }
