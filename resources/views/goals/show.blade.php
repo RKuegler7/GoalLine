@@ -42,6 +42,8 @@
         </section>
     @endif
 
+    <x-plan-materials :goal="$goal" />
+
     <x-roadmap :goal="$goal" />
 
     @if ($goal->isActive())

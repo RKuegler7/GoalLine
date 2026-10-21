@@ -41,7 +41,7 @@ class GenerateRoadmap implements ShouldQueue
      */
     public function handle(RoadmapPlanner $planner): void
     {
-        $this->goal->load('weeks.tasks');
+        $this->goal->load('weeks.tasks', 'materials');
 
         $kept = $this->fromPosition
             ? $this->goal->weeks->filter(fn (RoadmapWeek $week) => $week->position < $this->fromPosition)

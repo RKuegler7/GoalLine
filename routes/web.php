@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/goals/{goal}/coach-check/fix', [CoachCheckController::class, 'applyFix'])->name('goals.coach.fix')->can('update', 'goal');
     Route::post('/goals/{goal}/coach-check/dismiss', [CoachCheckController::class, 'dismiss'])->name('goals.coach.dismiss')->can('update', 'goal');
+
+    Route::post('/goals/{goal}/materials', [PlanMaterialController::class, 'store'])
+        ->name('goals.materials.store')
+        ->can('update', 'goal')
+        ->middleware('throttle:10,10');
+    Route::delete('/plan-materials/{material}', [PlanMaterialController::class, 'destroy'])->name('materials.destroy');
 
     Route::post('/goalweeks/{week}/tasks', [RoadmapTaskController::class, 'store'])->name('roadmap.tasks.store');
     Route::put('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'update'])->name('roadmap.tasks.update');

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\GoalCategory;
+use App\Models\PlanMaterial;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -29,6 +30,7 @@ class GoalRequest extends FormRequest
             'category' => ['required', Rule::enum(GoalCategory::class)],
             'target_date' => ['required', 'date', 'after:today'],
             'why' => ['nullable', 'string', 'max:1000'],
+            ...PlanMaterial::rules(required: false),
         ];
     }
 
@@ -44,6 +46,8 @@ class GoalRequest extends FormRequest
             'category.required' => 'Pick the kind of goal this is.',
             'target_date.required' => 'Set the date this needs to happen by.',
             'target_date.after' => 'Pick a date after today.',
+            'material.mimes' => 'Upload a PDF, PNG, or JPG.',
+            'material.max' => 'Files can be up to 10 MB.',
         ];
     }
 }

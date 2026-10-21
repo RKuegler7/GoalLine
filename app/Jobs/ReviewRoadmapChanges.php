@@ -53,7 +53,7 @@ class ReviewRoadmapChanges implements ShouldBeUniqueUntilProcessing, ShouldQueue
      */
     public function handle(RoadmapPlanner $planner): void
     {
-        $this->goal->refresh()->load('weeks.tasks');
+        $this->goal->refresh()->load('weeks.tasks', 'materials');
         $changes = $this->goal->pending_changes ?? [];
 
         if ($changes === []) {

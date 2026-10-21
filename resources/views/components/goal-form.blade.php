@@ -4,7 +4,7 @@
     $selectedCategory = old('category', $goal?->category?->value);
 @endphp
 
-<form method="POST" action="{{ $action }}" class="space-y-7">
+<form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-7">
     @csrf
     @method($method)
 
@@ -60,6 +60,10 @@
         maxlength="1000"
         hint="We'll remind you of this on the hard days."
     />
+
+    @unless ($goal)
+        <x-material-upload-fields />
+    @endunless
 
     <div class="flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-end">
         <a href="{{ $goal ? route('goals.show', $goal) : route('dashboard') }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 transition hover:text-ink">Cancel</a>

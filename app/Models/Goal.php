@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 #[Fillable(['title', 'category', 'why', 'target_date'])]
 class Goal extends Model
@@ -186,5 +187,25 @@ class Goal extends Model
         $first = $this->weeks->first();
 
         return $first ? $first->lengthInWeeks() : 1;
+    }
+
+    /**
+     * Plans, programs, and courses the person uploaded to shape this goal's roadmap.
+     *
+     * @return HasMany<PlanMaterial, $this>
+     */
+    public function materials(): HasMany
+    {
+        return $this->hasMany(PlanMaterial::class)->oldest();
+    }
+
+    /**
+     * Materials Claude has finished reading.
+     *
+     * @return Collection<int, PlanMaterial>
+     */
+    public function readMaterials(): Collection
+    {
+        return $this->materials->filter(fn (PlanMaterial $material) => $material->status === RoadmapStatus::Ready && $material->digest)->values();
     }
 }
