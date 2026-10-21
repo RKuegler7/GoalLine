@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\GoalWeekResult;
 use Database\Factories\RoadmapWeekFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,11 @@ class RoadmapWeek extends Model
     use HasFactory;
 
     /**
+     * Days after a GoalWeek ends that check-ins stay open before its result locks.
+     */
+    public const CHECK_IN_GRACE_DAYS = 1;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -25,6 +31,7 @@ class RoadmapWeek extends Model
         return [
             'starts_on' => 'date',
             'ends_on' => 'date',
+            'milestone_hit_at' => 'datetime',
         ];
     }
 
@@ -89,5 +96,77 @@ class RoadmapWeek extends Model
     public function isEditable(): bool
     {
         return ! $this->isPast() && $this->goal->isActive();
+    }
+
+    /**
+     * Whether the GoalWeek has begun.
+     */
+    public function isStarted(): bool
+    {
+        return $this->starts_on->lte(today());
+    }
+
+    /**
+     * Whether the result is final: the grace day after the GoalWeek has passed.
+     */
+    public function isLocked(): bool
+    {
+        return $this->ends_on->copy()->addDays(self::CHECK_IN_GRACE_DAYS)->lt(today());
+    }
+
+    /**
+     * Whether the person can still check off tasks and the milestone.
+     */
+    public function isCheckable(): bool
+    {
+        return $this->isStarted() && ! $this->isLocked() && $this->goal->isActive();
+    }
+
+    /**
+     * Share of the planned (non-bonus) tasks that are done, from 0 to 1.
+     */
+    public function completionShare(): float
+    {
+        $planned = $this->tasks->reject->is_bonus;
+
+        return $planned->isEmpty() ? 1.0 : $planned->filter->completed_at->count() / $planned->count();
+    }
+
+    /**
+     * The GoalWeek's result so far, or its final result once locked. Null before it starts.
+     */
+    public function result(): ?GoalWeekResult
+    {
+        if (! $this->isStarted()) {
+            return null;
+        }
+
+        $planned = $this->tasks->reject->is_bonus;
+
+        return GoalWeekResult::score(
+            planned: $planned->count(),
+            plannedDone: $planned->filter->completed_at->count(),
+            bonusDone: $this->tasks->filter->is_bonus->filter->completed_at->count(),
+            milestoneHit: $this->milestone_hit_at !== null,
+        );
+    }
+
+    /**
+     * Whether the result is In line but below the safe zone.
+     */
+    public function isCloseCall(): bool
+    {
+        return $this->result() === GoalWeekResult::InLine && $this->completionShare() < GoalWeekResult::SAFELY_IN_LINE_AT;
+    }
+
+    /**
+     * How many more planned tasks would put the GoalWeek safely in line.
+     */
+    public function tasksToSafety(): int
+    {
+        $planned = $this->tasks->reject->is_bonus;
+        $needed = (int) ceil($planned->count() * GoalWeekResult::SAFELY_IN_LINE_AT);
+
+        return max(0, $needed - $planned->filter->completed_at->count());
     }
 }

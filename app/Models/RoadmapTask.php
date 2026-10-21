@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['position', 'description'])]
+#[Fillable(['position', 'description', 'is_bonus'])]
 class RoadmapTask extends Model
 {
     /** @use HasFactory<RoadmapTaskFactory> */
@@ -23,6 +23,7 @@ class RoadmapTask extends Model
     {
         return [
             'completed_at' => 'datetime',
+            'is_bonus' => 'boolean',
         ];
     }
 

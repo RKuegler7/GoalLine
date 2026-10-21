@@ -74,7 +74,9 @@
             $thisWeek
                 ? ['This GoalWeek', $thisWeek->focus, $thisWeek->label($thisWeek->goal->weeksPerStretch()).' of '.$thisWeek->goal->title]
                 : ['This GoalWeek', 'No steps yet', 'Your current focus appears once a roadmap is ready.'],
-            ['On pace', '—', 'We\'ll tell you if you\'re in line for your deadline.'],
+            ($thisWeek && $thisWeek->result())
+                ? ['So far', $thisWeek->result()->label().($thisWeek->isCloseCall() ? ', close call' : ''), $thisWeek->result()->points().' '.Str::plural('point', $thisWeek->result()->points()).' this GoalWeek']
+                : ['So far', '—', 'Check off tasks to see where you stand this GoalWeek.'],
             ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
         ] as [$label, $value, $note])
             <div class="border-line px-6 py-5 max-sm:not-last:border-b sm:not-last:border-r">

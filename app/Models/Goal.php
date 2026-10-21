@@ -136,7 +136,7 @@ class Goal extends Model
      */
     public function weeks(): HasMany
     {
-        return $this->hasMany(RoadmapWeek::class)->orderBy('position');
+        return $this->hasMany(RoadmapWeek::class)->orderBy('position')->chaperone();
     }
 
     /**
@@ -207,5 +207,13 @@ class Goal extends Model
     public function readMaterials(): Collection
     {
         return $this->materials->filter(fn (PlanMaterial $material) => $material->status === RoadmapStatus::Ready && $material->digest)->values();
+    }
+
+    /**
+     * GoalWeek result points earned so far, including the current GoalWeek's live result.
+     */
+    public function points(): int
+    {
+        return $this->weeks->sum(fn (RoadmapWeek $week) => $week->result()?->points() ?? 0);
     }
 }

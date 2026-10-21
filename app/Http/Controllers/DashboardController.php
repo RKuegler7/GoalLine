@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         return view('dashboard', [
-            'goals' => $request->user()->goals()->active()->with('weeks')->orderBy('target_date')->get(),
+            'goals' => $request->user()->goals()->active()->with('weeks.tasks')->orderBy('target_date')->get(),
             'retired' => $request->user()->goals()->where('status', GoalStatus::Retired)->latest('retired_at')->get(),
         ]);
     }

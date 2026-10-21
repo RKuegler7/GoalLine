@@ -21,6 +21,8 @@ class RoadmapTaskController extends Controller
         $week->tasks()->create([
             'position' => ($week->tasks()->max('position') ?? 0) + 1,
             'description' => $description,
+            // Tasks added once the GoalWeek is underway are extra work beyond the plan.
+            'is_bonus' => $week->isCurrent(),
         ]);
 
         $week->goal->recordRoadmapChange("Added a task to {$this->label($week)}: \"{$description}\"");
