@@ -205,10 +205,34 @@
         @endif
     </section>
 
-    {{-- League chat arrives next. --}}
-    <section class="mt-6 rounded-2xl border border-dashed border-line px-6 py-5">
-        <h2 class="eyebrow text-club">League chat</h2>
-        <p class="mt-2 text-ink/60">Talk, trash-talk, and cheer each other on. <span class="font-semibold text-club">Coming soon.</span></p>
+    {{-- League chat. Works as plain forms; app.js adds live updates and sending without a page reload. --}}
+    <section id="chat" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white"
+        data-league-chat
+        data-poll-url="{{ route('leagues.messages.index', $league) }}"
+        data-last-id="{{ $messages->last()?->id ?? 0 }}">
+        <div class="flex items-center justify-between border-b border-line px-6 py-4">
+            <h2 class="eyebrow text-club">League chat</h2>
+            <span class="flex items-center gap-1.5 text-xs text-ink/50"><span class="size-1.5 animate-pulse rounded-full bg-grass" aria-hidden="true"></span>Live</span>
+        </div>
+
+        <ol data-chat-list class="max-h-[28rem] overflow-y-auto px-6 py-2" aria-live="polite" aria-label="Messages">
+            @if ($messages->isEmpty())
+                <li data-chat-empty class="py-8 text-center text-ink/55">No messages yet. Say hi to your league.</li>
+            @endif
+            @include('leagues.partials.messages', ['messages' => $messages])
+        </ol>
+
+        <form method="POST" action="{{ route('leagues.messages.store', $league) }}" data-chat-form class="flex items-end gap-2 border-t border-line px-4 py-3">
+            @csrf
+            <label for="chat-body" class="sr-only">Message</label>
+            <textarea id="chat-body" name="body" rows="1" maxlength="{{ App\Models\LeagueMessage::MAX_LENGTH }}" required
+                placeholder="Cheer someone on, call your shot, or talk trash..."
+                class="max-h-40 min-h-[2.75rem] flex-1 resize-y rounded-xl border border-line bg-ivory/60 px-3.5 py-2.5 text-ink outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10"></textarea>
+            <button type="submit" class="rounded-xl bg-club px-4 py-2.5 font-semibold text-ivory hover:bg-club-dark">Send</button>
+        </form>
+        @error('body')
+            <p class="px-6 pb-3 text-sm text-red-700">{{ $message }}</p>
+        @enderror
     </section>
 
     @can('leave', $league)

@@ -148,10 +148,41 @@ class LeagueTable
                         $this->store($week, $matchup['away'], $matchup['awayResult'], $matchup['home'], $matchup['awayOutcome'], false);
                     }
                 }
+
+                $this->announceFinal($week);
             });
         }
 
         $this->league->load('results');
+    }
+
+    /**
+     * Post a week's final results in the league chat, naming the top scorers.
+     */
+    private function announceFinal(int $week): void
+    {
+        $results = $this->league->results()->where('week', $week)->get();
+        $best = $results->max(fn ($result) => $result->result_points + $result->matchup_points);
+
+        if ($results->isEmpty() || $best === 0) {
+            $this->league->announce("Week {$week} is final. Nobody crossed the line this time. New week, fresh start.");
+
+            return;
+        }
+
+        $leaders = $results
+            ->filter(fn ($result) => $result->result_points + $result->matchup_points === $best)
+            ->map(fn ($result) => $this->league->members->firstWhere('user_id', $result->user_id)?->user->name)
+            ->filter()
+            ->values();
+
+        $this->league->announce(sprintf(
+            'Week %d is final. Top score: %s with %d %s.',
+            $week,
+            $leaders->join(', ', ' and '),
+            $best,
+            $best === 1 ? 'point' : 'points',
+        ));
     }
 
     /**

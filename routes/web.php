@@ -9,6 +9,7 @@ use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
+use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoadmapController;
@@ -78,5 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join');
     Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store');
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
+    Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');
+    Route::post('/leagues/{league}/messages', [LeagueMessageController::class, 'store'])->name('leagues.messages.store')->can('view', 'league')->middleware('throttle:30,1');
+    Route::delete('/league-messages/{message}', [LeagueMessageController::class, 'destroy'])->name('leagues.messages.destroy');
     Route::delete('/leagues/{league}/membership', [LeagueMembershipController::class, 'destroy'])->name('leagues.membership.destroy');
 });

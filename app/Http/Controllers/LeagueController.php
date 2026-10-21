@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\League;
+use App\Models\LeagueMessage;
 use App\Services\LeagueTable;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -68,6 +69,7 @@ class LeagueController extends Controller
             ]);
             $league->commissioner()->associate($request->user())->save();
             $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $validated['goal_id']]);
+            $league->announce($request->user()->name.' started the league. Kickoff is '.$startsOn->format('l, F j').'.');
 
             return $league;
         });
@@ -83,11 +85,15 @@ class LeagueController extends Controller
         $table = new LeagueTable($league);
         $table->settle();
 
+        // Opening the league counts as reading its chat.
+        $league->memberFor($request->user())->update(['last_read_message_id' => $league->messages()->max('id')]);
+
         return view('leagues.show', [
             'league' => $league,
             'table' => $table,
             'me' => $league->memberFor($request->user()),
             'myGoals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
+            'messages' => $league->messages()->with('user')->latest('id')->limit(LeagueMessage::RECENT_COUNT)->get()->reverse()->values(),
         ]);
     }
 

@@ -164,4 +164,22 @@ class League extends Model
 
         return $code;
     }
+
+    /**
+     * Chat messages and league updates, oldest first.
+     *
+     * @return HasMany<LeagueMessage, $this>
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(LeagueMessage::class)->orderBy('id');
+    }
+
+    /**
+     * Post a league update in the chat, like a member joining or a week going final.
+     */
+    public function announce(string $body): LeagueMessage
+    {
+        return $this->messages()->create(['body' => $body, 'is_system' => true]);
+    }
 }

@@ -64,6 +64,7 @@ class LeagueMembershipController extends Controller
         ]);
 
         $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $validated['goal_id']]);
+        $league->announce($request->user()->name.' joined the league.');
 
         return redirect()->route('leagues.show', $league)->with('status', "You're in. Kickoff is ".$league->starts_on->format('l, F j').'.');
     }

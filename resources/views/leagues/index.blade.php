@@ -58,6 +58,12 @@
                                     @endif
                                 </p>
                             </div>
+                            @php
+                                $unread = $league->memberFor(auth()->user())?->unreadCount() ?? 0;
+                            @endphp
+                            @if ($unread > 0)
+                                <span class="shrink-0 rounded-full bg-club px-2 py-0.5 text-xs font-semibold text-ivory tabular-nums" title="Unread chat messages">{{ $unread }} new</span>
+                            @endif
                             <span @class([
                                 'eyebrow shrink-0 rounded-full px-2.5 py-1 text-[0.65rem]',
                                 'bg-mint text-club' => $league->status() === App\LeagueStatus::Forming,
