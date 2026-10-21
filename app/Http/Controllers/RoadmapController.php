@@ -9,12 +9,14 @@ use Illuminate\Http\RedirectResponse;
 class RoadmapController extends Controller
 {
     /**
-     * Build, or rebuild, the roadmap for a goal.
+     * Build the roadmap, or re-plan it from the current stretch onward.
      */
     public function store(Goal $goal): RedirectResponse
     {
         if ($goal->roadmap_status !== RoadmapStatus::Pending) {
-            $goal->requestRoadmap();
+            $from = $goal->roadmap_status === RoadmapStatus::Ready ? $goal->replanFromPosition() : null;
+
+            $goal->requestRoadmap($from > 1 ? $from : null);
         }
 
         return redirect()->route('goals.show', $goal);

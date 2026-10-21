@@ -5,7 +5,10 @@ namespace App\Models;
 use App\GoalCategory;
 use App\GoalStatus;
 use App\Jobs\GenerateRoadmap;
+use App\Jobs\ReviewRoadmapChanges;
+use App\PlanVerdict;
 use App\RoadmapStatus;
+use Carbon\CarbonInterface;
 use Database\Factories\GoalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,6 +24,16 @@ class Goal extends Model
     use HasFactory;
 
     /**
+     * How long after setting a goal it can still be removed outright.
+     */
+    public const TRIAL_DAYS = 7;
+
+    /**
+     * Seconds to wait after an edit before the coach reviews, so a batch of edits gets one review.
+     */
+    public const REVIEW_DELAY_SECONDS = 20;
+
+    /**
      * Default values for new goals.
      *
      * @var array<string, mixed>
@@ -28,6 +41,7 @@ class Goal extends Model
     protected $attributes = [
         'status' => 'active',
         'roadmap_status' => 'none',
+        'plan_check_status' => 'none',
     ];
 
     /**
@@ -42,8 +56,15 @@ class Goal extends Model
             'status' => GoalStatus::class,
             'target_date' => 'date',
             'completed_at' => 'datetime',
+            'retired_at' => 'datetime',
             'roadmap_status' => RoadmapStatus::class,
             'roadmap_generated_at' => 'datetime',
+            'pending_changes' => 'array',
+            'plan_check_status' => RoadmapStatus::class,
+            'plan_verdict' => PlanVerdict::class,
+            'plan_checked_at' => 'datetime',
+            'plan_fix' => 'array',
+            'plan_dismissed_at' => 'datetime',
         ];
     }
 
@@ -65,6 +86,38 @@ class Goal extends Model
     public function scopeActive(Builder $query): void
     {
         $query->where('status', GoalStatus::Active);
+    }
+
+    /**
+     * Whether the goal is still being pursued.
+     */
+    public function isActive(): bool
+    {
+        return $this->status === GoalStatus::Active;
+    }
+
+    /**
+     * When the trial ends and the person is locked in.
+     */
+    public function lockedInAt(): CarbonInterface
+    {
+        return ($this->created_at ?? now())->copy()->addDays(self::TRIAL_DAYS);
+    }
+
+    /**
+     * Whether the goal is still in its trial and can be removed outright.
+     */
+    public function inTrial(): bool
+    {
+        return $this->lockedInAt()->isFuture();
+    }
+
+    /**
+     * Stop pursuing the goal while keeping its history.
+     */
+    public function retire(): void
+    {
+        $this->forceFill(['status' => GoalStatus::Retired, 'retired_at' => now()])->save();
     }
 
     /**
@@ -94,13 +147,35 @@ class Goal extends Model
     }
 
     /**
-     * Mark the roadmap as being built and queue the work.
+     * Where a "re-plan from here" starts: the current stretch, or the next one if none is current.
      */
-    public function requestRoadmap(): void
+    public function replanFromPosition(): ?int
+    {
+        return $this->weeks->first(fn (RoadmapWeek $week) => ! $week->isPast())?->position;
+    }
+
+    /**
+     * Mark the roadmap as being built and queue the work.
+     * Pass a position to keep earlier stretches and re-plan only from there.
+     */
+    public function requestRoadmap(?int $fromPosition = null): void
     {
         $this->forceFill(['roadmap_status' => RoadmapStatus::Pending])->save();
 
-        GenerateRoadmap::dispatch($this);
+        GenerateRoadmap::dispatch($this, $fromPosition);
+    }
+
+    /**
+     * Note an edit the person made to their roadmap and queue a coach review.
+     */
+    public function recordRoadmapChange(string $description): void
+    {
+        $this->forceFill([
+            'pending_changes' => [...($this->pending_changes ?? []), $description],
+            'plan_check_status' => RoadmapStatus::Pending,
+        ])->save();
+
+        ReviewRoadmapChanges::dispatch($this)->delay(now()->addSeconds(self::REVIEW_DELAY_SECONDS));
     }
 
     /**
@@ -110,14 +185,6 @@ class Goal extends Model
     {
         $first = $this->weeks->first();
 
-        return $first ? max(1, (int) round(($first->starts_on->diffInDays($first->ends_on) + 1) / 7)) : 1;
-    }
-
-    /**
-     * What a roadmap stretch is called: a gameweek, or a multi-week match window.
-     */
-    public function stretchName(): string
-    {
-        return $this->weeksPerStretch() > 1 ? 'Match window' : 'Gameweek';
+        return $first ? $first->lengthInWeeks() : 1;
     }
 }

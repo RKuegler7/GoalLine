@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Goal;
+use App\Models\RoadmapWeek;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -31,24 +32,38 @@ class GenerateRoadmap implements ShouldQueue
     public bool $deleteWhenMissingModels = true;
 
     /**
-     * Create a new job instance.
+     * Create a new job instance. With a position, earlier stretches are kept and only the rest re-planned.
      */
-    public function __construct(public Goal $goal) {}
+    public function __construct(public Goal $goal, public ?int $fromPosition = null) {}
 
     /**
-     * Build the roadmap and replace any previous one.
+     * Build the roadmap, replacing the stretches being re-planned.
      */
     public function handle(RoadmapPlanner $planner): void
     {
-        $periods = $planner->periods($this->goal);
-        $roadmap = $planner->plan($this->goal, $periods);
+        $this->goal->load('weeks.tasks');
 
-        DB::transaction(function () use ($periods, $roadmap) {
-            $this->goal->weeks()->delete();
+        $kept = $this->fromPosition
+            ? $this->goal->weeks->filter(fn (RoadmapWeek $week) => $week->position < $this->fromPosition)
+            : collect();
+
+        $periods = $this->fromPosition
+            ? $this->goal->weeks
+                ->filter(fn (RoadmapWeek $week) => $week->position >= $this->fromPosition)
+                ->map(fn (RoadmapWeek $week) => ['starts_on' => $week->starts_on->toImmutable(), 'ends_on' => $week->ends_on->toImmutable()])
+                ->values()
+                ->all()
+            : $planner->periods($this->goal);
+
+        $roadmap = $planner->plan($this->goal, $periods, $kept);
+        $firstPosition = $this->fromPosition ?? 1;
+
+        DB::transaction(function () use ($periods, $roadmap, $firstPosition) {
+            $this->goal->weeks()->where('position', '>=', $firstPosition)->delete();
 
             foreach ($roadmap['periods'] as $index => $period) {
                 $week = $this->goal->weeks()->create([
-                    'position' => $index + 1,
+                    'position' => $firstPosition + $index,
                     'starts_on' => $periods[$index]['starts_on'],
                     'ends_on' => $periods[$index]['ends_on'],
                     'focus' => Str::limit(trim($period['focus']), 250),
@@ -65,10 +80,19 @@ class GenerateRoadmap implements ShouldQueue
                 }
             }
 
+            // A fresh plan starts with a clean coach check.
             $this->goal->forceFill([
                 'roadmap_status' => RoadmapStatus::Ready,
                 'roadmap_summary' => trim($roadmap['summary']),
                 'roadmap_generated_at' => now(),
+                'pending_changes' => null,
+                'plan_check_status' => RoadmapStatus::None,
+                'plan_verdict' => null,
+                'plan_note' => null,
+                'plan_suggestion' => null,
+                'plan_fix' => null,
+                'plan_dismissed_at' => null,
+                'plan_checked_at' => null,
             ])->save();
         });
     }

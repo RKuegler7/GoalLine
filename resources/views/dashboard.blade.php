@@ -72,8 +72,8 @@
     <dl class="mt-6 grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-3">
         @foreach ([
             $thisWeek
-                ? ['This '.Str::lower($thisWeek->goal->stretchName()), $thisWeek->focus, 'For '.$thisWeek->goal->title]
-                : ['This gameweek', 'No steps yet', 'Your current focus appears once a roadmap is ready.'],
+                ? ['This GoalWeek', $thisWeek->focus, $thisWeek->label($thisWeek->goal->weeksPerStretch()).' of '.$thisWeek->goal->title]
+                : ['This GoalWeek', 'No steps yet', 'Your current focus appears once a roadmap is ready.'],
             ['On pace', '—', 'We\'ll tell you if you\'re in line for your deadline.'],
             ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
         ] as [$label, $value, $note])
@@ -84,4 +84,18 @@
             </div>
         @endforeach
     </dl>
+
+    @if ($retired->isNotEmpty())
+        <section class="mt-10">
+            <h2 class="eyebrow text-ink/50">Retired goals</h2>
+            <ul class="mt-3 space-y-1">
+                @foreach ($retired as $goal)
+                    <li>
+                        <a href="{{ route('goals.show', $goal) }}" class="text-sm text-ink/60 hover:text-club hover:underline">{{ $goal->title }}</a>
+                        <span class="text-sm text-ink/40">&middot; retired {{ $goal->retired_at?->format('M j, Y') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 </x-layouts.app>

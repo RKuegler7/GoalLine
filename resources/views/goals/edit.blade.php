@@ -10,11 +10,8 @@
         <x-goal-form :goal="$goal" :action="route('goals.update', $goal)" method="PUT" submit="Save changes" />
     </div>
 
-    <form method="POST" action="{{ route('goals.destroy', $goal) }}" class="mx-auto mt-6 flex max-w-2xl items-center justify-between gap-4 rounded-2xl border border-line px-6 py-4"
-        onsubmit="return confirm('Remove this goal? This can\'t be undone.')">
-        @csrf
-        @method('DELETE')
+    <div class="mx-auto mt-6 flex max-w-2xl items-center justify-between gap-4 rounded-2xl border border-line px-6 py-4">
         <p class="text-sm text-ink/60">No longer chasing this one?</p>
-        <button type="submit" class="text-sm font-semibold text-red-700 hover:underline">Remove goal</button>
-    </form>
+        <a href="{{ route('goals.leave', $goal) }}" class="text-sm font-semibold text-red-700 hover:underline">{{ $goal->inTrial() ? 'Remove goal' : 'Retire goal' }}</a>
+    </div>
 </x-layouts.app>

@@ -63,4 +63,31 @@ class RoadmapWeek extends Model
     {
         return $this->ends_on->lt(today());
     }
+
+    /**
+     * How many weeks this stretch covers, rounded, and at least one.
+     */
+    public function lengthInWeeks(): int
+    {
+        return max(1, (int) round(($this->starts_on->diffInDays($this->ends_on) + 1) / 7));
+    }
+
+    /**
+     * The stretch's name: "GoalWeek 3", or "GoalWeeks 3–4" when it spans several weeks.
+     */
+    public function label(int $weeksPerStretch): string
+    {
+        $first = ($this->position - 1) * $weeksPerStretch + 1;
+        $last = $first + $this->lengthInWeeks() - 1;
+
+        return $first === $last ? "GoalWeek {$first}" : "GoalWeeks {$first}–{$last}";
+    }
+
+    /**
+     * Whether the person can still change this stretch.
+     */
+    public function isEditable(): bool
+    {
+        return ! $this->isPast() && $this->goal->isActive();
+    }
 }

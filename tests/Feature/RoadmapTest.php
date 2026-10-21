@@ -141,11 +141,11 @@ class RoadmapTest extends TestCase
             ->assertSee('A steady build.')
             ->assertSee('Lay the groundwork')
             ->assertSee('Pick a study guide')
-            ->assertSee('Gameweek 1')
-            ->assertSee('This gameweek');
+            ->assertSee('GoalWeek 1')
+            ->assertSee('You are here');
     }
 
-    public function test_multi_week_stretches_are_called_match_windows(): void
+    public function test_multi_week_stretches_are_labelled_by_goalweek_range(): void
     {
         $goal = Goal::factory()->create();
         $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready, 'roadmap_summary' => 'A long build.'])->save();
@@ -155,13 +155,12 @@ class RoadmapTest extends TestCase
         ]);
 
         $this->assertSame(2, $goal->weeksPerStretch());
-        $this->assertSame('Match window', $goal->stretchName());
+        $this->assertSame('GoalWeeks 1–2', $goal->weeks->first()->label(2));
 
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))
-            ->assertSee('Match window 1')
-            ->assertSee('This match window')
-            ->assertSee('2-week match windows');
+            ->assertSee('GoalWeeks 1–2')
+            ->assertSee('2 GoalWeeks');
     }
 
     /**

@@ -55,7 +55,25 @@ class GoalController extends Controller
     }
 
     /**
-     * Remove a goal.
+     * Ask whether the person really wants to leave this goal.
+     */
+    public function leave(Goal $goal): View
+    {
+        return view('goals.leave', ['goal' => $goal->load('weeks')]);
+    }
+
+    /**
+     * Stop pursuing a locked-in goal while keeping its history.
+     */
+    public function retire(Goal $goal): RedirectResponse
+    {
+        $goal->retire();
+
+        return redirect()->route('dashboard')->with('status', 'Goal retired. Its history is still in your clubhouse.');
+    }
+
+    /**
+     * Remove a goal during its trial.
      */
     public function destroy(Goal $goal): RedirectResponse
     {
