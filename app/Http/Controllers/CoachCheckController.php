@@ -17,7 +17,7 @@ class CoachCheckController extends Controller
     {
         $fix = $goal->plan_fix;
         $week = $fix ? $goal->weeks()->where('position', $fix['stretch'])->first() : null;
-        $label = $week?->label($goal->weeksPerStretch());
+        $label = $week?->label();
 
         $change = match (true) {
             $week === null || ! $week->isEditable() => null,

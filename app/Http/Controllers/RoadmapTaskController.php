@@ -83,7 +83,7 @@ class RoadmapTaskController extends Controller
      */
     private function label(RoadmapWeek $week): string
     {
-        return $week->label($week->goal->weeksPerStretch());
+        return $week->label();
     }
 
     /**

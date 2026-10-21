@@ -13,7 +13,11 @@
             </a>
 
             <div class="flex items-center gap-4">
-                <span class="hidden text-sm font-medium text-ivory/85 sm:inline">{{ auth()->user()->name }}</span>
+                <a href="{{ route('leagues.index') }}" class="text-sm font-semibold text-ivory/85 hover:text-ivory">Leagues</a>
+                <a href="{{ route('profile.show') }}" class="flex items-center gap-2 rounded-full py-1 pr-1 text-sm font-medium text-ivory/90 hover:text-ivory sm:pr-3">
+                    <x-avatar :user="auth()->user()" tone="light" class="size-8 text-xs" />
+                    <span class="hidden sm:inline">{{ auth()->user()->name }}</span>
+                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="rounded-full border border-ivory/60 px-4 py-1.5 text-sm font-medium text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">

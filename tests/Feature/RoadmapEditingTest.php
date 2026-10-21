@@ -41,8 +41,9 @@ class RoadmapEditingTest extends TestCase
 
     public function test_goalweeks_are_labelled_by_week_number(): void
     {
-        $this->assertSame('GoalWeek 3', $this->nextWeek->label(1));
-        $this->assertSame('GoalWeeks 3–4', $this->currentWeek->forceFill(['ends_on' => today()->addDays(13)])->label(2));
+        $this->assertSame('GoalWeek 3', $this->nextWeek->label());
+        $this->currentWeek->update(['ends_on' => today()->addDays(13)]);
+        $this->assertSame('GoalWeeks 2–3', $this->currentWeek->fresh()->label());
     }
 
     public function test_adding_a_task_saves_it_and_queues_a_coach_review(): void

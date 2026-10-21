@@ -72,12 +72,16 @@
     <dl class="mt-6 grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-3">
         @foreach ([
             $thisWeek
-                ? ['This GoalWeek', $thisWeek->focus, $thisWeek->label($thisWeek->goal->weeksPerStretch()).' of '.$thisWeek->goal->title]
+                ? ['This GoalWeek', $thisWeek->focus, $thisWeek->label().' of '.$thisWeek->goal->title]
                 : ['This GoalWeek', 'No steps yet', 'Your current focus appears once a roadmap is ready.'],
-            ($thisWeek && $thisWeek->result())
+            ($thisWeek && $thisWeek->isNotStarted())
+                ? ['So far', 'Not started', 'New GoalWeek. Check off your first task to get going.']
+                : (($thisWeek && $thisWeek->result())
                 ? ['So far', $thisWeek->result()->label().($thisWeek->isCloseCall() ? ', close call' : ''), $thisWeek->result()->points().' '.Str::plural('point', $thisWeek->result()->points()).' this GoalWeek']
-                : ['So far', '—', 'Check off tasks to see where you stand this GoalWeek.'],
-            ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
+                : ['So far', '—', 'Check off tasks to see where you stand this GoalWeek.']),
+            $leagues->isNotEmpty()
+                ? ['League', $leagues->first()->name, $leagues->first()->status()->label().($leagues->count() > 1 ? ' · +'.($leagues->count() - 1).' more' : '')]
+                : ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
         ] as [$label, $value, $note])
             <div class="border-line px-6 py-5 max-sm:not-last:border-b sm:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>

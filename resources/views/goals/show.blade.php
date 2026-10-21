@@ -6,9 +6,16 @@
             <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <h1 class="font-serif text-4xl font-medium tracking-tight text-balance text-ivory sm:text-5xl">{{ $goal->title }}</h1>
                 @if ($goal->isActive())
-                    <a href="{{ route('goals.edit', $goal) }}" class="shrink-0 self-start rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club sm:self-auto">
-                        Edit goal
-                    </a>
+                    <div class="flex shrink-0 gap-2 self-start sm:self-auto">
+                        <a href="{{ route('goals.complete', $goal) }}" class="rounded-full bg-ivory px-5 py-2 text-sm font-semibold text-club transition hover:bg-white">
+                            I did it
+                        </a>
+                        <a href="{{ route('goals.edit', $goal) }}" class="rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">
+                            Edit goal
+                        </a>
+                    </div>
+                @elseif ($goal->isCompleted())
+                    <span class="eyebrow shrink-0 self-start rounded-full bg-gold px-4 py-2 text-[0.7rem] text-ink sm:self-auto">Completed</span>
                 @else
                     <span class="eyebrow shrink-0 self-start rounded-full bg-ivory/15 px-4 py-2 text-[0.7rem] text-ivory sm:self-auto">Retired</span>
                 @endif
@@ -16,11 +23,34 @@
         </div>
     </x-slot:hero>
 
-    @unless ($goal->isActive())
+    @if ($goal->isCompleted())
+        {{-- Goal completion celebration. --}}
+        <section class="mb-6 overflow-hidden rounded-2xl border border-line bg-white">
+            <div class="relative overflow-hidden bg-club">
+                <x-field-backdrop class="absolute inset-0 size-full" />
+                <div class="relative grid gap-6 px-6 py-10 sm:grid-cols-[1fr_auto] sm:items-center sm:px-10">
+                    <div>
+                        <p class="eyebrow text-gold">Goal complete</p>
+                        <h2 class="mt-3 font-serif text-3xl font-medium tracking-tight text-ivory sm:text-4xl">You crossed the GoalLine.</h2>
+                        <p class="mt-3 text-ivory/85">
+                            {{ $goal->completed_at->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }} earned along the way
+                        </p>
+                    </div>
+                    @if ($goal->completionPhotoUrl())
+                        <img src="{{ $goal->completionPhotoUrl() }}" alt="Photo from completing {{ $goal->title }}" class="aspect-square w-full max-w-56 rounded-xl object-cover ring-4 ring-ivory/30">
+                    @endif
+                </div>
+            </div>
+            <x-goal-line />
+            @if ($goal->completion_note)
+                <p class="px-6 py-5 font-serif text-xl leading-relaxed text-ink sm:px-10">&ldquo;{{ $goal->completion_note }}&rdquo;</p>
+            @endif
+        </section>
+    @elseif (! $goal->isActive())
         <p class="mb-6 rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink/70">
             You retired this goal on {{ $goal->retired_at?->format('F j, Y') }}. Its roadmap is kept here as part of your history.
         </p>
-    @endunless
+    @endif
 
     <dl class="grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-2">
         <div class="border-line px-6 py-5 max-sm:border-b sm:border-r">

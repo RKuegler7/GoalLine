@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         return view('dashboard', [
             'goals' => $request->user()->goals()->active()->with('weeks.tasks')->orderBy('target_date')->get(),
+            'leagues' => $request->user()->leagues()->latest('starts_on')->get(),
             'retired' => $request->user()->goals()->where('status', GoalStatus::Retired)->latest('retired_at')->get(),
         ]);
     }

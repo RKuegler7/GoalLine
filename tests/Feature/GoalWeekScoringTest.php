@@ -44,6 +44,21 @@ class GoalWeekScoringTest extends TestCase
         $this->assertSame([0, 1, 2, 3], array_map(fn (GoalWeekResult $result) => $result->points(), GoalWeekResult::cases()));
     }
 
+    public function test_day_one_shows_not_started_until_a_check_in_then_the_real_result(): void
+    {
+        [$goal, $week] = $this->goalWithWeek(today(), tasks: 3);
+
+        $this->assertTrue($week->isNotStarted());
+        $this->actingAs($goal->user)->get(route('goals.show', $goal))
+            ->assertSee('Not started')
+            ->assertSee('New GoalWeek. Check off your first task to get going.');
+
+        $this->travel(1)->days();
+
+        $this->assertFalse($week->fresh('tasks')->isNotStarted());
+        $this->actingAs($goal->user)->get(route('goals.show', $goal))->assertSee('Short of the line');
+    }
+
     public function test_checking_off_tasks_and_the_milestone_scores_the_current_goalweek(): void
     {
         [$goal, $week] = $this->goalWithWeek(today()->subDays(2), tasks: 4);

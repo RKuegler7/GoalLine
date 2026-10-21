@@ -81,10 +81,15 @@ class RoadmapWeek extends Model
 
     /**
      * The stretch's name: "GoalWeek 3", or "GoalWeeks 3–4" when it spans several weeks.
+     * Counts the weeks in earlier stretches, so a short first week and longer stretches both number correctly.
      */
-    public function label(int $weeksPerStretch): string
+    public function label(): string
     {
-        $first = ($this->position - 1) * $weeksPerStretch + 1;
+        $earlierWeeks = $this->goal->weeks
+            ->filter(fn (RoadmapWeek $week) => $week->position < $this->position)
+            ->sum(fn (RoadmapWeek $week) => $week->lengthInWeeks());
+
+        $first = $earlierWeeks + 1;
         $last = $first + $this->lengthInWeeks() - 1;
 
         return $first === $last ? "GoalWeek {$first}" : "GoalWeeks {$first}–{$last}";
@@ -149,6 +154,17 @@ class RoadmapWeek extends Model
             bonusDone: $this->tasks->filter->is_bonus->filter->completed_at->count(),
             milestoneHit: $this->milestone_hit_at !== null,
         );
+    }
+
+    /**
+     * Whether to show "Not started" instead of a result: it's the GoalWeek's first day and nothing is checked off yet.
+     * From the second day on, the real result shows. Scoring is unaffected.
+     */
+    public function isNotStarted(): bool
+    {
+        return $this->starts_on->isToday()
+            && $this->milestone_hit_at === null
+            && $this->tasks->every(fn (RoadmapTask $task) => $task->completed_at === null);
     }
 
     /**

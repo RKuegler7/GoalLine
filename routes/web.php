@@ -5,8 +5,12 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\LeagueController;
+use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\PlanMaterialController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +30,11 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/avatars/{user}', [ProfileController::class, 'avatar'])->name('avatars.show');
+
     Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
     Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
     Route::get('/goals/{goal}', [GoalController::class, 'show'])->name('goals.show')->can('view', 'goal');
@@ -33,6 +42,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/goals/{goal}', [GoalController::class, 'update'])->name('goals.update')->can('update', 'goal');
     Route::get('/goals/{goal}/leave', [GoalController::class, 'leave'])->name('goals.leave')->can('update', 'goal');
     Route::post('/goals/{goal}/retire', [GoalController::class, 'retire'])->name('goals.retire')->can('retire', 'goal');
+    Route::get('/goals/{goal}/complete', [GoalCompletionController::class, 'create'])->name('goals.complete')->can('update', 'goal');
+    Route::post('/goals/{goal}/complete', [GoalCompletionController::class, 'store'])->name('goals.complete.store')->can('update', 'goal');
+    Route::get('/goals/{goal}/photo', [GoalCompletionController::class, 'photo'])->name('goals.photo')->can('view', 'goal');
     Route::delete('/goals/{goal}', [GoalController::class, 'destroy'])->name('goals.destroy')->can('delete', 'goal');
 
     Route::post('/goals/{goal}/roadmap', [RoadmapController::class, 'store'])
@@ -55,4 +67,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/goalweeks/{week}/tasks', [RoadmapTaskController::class, 'store'])->name('roadmap.tasks.store');
     Route::put('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'update'])->name('roadmap.tasks.update');
     Route::delete('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'destroy'])->name('roadmap.tasks.destroy');
+
+    Route::get('/leagues', [LeagueController::class, 'index'])->name('leagues.index');
+    Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
+    Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware('throttle:10,60');
+    Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
+    Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
+
+    Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
+    Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join');
+    Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store');
+    Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
+    Route::delete('/leagues/{league}/membership', [LeagueMembershipController::class, 'destroy'])->name('leagues.membership.destroy');
 });

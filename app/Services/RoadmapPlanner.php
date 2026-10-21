@@ -15,7 +15,7 @@ class RoadmapPlanner
     /**
      * The most stretches a roadmap is split into. Longer goals use multi-week stretches.
      */
-    public const MAX_PERIODS = 26;
+    public const MAX_PERIODS = 52;
 
     private const PLAN_PROMPT = <<<'PROMPT'
         You are the planning coach inside GoalLine, an app that helps people turn a meaningful goal into a realistic, dated plan they can follow and finish.
@@ -74,7 +74,8 @@ class RoadmapPlanner
     public function __construct(private Client $client) {}
 
     /**
-     * Split the time between today and the goal's target date into stretches.
+     * Split the time between today and the goal's target date into stretches that follow the calendar:
+     * the first runs from today to Sunday, then each runs Monday to Sunday, so everyone's GoalWeeks line up for leagues.
      *
      * @return list<array{starts_on: CarbonImmutable, ends_on: CarbonImmutable}>
      */
@@ -87,12 +88,24 @@ class RoadmapPlanner
             throw new RoadmapPlanningException('The target date has already passed.');
         }
 
-        $weeks = (int) ceil(($start->diffInDays($end) + 1) / 7);
-        $length = 7 * (int) ceil($weeks / self::MAX_PERIODS);
+        // Fold a one- or two-day stub at the end of this week into next week.
+        $firstEnd = $start->isSunday() ? $start : $start->next(CarbonImmutable::SUNDAY);
 
-        $periods = [];
+        if ($start->diffInDays($firstEnd) < 2) {
+            $firstEnd = $firstEnd->addWeek();
+        }
 
-        for ($from = $start; $from->lte($end); $from = $from->addDays($length)) {
+        $periods = [['starts_on' => $start, 'ends_on' => $firstEnd->min($end)]];
+        $from = $firstEnd->addDay();
+
+        if ($from->gt($end)) {
+            return $periods;
+        }
+
+        $weeks = (int) ceil(($from->diffInDays($end) + 1) / 7);
+        $length = 7 * (int) ceil($weeks / (self::MAX_PERIODS - 1));
+
+        for (; $from->lte($end); $from = $from->addDays($length)) {
             $periods[] = ['starts_on' => $from, 'ends_on' => $from->addDays($length - 1)->min($end)];
         }
 
@@ -113,7 +126,7 @@ class RoadmapPlanner
 
         $brief = implode("\n", array_filter([
             $this->goalDetails($goal),
-            $pastWeeks->isEmpty() ? null : "Already behind them (re-plan from here):\n".$this->describeWeeks($pastWeeks, $goal->weeksPerStretch()),
+            $pastWeeks->isEmpty() ? null : "Already behind them (re-plan from here):\n".$this->describeWeeks($pastWeeks),
             'Stretches to plan ('.count($periods).'):',
             collect($periods)->map(fn (array $period, int $index) => sprintf(
                 '%d. %s to %s',
@@ -137,7 +150,7 @@ class RoadmapPlanner
     {
         $brief = implode("\n\n", [
             $this->goalDetails($goal),
-            "Current roadmap:\n".$this->describeWeeks($goal->weeks, $goal->weeksPerStretch(), withTasks: true),
+            "Current roadmap:\n".$this->describeWeeks($goal->weeks, withTasks: true),
             "Changes they just made:\n- ".implode("\n- ", $changes),
         ]);
 
@@ -264,14 +277,14 @@ class RoadmapPlanner
      *
      * @param  iterable<RoadmapWeek>  $weeks
      */
-    private function describeWeeks(iterable $weeks, int $weeksPerStretch, bool $withTasks = false): string
+    private function describeWeeks(iterable $weeks, bool $withTasks = false): string
     {
-        return collect($weeks)->map(function (RoadmapWeek $week) use ($weeksPerStretch, $withTasks) {
+        return collect($weeks)->map(function (RoadmapWeek $week) use ($withTasks) {
             $when = $week->isPast() ? 'past' : ($week->isCurrent() ? 'current' : 'upcoming');
             $line = sprintf(
                 '#%d %s (%s to %s, %s): %s. Milestone: %s',
                 $week->position,
-                $week->label($weeksPerStretch),
+                $week->label(),
                 $week->starts_on->format('M j'),
                 $week->ends_on->format('M j'),
                 $when,

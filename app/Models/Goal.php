@@ -114,6 +114,40 @@ class Goal extends Model
     }
 
     /**
+     * Completion photos are kept on the private disk and served through a route.
+     */
+    public const PHOTO_DISK = 'local';
+
+    /**
+     * Whether the person crossed the line on this goal.
+     */
+    public function isCompleted(): bool
+    {
+        return $this->status === GoalStatus::Completed;
+    }
+
+    /**
+     * Mark the goal as achieved, with an optional reflection and photo.
+     */
+    public function complete(?string $note = null, ?string $photoPath = null): void
+    {
+        $this->forceFill([
+            'status' => GoalStatus::Completed,
+            'completed_at' => now(),
+            'completion_note' => $note,
+            'completion_photo_path' => $photoPath,
+        ])->save();
+    }
+
+    /**
+     * Where the completion photo is served from, if there is one.
+     */
+    public function completionPhotoUrl(): ?string
+    {
+        return $this->completion_photo_path ? route('goals.photo', $this) : null;
+    }
+
+    /**
      * Stop pursuing the goal while keeping its history.
      */
     public function retire(): void
@@ -184,9 +218,7 @@ class Goal extends Model
      */
     public function weeksPerStretch(): int
     {
-        $first = $this->weeks->first();
-
-        return $first ? $first->lengthInWeeks() : 1;
+        return $this->weeks->map(fn (RoadmapWeek $week) => $week->lengthInWeeks())->max() ?? 1;
     }
 
     /**

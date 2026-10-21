@@ -49,7 +49,9 @@
                 </div>
                 <div class="flex flex-wrap gap-2">
                     @foreach (App\GoalWeekResult::cases() as $tier)
-                        @php($count = $scored->filter(fn ($week) => $week->result() === $tier)->count())
+                        @php
+                            $count = $scored->filter(fn ($week) => $week->result() === $tier)->count();
+                        @endphp
                         @if ($count > 0)
                             <span class="text-sm text-ink/60">{{ $tier->label() }} <span class="font-semibold text-ink">&times;{{ $count }}</span></span>
                         @endif

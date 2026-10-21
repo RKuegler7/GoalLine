@@ -34,31 +34,49 @@ class RoadmapTest extends TestCase
         Queue::assertPushed(GenerateRoadmap::class, fn (GenerateRoadmap $job) => $job->goal->is($goal));
     }
 
-    public function test_short_goals_get_weekly_stretches_ending_on_the_target_date(): void
+    public function test_stretches_follow_monday_to_sunday_weeks_ending_on_the_target_date(): void
     {
-        $goal = Goal::factory()->make(['target_date' => today()->addDays(20)]);
+        $this->travelTo('2026-10-21'); // A Wednesday.
+        $goal = Goal::factory()->make(['target_date' => '2026-11-10']);
 
         $periods = Mockery::mock(RoadmapPlanner::class)->makePartial()->periods($goal);
 
-        $this->assertCount(3, $periods);
-        $this->assertTrue($periods[0]['starts_on']->isSameDay(today()));
-        $this->assertTrue($periods[1]['starts_on']->isSameDay(today()->addDays(7)));
-        $this->assertTrue($periods[2]['ends_on']->isSameDay(today()->addDays(20)));
+        $this->assertSame([
+            ['2026-10-21', '2026-10-25'],
+            ['2026-10-26', '2026-11-01'],
+            ['2026-11-02', '2026-11-08'],
+            ['2026-11-09', '2026-11-10'],
+        ], array_map(fn (array $period) => [$period['starts_on']->toDateString(), $period['ends_on']->toDateString()], $periods));
     }
 
-    public function test_long_goals_are_split_into_at_most_26_stretches(): void
+    public function test_a_one_or_two_day_first_week_folds_into_the_next(): void
     {
-        $goal = Goal::factory()->make(['target_date' => today()->addWeeks(40)]);
+        $this->travelTo('2026-10-24'); // A Saturday.
+        $goal = Goal::factory()->make(['target_date' => '2026-11-15']);
 
         $periods = Mockery::mock(RoadmapPlanner::class)->makePartial()->periods($goal);
 
-        $this->assertLessThanOrEqual(RoadmapPlanner::MAX_PERIODS, count($periods));
-        $this->assertSame(13, (int) $periods[0]['starts_on']->diffInDays($periods[0]['ends_on']));
-        $this->assertTrue(end($periods)['ends_on']->isSameDay(today()->addWeeks(40)));
+        $this->assertSame('2026-11-01', $periods[0]['ends_on']->toDateString());
+        $this->assertSame('2026-11-02', $periods[1]['starts_on']->toDateString());
+    }
+
+    public function test_goals_up_to_a_year_stay_weekly_and_longer_ones_use_multi_week_stretches(): void
+    {
+        $this->travelTo('2026-10-19'); // A Monday.
+        $planner = Mockery::mock(RoadmapPlanner::class)->makePartial();
+
+        $year = $planner->periods(Goal::factory()->make(['target_date' => '2027-10-17']));
+        $this->assertCount(52, $year);
+
+        $twoYears = $planner->periods(Goal::factory()->make(['target_date' => '2028-10-15']));
+        $this->assertLessThanOrEqual(RoadmapPlanner::MAX_PERIODS, count($twoYears));
+        $this->assertSame(20, (int) $twoYears[1]['starts_on']->diffInDays($twoYears[1]['ends_on'])); // 3-week stretches
+        $this->assertSame('2028-10-15', end($twoYears)['ends_on']->toDateString());
     }
 
     public function test_job_saves_the_roadmap_with_dated_stretches_and_tasks(): void
     {
+        $this->travelTo('2026-10-19'); // A Monday, so the two GoalWeeks are full weeks.
         $goal = Goal::factory()->create(['target_date' => today()->addDays(13)]);
         $this->fakePlanner([
             'summary' => 'Two focused weeks: learn it, then prove it.',
@@ -81,6 +99,7 @@ class RoadmapTest extends TestCase
 
     public function test_rebuilding_replaces_the_previous_roadmap(): void
     {
+        $this->travelTo('2026-10-19');
         $goal = Goal::factory()->create(['target_date' => today()->addDays(6)]);
         $roadmap = fn (string $focus) => ['summary' => 'One week.', 'periods' => [['focus' => $focus, 'milestone' => 'Done.', 'tasks' => ['Do it']]]];
 
@@ -155,7 +174,7 @@ class RoadmapTest extends TestCase
         ]);
 
         $this->assertSame(2, $goal->weeksPerStretch());
-        $this->assertSame('GoalWeeks 1–2', $goal->weeks->first()->label(2));
+        $this->assertSame('GoalWeeks 1–2', $goal->weeks->first()->label());
 
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))

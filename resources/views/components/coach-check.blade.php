@@ -10,8 +10,8 @@
     $fix = $goal->plan_fix;
     $fixWeek = $fix ? $goal->weeks->firstWhere('position', $fix['stretch']) : null;
     $fixPreview = $fixWeek ? match ($fix['action']) {
-        'add_task' => "Add \u{201C}{$fix['new_text']}\u{201D} to ".$fixWeek->label($goal->weeksPerStretch()),
-        'remove_task' => "Remove \u{201C}{$fix['task']}\u{201D} from ".$fixWeek->label($goal->weeksPerStretch()),
+        'add_task' => "Add \u{201C}{$fix['new_text']}\u{201D} to ".$fixWeek->label(),
+        'remove_task' => "Remove \u{201C}{$fix['task']}\u{201D} from ".$fixWeek->label(),
         'reword_task' => "Change \u{201C}{$fix['task']}\u{201D} to \u{201C}{$fix['new_text']}\u{201D}",
         default => null,
     } : null;

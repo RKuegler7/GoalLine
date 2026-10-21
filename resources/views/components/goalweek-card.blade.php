@@ -7,6 +7,8 @@
     $checkable = $canEdit && $week->isCheckable();
     $result = $week->result();
     $closeCall = $week->isCloseCall();
+    $notStarted = $current && $week->isNotStarted();
+    $short = $result === App\GoalWeekResult::Short && ! $notStarted;
 
     $planned = $week->tasks->reject->is_bonus;
     $plannedLeft = $planned->whereNull('completed_at')->count();
@@ -14,6 +16,7 @@
     $bonusNeeded = max(1, (int) ceil($planned->count() * App\GoalWeekResult::SMASH_BONUS_SHARE)) - $week->tasks->filter->is_bonus->filter->completed_at->count();
 
     $nudge = match (true) {
+        $notStarted => 'New GoalWeek. Check off your first task to get going.',
         $result === App\GoalWeekResult::Short => 'Check off '.$toInLine.' more '.Str::plural('task', $toInLine).' to get in line.',
         $closeCall => 'Close call: '.$week->tasksToSafety().' more '.Str::plural('task', $week->tasksToSafety()).' gets you safely in line.',
         $result === App\GoalWeekResult::InLine && $plannedLeft > 0 => 'Finish the last '.$plannedLeft.' '.Str::plural('task', $plannedLeft).' and hit your milestone to get past the line.',
@@ -35,7 +38,7 @@
                 'eyebrow rounded-full px-3 py-1 text-[0.68rem] tabular-nums',
                 'bg-club text-ivory' => $current,
                 'bg-mint text-club' => ! $current,
-            ])>{{ $week->label($weeksPerStretch) }}</span>
+            ])>{{ $week->label() }}</span>
             <span class="text-sm text-ink/60">
                 {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format($week->starts_on->month === $week->ends_on->month ? 'j' : 'M j') }}
             </span>
@@ -82,16 +85,16 @@
         <div @class([
             'mt-4 rounded-xl px-4 py-3',
             'bg-amber-50' => $closeCall,
-            'bg-red-50' => $result === App\GoalWeekResult::Short,
-            'bg-ivory' => ! $closeCall && $result !== App\GoalWeekResult::Short,
+            'bg-red-50' => $short,
+            'bg-ivory' => ! $closeCall && ! $short,
         ])>
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="text-sm font-semibold text-ink">This GoalWeek so far</span>
-                <x-goalweek-result :result="$result" :close-call="$closeCall" />
+                <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" />
             </div>
             <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned tasks done this GoalWeek" />
             @if ($nudge)
-                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $result === App\GoalWeekResult::Short, 'text-ink/70' => ! $closeCall && $result !== App\GoalWeekResult::Short])>{{ $nudge }}</p>
+                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>{{ $nudge }}</p>
             @endif
         </div>
     @endif
@@ -168,7 +171,7 @@
     @if ($editable)
         <form method="POST" action="{{ route('roadmap.tasks.store', $week) }}" class="mt-3 flex gap-2">
             @csrf
-            <label for="new-task-{{ $week->id }}" class="sr-only">Add a task to {{ $week->label($weeksPerStretch) }}</label>
+            <label for="new-task-{{ $week->id }}" class="sr-only">Add a task to {{ $week->label() }}</label>
             <input id="new-task-{{ $week->id }}" name="description" maxlength="250" required
                 placeholder="{{ $current ? 'Add a bonus task' : 'Add your own task' }}"
                 class="min-w-0 flex-1 rounded-lg border border-dashed border-line bg-ivory/60 px-3 py-1.5 text-sm outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10">
