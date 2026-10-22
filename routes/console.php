@@ -4,6 +4,7 @@ use App\Models\League;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\Announcement;
+use App\Services\ChallengeWrapUp;
 use App\Services\LeagueTable;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -18,7 +19,7 @@ Artisan::command('inspire', function () {
 // Morning gameplans, evening nudges, and final GoalWeek results, each on the member's own clock.
 Schedule::command('goalline:send-reminders')->everyFifteenMinutes()->withoutOverlapping();
 
-// Settle finished GoalLeague weeks, send weekly recaps, and hand out season awards, even if nobody opens the league.
+// Settle finished GoalLeague weeks, send weekly recaps, hand out season awards, and wrap up challenges.
 Schedule::command('goalline:settle-leagues')->hourly()->withoutOverlapping();
 
 Artisan::command('goalline:announce {message : The news, in one line} {--url= : Where it links to}', function (string $message) {
@@ -36,7 +37,9 @@ Artisan::command('goalline:settle-leagues', function () {
     League::where('starts_on', '<=', today())
         ->where('ends_on', '>=', today()->subDays(LeagueTable::RECAP_NEWS_DAYS + RoadmapWeek::CHECK_IN_GRACE_DAYS))
         ->each(fn (League $league) => (new LeagueTable($league))->settle());
-})->purpose('Settle finished GoalLeague weeks and hand out recaps and awards');
+
+    app(ChallengeWrapUp::class)->run();
+})->purpose('Settle finished GoalLeague weeks, wrap up finished challenges, and hand out recaps and awards');
 
 Artisan::command('goalline:vapid-keys', function () {
     $keys = VAPID::createVapidKeys();

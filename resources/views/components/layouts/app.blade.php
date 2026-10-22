@@ -6,7 +6,7 @@
     $inboxCount = $viewer->unreadNotifications()->count();
     $tabs = [
         ['label' => 'Clubhouse', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'goals.*', 'planner.*'), 'icon' => 'clubhouse'],
-        ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => request()->routeIs('leagues.*'), 'icon' => 'leagues', 'badge' => $unread],
+        ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => request()->routeIs('leagues.*', 'challenges.*'), 'icon' => 'leagues', 'badge' => $unread],
         ['label' => 'Highlights', 'route' => 'highlights.index', 'active' => request()->routeIs('highlights.*', 'people.*'), 'icon' => 'highlights'],
         ['label' => 'My Locker', 'route' => 'profile.show', 'active' => request()->routeIs('profile.*') || (request()->routeIs('profiles.show') && request()->route('user')?->is($viewer)), 'icon' => null],
     ];

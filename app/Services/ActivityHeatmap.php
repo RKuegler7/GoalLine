@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Clock;
+use App\Models\ChallengeCheckIn;
 use App\Models\HabitLog;
 use App\Models\RoadmapTask;
 use App\Models\User;
@@ -10,7 +11,8 @@ use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
 /**
- * A year of check-ins, one square per day on the member's clock: tasks checked off plus habits logged.
+ * A year of check-ins, one square per day on the member's clock: tasks checked off, habits logged, and
+ * challenge check-ins.
  */
 class ActivityHeatmap
 {
@@ -46,7 +48,13 @@ class ActivityHeatmap
             ->get()
             ->map(fn (HabitLog $log) => $log->logged_on->toDateString());
 
-        $this->counts = $taskDays->merge($habitDays)->countBy();
+        $challengeDays = ChallengeCheckIn::query()
+            ->where('user_id', $user->id)
+            ->whereDate('checked_on', '>=', $this->start->toDateString())
+            ->get()
+            ->map(fn (ChallengeCheckIn $checkIn) => $checkIn->checked_on->toDateString());
+
+        $this->counts = $taskDays->merge($habitDays)->merge($challengeDays)->countBy();
     }
 
     /**

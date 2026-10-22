@@ -50,6 +50,8 @@ class BadgeAwarder
             Badge::HypeSquad->value => fn () => Cheer::where('user_id', $user->id)->count() >= Badge::HYPE_SQUAD_CHEERS,
             Badge::WeekWarrior->value => fn () => $dailyStreak() >= Badge::WEEK_WARRIOR_DAYS,
             Badge::Unstoppable->value => fn () => $dailyStreak() >= Badge::UNSTOPPABLE_DAYS,
+            // Awarded when a finished challenge is wrapped up, not from here.
+            Badge::ChallengeFinisher->value => fn () => false,
         ];
 
         return $missing

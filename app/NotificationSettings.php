@@ -17,7 +17,7 @@ final class NotificationSettings
         'reminders' => ['Daily reminders', 'Your morning gameplan, and an evening nudge when there is still work left.'],
         'results' => ['GoalWeek results', 'When a GoalWeek is final, with your result and points.'],
         'badges' => ['Badges and awards', 'When you earn a badge or win a GoalLeague award.'],
-        'leagues' => ['GoalLeagues', 'Weekly and season recaps, and new members joining your leagues.'],
+        'leagues' => ['GoalLeagues and challenges', 'Weekly and season recaps, challenge results, and people joining.'],
         'mentions' => ['Comments and mentions', 'When someone comments on your highlight or @mentions you.'],
         'nudges' => ['Nudges', 'When a friend or league mate nudges you to check in.'],
         'social' => ['Cheers and follows', 'When someone cheers a highlight or follows you.'],

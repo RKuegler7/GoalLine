@@ -33,7 +33,7 @@ class DashboardController extends Controller
 
         return view('dashboard', [
             'goals' => $goals,
-            'gameplan' => new TodaysGameplan($goals),
+            'gameplan' => new TodaysGameplan($goals, $user),
             'streak' => new DailyStreak($user),
             'stats' => $stats,
             'greeting' => $this->greeting(),

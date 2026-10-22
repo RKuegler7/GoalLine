@@ -22,7 +22,10 @@ class LeagueController extends Controller
     {
         $leagues = $request->user()->leagues()->with('members')->latest('starts_on')->get();
 
-        return view('leagues.index', ['leagues' => $leagues]);
+        return view('leagues.index', [
+            'leagues' => $leagues,
+            'challenges' => $request->user()->challenges()->withCount('members')->orderByDesc('ends_on')->get(),
+        ]);
     }
 
     /**

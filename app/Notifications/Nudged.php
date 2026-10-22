@@ -26,7 +26,7 @@ class Nudged extends GoalLineNotification
             $streak = new DailyStreak($notifiable);
 
             return [
-                (new TodaysGameplan($notifiable->goals()->active()->with(['weeks.tasks', 'habits.logs'])->get()))->remaining(),
+                (new TodaysGameplan($notifiable->goals()->active()->with(['weeks.tasks', 'habits.logs'])->get(), $notifiable))->remaining(),
                 $streak->isAtRisk(),
                 $streak->current(),
             ];

@@ -30,6 +30,8 @@ final class Usage
         'chat-message' => 'Posted in league chat',
         'nudge' => 'Nudged someone',
         'league-joined' => 'Joined a GoalLeague',
+        'challenge-joined' => 'Joined a challenge',
+        'challenge-check-in' => 'Checked in on a challenge',
         'push-enabled' => 'Turned on push',
     ];
 

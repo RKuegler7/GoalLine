@@ -2,11 +2,57 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">GoalLeagues</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Your GoalLeagues</h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Go head-to-head every GoalWeek with people chasing goals alongside you. The GoalLeague is the mechanism, not the point.</p>
+            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">GoalLeagues &amp; challenges</h1>
+            <p class="mt-3 max-w-xl text-ivory/85">Go head-to-head every GoalWeek, or take on a short challenge together. Friendly competition keeps you in line.</p>
         </div>
     </x-slot:hero>
 
+    {{-- Challenges. --}}
+    <section class="mb-10">
+        <div class="flex items-end justify-between gap-4">
+            <h2 class="eyebrow text-club">Challenges</h2>
+            <a href="{{ route('challenges.create') }}" class="text-sm font-semibold text-club hover:underline">+ Start a challenge</a>
+        </div>
+        @if ($challenges->isEmpty())
+            <div class="mt-3 rounded-2xl border border-line bg-white px-6 py-5">
+                <p class="text-ink/70">Short sprints with friends, like &ldquo;No sugar for 30 days&rdquo; or &ldquo;Run 20 days this month&rdquo;. One check-in a day, a live leaderboard, and a badge for finishing.</p>
+            </div>
+        @else
+            <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+                @foreach ($challenges as $challenge)
+                    <li>
+                        <a href="{{ route('challenges.show', $challenge) }}" class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-mint/50">
+                            <span class="min-w-0">
+                                <span class="flex items-center gap-1.5 font-serif text-lg font-medium text-club"><x-icon name="flag" class="size-4 text-gold" /> {{ $challenge->title }}</span>
+                                <span class="block text-sm text-ink/60">
+                                    {{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }} &middot;
+                                    @if (! $challenge->hasStarted())
+                                        starts {{ $challenge->starts_on->format('M j') }}
+                                    @elseif ($challenge->isOver())
+                                        finished {{ $challenge->ends_on->format('M j') }}
+                                    @else
+                                        day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}
+                                    @endif
+                                </span>
+                            </span>
+                            <span class="shrink-0 text-sm font-semibold text-club">Open &rarr;</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+        <form method="POST" action="{{ route('challenges.find') }}" class="mt-3 flex gap-2">
+            @csrf
+            <label for="challenge_code" class="sr-only">Challenge code</label>
+            <input id="challenge_code" name="code" required placeholder="Have a challenge code?" autocomplete="off" autocapitalize="characters"
+                class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3.5 py-2 text-sm font-mono tracking-widest uppercase outline-none placeholder:font-sans placeholder:tracking-normal placeholder:normal-case focus:border-club focus:ring-4 focus:ring-club/10">
+            <button type="submit" class="rounded-lg border border-club/30 px-4 py-2 text-sm font-semibold text-club hover:border-club">Join</button>
+        </form>
+        @error('challenge_code')
+            <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
+        @enderror
+    </section>
+    <h2 class="eyebrow mb-3 text-club">GoalLeagues</h2>
     <div class="grid gap-4 sm:grid-cols-2">
         <a href="{{ route('leagues.create') }}" class="group rounded-2xl border border-line bg-white px-6 py-5 transition hover:border-club/40">
             <p class="eyebrow text-club">Start a GoalLeague</p>

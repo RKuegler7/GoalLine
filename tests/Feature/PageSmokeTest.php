@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Challenge;
 use App\Models\Goal;
 use App\Models\League;
 use App\Models\User;
@@ -34,6 +35,9 @@ class PageSmokeTest extends TestCase
             'complete goal' => ['goals.complete'],
             'goalleagues' => ['leagues.index'],
             'start a goalleague' => ['leagues.create'],
+            'start a challenge' => ['challenges.create'],
+            'challenge' => ['challenges.show'],
+            'admin' => ['admin.index'],
             'goalleague' => ['leagues.show'],
             'goalleague recap' => ['leagues.recap'],
             'highlights' => ['highlights.index'],
@@ -53,10 +57,14 @@ class PageSmokeTest extends TestCase
         $week->tasks()->create(['position' => 1, 'description' => 'A task']);
         $league = League::factory()->create(['commissioner_id' => $user->id]);
         $league->members()->create(['user_id' => $user->id, 'goal_id' => $goal->id]);
+        $challenge = Challenge::factory()->for($user, 'creator')->create();
+        $challenge->members()->create(['user_id' => $user->id]);
+        config(['goalline.admin_emails' => [$user->email]]);
 
         $parameters = match (true) {
             str_starts_with($route, 'goals.') && $route !== 'goals.create' => $goal,
             in_array($route, ['leagues.show', 'leagues.recap'], true) => $league,
+            $route === 'challenges.show' => $challenge,
             default => [],
         };
 

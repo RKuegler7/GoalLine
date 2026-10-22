@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
@@ -154,6 +155,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/goalweeks/{week}/tasks', [RoadmapTaskController::class, 'store'])->name('roadmap.tasks.store');
     Route::put('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'update'])->name('roadmap.tasks.update');
     Route::delete('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'destroy'])->name('roadmap.tasks.destroy');
+
+    Route::get('/challenges/create', [ChallengeController::class, 'create'])->name('challenges.create');
+    Route::post('/challenges', [ChallengeController::class, 'store'])->name('challenges.store')->middleware(['verified', 'throttle:10,60']);
+    Route::post('/challenges/find', [ChallengeController::class, 'find'])->name('challenges.find')->middleware('throttle:20,1');
+    Route::get('/challenges/join/{code}', [ChallengeController::class, 'join'])->name('challenges.join');
+    Route::post('/challenges/join/{code}', [ChallengeController::class, 'joinStore'])->name('challenges.join.store')->middleware('verified');
+    Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show')->can('view', 'challenge');
+    Route::post('/challenges/{challenge}/check-in', [ChallengeController::class, 'checkIn'])->name('challenges.check-in')->can('view', 'challenge');
+    Route::delete('/challenges/{challenge}/membership', [ChallengeController::class, 'leave'])->name('challenges.leave')->can('view', 'challenge');
+    Route::delete('/challenges/{challenge}', [ChallengeController::class, 'destroy'])->name('challenges.destroy')->can('delete', 'challenge');
 
     Route::get('/leagues', [LeagueController::class, 'index'])->name('leagues.index');
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');

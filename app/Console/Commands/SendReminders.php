@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Clock;
 use App\GoalWeekResult;
 use App\Jobs\AwardBadges;
+use App\Models\Challenge;
 use App\Models\Goal;
 use App\Models\Habit;
 use App\Models\RoadmapTask;
@@ -92,7 +93,7 @@ class SendReminders extends Command
      */
     private function sendMorning(User $user, Collection $goals): int
     {
-        $gameplan = new TodaysGameplan($goals);
+        $gameplan = new TodaysGameplan($goals, $user);
         $notes = [];
 
         if ($gameplan->today->isMonday() && $gameplan->entries->isNotEmpty()) {
@@ -123,7 +124,7 @@ class SendReminders extends Command
      */
     private function sendEvening(User $user, Collection $goals): int
     {
-        $gameplan = new TodaysGameplan($goals);
+        $gameplan = new TodaysGameplan($goals, $user);
         $left = $gameplan->remaining();
         $streak = new DailyStreak($user);
         $atRisk = $streak->isAtRisk();
@@ -215,7 +216,11 @@ class SendReminders extends Command
             ...$entry['habits']
                 ->reject(fn (Habit $habit) => $openOnly && $habit->isDoneOn($gameplan->today))
                 ->map(fn (Habit $habit) => $habit->title.' ('.$habit->doneIn($entry['week']).' of '.$habit->targetFor($entry['week']).' this week)'),
-        ])->values()->all();
+        ])->merge(
+            $gameplan->challenges
+                ->reject(fn (Challenge $challenge) => $openOnly && $gameplan->isChallengeDone($challenge))
+                ->map(fn (Challenge $challenge) => 'Challenge: '.$challenge->title.' (day '.$challenge->dayNumber().' of '.$challenge->lengthInDays().')'),
+        )->values()->all();
     }
 
     /**

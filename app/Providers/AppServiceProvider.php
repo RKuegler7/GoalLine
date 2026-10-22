@@ -5,6 +5,8 @@ namespace App\Providers;
 use Anthropic\Client;
 use App\GoalStatus;
 use App\Jobs\AwardBadges;
+use App\Models\ChallengeCheckIn;
+use App\Models\ChallengeMember;
 use App\Models\Cheer;
 use App\Models\Goal;
 use App\Models\HabitLog;
@@ -55,6 +57,7 @@ class AppServiceProvider extends ServiceProvider
             }
         });
         HabitLog::created(fn (HabitLog $log) => AwardBadges::dispatch($log->habit->goal->user));
+        ChallengeCheckIn::created(fn (ChallengeCheckIn $checkIn) => AwardBadges::dispatch($checkIn->user));
         Cheer::created(fn (Cheer $cheer) => AwardBadges::dispatch($cheer->user));
         LeagueMember::created(fn (LeagueMember $member) => AwardBadges::dispatch($member->user));
         Goal::updated(function (Goal $goal) {
@@ -82,6 +85,8 @@ class AppServiceProvider extends ServiceProvider
         HighlightComment::created(fn (HighlightComment $comment) => Usage::track($comment->user, 'comment'));
         LeagueMember::created(fn (LeagueMember $member) => Usage::track($member->user, 'league-joined'));
         PushSubscription::created(fn (PushSubscription $subscription) => Usage::track($subscription->user, 'push-enabled'));
+        ChallengeMember::created(fn (ChallengeMember $member) => Usage::track($member->user, 'challenge-joined'));
+        ChallengeCheckIn::created(fn (ChallengeCheckIn $checkIn) => Usage::track($checkIn->user, 'challenge-check-in'));
         LeagueMessage::created(function (LeagueMessage $message) {
             if (! $message->is_system) {
                 Usage::track($message->user, 'chat-message');

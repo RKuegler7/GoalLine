@@ -115,6 +115,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Challenges this person has joined.
+     *
+     * @return BelongsToMany<Challenge, $this>
+     */
+    public function challenges(): BelongsToMany
+    {
+        return $this->belongsToMany(Challenge::class, 'challenge_members')->withTimestamps();
+    }
+
+    /**
      * Devices where this person turned on push notifications.
      *
      * @return HasMany<PushSubscription, $this>

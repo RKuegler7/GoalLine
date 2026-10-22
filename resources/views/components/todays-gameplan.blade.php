@@ -103,6 +103,37 @@
                 </li>
             @endforeach
         @endforeach
+
+        @foreach ($gameplan->challenges as $challenge)
+            @php
+                $doneToday = $gameplan->isChallengeDone($challenge);
+            @endphp
+            <li class="flex items-start gap-3 py-3">
+                <form method="POST" action="{{ route('challenges.check-in', $challenge) }}">
+                    @csrf
+                    <input type="hidden" name="return" value="gameplan">
+                    <button type="submit" title="{{ $doneToday ? 'Undo' : 'Check in for today' }}" @class([
+                        'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border-2 transition',
+                        'border-gold bg-gold text-ink' => $doneToday,
+                        'border-gold/70 hover:border-gold hover:bg-gold/15' => ! $doneToday,
+                    ])>
+                        @if ($doneToday)
+                            {!! $check !!}
+                        @endif
+                        <span class="sr-only">{{ $doneToday ? 'Done today: ' : 'Check in: ' }}{{ $challenge->title }}</span>
+                    </button>
+                </form>
+                <div class="min-w-0 flex-1">
+                    <p @class(['flex items-center gap-1.5', 'text-ink/50 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
+                        <x-icon name="flag" class="size-3.5 text-gold" />
+                        {{ $challenge->title }}
+                    </p>
+                    <p class="mt-0.5 text-xs text-ink/50">
+                        <a href="{{ route('challenges.show', $challenge) }}" class="hover:text-club hover:underline">Challenge &middot; day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}</a>
+                    </p>
+                </div>
+            </li>
+        @endforeach
     </ul>
 
     @if ($total === 0 || $unplanned > 0)

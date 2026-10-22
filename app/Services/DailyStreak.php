@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Clock;
+use App\Models\ChallengeCheckIn;
 use App\Models\HabitLog;
 use App\Models\RoadmapTask;
 use App\Models\User;
 use Illuminate\Support\Collection;
 
 /**
- * The daily streak: consecutive days, on the member's clock, with at least one check-in (a task or a habit).
+ * The daily streak: consecutive days, on the member's clock, with at least one check-in (a task, a habit,
+ * or a challenge).
  * A streak stays alive through today until midnight, so it's "at risk" until today has a check-in.
  */
 class DailyStreak
@@ -43,7 +45,13 @@ class DailyStreak
             ->get()
             ->map(fn (HabitLog $log) => $log->logged_on->toDateString());
 
-        $this->activeDays = $taskDays->merge($habitDays)->unique()->mapWithKeys(fn (string $day) => [$day => true]);
+        $challengeDays = ChallengeCheckIn::query()
+            ->where('user_id', $user->id)
+            ->whereDate('checked_on', '>=', $since->toDateString())
+            ->get()
+            ->map(fn (ChallengeCheckIn $checkIn) => $checkIn->checked_on->toDateString());
+
+        $this->activeDays = $taskDays->merge($habitDays)->merge($challengeDays)->unique()->mapWithKeys(fn (string $day) => [$day => true]);
     }
 
     /**
