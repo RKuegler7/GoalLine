@@ -5,11 +5,14 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
+use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoadmapController;
@@ -38,7 +41,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/covers/{user}', [ProfileController::class, 'cover'])->name('covers.show');
     Route::get('/u/{user}', [ProfileController::class, 'showUser'])->name('profiles.show');
 
-    Route::view('/wins', 'wins.index')->name('wins.index');
+    Route::get('/highlights', [HighlightController::class, 'index'])->name('highlights.index');
+    Route::get('/highlights/new', [HighlightController::class, 'create'])->name('highlights.create');
+    Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store')->middleware('throttle:20,60');
+    Route::delete('/highlights/{highlight}', [HighlightController::class, 'destroy'])->name('highlights.destroy')->can('delete', 'highlight');
+    Route::post('/highlights/{highlight}/cheer', [HighlightController::class, 'cheer'])->name('highlights.cheer')->can('view', 'highlight')->middleware('throttle:60,1');
+    Route::get('/highlights/{highlight}/photo', [HighlightController::class, 'photo'])->name('highlights.photo')->can('view', 'highlight');
+    Route::get('/highlights/{highlight}/card', [HighlightController::class, 'card'])->name('highlights.card')->can('delete', 'highlight');
+
+    Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
+    Route::post('/u/{user}/follow', [FollowController::class, 'store'])->name('follows.store');
+    Route::delete('/u/{user}/follow', [FollowController::class, 'destroy'])->name('follows.destroy');
 
     Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
     Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');

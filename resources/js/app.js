@@ -113,6 +113,83 @@ function setUpLeagueChat(chat) {
 document.querySelectorAll('[data-league-chat]').forEach(setUpLeagueChat);
 
 /**
+ * Share cards: turn the on-page SVG into a 1080 × 1350 PNG. The page's web fonts are embedded
+ * into the SVG first, because an SVG drawn as an image can't load fonts on its own.
+ */
+async function embeddedFontCss() {
+    const rules = [];
+
+    for (const sheet of document.styleSheets) {
+        let cssRules;
+
+        try {
+            cssRules = sheet.cssRules;
+        } catch {
+            continue;
+        }
+
+        for (const rule of cssRules) {
+            if (!(rule instanceof CSSFontFaceRule)) {
+                continue;
+            }
+
+            const url = rule.style.getPropertyValue('src').match(/url\("?([^")]+\.woff2)"?\)/)?.[1];
+
+            if (url) {
+                rules.push({ rule, url });
+            }
+        }
+    }
+
+    const css = await Promise.all(rules.map(async ({ rule, url }) => {
+        const bytes = new Uint8Array(await (await fetch(url)).arrayBuffer());
+        let binary = '';
+        bytes.forEach((byte) => {
+            binary += String.fromCharCode(byte);
+        });
+
+        return `@font-face { font-family: ${rule.style.getPropertyValue('font-family')}; font-weight: ${rule.style.getPropertyValue('font-weight')}; src: url(data:font/woff2;base64,${btoa(binary)}) format("woff2"); }`;
+    }));
+
+    return css.join('\n');
+}
+
+document.querySelectorAll('[data-download-card]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        const original = document.querySelector('[data-share-card]');
+        const label = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Preparing image...';
+
+        try {
+            const svg = original.cloneNode(true);
+            svg.setAttribute('width', '1080');
+            svg.setAttribute('height', '1350');
+            const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+            style.textContent = await embeddedFontCss();
+            svg.prepend(style);
+
+            const image = new Image();
+            image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(new XMLSerializer().serializeToString(svg))}`;
+            await image.decode();
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1080;
+            canvas.height = 1350;
+            canvas.getContext('2d').drawImage(image, 0, 0, 1080, 1350);
+
+            const link = document.createElement('a');
+            link.download = button.dataset.filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } finally {
+            button.disabled = false;
+            button.textContent = label;
+        }
+    });
+});
+
+/**
  * Time zones: fill hidden fields with the browser's zone, and let "Use my time zone" set the picker.
  */
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

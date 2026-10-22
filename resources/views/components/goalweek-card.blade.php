@@ -50,6 +50,9 @@
         @if ($result && ($past || ! $current))
             <div class="flex items-center gap-2">
                 <x-goalweek-result :result="$result" :close-call="$closeCall" />
+                @if ($week->goal->user_id === auth()->id() && in_array($result, [App\GoalWeekResult::Past, App\GoalWeekResult::Smashed], true))
+                    <a href="{{ route('highlights.create', ['week' => $week]) }}" class="text-xs font-semibold text-club hover:underline">Share</a>
+                @endif
                 <span class="text-xs text-ink/50">{{ $week->isLocked() ? 'Final' : 'Check-ins close '.$week->ends_on->copy()->addDays(App\Models\RoadmapWeek::CHECK_IN_GRACE_DAYS)->format('M j') }}</span>
             </div>
         @endif
@@ -77,6 +80,9 @@
             <span class="font-semibold text-ink">Milestone:</span> {{ $week->milestone }}
             @if ($week->milestone_hit_at)
                 <span class="ml-1 text-sm font-semibold text-grass">Hit</span>
+                @if ($week->goal->user_id === auth()->id())
+                    <a href="{{ route('highlights.create', ['milestone' => $week]) }}" class="ml-1 text-sm font-semibold text-club hover:underline">Share</a>
+                @endif
             @endif
         </p>
     </div>
@@ -94,7 +100,12 @@
             </div>
             <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned tasks done this GoalWeek" />
             @if ($nudge)
-                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>{{ $nudge }}</p>
+                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
+                    {{ $nudge }}
+                    @if (in_array($result, [App\GoalWeekResult::Past, App\GoalWeekResult::Smashed], true))
+                        <a href="{{ route('highlights.create', ['week' => $week]) }}" class="ml-1 font-semibold text-club hover:underline">Share this GoalWeek</a>
+                    @endif
+                </p>
             @endif
         </div>
     @endif

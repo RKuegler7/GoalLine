@@ -35,6 +35,9 @@
                         <p class="mt-3 text-ivory/85">
                             {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }} earned along the way
                         </p>
+                        <a href="{{ route('highlights.create', ['goal' => $goal]) }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-ink transition hover:brightness-105">
+                            <x-icon name="highlights" class="size-4" /> Share to Highlights
+                        </a>
                     </div>
                     @if ($goal->completionPhotoUrl())
                         <img src="{{ $goal->completionPhotoUrl() }}" alt="Photo from completing {{ $goal->title }}" class="aspect-square w-full max-w-56 rounded-xl object-cover ring-4 ring-ivory/30">

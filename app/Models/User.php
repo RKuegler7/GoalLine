@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -209,5 +210,66 @@ class User extends Authenticatable
             ->whereRaw('league_messages.id > COALESCE(league_members.last_read_message_id, 0)')
             ->where(fn ($query) => $query->whereNull('league_messages.user_id')->orWhere('league_messages.user_id', '!=', $this->id))
             ->count();
+    }
+
+    /**
+     * People this person follows.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')->withTimestamps();
+    }
+
+    /**
+     * People who follow this person.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')->withTimestamps();
+    }
+
+    /**
+     * Whether this person follows another.
+     */
+    public function follows(User $other): bool
+    {
+        return $this->following()->whereKey($other->id)->exists();
+    }
+
+    /**
+     * Friends: people who follow this person and are followed back.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     */
+    public function friends(): \Illuminate\Database\Eloquent\Collection
+    {
+        return $this->following()->whereIn('users.id', $this->followers()->select('users.id'))->orderBy('name')->get();
+    }
+
+    /**
+     * Everyone this person shares a GoalLeague with, not counting themselves.
+     *
+     * @return Collection<int, int>
+     */
+    public function leagueMateIds(): Collection
+    {
+        return LeagueMember::whereIn('league_id', $this->leagues()->select('leagues.id'))
+            ->where('user_id', '!=', $this->id)
+            ->distinct()
+            ->pluck('user_id');
+    }
+
+    /**
+     * Highlights this person shared, newest first.
+     *
+     * @return HasMany<Highlight, $this>
+     */
+    public function highlights(): HasMany
+    {
+        return $this->hasMany(Highlight::class)->latest('id');
     }
 }

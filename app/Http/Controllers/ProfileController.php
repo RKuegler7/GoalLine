@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\GoalStatus;
 use App\Http\Requests\ProfileRequest;
+use App\Models\Highlight;
 use App\Models\User;
 use App\Services\ProfileStats;
 use Illuminate\Http\RedirectResponse;
@@ -32,9 +33,18 @@ class ProfileController extends Controller
             return view('profile.private', ['user' => $user]);
         }
 
+        $viewer = $request->user();
+        $following = $viewer->follows($user);
+
         return view('profile.show', [
             'stats' => new ProfileStats($user),
-            'isOwn' => $request->user()->is($user),
+            'isOwn' => $viewer->is($user),
+            'following' => $following,
+            'isFriend' => $following && $user->follows($viewer),
+            'friends' => $user->friends(),
+            'highlights' => $user->highlights()->with(['user', 'cheers.user'])->limit(4)->get()
+                ->filter(fn (Highlight $highlight) => Gate::allows('view', $highlight))
+                ->values(),
         ]);
     }
 

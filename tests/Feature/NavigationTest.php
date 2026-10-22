@@ -18,9 +18,9 @@ class NavigationTest extends TestCase
         $this->actingAs($user)
             ->get(route('dashboard'))
             ->assertOk()
-            ->assertSeeInOrder(['Clubhouse', 'GoalLeagues', 'Wins', 'My Locker'])
+            ->assertSeeInOrder(['Clubhouse', 'GoalLeagues', 'Highlights', 'My Locker'])
             ->assertSee('aria-label="Set a new goal"', false)
-            ->assertSee(route('wins.index'));
+            ->assertSee(route('highlights.index'));
     }
 
     public function test_the_current_tab_is_marked(): void
@@ -32,12 +32,12 @@ class NavigationTest extends TestCase
         $this->assertMatchesRegularExpression('/href="'.preg_quote(route('leagues.index'), '/').'"\s+aria-current="page"/', $response->getContent());
     }
 
-    public function test_wins_tab_has_a_page(): void
+    public function test_highlights_tab_has_a_feed(): void
     {
         $this->actingAs(User::factory()->create())
-            ->get(route('wins.index'))
+            ->get(route('highlights.index'))
             ->assertOk()
-            ->assertSee('Your Wins feed is on its way');
+            ->assertSee('Celebrate the crossings');
     }
 
     public function test_leagues_tab_shows_unread_chat_messages(): void

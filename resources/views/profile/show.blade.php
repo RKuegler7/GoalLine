@@ -48,6 +48,13 @@
                             <button type="submit" class="rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory">Log out</button>
                         </form>
                     </div>
+                @else
+                    <div class="flex shrink-0 items-center gap-3 self-start sm:self-auto">
+                        @if ($isFriend)
+                            <span class="eyebrow rounded-full bg-ivory/15 px-3 py-1.5 text-[0.65rem] text-ivory">Friends</span>
+                        @endif
+                        <x-follow-button :user="$user" :following="$following" tone="light" />
+                    </div>
                 @endif
             </div>
         </div>
@@ -236,11 +243,41 @@
                 <p class="mt-2 text-ink/60">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
             @endforelse
         </div>
-        @foreach ([['Friends', 'People you follow and cheer on will show here.']] as [$heading, $text])
-            <div class="rounded-2xl border border-dashed border-line px-6 py-5">
-                <h2 class="eyebrow text-club">{{ $heading }}</h2>
-                <p class="mt-2 text-ink/60">{{ $text }} <span class="font-semibold text-club">Coming soon.</span></p>
+        <div class="rounded-2xl border border-line bg-white px-6 py-5">
+            <div class="flex items-baseline justify-between">
+                <h2 class="eyebrow text-club">Friends</h2>
+                @if ($isOwn)
+                    <a href="{{ route('people.index') }}" class="text-sm font-semibold text-club hover:underline">Find people</a>
+                @endif
             </div>
-        @endforeach
+            @if ($friends->isEmpty())
+                <p class="mt-2 text-ink/60">{{ $isOwn ? 'Friends are people you follow who follow you back.' : 'No friends to show yet.' }}</p>
+            @else
+                <ul class="mt-3 flex flex-wrap gap-2">
+                    @foreach ($friends as $friend)
+                        <li>
+                            <a href="{{ $friend->profileUrl() }}" class="flex items-center gap-2 rounded-full bg-ivory py-1 pr-3 pl-1 text-sm text-ink/80 hover:text-club">
+                                <x-avatar :user="$friend" class="size-6 text-[0.55rem]" /> {{ $friend->name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
     </section>
+
+    {{-- Recent highlights. --}}
+    @if ($highlights->isNotEmpty())
+        <section class="mt-10">
+            <div class="flex items-baseline justify-between">
+                <h2 class="eyebrow text-club">Highlights</h2>
+                <a href="{{ route('highlights.index') }}" class="text-sm font-semibold text-club hover:underline">Open feed</a>
+            </div>
+            <div class="mt-3 grid gap-5 md:grid-cols-2">
+                @foreach ($highlights as $highlight)
+                    <x-highlight-card :highlight="$highlight" />
+                @endforeach
+            </div>
+        </section>
+    @endif
 </x-layouts.app>
