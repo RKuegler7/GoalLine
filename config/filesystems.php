@@ -38,6 +38,25 @@ return [
             'report' => false,
         ],
 
+        // Members' photos and plan uploads. Private either way: the app serves them through its own routes.
+        // On this computer they're files under storage/app/private; in production, a private S3 bucket,
+        // so they survive the server being replaced.
+        'uploads' => env('UPLOADS_DISK', 'local') === 's3' ? [
+            'driver' => 's3',
+            'key' => env('AWS_ACCESS_KEY_ID'),
+            'secret' => env('AWS_SECRET_ACCESS_KEY'),
+            'region' => env('AWS_DEFAULT_REGION'),
+            'bucket' => env('AWS_BUCKET'),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => true,
+        ] : [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

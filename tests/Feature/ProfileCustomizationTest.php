@@ -98,10 +98,10 @@ class ProfileCustomizationTest extends TestCase
 
     public function test_completion_photos_follow_profile_visibility(): void
     {
-        Storage::fake('local');
+        Storage::fake('uploads');
         $owner = User::factory()->create(['profile_visibility' => ProfileVisibility::Everyone]);
         $goal = Goal::factory()->for($owner)->create();
-        $goal->complete('Done', $this->fakeImage('finish.png')->store('goal-photos', 'local'));
+        $goal->complete('Done', $this->fakeImage('finish.png')->store('goal-photos', 'uploads'));
         $viewer = User::factory()->create();
 
         $this->actingAs($viewer)->get(route('goals.photo', $goal))->assertOk();

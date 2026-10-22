@@ -20,6 +20,7 @@ use App\Models\User;
 use App\Models\WeekReview;
 use App\Usage;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Minishlink\WebPush\WebPush;
 
@@ -46,6 +47,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // In production GoalLine sits behind CloudFront, which talks to the server over plain HTTP.
+        // Build every link from APP_URL, so they're https and use the public address.
+        if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {
+            URL::forceRootUrl(config('app.url'));
+            URL::forceScheme('https');
+        }
+
         Gate::define('admin', fn (User $user) => $user->isAdmin());
 
         $this->trackUsage();

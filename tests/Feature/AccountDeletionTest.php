@@ -17,9 +17,9 @@ class AccountDeletionTest extends TestCase
 
     public function test_deleting_an_account_removes_its_data_and_files(): void
     {
-        Storage::fake('local');
+        Storage::fake('uploads');
         $user = User::factory()->create();
-        $user->replaceAvatar($this->fakeImage('me.png')->store('avatars', 'local'));
+        $user->replaceAvatar($this->fakeImage('me.png')->store('avatars', 'uploads'));
         $goal = Goal::factory()->for($user)->create();
         $material = PlanMaterial::storeUpload($goal, UploadedFile::fake()->create('plan.pdf', 50, 'application/pdf'), null);
         $highlight = Highlight::factory()->for($user)->create();
@@ -31,8 +31,8 @@ class AccountDeletionTest extends TestCase
         $this->assertModelMissing($user);
         $this->assertModelMissing($goal);
         $this->assertModelMissing($highlight);
-        Storage::disk('local')->assertMissing($material->path);
-        Storage::disk('local')->assertMissing($user->avatar_path);
+        Storage::disk('uploads')->assertMissing($material->path);
+        Storage::disk('uploads')->assertMissing($user->avatar_path);
     }
 
     public function test_the_password_must_match(): void

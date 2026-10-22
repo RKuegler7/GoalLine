@@ -35,7 +35,7 @@ class PlanMaterial extends Model
     /**
      * Uploads are kept on the private disk, never under public/.
      */
-    public const DISK = 'local';
+    public const DISK = 'uploads';
 
     /**
      * Default values for new materials.

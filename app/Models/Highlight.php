@@ -20,7 +20,7 @@ class Highlight extends Model
     /**
      * Highlight photos are kept on the private disk and served through a route.
      */
-    public const PHOTO_DISK = 'local';
+    public const PHOTO_DISK = 'uploads';
 
     /**
      * Longest caption, in characters.

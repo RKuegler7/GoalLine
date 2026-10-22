@@ -29,7 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Profile photos are kept on the private disk and served through a route.
      */
-    public const AVATAR_DISK = 'local';
+    public const AVATAR_DISK = 'uploads';
 
     /**
      * How long before the same person can be nudged again.

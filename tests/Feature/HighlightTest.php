@@ -19,9 +19,9 @@ class HighlightTest extends TestCase
 
     public function test_a_completed_goal_can_be_shared_with_its_photo(): void
     {
-        Storage::fake('local');
+        Storage::fake('uploads');
         $goal = Goal::factory()->create(['title' => 'Run a half marathon']);
-        $goal->complete('Hardest thing I have trained for.', $this->fakeImage('finish.png')->store('goal-photos', 'local'));
+        $goal->complete('Hardest thing I have trained for.', $this->fakeImage('finish.png')->store('goal-photos', 'uploads'));
 
         $this->actingAs($goal->user)
             ->get(route('highlights.create', ['goal' => $goal->id]))
@@ -38,7 +38,7 @@ class HighlightTest extends TestCase
         $highlight = Highlight::sole();
         $this->assertSame(HighlightKind::GoalCompleted, $highlight->kind);
         $this->assertSame('Run a half marathon', $highlight->headline);
-        Storage::disk('local')->assertExists($highlight->photo_path);
+        Storage::disk('uploads')->assertExists($highlight->photo_path);
         $this->assertNotSame($goal->completion_photo_path, $highlight->photo_path, 'The highlight keeps its own copy of the photo.');
     }
 

@@ -132,7 +132,7 @@ class Goal extends Model
     /**
      * Completion photos are kept on the private disk and served through a route.
      */
-    public const PHOTO_DISK = 'local';
+    public const PHOTO_DISK = 'uploads';
 
     /**
      * Whether the person crossed the line on this goal.
