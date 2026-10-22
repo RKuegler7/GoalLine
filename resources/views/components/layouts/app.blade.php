@@ -1,28 +1,54 @@
 @props(['title' => 'GoalLine'])
 
+@php
+    $viewer = auth()->user();
+    $unread = $viewer->unreadLeagueMessages();
+    $tabs = [
+        ['label' => 'Clubhouse', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'goals.*'), 'icon' => 'clubhouse'],
+        ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => request()->routeIs('leagues.*'), 'icon' => 'leagues', 'badge' => $unread],
+        ['label' => 'Wins', 'route' => 'wins.index', 'active' => request()->routeIs('wins.*'), 'icon' => 'wins'],
+        ['label' => 'My Locker', 'route' => 'profile.show', 'active' => request()->routeIs('profile.*') || (request()->routeIs('profiles.show') && request()->route('user')?->is($viewer)), 'icon' => null],
+    ];
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-screen bg-ivory font-sans text-ink antialiased">
+<body class="min-h-screen bg-ivory pb-24 font-sans text-ink antialiased md:pb-0">
     <section class="bg-club">
-        <header class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-5">
+        <header class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
                 <x-brand.logo class="h-7 sm:h-8" />
             </a>
 
-            <div class="flex items-center gap-4">
-                <a href="{{ route('leagues.index') }}" class="text-sm font-semibold text-ivory/85 hover:text-ivory">Leagues</a>
-                <a href="{{ route('profile.show') }}" class="flex items-center gap-2 rounded-full py-1 pr-1 text-sm font-medium text-ivory/90 hover:text-ivory sm:pr-3">
-                    <x-avatar :user="auth()->user()" tone="light" class="size-8 text-xs" />
-                    <span class="hidden sm:inline">{{ auth()->user()->name }}</span>
+            {{-- Desktop tabs. --}}
+            <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
+                @foreach ($tabs as $tab)
+                    <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
+                        'relative rounded-full px-4 py-2 text-sm font-semibold transition',
+                        'bg-ivory/15 text-ivory' => $tab['active'],
+                        'text-ivory/70 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
+                    ])>
+                        {{ $tab['label'] }}
+                        @if (($tab['badge'] ?? 0) > 0)
+                            <span class="absolute top-1.5 right-2 size-2 rounded-full bg-gold ring-2 ring-club"><span class="sr-only">{{ $tab['badge'] }} unread</span></span>
+                        @endif
+                    </a>
+                @endforeach
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold text-club transition hover:bg-white md:flex">
+                    <x-icon name="plus" class="size-4" /> New goal
                 </a>
-                <form method="POST" action="{{ route('logout') }}">
+                <a href="{{ route('profile.show') }}" class="rounded-full ring-2 ring-ivory/25 transition hover:ring-ivory/60" aria-label="My Locker">
+                    <x-avatar :user="$viewer" tone="light" class="size-9 text-xs" />
+                </a>
+                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
                     @csrf
-                    <button type="submit" class="rounded-full border border-ivory/60 px-4 py-1.5 text-sm font-medium text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">
-                        Log out
-                    </button>
+                    <button type="submit" class="text-sm font-medium text-ivory/70 hover:text-ivory">Log out</button>
                 </form>
             </div>
         </header>
@@ -42,5 +68,40 @@
 
         {{ $slot }}
     </main>
+
+    {{-- Phone tab bar, Instagram-style, with "set a goal" in the middle. --}}
+    <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Main">
+        <ul class="mx-auto grid max-w-md grid-cols-5 items-end">
+            @foreach ($tabs as $index => $tab)
+                @if ($index === 2)
+                    <li class="flex justify-center">
+                        <a href="{{ route('goals.create') }}" class="-mt-5 mb-2 flex size-14 items-center justify-center rounded-full bg-club text-ivory shadow-lg shadow-club/30 ring-4 ring-ivory transition active:scale-95" aria-label="Set a new goal">
+                            <x-icon name="plus" class="size-6" />
+                        </a>
+                    </li>
+                @endif
+                <li>
+                    <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
+                        'relative flex flex-col items-center gap-1 pt-2.5 pb-2 text-[0.68rem] font-semibold transition',
+                        'text-club' => $tab['active'],
+                        'text-ink/45 hover:text-ink/70' => ! $tab['active'],
+                    ])>
+                        @if ($tab['icon'])
+                            <x-icon :name="$tab['icon']" class="size-6" />
+                        @else
+                            <x-avatar :user="$viewer" class="size-6 text-[0.55rem] {{ $tab['active'] ? 'ring-2 ring-club ring-offset-1' : '' }}" />
+                        @endif
+                        {{ $tab['label'] }}
+                        @if (($tab['badge'] ?? 0) > 0)
+                            <span class="absolute top-1.5 left-1/2 ml-2 min-w-4 rounded-full bg-gold px-1 text-center text-[0.6rem] leading-4 text-ink">{{ min($tab['badge'], 99) }}</span>
+                        @endif
+                        @if ($tab['active'])
+                            <span class="absolute top-0 h-0.5 w-8 rounded-full bg-club" aria-hidden="true"></span>
+                        @endif
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </nav>
 </body>
 </html>

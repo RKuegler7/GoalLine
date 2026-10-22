@@ -12,26 +12,44 @@
 
 <x-layouts.app :title="$user->name.' · GoalLine'">
     <x-slot:hero>
-        <div class="mx-auto flex max-w-5xl flex-col gap-6 px-4 pt-6 pb-12 sm:flex-row sm:items-end sm:justify-between">
-            <div class="flex items-center gap-5">
-                <x-avatar :user="$user" tone="light" class="size-20 text-2xl ring-4 ring-ivory/25 sm:size-24 sm:text-3xl" />
-                <div class="min-w-0">
-                    <h1 class="font-serif text-3xl font-medium tracking-tight text-ivory sm:text-4xl">{{ $user->name }}</h1>
-                    <p class="mt-1 text-ivory/75">{{ '@'.$user->username }}</p>
-                    @if ($user->bio)
-                        <p class="mt-2 max-w-md text-ivory/90">{{ $user->bio }}</p>
-                    @endif
-                    <p class="mt-2 text-sm text-ivory/65">
-                        @if ($user->location)
-                            {{ $user->location }} &middot;
+        <div class="relative overflow-hidden">
+            @if ($user->coverUrl())
+                <img src="{{ $user->coverUrl() }}" alt="" class="absolute inset-0 size-full object-cover">
+                <div class="absolute inset-0 bg-linear-to-t from-club via-club/70 to-club/20" aria-hidden="true"></div>
+            @else
+                <x-field-backdrop class="absolute inset-0 size-full" />
+            @endif
+
+            <div class="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 pt-16 pb-10 sm:flex-row sm:items-end sm:justify-between sm:pt-24">
+                <div class="flex items-center gap-5">
+                    <x-avatar :user="$user" tone="light" class="size-20 text-2xl ring-4 ring-ivory/40 sm:size-24 sm:text-3xl" />
+                    <div class="min-w-0">
+                        @if ($isOwn)
+                            <p class="eyebrow text-mint">My Locker</p>
                         @endif
-                        Member since {{ $user->created_at->format('F Y') }}
-                    </p>
+                        <h1 class="font-serif text-3xl font-medium tracking-tight text-ivory sm:text-4xl">{{ $user->name }}</h1>
+                        <p class="mt-1 text-ivory/80">{{ '@'.$user->username }}</p>
+                        @if ($user->bio)
+                            <p class="mt-2 max-w-md text-ivory/95">{{ $user->bio }}</p>
+                        @endif
+                        <p class="mt-2 text-sm text-ivory/70">
+                            @if ($user->location)
+                                {{ $user->location }} &middot;
+                            @endif
+                            Member since {{ $user->created_at->format('F Y') }}
+                        </p>
+                    </div>
                 </div>
+                @if ($isOwn)
+                    <div class="flex shrink-0 gap-2 self-start sm:self-auto">
+                        <a href="{{ route('profile.edit') }}" class="rounded-full bg-ivory px-5 py-2 text-sm font-semibold text-club transition hover:bg-white">Edit profile</a>
+                        <form method="POST" action="{{ route('logout') }}" class="md:hidden">
+                            @csrf
+                            <button type="submit" class="rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory">Log out</button>
+                        </form>
+                    </div>
+                @endif
             </div>
-            <a href="{{ route('profile.edit') }}" class="shrink-0 self-start rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club sm:self-auto">
-                Edit profile
-            </a>
         </div>
     </x-slot:hero>
 
@@ -41,7 +59,7 @@
             ['Points', $stats->points(), 'From GoalWeek results'],
             ['Goals completed', $stats->completedGoals()->count(), 'Of '.$stats->goalsStarted().' '.Str::plural('goal', $stats->goalsStarted()).' started'],
             ['In-line streak', $stats->currentStreak(), 'Best: '.$stats->bestStreak().' '.Str::plural('GoalWeek', $stats->bestStreak())],
-            ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, ties, losses. Join a league to start.' : 'Wins, ties, losses across '.$stats->leagues()->count().' '.Str::plural('league', $stats->leagues()->count())],
+            ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, ties, losses. Join a GoalLeague to start.' : 'Wins, ties, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
         ] as [$label, $value, $note])
             <div class="border-line px-6 py-5 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
@@ -50,6 +68,37 @@
             </div>
         @endforeach
     </dl>
+
+    @if ($featured = $user->featuredGoal)
+        <section class="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+                <p class="eyebrow text-club">Featured goal</p>
+                <p class="mt-2 font-serif text-2xl font-medium text-club">
+                    @if ($isOwn)
+                        <a href="{{ route('goals.show', $featured) }}" class="hover:underline">{{ $featured->title }}</a>
+                    @else
+                        {{ $featured->title }}
+                    @endif
+                </p>
+                <p class="mt-1 text-sm text-ink/60">
+                    {{ $featured->category->label() }} &middot;
+                    @if ($featured->isCompleted())
+                        Completed {{ App\Clock::local($featured->completed_at)->format('F j, Y') }}
+                    @else
+                        <x-days-left :days="$featured->daysRemaining()" />, by {{ $featured->target_date->format('F j, Y') }}
+                    @endif
+                </p>
+            </div>
+            <div class="shrink-0 text-right">
+                @if ($featured->isCompleted())
+                    <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[0.65rem] text-ink">Completed</span>
+                @else
+                    <p class="font-serif text-3xl font-medium text-club tabular-nums">{{ $featured->points() }}</p>
+                    <p class="text-sm text-ink/55">GoalWeek points</p>
+                @endif
+            </div>
+        </section>
+    @endif
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
         {{-- Form guide: the latest finished GoalWeeks, like a league table. --}}
@@ -114,7 +163,7 @@
             <ul class="mt-3 grid gap-4 sm:grid-cols-2">
                 @foreach ($stats->completedGoals() as $goal)
                     <li class="overflow-hidden rounded-2xl border border-line bg-white">
-                        <a href="{{ route('goals.show', $goal) }}" class="block">
+                        <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif class="block">
                             <div class="relative h-36 overflow-hidden bg-club">
                                 @if ($goal->completionPhotoUrl())
                                     <img src="{{ $goal->completionPhotoUrl() }}" alt="" class="size-full object-cover">
@@ -126,7 +175,7 @@
                             <div class="px-5 py-4">
                                 <h3 class="font-serif text-xl font-medium text-club">{{ $goal->title }}</h3>
                                 <p class="mt-0.5 text-sm text-ink/55">
-                                    {{ $goal->completed_at->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }}
+                                    {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }}
                                 </p>
                                 @if ($goal->completion_note)
                                     <p class="mt-2 line-clamp-2 text-ink/75">&ldquo;{{ $goal->completion_note }}&rdquo;</p>
@@ -143,7 +192,9 @@
     <section class="mt-10">
         <div class="flex items-end justify-between">
             <h2 class="eyebrow text-club">Goals in progress</h2>
-            <a href="{{ route('goals.create') }}" class="text-sm font-semibold text-club hover:underline">+ Add a goal</a>
+            @if ($isOwn)
+                <a href="{{ route('goals.create') }}" class="text-sm font-semibold text-club hover:underline">+ Add a goal</a>
+            @endif
         </div>
         @if ($stats->activeGoals()->isEmpty())
             <p class="mt-3 text-ink/60">No goals in progress.</p>
@@ -151,7 +202,7 @@
             <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                 @foreach ($stats->activeGoals() as $goal)
                     <li>
-                        <a href="{{ route('goals.show', $goal) }}" class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-mint/50">
+                        <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif @class(['flex items-center justify-between gap-4 px-6 py-4', 'hover:bg-mint/50' => $isOwn])>
                             <div class="min-w-0">
                                 <p class="eyebrow text-[0.65rem] text-ink/50">{{ $goal->category->label() }}</p>
                                 <p class="mt-0.5 font-serif text-lg font-medium text-club">{{ $goal->title }}</p>
@@ -171,16 +222,18 @@
     <section class="mt-10 grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl border border-line bg-white px-6 py-5">
             <div class="flex items-baseline justify-between">
-                <h2 class="eyebrow text-club">Leagues</h2>
-                <a href="{{ route('leagues.index') }}" class="text-sm font-semibold text-club hover:underline">All leagues</a>
+                <h2 class="eyebrow text-club">GoalLeagues</h2>
+                @if ($isOwn)
+                    <a href="{{ route('leagues.index') }}" class="text-sm font-semibold text-club hover:underline">All GoalLeagues</a>
+                @endif
             </div>
             @forelse ($stats->leagues() as $league)
-                <a href="{{ route('leagues.show', $league) }}" class="mt-2 flex items-center justify-between gap-3 text-ink hover:text-club">
+                <a @can('view', $league) href="{{ route('leagues.show', $league) }}" @endcan class="mt-2 flex items-center justify-between gap-3 text-ink hover:text-club">
                     <span class="truncate font-medium">{{ $league->name }}</span>
                     <span class="shrink-0 text-sm text-ink/55">{{ $league->members_count }} {{ Str::plural('member', $league->members_count) }} &middot; {{ $league->status()->label() }}</span>
                 </a>
             @empty
-                <p class="mt-2 text-ink/60">Not in a league yet. <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.</p>
+                <p class="mt-2 text-ink/60">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
             @endforelse
         </div>
         @foreach ([['Friends', 'People you follow and cheer on will show here.']] as [$heading, $text])

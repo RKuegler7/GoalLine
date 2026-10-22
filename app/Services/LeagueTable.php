@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Clock;
 use App\GoalWeekResult;
 use App\LeagueStatus;
 use App\MatchupOutcome;
@@ -68,7 +69,7 @@ class LeagueTable
             return [
                 'result' => null,
                 'points' => 0,
-                'final' => $sunday->copy()->addDays(RoadmapWeek::CHECK_IN_GRACE_DAYS)->lt(today()),
+                'final' => $sunday->copy()->addDays(RoadmapWeek::CHECK_IN_GRACE_DAYS)->lt(Clock::today()),
                 'goalWeek' => null,
             ];
         }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Clock;
 use App\GoalCategory;
 use App\Models\PlanMaterial;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -28,7 +29,7 @@ class GoalRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:120'],
             'category' => ['required', Rule::enum(GoalCategory::class)],
-            'target_date' => ['required', 'date', 'after:today'],
+            'target_date' => ['required', 'date', 'after:'.Clock::today()->toDateString()],
             'why' => ['nullable', 'string', 'max:1000'],
             ...PlanMaterial::rules(required: false),
         ];

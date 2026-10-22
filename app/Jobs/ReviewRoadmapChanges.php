@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Clock;
 use App\Models\Goal;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
@@ -49,9 +50,17 @@ class ReviewRoadmapChanges implements ShouldBeUniqueUntilProcessing, ShouldQueue
     }
 
     /**
-     * Review every change recorded so far, then clear the ones reviewed.
+     * Review on the goal owner's clock, so "today" in the brief is their today.
      */
     public function handle(RoadmapPlanner $planner): void
+    {
+        Clock::for($this->goal->user, fn () => $this->review($planner));
+    }
+
+    /**
+     * Review every change recorded so far, then clear the ones reviewed.
+     */
+    private function review(RoadmapPlanner $planner): void
     {
         $this->goal->refresh()->load('weeks.tasks', 'materials');
         $changes = $this->goal->pending_changes ?? [];

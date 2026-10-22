@@ -80,8 +80,8 @@
                 ? ['So far', $thisWeek->result()->label().($thisWeek->isCloseCall() ? ', close call' : ''), $thisWeek->result()->points().' '.Str::plural('point', $thisWeek->result()->points()).' this GoalWeek']
                 : ['So far', '—', 'Check off tasks to see where you stand this GoalWeek.']),
             $leagues->isNotEmpty()
-                ? ['League', $leagues->first()->name, $leagues->first()->status()->label().($leagues->count() > 1 ? ' · +'.($leagues->count() - 1).' more' : '')]
-                : ['League', 'Optional', 'Join friends for encouragement and friendly accountability.'],
+                ? ['GoalLeague', $leagues->first()->name, $leagues->first()->status()->label().($leagues->count() > 1 ? ' · +'.($leagues->count() - 1).' more' : '')]
+                : ['GoalLeague', 'Optional', 'Join friends for encouragement and friendly accountability.'],
         ] as [$label, $value, $note])
             <div class="border-line px-6 py-5 max-sm:not-last:border-b sm:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
@@ -98,7 +98,7 @@
                 @foreach ($retired as $goal)
                     <li>
                         <a href="{{ route('goals.show', $goal) }}" class="text-sm text-ink/60 hover:text-club hover:underline">{{ $goal->title }}</a>
-                        <span class="text-sm text-ink/40">&middot; retired {{ $goal->retired_at?->format('M j, Y') }}</span>
+                        <span class="text-sm text-ink/40">&middot; retired {{ App\Clock::local($goal->retired_at)?->format('M j, Y') }}</span>
                     </li>
                 @endforeach
             </ul>

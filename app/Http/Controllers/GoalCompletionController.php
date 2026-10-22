@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Goal;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -45,6 +46,8 @@ class GoalCompletionController extends Controller
      */
     public function photo(Goal $goal): StreamedResponse
     {
+        // Completion photos show in the trophy case, so anyone who can see the owner's profile can see them.
+        abort_unless(Gate::allows('view', $goal) || ($goal->isCompleted() && Gate::allows('viewProfile', $goal->user)), 403);
         abort_unless($goal->completion_photo_path, 404);
 
         return Storage::disk(Goal::PHOTO_DISK)->response($goal->completion_photo_path, headers: [

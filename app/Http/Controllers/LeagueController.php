@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Clock;
 use App\Models\League;
 use App\Models\LeagueMessage;
 use App\Services\LeagueTable;
@@ -114,7 +115,7 @@ class LeagueController extends Controller
      */
     public static function kickoffOptions(): array
     {
-        $first = today()->toImmutable()->next(CarbonImmutable::MONDAY);
+        $first = Clock::today()->toImmutable()->next(CarbonImmutable::MONDAY);
 
         return array_map(fn (int $weeks) => $first->addWeeks($weeks), range(0, 7));
     }

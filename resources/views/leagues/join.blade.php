@@ -15,12 +15,12 @@
 
     <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-6 sm:p-10">
         @if (! $league->isJoinable())
-            <p class="font-serif text-xl text-club">This league can't take new members.</p>
+            <p class="font-serif text-xl text-club">This GoalLeague can't take new members.</p>
             <p class="mt-2 text-ink/70">
                 {{ $league->status() === App\LeagueStatus::Forming ? 'It is full.' : 'It has already kicked off, so the schedule is locked.' }}
                 Ask the commissioner about the next season, or start your own.
             </p>
-            <a href="{{ route('leagues.create') }}" class="mt-5 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Start a league</a>
+            <a href="{{ route('leagues.create') }}" class="mt-5 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Start a GoalLeague</a>
         @elseif ($goals->isEmpty())
             <p class="font-serif text-xl text-club">Set a goal to play.</p>
             <p class="mt-2 text-ink/70">Each member brings one goal into the league. Set yours, then come back to this invite.</p>
@@ -50,7 +50,7 @@
                 </ul>
 
                 <div class="flex justify-end border-t border-line pt-6">
-                    <x-form.button class="sm:w-auto sm:px-8">Join league</x-form.button>
+                    <x-form.button class="sm:w-auto sm:px-8">Join GoalLeague</x-form.button>
                 </div>
             </form>
         @endif

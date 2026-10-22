@@ -8,7 +8,7 @@
 <x-layouts.app :title="$league->name.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Leagues</a>
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues</a>
             <p class="eyebrow mt-6 text-mint">
                 @if ($status === App\LeagueStatus::Forming)
                     Forming &middot; kicks off {{ $league->starts_on->format('l, M j') }}
@@ -121,7 +121,7 @@
                                 <div class="flex items-center gap-2.5">
                                     <x-avatar :user="$row['member']->user" class="size-7 text-[0.65rem]" />
                                     <div class="min-w-0">
-                                        <p class="truncate font-medium text-ink">{{ $row['member']->user->name }}</p>
+                                        <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
                                         <p class="truncate text-xs text-ink/50">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
                                     </div>
                                 </div>
@@ -217,7 +217,7 @@
 
         <ol data-chat-list class="max-h-[28rem] overflow-y-auto px-6 py-2" aria-live="polite" aria-label="Messages">
             @if ($messages->isEmpty())
-                <li data-chat-empty class="py-8 text-center text-ink/55">No messages yet. Say hi to your league.</li>
+                <li data-chat-empty class="py-8 text-center text-ink/55">No messages yet. Say hi to your GoalLeague.</li>
             @endif
             @include('leagues.partials.messages', ['messages' => $messages])
         </ol>
@@ -237,18 +237,18 @@
 
     @can('leave', $league)
         <form method="POST" action="{{ route('leagues.membership.destroy', $league) }}" class="mt-10 border-t border-line pt-6 text-right"
-            onsubmit="return confirm('Leave this league? You can rejoin with the code before kickoff.')">
+            onsubmit="return confirm('Leave this GoalLeague? You can rejoin with the code before kickoff.')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Leave league</button>
+            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Leave GoalLeague</button>
         </form>
     @endcan
     @can('delete', $league)
         <form method="POST" action="{{ route('leagues.destroy', $league) }}" class="mt-10 border-t border-line pt-6 text-right"
-            onsubmit="return confirm('Call off this league? Everyone will be removed. This cannot be undone.')">
+            onsubmit="return confirm('Call off this GoalLeague? Everyone will be removed. This cannot be undone.')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Call off league</button>
+            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Call off GoalLeague</button>
         </form>
     @endcan
 </x-layouts.app>

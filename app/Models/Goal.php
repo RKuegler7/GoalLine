@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Clock;
 use App\GoalCategory;
 use App\GoalStatus;
 use App\Jobs\GenerateRoadmap;
@@ -160,7 +161,7 @@ class Goal extends Model
      */
     public function daysRemaining(): int
     {
-        return (int) today()->diffInDays($this->target_date, false);
+        return (int) Clock::today()->diffInDays($this->target_date, false);
     }
 
     /**

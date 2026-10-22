@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Clock;
 use App\GoalWeekResult;
 use Database\Factories\RoadmapWeekFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -60,7 +61,7 @@ class RoadmapWeek extends Model
      */
     public function isCurrent(): bool
     {
-        return today()->between($this->starts_on, $this->ends_on);
+        return Clock::today()->between($this->starts_on, $this->ends_on);
     }
 
     /**
@@ -68,7 +69,7 @@ class RoadmapWeek extends Model
      */
     public function isPast(): bool
     {
-        return $this->ends_on->lt(today());
+        return $this->ends_on->lt(Clock::today());
     }
 
     /**
@@ -108,7 +109,7 @@ class RoadmapWeek extends Model
      */
     public function isStarted(): bool
     {
-        return $this->starts_on->lte(today());
+        return $this->starts_on->lte(Clock::today());
     }
 
     /**
@@ -116,7 +117,7 @@ class RoadmapWeek extends Model
      */
     public function isLocked(): bool
     {
-        return $this->ends_on->copy()->addDays(self::CHECK_IN_GRACE_DAYS)->lt(today());
+        return $this->ends_on->copy()->addDays(self::CHECK_IN_GRACE_DAYS)->lt(Clock::today());
     }
 
     /**
@@ -162,7 +163,7 @@ class RoadmapWeek extends Model
      */
     public function isNotStarted(): bool
     {
-        return $this->starts_on->isToday()
+        return $this->starts_on->isSameDay(Clock::today())
             && $this->milestone_hit_at === null
             && $this->tasks->every(fn (RoadmapTask $task) => $task->completed_at === null);
     }

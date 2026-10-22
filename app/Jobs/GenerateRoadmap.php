@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Clock;
 use App\Models\Goal;
 use App\Models\RoadmapWeek;
 use App\RoadmapStatus;
@@ -37,9 +38,17 @@ class GenerateRoadmap implements ShouldQueue
     public function __construct(public Goal $goal, public ?int $fromPosition = null) {}
 
     /**
-     * Build the roadmap, replacing the stretches being re-planned.
+     * Build on the goal owner's clock, so GoalWeek dates match their calendar.
      */
     public function handle(RoadmapPlanner $planner): void
+    {
+        Clock::for($this->goal->user, fn () => $this->build($planner));
+    }
+
+    /**
+     * Build the roadmap, replacing the stretches being re-planned.
+     */
+    private function build(RoadmapPlanner $planner): void
     {
         $this->goal->load('weeks.tasks', 'materials');
 

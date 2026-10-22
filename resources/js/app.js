@@ -111,3 +111,25 @@ function setUpLeagueChat(chat) {
 }
 
 document.querySelectorAll('[data-league-chat]').forEach(setUpLeagueChat);
+
+/**
+ * Time zones: fill hidden fields with the browser's zone, and let "Use my time zone" set the picker.
+ */
+const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+document.querySelectorAll('[data-detect-timezone]').forEach((field) => {
+    if (!field.value) {
+        field.value = browserTimezone;
+    }
+});
+
+document.querySelectorAll('[data-use-browser-timezone]').forEach((button) => {
+    const select = document.getElementById(button.dataset.useBrowserTimezone);
+
+    button.hidden = !browserTimezone || select.value === browserTimezone;
+    button.textContent = `Use ${browserTimezone.replaceAll('_', ' ')}`;
+    button.addEventListener('click', () => {
+        select.value = browserTimezone;
+        button.hidden = true;
+    });
+});

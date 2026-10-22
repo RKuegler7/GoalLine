@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\ProfileVisibility;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -14,7 +16,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -25,6 +27,15 @@ class User extends Authenticatable
      * Profile photos are kept on the private disk and served through a route.
      */
     public const AVATAR_DISK = 'local';
+
+    /**
+     * Default values for new members.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'profile_visibility' => 'leagues',
+    ];
 
     /**
      * Give every new member a handle they can change later.
@@ -46,6 +57,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'profile_visibility' => ProfileVisibility::class,
         ];
     }
 
@@ -122,5 +134,80 @@ class User extends Authenticatable
         }
 
         return $username;
+    }
+
+    /**
+     * The person's time zone, or the app's when they haven't picked one.
+     */
+    public function timezoneName(): string
+    {
+        return $this->timezone ?: config('app.timezone');
+    }
+
+    /**
+     * The goal pinned to the top of the profile.
+     *
+     * @return BelongsTo<Goal, $this>
+     */
+    public function featuredGoal(): BelongsTo
+    {
+        return $this->belongsTo(Goal::class, 'featured_goal_id');
+    }
+
+    /**
+     * Where the cover photo is served from, if there is one.
+     */
+    public function coverUrl(): ?string
+    {
+        return $this->cover_path ? route('covers.show', ['user' => $this, 'v' => substr(md5($this->cover_path), 0, 8)]) : null;
+    }
+
+    /**
+     * Replace the cover photo, removing the old file.
+     */
+    public function replaceCover(?string $path): void
+    {
+        if ($this->cover_path) {
+            Storage::disk(self::AVATAR_DISK)->delete($this->cover_path);
+        }
+
+        $this->forceFill(['cover_path' => $path])->save();
+    }
+
+    /**
+     * Where this person's profile lives.
+     */
+    public function profileUrl(): string
+    {
+        return route('profiles.show', $this);
+    }
+
+    /**
+     * Whether this person and another play in at least one league together.
+     */
+    public function sharesLeagueWith(User $other): bool
+    {
+        return $this->leagues()->whereHas('members', fn ($members) => $members->where('user_id', $other->id))->exists();
+    }
+
+    /**
+     * Use the username in profile links: /u/jordan.rivera.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'username';
+    }
+
+    /**
+     * Chat messages from others, across all of this person's leagues, posted since they last looked.
+     */
+    public function unreadLeagueMessages(): int
+    {
+        return LeagueMessage::query()
+            ->join('league_members', 'league_members.league_id', '=', 'league_messages.league_id')
+            ->where('league_members.user_id', $this->id)
+            ->whereRaw('league_messages.id > COALESCE(league_members.last_read_message_id, 0)')
+            ->where(fn ($query) => $query->whereNull('league_messages.user_id')->orWhere('league_messages.user_id', '!=', $this->id))
+            ->count();
     }
 }

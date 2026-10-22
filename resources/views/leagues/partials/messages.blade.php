@@ -4,7 +4,7 @@
         <li data-message-id="{{ $message->id }}" class="flex items-center justify-center gap-2 py-2 text-center text-sm text-ink/60">
             <span class="size-1.5 shrink-0 rounded-full bg-grass" aria-hidden="true"></span>
             <span>{{ $message->body }}</span>
-            <time datetime="{{ $message->created_at->toIso8601String() }}" class="shrink-0 text-xs text-ink/40">{{ $message->created_at->isToday() ? $message->created_at->format('g:i a') : $message->created_at->format('M j') }}</time>
+            <time datetime="{{ $message->created_at->toIso8601String() }}" class="shrink-0 text-xs text-ink/40">{{ App\Clock::shortTime($message->created_at) }}</time>
         </li>
     @else
         <li data-message-id="{{ $message->id }}" class="group flex items-start gap-3 py-2">
@@ -15,9 +15,13 @@
             @endif
             <div class="min-w-0 flex-1">
                 <p class="flex items-baseline gap-2">
-                    <span class="font-semibold text-ink">{{ $message->user?->name ?? 'Former member' }}</span>
+                    @if ($message->user)
+                        <a href="{{ $message->user->profileUrl() }}" class="font-semibold text-ink hover:text-club hover:underline">{{ $message->user->name }}</a>
+                    @else
+                        <span class="font-semibold text-ink">Former member</span>
+                    @endif
                     <time datetime="{{ $message->created_at->toIso8601String() }}" class="text-xs text-ink/45">
-                        {{ $message->created_at->isToday() ? $message->created_at->format('g:i a') : $message->created_at->format('M j, g:i a') }}
+                        {{ App\Clock::shortTime($message->created_at) }}
                     </time>
                 </p>
                 <p class="break-words whitespace-pre-line text-ink/85">{{ $message->body }}</p>

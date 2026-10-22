@@ -1,8 +1,8 @@
-<x-layouts.app title="Start a league · GoalLine">
+<x-layouts.app title="Start a GoalLeague · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Leagues</a>
-            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Start a league</h1>
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues</a>
+            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Start a GoalLeague</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Everyone joins before kickoff and plays the whole season together.</p>
         </div>
     </x-slot:hero>
@@ -17,7 +17,7 @@
         <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-10">
             @csrf
 
-            <x-form.input name="name" label="League name" maxlength="80" placeholder="FAR Exam Crew" required autofocus />
+            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" required autofocus />
             <x-form.textarea name="description" label="What's this league about? (optional)" maxlength="280"
                 hint="For example: everyone sitting for FAR on December 15." />
 
@@ -52,13 +52,13 @@
             </div>
 
             <p class="rounded-xl bg-ivory px-4 py-3 text-sm text-ink/70">
-                Leagues hold up to {{ App\Models\League::MAX_MEMBERS }} people; {{ App\Models\League::RECOMMENDED_MEMBERS }} or fewer works best, so everyone knows each other.
+                GoalLeagues hold up to {{ App\Models\League::MAX_MEMBERS }} people; {{ App\Models\League::RECOMMENDED_MEMBERS }} or fewer works best, so everyone knows each other.
                 Each GoalWeek you face a GoalGroup opponent in a rotating round-robin. With an odd number of members, one person plays the league median.
             </p>
 
             <div class="flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-end">
                 <a href="{{ route('leagues.index') }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 transition hover:text-ink">Cancel</a>
-                <x-form.button class="sm:w-auto sm:px-8">Create league</x-form.button>
+                <x-form.button class="sm:w-auto sm:px-8">Create GoalLeague</x-form.button>
             </div>
         </form>
     @endif

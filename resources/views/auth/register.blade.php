@@ -7,6 +7,9 @@
         <x-form.input name="password" label="Password" type="password" autocomplete="new-password" required />
         <x-form.input name="password_confirmation" label="Confirm password" type="password" autocomplete="new-password" required />
 
+        {{-- Filled in by app.js with the browser's time zone. --}}
+        <input type="hidden" name="timezone" value="{{ old('timezone') }}" data-detect-timezone>
+
         <x-form.button>Create account</x-form.button>
     </form>
 

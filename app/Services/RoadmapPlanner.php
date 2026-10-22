@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Anthropic\Client;
+use App\Clock;
 use App\Exceptions\RoadmapPlanningException;
 use App\Models\Goal;
 use App\Models\PlanMaterial;
@@ -81,7 +82,7 @@ class RoadmapPlanner
      */
     public function periods(Goal $goal): array
     {
-        $start = today()->toImmutable();
+        $start = Clock::today()->toImmutable();
         $end = $goal->target_date->toImmutable();
 
         if ($end->lt($start)) {
@@ -248,7 +249,7 @@ class RoadmapPlanner
             'Goal: '.$goal->title,
             'Category: '.$goal->category->label(),
             'Why it matters: '.($goal->why ?: 'Not given.'),
-            'Today: '.today()->format('D M j, Y'),
+            'Today: '.Clock::today()->format('D M j, Y'),
             'Target date: '.$goal->target_date->format('D M j, Y'),
             '</goal>',
         ]);

@@ -66,7 +66,7 @@ class LeagueTest extends TestCase
             ->post(route('leagues.find'), ['code' => strtolower(str_replace('-', '', $league->invite_code))])
             ->assertRedirect(route('leagues.join', $league->invite_code));
 
-        $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()->assertSee('Join league');
+        $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()->assertSee('Join GoalLeague');
 
         $this->actingAs($joiner->user)
             ->post(route('leagues.join.store', $league->invite_code), ['goal_id' => $joiner->id])

@@ -13,8 +13,8 @@
         @if ($goal->inTrial())
             <p class="eyebrow text-club">Trial period</p>
             <p class="mt-3 text-lg text-ink">
-                You set this goal on {{ $goal->created_at->format('F j') }}, so you're still in your {{ App\Models\Goal::TRIAL_DAYS }}-day trial
-                until {{ $goal->lockedInAt()->format('F j') }}. You can remove it completely.
+                You set this goal on {{ App\Clock::local($goal->created_at)->format('F j') }}, so you're still in your {{ App\Models\Goal::TRIAL_DAYS }}-day trial
+                until {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. You can remove it completely.
             </p>
             <p class="mt-3 text-ink/70">The goal and its roadmap will be deleted. This can't be undone.</p>
 
@@ -27,7 +27,7 @@
         @else
             <p class="eyebrow text-club">Locked in</p>
             <p class="mt-3 text-lg text-ink">
-                You locked in on {{ $goal->lockedInAt()->format('F j') }}. Retiring stops this goal and takes it off your clubhouse,
+                You locked in on {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. Retiring stops this goal and takes it off your clubhouse,
                 but keeps its history. You can't undo it.
             </p>
 

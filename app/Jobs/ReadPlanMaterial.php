@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Clock;
 use App\Models\PlanMaterial;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
@@ -34,9 +35,17 @@ class ReadPlanMaterial implements ShouldQueue
     public function __construct(public PlanMaterial $material, public bool $thenBuildRoadmap = false) {}
 
     /**
-     * Read the file once and keep its digest. The roadmap is built afterward either way.
+     * Read on the goal owner's clock, so "today" in the brief is their today.
      */
     public function handle(RoadmapPlanner $planner): void
+    {
+        Clock::for($this->material->goal->user, fn () => $this->read($planner));
+    }
+
+    /**
+     * Read the file once and keep its digest. The roadmap is built afterward either way.
+     */
+    private function read(RoadmapPlanner $planner): void
     {
         try {
             $this->material->forceFill([

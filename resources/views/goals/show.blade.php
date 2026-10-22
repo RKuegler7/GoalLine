@@ -33,7 +33,7 @@
                         <p class="eyebrow text-gold">Goal complete</p>
                         <h2 class="mt-3 font-serif text-3xl font-medium tracking-tight text-ivory sm:text-4xl">You crossed the GoalLine.</h2>
                         <p class="mt-3 text-ivory/85">
-                            {{ $goal->completed_at->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }} earned along the way
+                            {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }} earned along the way
                         </p>
                     </div>
                     @if ($goal->completionPhotoUrl())
@@ -48,7 +48,7 @@
         </section>
     @elseif (! $goal->isActive())
         <p class="mb-6 rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink/70">
-            You retired this goal on {{ $goal->retired_at?->format('F j, Y') }}. Its roadmap is kept here as part of your history.
+            You retired this goal on {{ App\Clock::local($goal->retired_at)?->format('F j, Y') }}. Its roadmap is kept here as part of your history.
         </p>
     @endif
 
@@ -80,9 +80,9 @@
         <div class="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p class="text-ink/60">
                 @if ($goal->inTrial())
-                    <span class="font-semibold text-club">Trial:</span> you can remove this goal until {{ $goal->lockedInAt()->format('F j') }}. After that, you're locked in.
+                    <span class="font-semibold text-club">Trial:</span> you can remove this goal until {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. After that, you're locked in.
                 @else
-                    <span class="font-semibold text-club">Locked in</span> since {{ $goal->lockedInAt()->format('F j') }}.
+                    <span class="font-semibold text-club">Locked in</span> since {{ App\Clock::local($goal->lockedInAt())->format('F j') }}.
                 @endif
             </p>
             <a href="{{ route('goals.leave', $goal) }}" class="font-semibold text-ink/60 hover:text-red-700">

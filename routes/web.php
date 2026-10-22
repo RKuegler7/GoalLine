@@ -35,6 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/avatars/{user}', [ProfileController::class, 'avatar'])->name('avatars.show');
+    Route::get('/covers/{user}', [ProfileController::class, 'cover'])->name('covers.show');
+    Route::get('/u/{user}', [ProfileController::class, 'showUser'])->name('profiles.show');
+
+    Route::view('/wins', 'wins.index')->name('wins.index');
 
     Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
     Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
@@ -45,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goals/{goal}/retire', [GoalController::class, 'retire'])->name('goals.retire')->can('retire', 'goal');
     Route::get('/goals/{goal}/complete', [GoalCompletionController::class, 'create'])->name('goals.complete')->can('update', 'goal');
     Route::post('/goals/{goal}/complete', [GoalCompletionController::class, 'store'])->name('goals.complete.store')->can('update', 'goal');
-    Route::get('/goals/{goal}/photo', [GoalCompletionController::class, 'photo'])->name('goals.photo')->can('view', 'goal');
+    Route::get('/goals/{goal}/photo', [GoalCompletionController::class, 'photo'])->name('goals.photo');
     Route::delete('/goals/{goal}', [GoalController::class, 'destroy'])->name('goals.destroy')->can('delete', 'goal');
 
     Route::post('/goals/{goal}/roadmap', [RoadmapController::class, 'store'])

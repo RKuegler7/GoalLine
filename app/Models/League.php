@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Clock;
 use App\LeagueStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\LeagueFactory;
@@ -96,8 +97,8 @@ class League extends Model
     public function status(): LeagueStatus
     {
         return match (true) {
-            today()->lt($this->starts_on) => LeagueStatus::Forming,
-            today()->gt($this->ends_on) => LeagueStatus::Finished,
+            Clock::today()->lt($this->starts_on) => LeagueStatus::Forming,
+            Clock::today()->gt($this->ends_on) => LeagueStatus::Finished,
             default => LeagueStatus::Active,
         };
     }
@@ -132,7 +133,7 @@ class League extends Model
     public function currentWeek(): ?int
     {
         return $this->status() === LeagueStatus::Active
-            ? intdiv((int) $this->starts_on->diffInDays(today()), 7) + 1
+            ? intdiv((int) $this->starts_on->diffInDays(Clock::today()), 7) + 1
             : null;
     }
 
