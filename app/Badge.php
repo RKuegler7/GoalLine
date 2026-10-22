@@ -19,6 +19,8 @@ enum Badge: string
     case Finisher = 'finisher';
     case TeamPlayer = 'team-player';
     case HypeSquad = 'hype-squad';
+    case WeekWarrior = 'week-warrior';
+    case Unstoppable = 'unstoppable';
 
     // GoalLeague season awards.
     case Champion = 'champion';
@@ -34,6 +36,10 @@ enum Badge: string
     public const HABIT_HERO_CHECK_INS = 30;
 
     public const HYPE_SQUAD_CHEERS = 10;
+
+    public const WEEK_WARRIOR_DAYS = 7;
+
+    public const UNSTOPPABLE_DAYS = 30;
 
     /**
      * The badge's name.
@@ -51,6 +57,8 @@ enum Badge: string
             self::Finisher => 'Finisher',
             self::TeamPlayer => 'Team Player',
             self::HypeSquad => 'Hype Squad',
+            self::WeekWarrior => 'Week Warrior',
+            self::Unstoppable => 'Unstoppable',
             self::Champion => 'GoalLeague Champion',
             self::Mvp => 'MVP',
             self::ComebackPlayer => 'Comeback Player',
@@ -75,6 +83,8 @@ enum Badge: string
             self::Finisher => 'Crossed the GoalLine on a goal.',
             self::TeamPlayer => 'Joined a GoalLeague.',
             self::HypeSquad => 'Cheered '.self::HYPE_SQUAD_CHEERS.' highlights.',
+            self::WeekWarrior => 'A '.self::WEEK_WARRIOR_DAYS.'-day check-in streak.',
+            self::Unstoppable => 'A '.self::UNSTOPPABLE_DAYS.'-day check-in streak.',
             self::Champion => 'Finished first in a GoalLeague season.',
             self::Mvp => 'Most GoalWeek points in a GoalLeague season.',
             self::ComebackPlayer => 'Biggest climb in the standings over the second half of a season.',
@@ -125,6 +135,7 @@ enum Badge: string
             self::Finisher => 'flag',
             self::TeamPlayer => 'people',
             self::HypeSquad => 'clap',
+            self::WeekWarrior, self::Unstoppable => 'flame',
             self::Champion => 'trophy',
             self::Mvp => 'star',
             self::ComebackPlayer => 'rise',

@@ -33,6 +33,7 @@ class BadgeAwarder
         $stats = new ProfileStats($user);
         $finished = $stats->finishedWeeks->map(fn (RoadmapWeek $week) => $week->result());
         $atLeast = fn (GoalWeekResult ...$tiers) => $finished->contains(fn (?GoalWeekResult $result) => in_array($result, $tiers, true));
+        $dailyStreak = fn () => (new DailyStreak($user))->current();
         $habitCheckIns = fn () => HabitLog::whereHas('habit.goal', fn ($goals) => $goals->where('user_id', $user->id))->count();
 
         $earned = [
@@ -47,6 +48,8 @@ class BadgeAwarder
             Badge::Finisher->value => fn () => $stats->completedGoals()->isNotEmpty(),
             Badge::TeamPlayer->value => fn () => $user->leagues()->exists(),
             Badge::HypeSquad->value => fn () => Cheer::where('user_id', $user->id)->count() >= Badge::HYPE_SQUAD_CHEERS,
+            Badge::WeekWarrior->value => fn () => $dailyStreak() >= Badge::WEEK_WARRIOR_DAYS,
+            Badge::Unstoppable->value => fn () => $dailyStreak() >= Badge::UNSTOPPABLE_DAYS,
         ];
 
         return $missing

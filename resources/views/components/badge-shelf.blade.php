@@ -36,7 +36,7 @@
     @if ($shown->isEmpty())
         <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-ink/60">No badges yet.</p>
     @else
-        <ul class="mt-3 grid grid-cols-3 gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-5">
+        <ul class="mt-3 grid grid-cols-3 gap-3 rounded-2xl border border-line bg-white p-4 sm:grid-cols-6">
             @foreach ($shown as $badge)
                 @php
                     $mine = $personal->get($badge->value);

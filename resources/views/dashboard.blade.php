@@ -15,6 +15,8 @@
                 {{ $greeting }}, {{ Str::before(auth()->user()->name, ' ') }}.
             </h1>
 
+            <x-daily-streak :streak="$streak" class="mt-4" />
+
             {{-- Scoreboard. --}}
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([

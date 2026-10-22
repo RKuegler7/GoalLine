@@ -102,7 +102,7 @@ class BadgeTest extends TestCase
             ->assertSee('Badges &amp; awards', false)
             ->assertSee('First Step')
             ->assertSee('Iron Will')
-            ->assertSee('1 of 10 badges');
+            ->assertSee('1 of 12 badges');
 
         $this->actingAs(User::factory()->create())
             ->get(route('profiles.show', $owner))

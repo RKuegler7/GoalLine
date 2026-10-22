@@ -11,6 +11,7 @@ use App\Models\HabitLog;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use App\Models\User;
+use App\Services\DailyStreak;
 use App\Services\HighlightFeed;
 use App\Services\LeagueSnapshot;
 use App\Services\ProfileStats;
@@ -33,6 +34,7 @@ class DashboardController extends Controller
         return view('dashboard', [
             'goals' => $goals,
             'gameplan' => new TodaysGameplan($goals),
+            'streak' => new DailyStreak($user),
             'stats' => $stats,
             'greeting' => $this->greeting(),
             'weekPoints' => $goals->sum(fn (Goal $goal) => $goal->currentWeek()?->result()?->points() ?? 0),

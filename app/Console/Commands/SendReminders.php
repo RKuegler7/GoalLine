@@ -12,6 +12,7 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\DailyReminder;
 use App\Notifications\GoalWeeksFinal;
+use App\Services\DailyStreak;
 use App\Services\TodaysGameplan;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
@@ -116,7 +117,7 @@ class SendReminders extends Command
     }
 
     /**
-     * A nudge only when something is still open today.
+     * A nudge only when something is still open today, or the daily streak ends tonight without a check-in.
      *
      * @param  Collection<int, Goal>  $goals
      */
@@ -124,8 +125,10 @@ class SendReminders extends Command
     {
         $gameplan = new TodaysGameplan($goals);
         $left = $gameplan->remaining();
+        $streak = new DailyStreak($user);
+        $atRisk = $streak->isAtRisk();
 
-        if ($left === 0) {
+        if ($left === 0 && ! $atRisk) {
             return 0;
         }
 
@@ -135,9 +138,15 @@ class SendReminders extends Command
             ->values()
             ->all();
 
+        if ($atRisk && $left === 0) {
+            array_unshift($closeCalls, 'One check-in keeps it going: log a habit or get a head start on tomorrow.');
+        }
+
         $user->notify(new DailyReminder(
             'evening',
-            $left.' '.($left === 1 ? 'thing' : 'things').' left on today\'s gameplan',
+            $atRisk
+                ? 'Keep your '.$streak->current().'-day streak alive tonight'
+                : $left.' '.($left === 1 ? 'thing' : 'things').' left on today\'s gameplan',
             $this->items($gameplan, openOnly: true),
             $closeCalls,
         ));
