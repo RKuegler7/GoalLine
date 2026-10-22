@@ -64,6 +64,7 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'onboarded_at' => 'datetime',
             'password' => 'hashed',
             'profile_visibility' => ProfileVisibility::class,
         ];

@@ -25,7 +25,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password123',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('welcome.show'));
 
         $user = User::firstWhere('email', 'jordan@example.com');
         $this->assertNotNull($user);

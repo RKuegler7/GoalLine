@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureOnboarded;
 use App\Http\Middleware\UseViewerTimezone;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [UseViewerTimezone::class]);
+        $middleware->web(append: [UseViewerTimezone::class, EnsureOnboarded::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

@@ -21,6 +21,7 @@ use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -40,6 +41,13 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/welcome', [WelcomeController::class, 'you'])->name('welcome.show');
+    Route::put('/welcome', [WelcomeController::class, 'saveYou'])->name('welcome.you');
+    Route::get('/welcome/goal', [WelcomeController::class, 'goal'])->name('welcome.goal');
+    Route::get('/welcome/crew', [WelcomeController::class, 'crew'])->name('welcome.crew');
+    Route::get('/welcome/rules', [WelcomeController::class, 'rules'])->name('welcome.rules');
+    Route::post('/welcome/finish', [WelcomeController::class, 'finish'])->name('welcome.finish');
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 

@@ -36,6 +36,10 @@ class GoalController extends Controller
             $goal->requestRoadmap();
         }
 
+        if ($request->input('from') === 'welcome') {
+            return redirect()->route('welcome.crew')->with('status', 'Goal set. Your roadmap is being built while you finish setting up.');
+        }
+
         return redirect()->route('goals.show', $goal)->with('status', 'Goal set. You\'re in line.');
     }
 

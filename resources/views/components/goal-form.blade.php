@@ -1,4 +1,4 @@
-@props(['goal' => null, 'action', 'method' => 'POST', 'submit'])
+@props(['goal' => null, 'action', 'method' => 'POST', 'submit', 'from' => null, 'cancelUrl' => null, 'cancelLabel' => 'Cancel'])
 
 @php
     $selectedCategory = old('category', $goal?->category?->value);
@@ -6,6 +6,9 @@
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-7">
     @csrf
+    @if ($from)
+        <input type="hidden" name="from" value="{{ $from }}">
+    @endif
     @method($method)
 
     <x-form.input
@@ -66,7 +69,7 @@
     @endunless
 
     <div class="flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-end">
-        <a href="{{ $goal ? route('goals.show', $goal) : route('dashboard') }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 transition hover:text-ink">Cancel</a>
+        <a href="{{ $cancelUrl ?? ($goal ? route('goals.show', $goal) : route('dashboard')) }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 transition hover:text-ink">{{ $cancelLabel }}</a>
         <x-form.button class="sm:w-auto sm:px-8">{{ $submit }}</x-form.button>
     </div>
 </form>
