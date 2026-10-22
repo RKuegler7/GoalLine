@@ -10,8 +10,10 @@ use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FollowController;
+use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
@@ -105,6 +107,16 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/roadmap-tasks/{task}/check', [CheckInController::class, 'toggleTask'])->name('roadmap.tasks.check');
     Route::post('/goalweeks/{week}/milestone', [CheckInController::class, 'toggleMilestone'])->name('goalweeks.milestone');
+
+    Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
+    Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');
+    Route::post('/plan/auto', [GameplanController::class, 'autoPlan'])->name('planner.auto');
+    Route::post('/roadmap-tasks/{task}/tomorrow', [GameplanController::class, 'moveToTomorrow'])->name('roadmap.tasks.tomorrow');
+
+    Route::post('/goals/{goal}/habits', [HabitController::class, 'store'])->name('habits.store')->can('update', 'goal');
+    Route::put('/habits/{habit}', [HabitController::class, 'update'])->name('habits.update');
+    Route::delete('/habits/{habit}', [HabitController::class, 'destroy'])->name('habits.destroy');
+    Route::post('/habits/{habit}/log', [HabitController::class, 'log'])->name('habits.log');
 
     Route::post('/goalweeks/{week}/tasks', [RoadmapTaskController::class, 'store'])->name('roadmap.tasks.store');
     Route::put('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'update'])->name('roadmap.tasks.update');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Clock;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use Illuminate\Http\RedirectResponse;
@@ -23,6 +24,8 @@ class RoadmapTaskController extends Controller
             'description' => $description,
             // Tasks added once the GoalWeek is underway are extra work beyond the plan.
             'is_bonus' => $week->isCurrent(),
+            // and land on today's gameplan.
+            'planned_on' => $week->isCurrent() ? Clock::today() : null,
         ]);
 
         $week->goal->recordRoadmapChange("Added a task to {$this->label($week)}: \"{$description}\"");

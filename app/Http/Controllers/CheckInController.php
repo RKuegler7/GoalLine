@@ -49,10 +49,11 @@ class CheckInController extends Controller
     private function backTo(RoadmapWeek $week): RedirectResponse
     {
         // Check-ins can happen from the Clubhouse too; send people back where they clicked.
-        if (request()->input('return') === 'clubhouse') {
-            return redirect()->to(route('dashboard').'#goal-'.$week->goal_id);
-        }
-
-        return redirect()->to(route('goals.show', $week->goal).'#goalweek-'.$week->position);
+        return match (request()->input('return')) {
+            'clubhouse' => redirect()->to(route('dashboard').'#goal-'.$week->goal_id),
+            'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'planner' => redirect()->route('planner.show'),
+            default => redirect()->to(route('goals.show', $week->goal).'#goalweek-'.$week->position),
+        };
     }
 }

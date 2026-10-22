@@ -10,16 +10,18 @@
     $notStarted = $current && $week->isNotStarted();
     $short = $result === App\GoalWeekResult::Short && ! $notStarted;
 
-    $planned = $week->tasks->reject->is_bonus;
-    $plannedLeft = $planned->whereNull('completed_at')->count();
-    $toInLine = max(0, (int) ceil($planned->count() * App\GoalWeekResult::IN_LINE_AT) - ($planned->count() - $plannedLeft));
-    $bonusNeeded = max(1, (int) ceil($planned->count() * App\GoalWeekResult::SMASH_BONUS_SHARE)) - $week->tasks->filter->is_bonus->filter->completed_at->count();
+    $habits = $week->habits();
+    $units = $week->plannedUnits();
+    $plannedLeft = $units - $week->doneUnits();
+    $toInLine = max(0, (int) ceil($units * App\GoalWeekResult::IN_LINE_AT) - $week->doneUnits());
+    $bonusNeeded = max(1, (int) ceil($units * App\GoalWeekResult::SMASH_BONUS_SHARE)) - $week->tasks->filter->is_bonus->filter->completed_at->count();
+    $checkIns = fn (int $count) => $count.' more '.($habits->isEmpty() ? Str::plural('task', $count) : Str::plural('check-in', $count));
 
     $nudge = match (true) {
         $notStarted => 'New GoalWeek. Check off your first task to get going.',
-        $result === App\GoalWeekResult::Short => 'Check off '.$toInLine.' more '.Str::plural('task', $toInLine).' to get in line.',
-        $closeCall => 'Close call: '.$week->tasksToSafety().' more '.Str::plural('task', $week->tasksToSafety()).' gets you safely in line.',
-        $result === App\GoalWeekResult::InLine && $plannedLeft > 0 => 'Finish the last '.$plannedLeft.' '.Str::plural('task', $plannedLeft).' and hit your milestone to get past the line.',
+        $result === App\GoalWeekResult::Short => 'Check off '.$checkIns($toInLine).' to get in line.',
+        $closeCall => 'Close call: '.$checkIns($week->tasksToSafety()).' gets you safely in line.',
+        $result === App\GoalWeekResult::InLine && $plannedLeft > 0 => 'Finish '.$checkIns($plannedLeft).' and hit your milestone to get past the line.',
         $result === App\GoalWeekResult::InLine => 'Hit your milestone to get past the line.',
         $result === App\GoalWeekResult::Past => 'Past the line! Add and finish '.$bonusNeeded.' bonus '.Str::plural('task', $bonusNeeded).' to smash it.',
         $result === App\GoalWeekResult::Smashed => 'You smashed the line this GoalWeek.',
@@ -98,7 +100,7 @@
                 <span class="text-sm font-semibold text-ink">This GoalWeek so far</span>
                 <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" />
             </div>
-            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned tasks done this GoalWeek" />
+            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned work done this GoalWeek" />
             @if ($nudge)
                 <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
                     {{ $nudge }}
@@ -178,6 +180,24 @@
             </li>
         @endforeach
     </ul>
+
+    @if ($habits->isNotEmpty() && $week->isStarted())
+        <ul class="mt-3 space-y-2 border-t border-line pt-3">
+            @foreach ($habits as $habit)
+                <li class="flex items-center gap-3 text-ink/85">
+                    <x-habit-toggle :habit="$habit" :day="App\Clock::today()" :disabled="! $checkable || ! $current || $habit->archived_at" />
+                    <span class="min-w-0 flex-1">
+                        <x-icon name="repeat" class="inline size-3.5 text-club/60" /> {{ $habit->title }}
+                    </span>
+                    @if ($current)
+                        <x-habit-week :habit="$habit" :week="$week" />
+                    @else
+                        <span class="text-xs text-ink/55 tabular-nums">{{ $habit->doneIn($week) }}/{{ $habit->targetFor($week) }}</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    @endif
 
     @if ($editable)
         <form method="POST" action="{{ route('roadmap.tasks.store', $week) }}" class="mt-3 flex gap-2">

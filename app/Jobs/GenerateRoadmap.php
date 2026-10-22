@@ -7,6 +7,7 @@ use App\Models\Goal;
 use App\Models\RoadmapWeek;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
+use App\Services\WeekPlanner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,7 @@ class GenerateRoadmap implements ShouldQueue
      */
     private function build(RoadmapPlanner $planner): void
     {
-        $this->goal->load('weeks.tasks', 'materials');
+        $this->goal->load('weeks.tasks', 'materials', 'habits');
 
         $kept = $this->fromPosition
             ? $this->goal->weeks->filter(fn (RoadmapWeek $week) => $week->position < $this->fromPosition)
@@ -67,7 +68,9 @@ class GenerateRoadmap implements ShouldQueue
         $roadmap = $planner->plan($this->goal, $periods, $kept);
         $firstPosition = $this->fromPosition ?? 1;
 
-        DB::transaction(function () use ($periods, $roadmap, $firstPosition) {
+        $weekPlanner = app(WeekPlanner::class);
+
+        DB::transaction(function () use ($periods, $roadmap, $firstPosition, $weekPlanner) {
             $this->goal->weeks()->where('position', '>=', $firstPosition)->delete();
 
             foreach ($roadmap['periods'] as $index => $period) {
@@ -86,6 +89,16 @@ class GenerateRoadmap implements ShouldQueue
                         'position' => $position + 1,
                         'description' => Str::limit(trim($task), 250),
                     ]);
+                }
+
+                // Spread the GoalWeek's tasks across its days; people can move them in the weekly planner.
+                $weekPlanner->autoPlan($week->load('tasks'));
+            }
+
+            // Suggested habits are added only when the goal has none, so a rebuild never replaces the person's own.
+            if ($this->goal->currentHabits()->isEmpty()) {
+                foreach ($roadmap['habits'] ?? [] as $habit) {
+                    $this->goal->habits()->create($habit);
                 }
             }
 

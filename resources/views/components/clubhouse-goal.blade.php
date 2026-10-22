@@ -8,6 +8,9 @@
     $closeCall = $week?->isCloseCall() ?? false;
     $planned = $week?->tasks->reject->is_bonus ?? collect();
     $done = $planned->filter->completed_at->count();
+    $habits = $week?->habits()->whereNull('archived_at') ?? collect();
+    $today = App\Clock::today();
+    $checkable = $week?->isCheckable() ?? false;
 @endphp
 
 <section id="goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
@@ -28,8 +31,10 @@
             <p class="text-sm text-ink/70">
                 <span class="font-semibold text-ink">{{ $week->label() }}:</span> {{ $week->focus }}
             </p>
-            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned tasks done this GoalWeek" />
-            <p class="mt-1 text-xs text-ink/55">{{ $done }} of {{ $planned->count() }} planned {{ Str::plural('task', $planned->count()) }} done{{ $week->milestone_hit_at ? ' · milestone hit' : '' }}</p>
+            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned work done this GoalWeek" />
+            <p class="mt-1 text-xs text-ink/55">
+                {{ collect(["{$done} of {$planned->count()} planned ".Str::plural('task', $planned->count()).' done', ...$habits->map(fn ($habit) => $habit->title.' '.$habit->doneIn($week).'/'.$habit->targetFor($week)), $week->milestone_hit_at ? 'milestone hit' : null])->filter()->implode(' · ') }}
+            </p>
 
             <ul class="mt-4 space-y-1.5">
                 @foreach ($week->tasks as $task)
@@ -48,12 +53,27 @@
                                 <span class="sr-only">{{ $task->completed_at ? 'Done: ' : 'Check off: ' }}{{ $task->description }}</span>
                             </button>
                         </form>
-                        <span @class(['text-sm', 'text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink/85' => ! $task->completed_at])>
+                        <span @class(['min-w-0 flex-1 text-sm', 'text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink/85' => ! $task->completed_at])>
                             {{ $task->description }}
                             @if ($task->is_bonus)
                                 <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] text-ink no-underline">Bonus</span>
                             @endif
                         </span>
+                        @if ($task->planned_on && ! $task->completed_at)
+                            <span @class([
+                                'shrink-0 text-xs tabular-nums',
+                                'font-semibold text-club' => $task->planned_on->isSameDay($today),
+                                'font-semibold text-amber-700' => $task->planned_on->lt($today),
+                                'text-ink/45' => $task->planned_on->gt($today),
+                            ])>{{ $task->planned_on->isSameDay($today) ? 'Today' : $task->planned_on->format('D') }}</span>
+                        @endif
+                    </li>
+                @endforeach
+                @foreach ($habits as $habit)
+                    <li @class(['flex items-start gap-3', 'border-t border-line pt-2' => $loop->first])>
+                        <x-habit-toggle :habit="$habit" :day="$today" :disabled="! $checkable" return="clubhouse" />
+                        <span class="min-w-0 flex-1 text-sm text-ink/85">{{ $habit->title }} <span class="text-ink/45">&middot; {{ $habit->cadence() }}</span></span>
+                        <x-habit-week :habit="$habit" :week="$week" />
                     </li>
                 @endforeach
                 <li class="flex items-start gap-3 border-t border-line pt-2">

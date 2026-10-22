@@ -17,7 +17,7 @@ class GoalCompletionController extends Controller
      */
     public function create(Goal $goal): View
     {
-        return view('goals.complete', ['goal' => $goal->load('weeks.tasks')]);
+        return view('goals.complete', ['goal' => $goal->load('weeks.tasks', 'habits.logs')]);
     }
 
     /**

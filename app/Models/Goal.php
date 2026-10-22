@@ -264,4 +264,24 @@ class Goal extends Model
     {
         return $this->weeks->sum(fn (RoadmapWeek $week) => $week->result()?->points() ?? 0);
     }
+
+    /**
+     * Every habit this goal has had, including retired ones (they still count in past GoalWeeks).
+     *
+     * @return HasMany<Habit, $this>
+     */
+    public function habits(): HasMany
+    {
+        return $this->hasMany(Habit::class)->oldest('id');
+    }
+
+    /**
+     * Habits still being practiced.
+     *
+     * @return Collection<int, Habit>
+     */
+    public function currentHabits(): Collection
+    {
+        return $this->habits->whereNull('archived_at')->values();
+    }
 }

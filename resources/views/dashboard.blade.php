@@ -62,6 +62,8 @@
                     </div>
                 </section>
             @else
+                <x-todays-gameplan :gameplan="$gameplan" />
+
                 <div class="flex items-end justify-between gap-4">
                     <h2 class="eyebrow text-club">This GoalWeek</h2>
                     <a href="{{ route('goals.create') }}" class="text-sm font-semibold text-club hover:underline">+ Add a goal</a>

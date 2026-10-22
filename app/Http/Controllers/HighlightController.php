@@ -151,7 +151,7 @@ class HighlightController extends Controller
         if ($goalId = $request->integer('goal')) {
             $goal = Goal::findOrFail($goalId);
             abort_unless($goal->user()->is($user) && $goal->isCompleted(), 403, 'Only completed goals can be shared this way.');
-            $goal->load('weeks.tasks');
+            $goal->load('weeks.tasks', 'habits.logs');
 
             return [
                 'kind' => HighlightKind::GoalCompleted,
@@ -164,7 +164,7 @@ class HighlightController extends Controller
             ];
         }
 
-        $week = RoadmapWeek::with('goal.weeks.tasks')->findOrFail($request->integer('week') ?: $request->integer('milestone'));
+        $week = RoadmapWeek::with('goal.weeks.tasks', 'goal.habits.logs')->findOrFail($request->integer('week') ?: $request->integer('milestone'));
         abort_unless($week->goal->user()->is($user), 403);
 
         if ($request->filled('milestone')) {

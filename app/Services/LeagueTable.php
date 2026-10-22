@@ -16,7 +16,7 @@ class LeagueTable
 {
     public function __construct(public League $league)
     {
-        $league->loadMissing(['members.user', 'members.goal.weeks.tasks', 'results']);
+        $league->loadMissing(['members.user', 'members.goal.weeks.tasks', 'members.goal.habits.logs', 'results']);
     }
 
     /**

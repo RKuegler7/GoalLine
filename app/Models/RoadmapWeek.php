@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Clock;
 use App\GoalWeekResult;
+use Carbon\CarbonInterface;
 use Database\Factories\RoadmapWeekFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 #[Fillable(['position', 'starts_on', 'ends_on', 'focus', 'milestone'])]
 class RoadmapWeek extends Model
@@ -129,13 +131,41 @@ class RoadmapWeek extends Model
     }
 
     /**
-     * Share of the planned (non-bonus) tasks that are done, from 0 to 1.
+     * Habits that count in this GoalWeek.
+     *
+     * @return Collection<int, Habit>
+     */
+    public function habits(): Collection
+    {
+        return $this->goal->habits->filter(fn (Habit $habit) => $habit->countsIn($this))->values();
+    }
+
+    /**
+     * Planned work this GoalWeek: planned (non-bonus) tasks plus each habit's weekly target.
+     */
+    public function plannedUnits(): int
+    {
+        return $this->tasks->reject->is_bonus->count()
+            + $this->habits()->sum(fn (Habit $habit) => $habit->targetFor($this));
+    }
+
+    /**
+     * Planned work done: planned tasks checked off plus habit check-ins, up to each habit's target.
+     */
+    public function doneUnits(): int
+    {
+        return $this->tasks->reject->is_bonus->filter->completed_at->count()
+            + $this->habits()->sum(fn (Habit $habit) => min($habit->targetFor($this), $habit->doneIn($this)));
+    }
+
+    /**
+     * Share of the planned work that's done, from 0 to 1.
      */
     public function completionShare(): float
     {
-        $planned = $this->tasks->reject->is_bonus;
+        $planned = $this->plannedUnits();
 
-        return $planned->isEmpty() ? 1.0 : $planned->filter->completed_at->count() / $planned->count();
+        return $planned === 0 ? 1.0 : $this->doneUnits() / $planned;
     }
 
     /**
@@ -147,11 +177,9 @@ class RoadmapWeek extends Model
             return null;
         }
 
-        $planned = $this->tasks->reject->is_bonus;
-
         return GoalWeekResult::score(
-            planned: $planned->count(),
-            plannedDone: $planned->filter->completed_at->count(),
+            planned: $this->plannedUnits(),
+            plannedDone: $this->doneUnits(),
             bonusDone: $this->tasks->filter->is_bonus->filter->completed_at->count(),
             milestoneHit: $this->milestone_hit_at !== null,
         );
@@ -165,7 +193,7 @@ class RoadmapWeek extends Model
     {
         return $this->starts_on->isSameDay(Clock::today())
             && $this->milestone_hit_at === null
-            && $this->tasks->every(fn (RoadmapTask $task) => $task->completed_at === null);
+            && $this->doneUnits() === 0;
     }
 
     /**
@@ -177,13 +205,20 @@ class RoadmapWeek extends Model
     }
 
     /**
-     * How many more planned tasks would put the GoalWeek safely in line.
+     * How many more check-ins (tasks or habit days) would put the GoalWeek safely in line.
      */
     public function tasksToSafety(): int
     {
-        $planned = $this->tasks->reject->is_bonus;
-        $needed = (int) ceil($planned->count() * GoalWeekResult::SAFELY_IN_LINE_AT);
+        return max(0, (int) ceil($this->plannedUnits() * GoalWeekResult::SAFELY_IN_LINE_AT) - $this->doneUnits());
+    }
 
-        return max(0, $needed - $planned->filter->completed_at->count());
+    /**
+     * Tasks planned for a given day.
+     *
+     * @return Collection<int, RoadmapTask>
+     */
+    public function tasksOn(CarbonInterface $day): Collection
+    {
+        return $this->tasks->filter(fn (RoadmapTask $task) => $task->planned_on?->isSameDay($day))->values();
     }
 }

@@ -30,7 +30,7 @@ class ProfileStats
 
     public function __construct(public User $user)
     {
-        $this->goals = $user->goals()->with('weeks.tasks')->latest()->get();
+        $this->goals = $user->goals()->with('weeks.tasks', 'habits.logs')->latest()->get();
 
         $this->finishedWeeks = $this->goals
             ->flatMap(fn (Goal $goal) => $goal->weeks)
