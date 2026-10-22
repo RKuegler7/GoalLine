@@ -14,6 +14,7 @@
                 <div>
                     <h1 class="font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Plan my week</h1>
                     <p class="mt-2 max-w-xl text-ivory/85">Put each task on a day. It shows up on Today&rsquo;s Gameplan that morning, and anything you miss carries over.</p>
+                    <a href="{{ route('settings.notifications') }}#calendar" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-mint hover:text-ivory"><x-icon name="calendar" class="size-4" /> Sync with your calendar</a>
                 </div>
                 @if ($goals->isNotEmpty())
                     <form method="POST" action="{{ route('planner.auto') }}" class="shrink-0">

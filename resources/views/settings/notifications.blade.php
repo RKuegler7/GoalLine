@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('profile.edit') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Edit profile</a>
-            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Notifications &amp; reminders</h1>
+            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Notifications, reminders &amp; calendar</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Daily reminders keep you in line. Everything social always lands in your Inbox; choose what also comes by email.</p>
         </div>
     </x-slot:hero>
@@ -67,4 +67,34 @@
             <x-form.button class="sm:w-auto sm:px-8">Save settings</x-form.button>
         </div>
     </form>
+
+    {{-- Calendar subscription. --}}
+    @php
+        $feedUrl = auth()->user()->calendarUrl();
+        $webcalUrl = preg_replace('/^https?:/', 'webcal:', $feedUrl);
+    @endphp
+    <section id="calendar" class="mx-auto mt-6 max-w-2xl scroll-mt-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="calendar" class="size-4" /> Add GoalLine to your calendar</h2>
+        <p class="mt-2 text-sm text-ink/65">Your planned tasks on their days, recurring habits, GoalWeek milestones, and target dates, kept in sync automatically.</p>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+            <a href="https://calendar.google.com/calendar/render?cid={{ urlencode($webcalUrl) }}" target="_blank" rel="noopener" class="rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Google Calendar</a>
+            <a href="{{ $webcalUrl }}" class="rounded-full border border-club/30 px-4 py-2 text-sm font-semibold text-club hover:border-club">Apple Calendar</a>
+            <a href="https://outlook.live.com/calendar/0/addfromweb?url={{ urlencode($feedUrl) }}&name=GoalLine" target="_blank" rel="noopener" class="rounded-full border border-club/30 px-4 py-2 text-sm font-semibold text-club hover:border-club">Outlook</a>
+        </div>
+
+        <label for="calendar-url" class="mt-5 block text-sm font-medium text-ink/80">Or subscribe with this link in any calendar app</label>
+        <div class="mt-1.5 flex gap-2">
+            <input id="calendar-url" type="text" readonly value="{{ $feedUrl }}" onclick="this.select()"
+                class="min-w-0 flex-1 rounded-lg border border-line bg-ivory/60 px-3 py-2 font-mono text-xs text-ink/75 outline-none focus:border-club">
+            <button type="button" data-copy="calendar-url" class="shrink-0 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-club hover:border-club/40">Copy</button>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/55">
+            <span>Keep this link private: anyone with it can see your plan.</span>
+            <form method="POST" action="{{ route('calendar.reset') }}" onsubmit="return confirm('Make a new link? Calendars using the old one will stop updating.')">
+                @csrf
+                <button type="submit" class="font-semibold text-ink/60 hover:text-red-700">Make a new link</button>
+            </form>
+        </div>
+    </section>
 </x-layouts.app>

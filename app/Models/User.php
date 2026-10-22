@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 #[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'calendar_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
@@ -78,6 +78,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notificationSettings(): NotificationSettings
     {
         return NotificationSettings::from($this->notification_settings);
+    }
+
+    /**
+     * The link a calendar app subscribes to, made the first time it's needed.
+     */
+    public function calendarUrl(): string
+    {
+        if (! $this->calendar_token) {
+            $this->resetCalendarToken();
+        }
+
+        return route('calendar.feed', $this->calendar_token);
+    }
+
+    /**
+     * Make a new calendar link, so the old one stops working.
+     */
+    public function resetCalendarToken(): void
+    {
+        $this->forceFill(['calendar_token' => Str::random(40)])->save();
     }
 
     /**

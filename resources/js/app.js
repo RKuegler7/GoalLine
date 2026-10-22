@@ -381,3 +381,19 @@ function setUpMentions(input) {
 }
 
 document.querySelectorAll('[data-mention-input]').forEach(setUpMentions);
+
+/**
+ * Copy buttons: copy the named field's value.
+ */
+document.querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        const field = document.getElementById(button.dataset.copy);
+
+        try {
+            await navigator.clipboard.writeText(field.value);
+            button.textContent = 'Copied';
+        } catch {
+            field.select();
+        }
+    });
+});

@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SessionController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
@@ -31,6 +32,9 @@ use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
+
+// Calendar apps fetch this without logging in; the secret token in the link is the key.
+Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -117,6 +121,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/inbox', InboxController::class)->name('inbox');
     Route::get('/settings/notifications', [NotificationSettingsController::class, 'edit'])->name('settings.notifications');
     Route::put('/settings/notifications', [NotificationSettingsController::class, 'update'])->name('settings.notifications.update');
+    Route::post('/settings/calendar/reset', [CalendarController::class, 'reset'])->name('calendar.reset');
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
     Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');
