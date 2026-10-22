@@ -9,9 +9,9 @@ use App\Models\Goal;
 use App\Models\Highlight;
 use App\Models\RoadmapWeek;
 use App\Models\User;
+use App\Services\HighlightFeed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -30,20 +30,7 @@ class HighlightController extends Controller
     public function index(Request $request): View
     {
         $viewer = $request->user();
-        $authors = $viewer->following()->pluck('users.id')
-            ->merge($viewer->leagueMateIds())
-            ->push($viewer->id)
-            ->unique();
-
-        $highlights = Highlight::query()
-            ->whereIn('user_id', $authors)
-            ->when($request->integer('before'), fn ($query, $before) => $query->where('id', '<', $before))
-            ->with(['user', 'cheers.user'])
-            ->latest('id')
-            ->limit(self::PAGE_SIZE)
-            ->get()
-            ->filter(fn (Highlight $highlight) => Gate::allows('view', $highlight))
-            ->values();
+        $highlights = (new HighlightFeed($viewer))->latest(self::PAGE_SIZE, $request->integer('before') ?: null);
 
         return view('highlights.index', [
             'highlights' => $highlights,

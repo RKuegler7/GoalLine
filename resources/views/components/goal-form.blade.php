@@ -48,7 +48,7 @@
         label="When does it need to happen by?"
         type="date"
         :value="$goal?->target_date?->format('Y-m-d')"
-        :min="AppClock::today()->addDay()->format('Y-m-d')"
+        :min="App\Clock::today()->addDay()->format('Y-m-d')"
         hint="Your roadmap will be built backward from this date."
         required
     />
