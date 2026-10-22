@@ -25,6 +25,8 @@ class PageSmokeTest extends TestCase
         return [
             'clubhouse' => ['dashboard'],
             'plan my week' => ['planner.show'],
+            'inbox' => ['inbox'],
+            'notification settings' => ['settings.notifications'],
             'new goal' => ['goals.create'],
             'goal' => ['goals.show'],
             'edit goal' => ['goals.edit'],

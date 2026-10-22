@@ -9,9 +9,13 @@ use App\Models\Goal;
 use App\Models\Highlight;
 use App\Models\RoadmapWeek;
 use App\Models\User;
+use App\Notifications\FriendHighlight;
+use App\Notifications\HighlightCheered;
 use App\Services\HighlightFeed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -88,6 +92,12 @@ class HighlightController extends Controller
         };
         $highlight->forceFill(['photo_path' => $photoPath])->save();
 
+        // Let followers who can see this locker know.
+        Notification::send(
+            $request->user()->followers()->get()->filter(fn (User $follower) => Gate::forUser($follower)->allows('viewProfile', $request->user())),
+            new FriendHighlight($highlight),
+        );
+
         return redirect()->to(route('highlights.index').'#highlight-'.$highlight->id)->with('status', 'Shared to Highlights.');
     }
 
@@ -109,6 +119,15 @@ class HighlightController extends Controller
         $existing = $highlight->cheers()->where('user_id', $request->user()->id)->first();
 
         $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $request->user()->id]);
+
+        // One notification per fan per highlight, even if they toggle the cheer.
+        $fan = $request->user();
+        $alreadyTold = $highlight->user->notifications()->where('type', HighlightCheered::class)
+            ->where('data->highlight_id', $highlight->id)->where('data->actor_id', $fan->id)->exists();
+
+        if (! $existing && ! $fan->is($highlight->user) && ! $alreadyTold) {
+            $highlight->user->notify(new HighlightCheered($highlight, $fan));
+        }
 
         return redirect()->to(url()->previous(route('highlights.index')).'#highlight-'.$highlight->id);
     }

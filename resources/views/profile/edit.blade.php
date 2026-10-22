@@ -87,7 +87,10 @@
 
         {{-- Settings. --}}
         <section class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
-            <h2 class="eyebrow text-club">Settings</h2>
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="eyebrow text-club">Settings</h2>
+                <a href="{{ route('settings.notifications') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-club hover:underline"><x-icon name="bell" class="size-4" /> Notifications &amp; reminders</a>
+            </div>
 
             <div>
                 <label for="timezone" class="mb-1.5 block text-sm font-medium text-ink/80">Time zone</label>

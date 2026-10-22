@@ -24,6 +24,10 @@
             <path d="M7 20.5l-3-3 3-3" />
             <path d="M20 12.5v1a4 4 0 0 1-4 4H4" />
             @break
+        @case('bell')
+            <path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15z" />
+            <path d="M10 20.5a2 2 0 0 0 4 0" />
+            @break
         @case('plus')
             <path d="M12 5v14M5 12h14" />
             @break

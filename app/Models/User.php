@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\NotificationSettings;
 use App\ProfileVisibility;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -67,7 +68,16 @@ class User extends Authenticatable implements MustVerifyEmail
             'onboarded_at' => 'datetime',
             'password' => 'hashed',
             'profile_visibility' => ProfileVisibility::class,
+            'notification_settings' => 'array',
         ];
+    }
+
+    /**
+     * What this person wants emailed, and when their daily reminders arrive.
+     */
+    public function notificationSettings(): NotificationSettings
+    {
+        return NotificationSettings::from($this->notification_settings);
     }
 
     /**

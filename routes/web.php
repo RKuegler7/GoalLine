@@ -15,9 +15,11 @@ use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightController;
+use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
+use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
@@ -107,6 +109,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/roadmap-tasks/{task}/check', [CheckInController::class, 'toggleTask'])->name('roadmap.tasks.check');
     Route::post('/goalweeks/{week}/milestone', [CheckInController::class, 'toggleMilestone'])->name('goalweeks.milestone');
+
+    Route::get('/inbox', InboxController::class)->name('inbox');
+    Route::get('/settings/notifications', [NotificationSettingsController::class, 'edit'])->name('settings.notifications');
+    Route::put('/settings/notifications', [NotificationSettingsController::class, 'update'])->name('settings.notifications.update');
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
     Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');

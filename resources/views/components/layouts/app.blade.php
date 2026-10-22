@@ -3,6 +3,7 @@
 @php
     $viewer = auth()->user();
     $unread = $viewer->unreadLeagueMessages();
+    $inboxCount = $viewer->unreadNotifications()->count();
     $tabs = [
         ['label' => 'Clubhouse', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'goals.*', 'planner.*'), 'icon' => 'clubhouse'],
         ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => request()->routeIs('leagues.*'), 'icon' => 'leagues', 'badge' => $unread],
@@ -42,6 +43,13 @@
             <div class="flex items-center gap-3">
                 <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold text-club transition hover:bg-white md:flex">
                     <x-icon name="plus" class="size-4" /> New goal
+                </a>
+                <a href="{{ route('inbox') }}" @class(['relative rounded-full p-1.5 transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
+                    aria-label="Inbox{{ $inboxCount ? ', '.$inboxCount.' new' : '' }}">
+                    <x-icon name="bell" class="size-6" />
+                    @if ($inboxCount)
+                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
+                    @endif
                 </a>
                 <a href="{{ route('profile.show') }}" class="rounded-full ring-2 ring-ivory/25 transition hover:ring-ivory/60" aria-label="My Locker">
                     <x-avatar :user="$viewer" tone="light" class="size-9 text-xs" />

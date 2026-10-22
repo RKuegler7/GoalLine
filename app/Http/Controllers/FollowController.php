@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\NewFollower;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -17,7 +18,11 @@ class FollowController extends Controller
         abort_if($request->user()->is($user), 422, "You can't follow yourself.");
         Gate::authorize('viewProfile', $user);
 
-        $request->user()->following()->syncWithoutDetaching([$user->id]);
+        $changes = $request->user()->following()->syncWithoutDetaching([$user->id]);
+
+        if ($changes['attached'] !== []) {
+            $user->notify(new NewFollower($request->user()));
+        }
 
         return back()->with('status', "You're following ".$user->name.'. Their highlights will show in your feed.');
     }
