@@ -30,6 +30,19 @@
         </div>
     </x-slot:hero>
 
+    @if ($status === App\LeagueStatus::Finished)
+        <a href="{{ route('leagues.recap', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-gold/60 bg-gold/15 px-5 py-4 transition hover:bg-gold/25">
+            <span class="flex items-center gap-3">
+                <x-badge :badge="App\Badge::Champion" class="size-10" />
+                <span>
+                    <span class="block font-serif text-lg font-medium text-ink">The season recap is in</span>
+                    <span class="block text-sm text-ink/65">Final table, Champion, MVP, Comeback Player, and more.</span>
+                </span>
+            </span>
+            <span class="shrink-0 text-sm font-semibold text-ink">See it &rarr;</span>
+        </a>
+    @endif
+
     @if ($status === App\LeagueStatus::Forming)
         {{-- Invite. --}}
         <section class="rounded-2xl border border-line bg-white px-6 py-5">
@@ -146,7 +159,10 @@
     {{-- Past weeks. --}}
     @if ($settledWeeks->isNotEmpty())
         <section class="mt-8">
-            <h2 class="eyebrow text-club">Results</h2>
+            <div class="flex items-end justify-between gap-4">
+                <h2 class="eyebrow text-club">Results</h2>
+                <a href="{{ route('leagues.recap', $league) }}" class="text-sm font-semibold text-club hover:underline">Weekly recaps</a>
+            </div>
             <div class="mt-3 space-y-2">
                 @foreach ($settledWeeks as $pastWeek)
                     @php

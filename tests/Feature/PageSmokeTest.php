@@ -35,6 +35,7 @@ class PageSmokeTest extends TestCase
             'goalleagues' => ['leagues.index'],
             'start a goalleague' => ['leagues.create'],
             'goalleague' => ['leagues.show'],
+            'goalleague recap' => ['leagues.recap'],
             'highlights' => ['highlights.index'],
             'find people' => ['people.index'],
             'my locker' => ['profile.show'],
@@ -55,7 +56,7 @@ class PageSmokeTest extends TestCase
 
         $parameters = match (true) {
             str_starts_with($route, 'goals.') && $route !== 'goals.create' => $goal,
-            $route === 'leagues.show' => $league,
+            in_array($route, ['leagues.show', 'leagues.recap'], true) => $league,
             default => [],
         };
 

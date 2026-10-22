@@ -155,6 +155,8 @@
         </section>
     </div>
 
+    <x-badge-shelf :user="$user" :is-own="$isOwn" class="mt-10" />
+
     {{-- Trophy case. --}}
     <section class="mt-10">
         <h2 class="eyebrow text-club">Trophy case</h2>

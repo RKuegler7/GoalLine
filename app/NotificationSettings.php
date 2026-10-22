@@ -16,7 +16,8 @@ final class NotificationSettings
     public const CATEGORIES = [
         'reminders' => ['Daily reminders', 'Your morning gameplan, and an evening nudge when there is still work left.'],
         'results' => ['GoalWeek results', 'When a GoalWeek is final, with your result and points.'],
-        'leagues' => ['GoalLeagues', 'New members joining your leagues.'],
+        'badges' => ['Badges and awards', 'When you earn a badge or win a GoalLeague award.'],
+        'leagues' => ['GoalLeagues', 'Weekly and season recaps, and new members joining your leagues.'],
         'social' => ['Cheers and follows', 'When someone cheers a highlight or follows you.'],
         'news' => ['GoalLine news', 'New features and the occasional note from the team.'],
     ];
@@ -29,6 +30,7 @@ final class NotificationSettings
     public const EMAIL_DEFAULTS = [
         'reminders' => true,
         'results' => true,
+        'badges' => true,
         'leagues' => true,
         'social' => false,
         'news' => true,

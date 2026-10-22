@@ -19,6 +19,7 @@ use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
+use App\Http\Controllers\LeagueRecapController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
@@ -132,6 +133,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
     Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware(['verified', 'throttle:10,60']);
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
+    Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');

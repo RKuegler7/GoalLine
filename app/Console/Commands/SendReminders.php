@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Clock;
 use App\GoalWeekResult;
+use App\Jobs\AwardBadges;
 use App\Models\Goal;
 use App\Models\Habit;
 use App\Models\RoadmapTask;
@@ -55,6 +56,11 @@ class SendReminders extends Command
      */
     private function remind(User $user): int
     {
+        // Once a day, check for badges earned from GoalWeeks that just became final.
+        if ($this->claim($user, 'badges')) {
+            AwardBadges::dispatch($user);
+        }
+
         $settings = $user->notificationSettings();
         $now = now(Clock::timezone());
         $sent = 0;

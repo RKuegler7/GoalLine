@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\DB;
 
 class LeagueTable
 {
+    /**
+     * Weekly recaps older than this aren't sent, for example when old weeks settle all at once.
+     */
+    public const RECAP_NEWS_DAYS = 14;
+
     public function __construct(public League $league)
     {
         $league->loadMissing(['members.user', 'members.goal.weeks.tasks', 'members.goal.habits.logs', 'results']);
@@ -126,6 +131,7 @@ class LeagueTable
 
     /**
      * Store results for every finished league week that hasn't been stored yet. Stored results never change.
+     * Then send the latest week's recap, and the season awards once the last week is in.
      */
     public function settle(): void
     {
@@ -135,6 +141,7 @@ class LeagueTable
 
         $settled = $this->league->results->pluck('week')->unique();
         $lastWeek = min($this->league->currentWeek() ?? $this->league->weeksCount(), $this->league->weeksCount());
+        $newlySettled = [];
 
         foreach (range(1, $lastWeek) as $week) {
             if ($settled->contains($week) || ! $this->isFinal($week)) {
@@ -152,9 +159,21 @@ class LeagueTable
 
                 $this->announceFinal($week);
             });
+
+            $newlySettled[] = $week;
         }
 
         $this->league->load('results');
+        $recap = new SeasonRecap($this->league, $this);
+
+        // Only the latest week gets a recap notification, and only while it's news.
+        $latest = $newlySettled === [] ? null : max($newlySettled);
+
+        if ($latest && $this->league->weekEndsOn($latest)->gte(Clock::today()->subDays(self::RECAP_NEWS_DAYS))) {
+            $recap->notifyWeek($latest);
+        }
+
+        $recap->finalize();
     }
 
     /**

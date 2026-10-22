@@ -81,6 +81,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Badges earned and GoalLeague awards won.
+     *
+     * @return HasMany<UserBadge, $this>
+     */
+    public function badges(): HasMany
+    {
+        return $this->hasMany(UserBadge::class)->latest('earned_at');
+    }
+
+    /**
      * The goals this person is pursuing.
      *
      * @return HasMany<Goal, $this>

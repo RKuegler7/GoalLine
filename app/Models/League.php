@@ -82,7 +82,17 @@ class League extends Model
     }
 
     /**
-     * Settled weekly results.
+     * Season awards won in this league.
+     *
+     * @return HasMany<UserBadge, $this>
+     */
+    public function awards(): HasMany
+    {
+        return $this->hasMany(UserBadge::class);
+    }
+
+    /**
+     * Settled weekly results, one row per member per week.
      *
      * @return HasMany<LeagueResult, $this>
      */
