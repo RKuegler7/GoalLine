@@ -156,6 +156,8 @@
         </section>
     </div>
 
+    <x-activity-heatmap :heatmap="$heatmap" class="mt-10" />
+
     <x-badge-shelf :user="$user" :is-own="$isOwn" class="mt-10" />
 
     {{-- Trophy case. --}}

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Clock;
 use App\GoalStatus;
 use App\Http\Requests\ProfileRequest;
 use App\Models\Highlight;
 use App\Models\User;
+use App\Services\ActivityHeatmap;
 use App\Services\ProfileStats;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,6 +40,8 @@ class ProfileController extends Controller
 
         return view('profile.show', [
             'stats' => new ProfileStats($user),
+            // Days on the locker owner's clock, wherever the viewer is.
+            'heatmap' => Clock::for($user, fn () => new ActivityHeatmap($user)),
             'isOwn' => $viewer->is($user),
             'following' => $following,
             'isFriend' => $following && $user->follows($viewer),
