@@ -42,7 +42,7 @@ class ProfileController extends Controller
             'following' => $following,
             'isFriend' => $following && $user->follows($viewer),
             'friends' => $user->friends(),
-            'highlights' => $user->highlights()->with(['user', 'cheers.user'])->limit(4)->get()
+            'highlights' => $user->highlights()->with(['user', 'cheers.user', 'comments.user'])->limit(4)->get()
                 ->filter(fn (Highlight $highlight) => Gate::allows('view', $highlight))
                 ->values(),
         ]);

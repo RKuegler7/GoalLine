@@ -5,6 +5,18 @@
     $viewer = auth()->user();
     $mine = $highlight->user_id === $viewer->id;
     $cheered = $highlight->isCheeredBy($viewer);
+    $comments = $highlight->comments;
+    $hiddenComments = max(0, $comments->count() - 2);
+
+    // Who you might @mention here: the author, everyone in the thread, and your friends.
+    $mentionable = collect([$highlight->user])
+        ->merge($comments->pluck('user'))
+        ->merge(once(fn () => $viewer->friends()))
+        ->filter()
+        ->reject(fn ($person) => $person->is($viewer))
+        ->unique('id')
+        ->map(fn ($person) => ['u' => $person->username, 'n' => $person->name])
+        ->values();
 @endphp
 
 <article id="highlight-{{ $highlight->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
@@ -76,5 +88,40 @@
                 <p class="truncate text-sm text-ink/55">{{ $summary }}</p>
             @endif
         </div>
+
+        {{-- Comments: the latest two, with the rest a tap away. --}}
+        @if ($comments->isNotEmpty())
+            <div class="mt-3 space-y-2.5">
+                @if ($hiddenComments > 0)
+                    <details class="group/more">
+                        <summary class="cursor-pointer list-none text-sm font-semibold text-ink/55 hover:text-club [&::-webkit-details-marker]:hidden">
+                            <span class="group-open/more:hidden">View all {{ $comments->count() }} comments</span>
+                            <span class="hidden group-open/more:inline">Show fewer</span>
+                        </summary>
+                        <ul class="mt-2.5 space-y-2.5">
+                            @foreach ($comments->take($hiddenComments) as $comment)
+                                <x-highlight-comment :comment="$comment" :highlight="$highlight" />
+                            @endforeach
+                        </ul>
+                    </details>
+                @endif
+                <ul class="space-y-2.5">
+                    @foreach ($comments->skip($hiddenComments) as $comment)
+                        <x-highlight-comment :comment="$comment" :highlight="$highlight" />
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('highlights.comments.store', $highlight) }}" class="relative mt-3 flex items-end gap-2">
+            @csrf
+            <x-avatar :user="$viewer" class="mb-1 size-7 text-[0.6rem]" />
+            <label for="comment-{{ $highlight->id }}" class="sr-only">Add a comment</label>
+            <textarea id="comment-{{ $highlight->id }}" name="body" rows="1" maxlength="{{ App\Models\HighlightComment::MAX_LENGTH }}" required
+                placeholder="Add a comment. Type @ to mention someone."
+                data-mention-input data-mentions="{{ $mentionable->toJson() }}"
+                class="max-h-32 min-h-[2.4rem] flex-1 resize-y rounded-xl border border-line bg-ivory/60 px-3 py-2 text-sm text-ink outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10"></textarea>
+            <button type="submit" class="rounded-xl px-3 py-2 text-sm font-semibold text-club hover:bg-mint">Post</button>
+        </form>
     </div>
 </article>

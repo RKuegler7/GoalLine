@@ -27,7 +27,7 @@ class HighlightFeed
         return Highlight::query()
             ->whereIn('user_id', $authors)
             ->when($before, fn ($query) => $query->where('id', '<', $before))
-            ->with(['user', 'cheers.user'])
+            ->with(['user', 'cheers.user', 'comments.user'])
             ->latest('id')
             ->limit($limit)
             ->get()

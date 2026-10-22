@@ -14,6 +14,7 @@ use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\HabitController;
+use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeagueController;
@@ -75,6 +76,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store')->middleware(['verified', 'throttle:20,60']);
     Route::delete('/highlights/{highlight}', [HighlightController::class, 'destroy'])->name('highlights.destroy')->can('delete', 'highlight');
     Route::post('/highlights/{highlight}/cheer', [HighlightController::class, 'cheer'])->name('highlights.cheer')->can('view', 'highlight')->middleware(['verified', 'throttle:60,1']);
+    Route::post('/highlights/{highlight}/comments', [HighlightCommentController::class, 'store'])->name('highlights.comments.store')->can('view', 'highlight')->middleware(['verified', 'throttle:30,1']);
+    Route::delete('/comments/{comment}', [HighlightCommentController::class, 'destroy'])->name('highlights.comments.destroy');
     Route::get('/highlights/{highlight}/photo', [HighlightController::class, 'photo'])->name('highlights.photo')->can('view', 'highlight');
     Route::get('/highlights/{highlight}/card', [HighlightController::class, 'card'])->name('highlights.card')->can('delete', 'highlight');
 

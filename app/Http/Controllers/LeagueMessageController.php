@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mentions;
 use App\Models\League;
 use App\Models\LeagueMessage;
+use App\Notifications\Mentioned;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Notification;
 
 class LeagueMessageController extends Controller
 {
@@ -39,7 +42,13 @@ class LeagueMessageController extends Controller
             'body.required' => 'Write a message first.',
         ]);
 
-        $league->messages()->create(['user_id' => $request->user()->id, 'body' => trim($validated['body'])]);
+        $message = $league->messages()->create(['user_id' => $request->user()->id, 'body' => trim($validated['body'])]);
+
+        // Let anyone @mentioned in the league know.
+        Notification::send(
+            Mentions::among($message->body, $league->members()->with('user')->get()->pluck('user')->filter())->reject(fn ($user) => $user->is($request->user())),
+            new Mentioned($request->user(), 'in '.$league->name, $message->body, route('leagues.show', $league).'#chat'),
+        );
 
         if ($request->ajax()) {
             return $this->index($request, $league);

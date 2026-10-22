@@ -18,6 +18,7 @@ final class NotificationSettings
         'results' => ['GoalWeek results', 'When a GoalWeek is final, with your result and points.'],
         'badges' => ['Badges and awards', 'When you earn a badge or win a GoalLeague award.'],
         'leagues' => ['GoalLeagues', 'Weekly and season recaps, and new members joining your leagues.'],
+        'mentions' => ['Comments and mentions', 'When someone comments on your highlight or @mentions you.'],
         'social' => ['Cheers and follows', 'When someone cheers a highlight or follows you.'],
         'news' => ['GoalLine news', 'New features and the occasional note from the team.'],
     ];
@@ -32,6 +33,7 @@ final class NotificationSettings
         'results' => true,
         'badges' => true,
         'leagues' => true,
+        'mentions' => true,
         'social' => false,
         'news' => true,
     ];

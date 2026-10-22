@@ -24,7 +24,7 @@
                         {{ App\Clock::shortTime($message->created_at) }}
                     </time>
                 </p>
-                <p class="break-words whitespace-pre-line text-ink/85">{{ $message->body }}</p>
+                <p class="break-words whitespace-pre-line text-ink/85">{{ App\Mentions::render($message->body) }}</p>
             </div>
             @if (auth()->id() === $message->user_id || auth()->id() === $league->commissioner_id)
                 <form method="POST" action="{{ route('leagues.messages.destroy', $message) }}" data-chat-delete class="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">

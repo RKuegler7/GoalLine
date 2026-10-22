@@ -280,3 +280,104 @@ if (installCard && !isInstalled && !wasDismissed()) {
         installCard.hidden = true;
     });
 }
+
+/**
+ * @mentions: while typing "@na", suggest matching people and fill in their username.
+ */
+function setUpMentions(input) {
+    let people = [];
+
+    try {
+        people = JSON.parse(input.dataset.mentions || '[]');
+    } catch {
+        return;
+    }
+
+    if (people.length === 0) {
+        return;
+    }
+
+    const list = document.createElement('ul');
+    list.className = 'absolute bottom-full left-0 z-20 mb-1 max-h-56 w-64 overflow-y-auto rounded-xl border border-line bg-white py-1 text-sm shadow-lg';
+    list.setAttribute('role', 'listbox');
+    list.hidden = true;
+    input.parentElement.append(list);
+    let matches = [];
+    let active = 0;
+
+    const query = () => {
+        const before = input.value.slice(0, input.selectionStart);
+        const match = before.match(/(?:^|[^\w.@])@([a-z0-9._]{0,30})$/i);
+
+        return match ? match[1].toLowerCase() : null;
+    };
+
+    const close = () => {
+        list.hidden = true;
+        matches = [];
+    };
+
+    const render = () => {
+        list.replaceChildren(...matches.map((person, index) => {
+            const item = document.createElement('li');
+            item.setAttribute('role', 'option');
+            item.setAttribute('aria-selected', index === active ? 'true' : 'false');
+            item.className = `cursor-pointer px-3 py-1.5 ${index === active ? 'bg-mint' : 'hover:bg-ivory'}`;
+            item.innerHTML = '<span class="font-semibold text-ink"></span> <span class="text-ink/50"></span>';
+            item.firstChild.textContent = person.n;
+            item.lastChild.textContent = `@${person.u}`;
+            item.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                choose(person);
+            });
+
+            return item;
+        }));
+        list.hidden = matches.length === 0;
+    };
+
+    const choose = (person) => {
+        const caret = input.selectionStart;
+        const before = input.value.slice(0, caret).replace(/@([a-z0-9._]{0,30})$/i, `@${person.u} `);
+        input.value = before + input.value.slice(caret);
+        input.setSelectionRange(before.length, before.length);
+        input.focus();
+        close();
+    };
+
+    input.addEventListener('input', () => {
+        const typed = query();
+
+        if (typed === null) {
+            close();
+
+            return;
+        }
+
+        matches = people.filter((person) => person.u.toLowerCase().startsWith(typed) || person.n.toLowerCase().split(' ').some((part) => part.startsWith(typed))).slice(0, 6);
+        active = 0;
+        render();
+    });
+
+    input.addEventListener('keydown', (event) => {
+        if (list.hidden) {
+            return;
+        }
+
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            active = (active + (event.key === 'ArrowDown' ? 1 : matches.length - 1)) % matches.length;
+            render();
+        } else if (event.key === 'Enter' || event.key === 'Tab') {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            choose(matches[active]);
+        } else if (event.key === 'Escape') {
+            close();
+        }
+    }, true); // Capture, so picking a name with Enter runs before the chat's Enter-to-send.
+
+    input.addEventListener('blur', () => setTimeout(close, 100));
+}
+
+document.querySelectorAll('[data-mention-input]').forEach(setUpMentions);

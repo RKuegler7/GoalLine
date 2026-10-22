@@ -238,11 +238,12 @@
             @include('leagues.partials.messages', ['messages' => $messages])
         </ol>
 
-        <form method="POST" action="{{ route('leagues.messages.store', $league) }}" data-chat-form class="flex items-end gap-2 border-t border-line px-4 py-3">
+        <form method="POST" action="{{ route('leagues.messages.store', $league) }}" data-chat-form class="relative flex items-end gap-2 border-t border-line px-4 py-3">
             @csrf
             <label for="chat-body" class="sr-only">Message</label>
             <textarea id="chat-body" name="body" rows="1" maxlength="{{ App\Models\LeagueMessage::MAX_LENGTH }}" required
-                placeholder="Cheer someone on, call your shot, or talk trash..."
+                placeholder="Cheer someone on, call your shot, or talk trash. Type @ to mention someone."
+                data-mention-input data-mentions="{{ $league->members->pluck('user')->filter()->reject(fn ($person) => $person->is(auth()->user()))->map(fn ($person) => ['u' => $person->username, 'n' => $person->name])->values()->toJson() }}"
                 class="max-h-40 min-h-[2.75rem] flex-1 resize-y rounded-xl border border-line bg-ivory/60 px-3.5 py-2.5 text-ink outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10"></textarea>
             <button type="submit" class="rounded-xl bg-club px-4 py-2.5 font-semibold text-ivory hover:bg-club-dark">Send</button>
         </form>

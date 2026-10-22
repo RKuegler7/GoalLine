@@ -92,6 +92,16 @@ class Highlight extends Model
     }
 
     /**
+     * Comments, oldest first.
+     *
+     * @return HasMany<HighlightComment, $this>
+     */
+    public function comments(): HasMany
+    {
+        return $this->hasMany(HighlightComment::class)->orderBy('id');
+    }
+
+    /**
      * Where the photo is served from, if there is one.
      */
     public function photoUrl(): ?string
