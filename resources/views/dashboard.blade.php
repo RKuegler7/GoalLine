@@ -44,6 +44,7 @@
     @endif
 
     <x-install-app class="mb-6" />
+    <x-push-nudge class="mb-6" />
 
     <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
         {{-- This GoalWeek, goal by goal. --}}

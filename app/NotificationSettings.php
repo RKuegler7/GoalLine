@@ -4,7 +4,7 @@ namespace App;
 
 /**
  * What each person wants to hear about, and when their daily reminders arrive on their own clock.
- * Everything social lands in the Inbox regardless; these settings choose what also goes to email.
+ * Everything social lands in the Inbox regardless; these settings choose what also goes to push and email.
  */
 final class NotificationSettings
 {
@@ -38,6 +38,21 @@ final class NotificationSettings
         'news' => true,
     ];
 
+    /**
+     * Push is on for everything except news, once someone turns it on for a device.
+     *
+     * @var array<string, bool>
+     */
+    public const PUSH_DEFAULTS = [
+        'reminders' => true,
+        'results' => true,
+        'badges' => true,
+        'leagues' => true,
+        'mentions' => true,
+        'social' => true,
+        'news' => false,
+    ];
+
     public const MORNING_DEFAULT = '07:30';
 
     public const EVENING_DEFAULT = '20:00';
@@ -54,9 +69,11 @@ final class NotificationSettings
 
     /**
      * @param  array<string, bool>  $email
+     * @param  array<string, bool>  $push
      */
     public function __construct(
         public readonly array $email,
+        public readonly array $push,
         public readonly ?string $morningAt,
         public readonly ?string $eveningAt,
     ) {}
@@ -72,6 +89,7 @@ final class NotificationSettings
 
         return new self(
             email: collect(self::EMAIL_DEFAULTS)->map(fn (bool $default, string $category) => (bool) ($stored['email'][$category] ?? $default))->all(),
+            push: collect(self::PUSH_DEFAULTS)->map(fn (bool $default, string $category) => (bool) ($stored['push'][$category] ?? $default))->all(),
             morningAt: array_key_exists('morning_at', $stored) ? $stored['morning_at'] : self::MORNING_DEFAULT,
             eveningAt: array_key_exists('evening_at', $stored) ? $stored['evening_at'] : self::EVENING_DEFAULT,
         );
@@ -86,11 +104,19 @@ final class NotificationSettings
     }
 
     /**
-     * @return array{email: array<string, bool>, morning_at: string|null, evening_at: string|null}
+     * Whether a kind of notification should also go to the member's phones and browsers with push turned on.
+     */
+    public function wantsPush(string $category): bool
+    {
+        return $this->push[$category] ?? false;
+    }
+
+    /**
+     * @return array{email: array<string, bool>, push: array<string, bool>, morning_at: string|null, evening_at: string|null}
      */
     public function toArray(): array
     {
-        return ['email' => $this->email, 'morning_at' => $this->morningAt, 'evening_at' => $this->eveningAt];
+        return ['email' => $this->email, 'push' => $this->push, 'morning_at' => $this->morningAt, 'evening_at' => $this->eveningAt];
     }
 
     /**

@@ -101,6 +101,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Devices where this person turned on push notifications.
+     *
+     * @return HasMany<PushSubscription, $this>
+     */
+    public function pushSubscriptions(): HasMany
+    {
+        return $this->hasMany(PushSubscription::class);
+    }
+
+    /**
      * Badges earned and GoalLeague awards won.
      *
      * @return HasMany<UserBadge, $this>

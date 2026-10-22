@@ -26,6 +26,7 @@ use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
 use App\Http\Controllers\WelcomeController;
@@ -122,6 +123,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/notifications', [NotificationSettingsController::class, 'edit'])->name('settings.notifications');
     Route::put('/settings/notifications', [NotificationSettingsController::class, 'update'])->name('settings.notifications.update');
     Route::post('/settings/calendar/reset', [CalendarController::class, 'reset'])->name('calendar.reset');
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
     Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');

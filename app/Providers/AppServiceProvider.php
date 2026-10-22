@@ -11,6 +11,7 @@ use App\Models\HabitLog;
 use App\Models\LeagueMember;
 use App\Models\RoadmapTask;
 use Illuminate\Support\ServiceProvider;
+use Minishlink\WebPush\WebPush;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Client::class, fn () => new Client(
             apiKey: config('services.anthropic.key'),
         ));
+
+        $this->app->bind(WebPush::class, fn () => new WebPush(['VAPID' => [
+            'subject' => config('services.webpush.subject'),
+            'publicKey' => config('services.webpush.public_key'),
+            'privateKey' => config('services.webpush.private_key'),
+        ]]));
     }
 
     /**

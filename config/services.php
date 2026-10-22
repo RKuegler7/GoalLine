@@ -40,4 +40,11 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
     ],
 
+    // Web push: VAPID keys identify GoalLine to browsers' push services. Make them with `php artisan goalline:vapid-keys`.
+    'webpush' => [
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+        'subject' => env('VAPID_SUBJECT', 'mailto:hello@goalline.app'),
+    ],
+
 ];

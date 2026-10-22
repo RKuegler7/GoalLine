@@ -3,14 +3,15 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Channels\WebPushChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Something worth telling a member about. It lands in their Inbox, and in their email too when
- * they've asked for that kind of notification there.
+ * Something worth telling a member about. It lands in their Inbox, and on their phone (push) and in
+ * their email too when they've asked for that kind of notification there.
  */
 abstract class GoalLineNotification extends Notification implements ShouldQueue
 {
@@ -45,7 +46,13 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
     {
         $channels = $this->showsInInbox() ? ['database'] : [];
 
-        if ($notifiable->hasVerifiedEmail() && $notifiable->notificationSettings()->wantsEmail($this->category())) {
+        $settings = $notifiable->notificationSettings();
+
+        if ($settings->wantsPush($this->category()) && WebPushChannel::isConfigured() && $notifiable->pushSubscriptions()->exists()) {
+            $channels[] = WebPushChannel::class;
+        }
+
+        if ($notifiable->hasVerifiedEmail() && $settings->wantsEmail($this->category())) {
             $channels[] = 'mail';
         }
 
@@ -60,6 +67,18 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
     public function toArray(User $notifiable): array
     {
         return ['category' => $this->category(), 'actor_id' => null, ...$this->message($notifiable)];
+    }
+
+    /**
+     * The phone notification: a title, one line, and the screen it opens.
+     *
+     * @return array{title: string, body: string, url: string, tag: string|null}
+     */
+    public function toWebPush(User $notifiable): array
+    {
+        $message = $this->message($notifiable);
+
+        return ['title' => 'GoalLine', 'body' => $message['text'], 'url' => $message['url'], 'tag' => null];
     }
 
     /**

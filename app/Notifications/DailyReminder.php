@@ -37,6 +37,24 @@ class DailyReminder extends GoalLineNotification
         return ['text' => $this->headline, 'url' => route('dashboard').'#gameplan'];
     }
 
+    /**
+     * The morning push leads with what's next; the evening one with what's left.
+     *
+     * @return array{title: string, body: string, url: string, tag: string|null}
+     */
+    public function toWebPush(User $notifiable): array
+    {
+        $preview = array_slice($this->items, 0, 3);
+        $more = count($this->items) - count($preview);
+
+        return [
+            'title' => $this->headline,
+            'body' => $preview === [] ? implode(' ', $this->notes) : implode(' · ', $preview).($more > 0 ? " · +{$more} more" : ''),
+            'url' => route('dashboard').'#gameplan',
+            'tag' => 'gameplan-'.$this->moment,
+        ];
+    }
+
     public function toMail(User $notifiable): MailMessage
     {
         $mail = (new MailMessage)

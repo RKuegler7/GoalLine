@@ -397,3 +397,123 @@ document.querySelectorAll('[data-copy]').forEach((button) => {
         }
     });
 });
+
+/**
+ * Push notifications on this device: subscribe through the service worker and tell GoalLine where to send.
+ * iPhone supports this only when GoalLine is opened from the home screen.
+ */
+const pushPanel = document.querySelector('[data-push-panel]');
+
+if (pushPanel) {
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content
+        || document.querySelector('input[name="_token"]')?.value;
+    const vapidKey = pushPanel.dataset.vapidKey;
+    const enableButton = pushPanel.querySelector('[data-push-enable]');
+    const disableButton = pushPanel.querySelector('[data-push-disable]');
+    const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && window.isSecureContext && vapidKey;
+
+    const showState = (state) => {
+        pushPanel.querySelectorAll('[data-push-state]').forEach((line) => {
+            line.hidden = line.dataset.pushState !== state;
+        });
+        enableButton.hidden = state !== 'off';
+        disableButton.hidden = state !== 'on';
+    };
+
+    const toKey = (base64) => {
+        const padded = (base64 + '='.repeat((4 - (base64.length % 4)) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+
+        return Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+    };
+
+    const send = (method, body) => fetch('/push-subscriptions', {
+        method,
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' },
+        body: JSON.stringify(body),
+    });
+
+    const refresh = async () => {
+        if (!supported) {
+            showState('unsupported');
+
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            showState('blocked');
+
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+            // Keep the server's copy current, for example after logging in as someone else on this device.
+            await send('POST', subscription.toJSON());
+        }
+
+        showState(subscription ? 'on' : 'off');
+    };
+
+    enableButton.addEventListener('click', async () => {
+        enableButton.disabled = true;
+
+        try {
+            const permission = await Notification.requestPermission();
+
+            if (permission !== 'granted') {
+                showState(permission === 'denied' ? 'blocked' : 'off');
+
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: toKey(vapidKey) });
+            await send('POST', subscription.toJSON());
+            showState('on');
+        } catch {
+            showState('off');
+        } finally {
+            enableButton.disabled = false;
+        }
+    });
+
+    disableButton.addEventListener('click', async () => {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+            await send('DELETE', { endpoint: subscription.endpoint });
+            await subscription.unsubscribe();
+        }
+
+        showState('off');
+    });
+
+    refresh();
+}
+
+const pushNudge = document.querySelector('[data-push-nudge]');
+const NUDGE_DISMISSED_KEY = 'goalline:push-nudge-dismissed';
+
+if (pushNudge && 'PushManager' in window && 'Notification' in window && Notification.permission === 'default') {
+    let dismissed = false;
+
+    try {
+        dismissed = localStorage.getItem(NUDGE_DISMISSED_KEY) === '1';
+    } catch {
+        // Storage unavailable: show it.
+    }
+
+    pushNudge.hidden = dismissed;
+    pushNudge.querySelector('[data-push-nudge-dismiss]').addEventListener('click', () => {
+        pushNudge.hidden = true;
+
+        try {
+            localStorage.setItem(NUDGE_DISMISSED_KEY, '1');
+        } catch {
+            // Fine: it'll show again next time.
+        }
+    });
+}

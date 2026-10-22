@@ -9,6 +9,7 @@ use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schedule;
+use Minishlink\WebPush\VAPID;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -36,3 +37,11 @@ Artisan::command('goalline:settle-leagues', function () {
         ->where('ends_on', '>=', today()->subDays(LeagueTable::RECAP_NEWS_DAYS + RoadmapWeek::CHECK_IN_GRACE_DAYS))
         ->each(fn (League $league) => (new LeagueTable($league))->settle());
 })->purpose('Settle finished GoalLeague weeks and hand out recaps and awards');
+
+Artisan::command('goalline:vapid-keys', function () {
+    $keys = VAPID::createVapidKeys();
+
+    $this->line('Add these to .env (and to the production environment):');
+    $this->line('VAPID_PUBLIC_KEY='.$keys['publicKey']);
+    $this->line('VAPID_PRIVATE_KEY='.$keys['privateKey']);
+})->purpose('Make the VAPID key pair that web push needs');

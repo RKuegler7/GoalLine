@@ -41,25 +41,43 @@
             </div>
         </section>
 
+        {{-- Push on this device: app.js shows the right state once it knows what the browser supports. --}}
+        <section class="rounded-2xl border border-line bg-white p-6 sm:p-8" data-push-panel data-vapid-key="{{ config('services.webpush.public_key') }}">
+            <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="bell" class="size-4" /> Phone notifications</h2>
+            <p data-push-state="off" class="mt-2 text-sm text-ink/65">Get your gameplan, nudges, cheers, and results as notifications on this device.</p>
+            <p data-push-state="on" hidden class="mt-2 text-sm font-medium text-club">Notifications are on for this device.</p>
+            <p data-push-state="blocked" hidden class="mt-2 text-sm text-amber-800">Notifications are blocked for GoalLine in this browser. Allow them in your browser or phone settings, then come back.</p>
+            <p data-push-state="unsupported" hidden class="mt-2 text-sm text-ink/65">This browser can&rsquo;t receive notifications. On iPhone, add GoalLine to your home screen first, then open it from there.</p>
+            <div class="mt-3 flex gap-2">
+                <button type="button" data-push-enable hidden class="rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Turn on notifications</button>
+                <button type="button" data-push-disable hidden class="rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink/70 hover:border-club/40">Turn off for this device</button>
+            </div>
+        </section>
+
         <section class="rounded-2xl border border-line bg-white p-6 sm:p-8">
-            <h2 class="eyebrow text-club">Email me about</h2>
-            <ul class="mt-4 divide-y divide-line">
+            <div class="flex items-end justify-between gap-4">
+                <h2 class="eyebrow text-club">What to send</h2>
+                <div class="flex shrink-0 gap-3 text-xs font-semibold text-ink/50">
+                    <span class="w-11 text-center">Push</span>
+                    <span class="w-11 text-center">Email</span>
+                </div>
+            </div>
+            <ul class="mt-2 divide-y divide-line">
                 @foreach (App\NotificationSettings::CATEGORIES as $category => [$label, $description])
-                    <li>
-                        <label class="flex cursor-pointer items-start justify-between gap-4 py-3">
-                            <span>
-                                <span class="block font-medium text-ink">{{ $label }}</span>
-                                <span class="block text-sm text-ink/60">{{ $description }}</span>
-                            </span>
-                            <input type="hidden" name="email[{{ $category }}]" value="0">
-                            <input type="checkbox" name="email[{{ $category }}]" value="1" class="peer sr-only" @checked($settings->wantsEmail($category))>
-                            <span class="relative mt-1 h-6 w-11 shrink-0 rounded-full bg-line transition peer-checked:bg-club peer-focus-visible:ring-4 peer-focus-visible:ring-club/20 after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-white after:shadow after:transition peer-checked:after:translate-x-5" aria-hidden="true"></span>
-                        </label>
+                    <li class="flex items-start justify-between gap-4 py-3">
+                        <span>
+                            <span class="block font-medium text-ink">{{ $label }}</span>
+                            <span class="block text-sm text-ink/60">{{ $description }}</span>
+                        </span>
+                        <span class="mt-1 flex shrink-0 gap-3">
+                            <x-form.toggle :name="'push['.$category.']'" :checked="$settings->wantsPush($category)" :label="'Push: '.$label" />
+                            <x-form.toggle :name="'email['.$category.']'" :checked="$settings->wantsEmail($category)" :label="'Email: '.$label" />
+                        </span>
                     </li>
                 @endforeach
             </ul>
             @unless (auth()->user()->hasVerifiedEmail())
-                <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Verify your email address to start getting these.</p>
+                <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">Verify your email address to start getting emails.</p>
             @endunless
         </section>
 
