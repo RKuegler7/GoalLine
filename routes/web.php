@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Auth\EmailVerificationController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CheckInController;
@@ -27,12 +31,24 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/login', [SessionController::class, 'create'])->name('login');
     Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:5,1');
+
+    Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:5,1');
+    Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store')->middleware('throttle:5,1');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
+
+    Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed', 'throttle:6,1']);
+    Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])->name('verification.send')->middleware('throttle:6,1');
+
+    Route::get('/account/delete', [AccountController::class, 'confirmDelete'])->name('account.delete');
+    Route::delete('/account', [AccountController::class, 'destroy'])->name('account.destroy');
 
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -43,14 +59,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/highlights', [HighlightController::class, 'index'])->name('highlights.index');
     Route::get('/highlights/new', [HighlightController::class, 'create'])->name('highlights.create');
-    Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store')->middleware('throttle:20,60');
+    Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store')->middleware(['verified', 'throttle:20,60']);
     Route::delete('/highlights/{highlight}', [HighlightController::class, 'destroy'])->name('highlights.destroy')->can('delete', 'highlight');
-    Route::post('/highlights/{highlight}/cheer', [HighlightController::class, 'cheer'])->name('highlights.cheer')->can('view', 'highlight')->middleware('throttle:60,1');
+    Route::post('/highlights/{highlight}/cheer', [HighlightController::class, 'cheer'])->name('highlights.cheer')->can('view', 'highlight')->middleware(['verified', 'throttle:60,1']);
     Route::get('/highlights/{highlight}/photo', [HighlightController::class, 'photo'])->name('highlights.photo')->can('view', 'highlight');
     Route::get('/highlights/{highlight}/card', [HighlightController::class, 'card'])->name('highlights.card')->can('delete', 'highlight');
 
     Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
-    Route::post('/u/{user}/follow', [FollowController::class, 'store'])->name('follows.store');
+    Route::post('/u/{user}/follow', [FollowController::class, 'store'])->name('follows.store')->middleware('verified');
     Route::delete('/u/{user}/follow', [FollowController::class, 'destroy'])->name('follows.destroy');
 
     Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
@@ -88,16 +104,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/leagues', [LeagueController::class, 'index'])->name('leagues.index');
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
-    Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware('throttle:10,60');
+    Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware(['verified', 'throttle:10,60']);
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
     Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join');
-    Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store');
+    Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware('verified');
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
     Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');
-    Route::post('/leagues/{league}/messages', [LeagueMessageController::class, 'store'])->name('leagues.messages.store')->can('view', 'league')->middleware('throttle:30,1');
+    Route::post('/leagues/{league}/messages', [LeagueMessageController::class, 'store'])->name('leagues.messages.store')->can('view', 'league')->middleware(['verified', 'throttle:30,1']);
     Route::delete('/league-messages/{message}', [LeagueMessageController::class, 'destroy'])->name('leagues.messages.destroy');
     Route::delete('/leagues/{league}/membership', [LeagueMembershipController::class, 'destroy'])->name('leagues.membership.destroy');
 });

@@ -61,6 +61,8 @@
         <section class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
             <h2 class="eyebrow text-club">About you</h2>
             <x-form.input name="name" label="Name" :value="$user->name" autocomplete="name" required />
+            <x-form.input name="email" label="Email" type="email" :value="$user->email" autocomplete="email" required
+                hint="{{ $user->hasVerifiedEmail() ? 'Verified.' : 'Not verified yet.' }} Changing it sends a new verification link." />
             <x-form.input name="username" label="Username" :value="$user->username" maxlength="30" required
                 hint="Lowercase letters, numbers, dots, and underscores. Your profile lives at {{ route('profiles.show', $user) }}." />
             <x-form.textarea name="bio" label="Bio (optional)" :value="$user->bio" maxlength="160" hint="Up to 160 characters." />
@@ -127,4 +129,9 @@
             <x-form.button class="sm:w-auto sm:px-8">Save profile</x-form.button>
         </div>
     </form>
+
+    <div class="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-4 border-t border-line pt-6">
+        <p class="text-sm text-ink/55">Done with GoalLine?</p>
+        <a href="{{ route('account.delete') }}" class="text-sm font-semibold text-ink/60 hover:text-red-700">Delete account</a>
+    </div>
 </x-layouts.app>

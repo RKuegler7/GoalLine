@@ -1,4 +1,8 @@
 <x-auth-card title="Welcome back" eyebrow="Back on track" intro="Pick up right where you left off.">
+    @if (session('status'))
+        <p role="status" class="mb-5 rounded-xl bg-mint px-4 py-3 text-sm font-medium text-club">{{ session('status') }}</p>
+    @endif
+
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf
 
@@ -9,6 +13,8 @@
             <input type="checkbox" name="remember" class="size-4 rounded border-line accent-club">
             Keep me logged in
         </label>
+
+        <p class="-mt-2 text-right text-sm"><a href="{{ route('password.request') }}" class="font-semibold text-club hover:underline">Forgot your password?</a></p>
 
         <x-form.button>Log in</x-form.button>
     </form>

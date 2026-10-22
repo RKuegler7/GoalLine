@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['title', 'category', 'why', 'target_date'])]
 class Goal extends Model
@@ -45,6 +46,20 @@ class Goal extends Model
         'roadmap_status' => 'none',
         'plan_check_status' => 'none',
     ];
+
+    /**
+     * Remove uploaded plans and the completion photo along with the goal.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (Goal $goal) {
+            $goal->materials()->get()->each->delete();
+
+            if ($goal->completion_photo_path) {
+                Storage::disk(self::PHOTO_DISK)->delete($goal->completion_photo_path);
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.

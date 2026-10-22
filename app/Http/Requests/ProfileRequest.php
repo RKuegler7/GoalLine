@@ -27,6 +27,7 @@ class ProfileRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users')->ignore($this->user())],
             'username' => ['required', 'string', 'min:3', 'max:30', 'regex:/^[a-z0-9._]+$/', Rule::unique('users')->ignore($this->user())],
             'bio' => ['nullable', 'string', 'max:160'],
             'location' => ['nullable', 'string', 'max:80'],

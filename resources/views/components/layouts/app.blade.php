@@ -59,6 +59,16 @@
     <x-goal-line />
 
     <main class="mx-auto max-w-5xl px-4 py-10">
+        @unless ($viewer->hasVerifiedEmail() || request()->routeIs('verification.notice'))
+            <div class="mb-6 flex flex-col gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-ink"><span class="font-semibold">Verify your email</span> to unlock GoalLeagues, Highlights, and friends. We sent a link to {{ $viewer->email }}.</p>
+                <form method="POST" action="{{ route('verification.send') }}" class="shrink-0">
+                    @csrf
+                    <button type="submit" class="font-semibold text-club hover:underline">Resend link</button>
+                </form>
+            </div>
+        @endunless
+
         @if (session('status'))
             <p role="status" class="mb-6 flex items-center gap-3 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">
                 <span class="size-2 rounded-full bg-grass" aria-hidden="true"></span>

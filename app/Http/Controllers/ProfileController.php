@@ -68,7 +68,12 @@ class ProfileController extends Controller
     public function update(ProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->fill($request->safe()->only(['name', 'username', 'bio', 'location', 'timezone', 'profile_visibility']));
+        $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility']));
+        $emailChanged = $user->isDirty('email');
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
         $user->featured_goal_id = $request->validated('featured_goal_id');
         $user->save();
 
@@ -84,7 +89,11 @@ class ProfileController extends Controller
             $user->replaceCover(null);
         }
 
-        return redirect()->route('profile.show')->with('status', 'Profile updated.');
+        if ($emailChanged) {
+            $user->sendEmailVerificationNotification();
+        }
+
+        return redirect()->route('profile.show')->with('status', $emailChanged ? 'Profile updated. Check your new email for a verification link.' : 'Profile updated.');
     }
 
     /**

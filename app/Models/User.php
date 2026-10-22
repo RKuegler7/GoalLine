@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\ProfileVisibility;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,7 +19,7 @@ use Illuminate\Support\Str;
 
 #[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility'])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -45,6 +45,13 @@ class User extends Authenticatable
     {
         static::creating(function (User $user) {
             $user->username ??= self::availableUsername($user->name);
+        });
+
+        // Deleting an account removes every file it uploaded, not just its database rows.
+        static::deleting(function (User $user) {
+            $user->goals()->get()->each->delete();
+            $user->highlights()->get()->each->delete();
+            Storage::disk(self::AVATAR_DISK)->delete(array_filter([$user->avatar_path, $user->cover_path]));
         });
     }
 
