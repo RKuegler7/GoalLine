@@ -43,6 +43,8 @@
         </a>
     @endif
 
+    <x-install-app class="mb-6" />
+
     <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
         {{-- This GoalWeek, goal by goal. --}}
         <div class="min-w-0 space-y-6">

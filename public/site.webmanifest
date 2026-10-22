@@ -1,14 +1,23 @@
 {
+    "id": "/",
     "name": "GoalLine",
     "short_name": "GoalLine",
     "description": "Get in line with your goals. Stay on track for the life you want.",
-    "start_url": "/",
+    "start_url": "/dashboard?source=app",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait",
     "background_color": "#fafaf5",
     "theme_color": "#176b45",
+    "categories": ["productivity", "lifestyle", "social"],
     "icons": [
         { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
         { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
         { "src": "/icons/app-icon.svg", "sizes": "any", "type": "image/svg+xml" }
+    ],
+    "shortcuts": [
+        { "name": "Today's Gameplan", "short_name": "Today", "url": "/dashboard?source=app#gameplan", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Plan my week", "short_name": "Plan", "url": "/plan?source=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] },
+        { "name": "Inbox", "url": "/inbox?source=app", "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }] }
     ]
 }

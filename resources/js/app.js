@@ -210,3 +210,73 @@ document.querySelectorAll('[data-use-browser-timezone]').forEach((button) => {
         button.hidden = true;
     });
 });
+
+/**
+ * The app: register the service worker, and offer "Add to home screen" where the browser supports it.
+ */
+if ('serviceWorker' in navigator && window.isSecureContext) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+const installCard = document.querySelector('[data-install-card]');
+const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+const DISMISSED_KEY = 'goalline:install-dismissed';
+
+const wasDismissed = () => {
+    try {
+        return localStorage.getItem(DISMISSED_KEY) === '1';
+    } catch {
+        return false;
+    }
+};
+
+if (installCard && !isInstalled && !wasDismissed()) {
+    const show = (variant) => {
+        installCard.querySelectorAll('[data-install-variant]').forEach((part) => {
+            part.hidden = part.dataset.installVariant !== variant;
+        });
+        installCard.hidden = false;
+    };
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        show('prompt');
+    });
+
+    // iPhone and iPad Safari have no install prompt: show how to add it from the Share menu instead.
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+    if (isIos) {
+        show('ios');
+    }
+
+    installCard.querySelector('[data-install-button]')?.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            return;
+        }
+
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+
+        if (outcome === 'accepted') {
+            installCard.hidden = true;
+        }
+    });
+
+    installCard.querySelector('[data-install-dismiss]')?.addEventListener('click', () => {
+        installCard.hidden = true;
+
+        try {
+            localStorage.setItem(DISMISSED_KEY, '1');
+        } catch {
+            // Private browsing: it'll show again next visit, which is fine.
+        }
+    });
+
+    window.addEventListener('appinstalled', () => {
+        installCard.hidden = true;
+    });
+}

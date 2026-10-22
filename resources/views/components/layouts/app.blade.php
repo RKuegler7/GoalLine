@@ -18,7 +18,7 @@
     @include('partials.head')
 </head>
 <body class="min-h-screen bg-ivory pb-24 font-sans text-ink antialiased md:pb-0">
-    <section class="bg-club">
+    <section class="bg-club pt-[env(safe-area-inset-top)]">
         <header class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
                 <x-brand.logo class="h-7 sm:h-8" />

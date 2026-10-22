@@ -11,7 +11,7 @@
     @include('partials.head', ['title' => $title.' · Welcome to GoalLine'])
 </head>
 <body class="min-h-screen bg-ivory font-sans text-ink antialiased">
-    <section class="relative overflow-hidden bg-club">
+    <section class="relative overflow-hidden bg-club pt-[env(safe-area-inset-top)]">
         <x-field-backdrop class="absolute inset-0 size-full" />
         <div class="relative mx-auto max-w-2xl px-4 pt-6 pb-10">
             <div class="flex items-center justify-between">
