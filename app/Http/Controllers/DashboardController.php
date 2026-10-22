@@ -28,7 +28,7 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $user = $request->user();
-        $goals = $user->goals()->active()->with(['weeks.tasks', 'habits.logs'])->orderBy('target_date')->get();
+        $goals = $user->goals()->active()->with(['weeks.tasks', 'weeks.review', 'habits.logs'])->orderBy('target_date')->get();
         $stats = new ProfileStats($user);
 
         return view('dashboard', [

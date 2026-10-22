@@ -11,6 +11,8 @@
     $habits = $week?->habits()->whereNull('archived_at') ?? collect();
     $today = App\Clock::today();
     $checkable = $week?->isCheckable() ?? false;
+    $toReview = $goal->weeks->first(fn ($candidate) => ! $candidate->review && $candidate->isReviewable());
+    $coachTip = $week ? $goal->weeks->filter(fn ($candidate) => $candidate->position < $week->position && $candidate->review?->coach_tip)->last()?->review->coach_tip : null;
 @endphp
 
 <section id="goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
@@ -26,8 +28,18 @@
         @endif
     </header>
 
+    @if ($toReview)
+        <a href="{{ route('goalweeks.review', $toReview) }}" class="mx-5 mt-3 flex items-center justify-between gap-3 rounded-xl bg-gold/20 px-4 py-2.5 text-sm transition hover:bg-gold/30">
+            <span><span class="font-semibold text-ink">Wrap up {{ $toReview->label() }}.</span> <span class="text-ink/70">A 2-minute review gets you a coach&rsquo;s tip for next week.</span></span>
+            <span class="shrink-0 font-semibold text-ink">Review &rarr;</span>
+        </a>
+    @endif
+
     @if ($week)
         <div class="px-5 pt-3 pb-5">
+            @if ($coachTip)
+                <p class="mb-3 rounded-xl border-l-4 border-grass bg-mint/50 px-4 py-2.5 text-sm text-ink/80"><span class="font-semibold text-club">Coach&rsquo;s tip:</span> {{ $coachTip }}</p>
+            @endif
             <p class="text-sm text-ink/70">
                 <span class="font-semibold text-ink">{{ $week->label() }}:</span> {{ $week->focus }}
             </p>

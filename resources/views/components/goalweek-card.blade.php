@@ -89,6 +89,25 @@
         </p>
     </div>
 
+    @if ($canEdit && ($week->review || $week->isReviewable()))
+        <a href="{{ route('goalweeks.review', $week) }}" @class([
+            'mt-4 flex items-center justify-between gap-3 rounded-xl px-4 py-2.5 text-sm transition',
+            'bg-mint/60 hover:bg-mint' => $week->review,
+            'bg-gold/20 hover:bg-gold/30' => ! $week->review,
+        ])>
+            <span class="min-w-0">
+                @if ($week->review?->coach_tip)
+                    <span class="font-semibold text-club">Coach&rsquo;s tip:</span> <span class="text-ink/80">{{ Str::limit($week->review->coach_tip, 160) }}</span>
+                @elseif ($week->review)
+                    <span class="font-semibold text-ink">Reviewed.</span> <span class="text-ink/70">Your coach&rsquo;s tip is on its way.</span>
+                @else
+                    <span class="font-semibold text-ink">Wrap up this GoalWeek.</span> <span class="text-ink/70">A 2-minute review gets you a coach&rsquo;s tip.</span>
+                @endif
+            </span>
+            <span class="shrink-0 font-semibold text-ink">{{ $week->review ? 'Open' : 'Review' }} &rarr;</span>
+        </a>
+    @endif
+
     @if ($current && $result)
         <div @class([
             'mt-4 rounded-xl px-4 py-3',

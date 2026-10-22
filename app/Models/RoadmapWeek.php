@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 #[Fillable(['position', 'starts_on', 'ends_on', 'focus', 'milestone'])]
@@ -23,6 +24,11 @@ class RoadmapWeek extends Model
      * Days after a GoalWeek ends that check-ins stay open before its result locks.
      */
     public const CHECK_IN_GRACE_DAYS = 1;
+
+    /**
+     * The review opens this many days before a GoalWeek ends: Saturday for a Monday-to-Sunday week.
+     */
+    public const REVIEW_OPENS_DAYS_BEFORE_END = 1;
 
     /**
      * Get the attributes that should be cast.
@@ -56,6 +62,16 @@ class RoadmapWeek extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(RoadmapTask::class)->orderBy('position');
+    }
+
+    /**
+     * The end-of-week reflection and coach's tip, once written.
+     *
+     * @return HasOne<WeekReview, $this>
+     */
+    public function review(): HasOne
+    {
+        return $this->hasOne(WeekReview::class);
     }
 
     /**
@@ -128,6 +144,14 @@ class RoadmapWeek extends Model
     public function isCheckable(): bool
     {
         return $this->isStarted() && ! $this->isLocked() && $this->goal->isActive();
+    }
+
+    /**
+     * Whether it's time for the end-of-week review: from just before the GoalWeek ends until check-ins close.
+     */
+    public function isReviewable(): bool
+    {
+        return $this->isCheckable() && Clock::today()->gte($this->ends_on->copy()->subDays(self::REVIEW_OPENS_DAYS_BEFORE_END));
     }
 
     /**
