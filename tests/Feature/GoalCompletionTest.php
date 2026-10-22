@@ -6,7 +6,6 @@ use App\GoalStatus;
 use App\Models\Goal;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -23,7 +22,7 @@ class GoalCompletionTest extends TestCase
 
         $this->actingAs($goal->user)->post(route('goals.complete.store', $goal), [
             'completion_note' => 'Hardest thing I have trained for.',
-            'completion_photo' => UploadedFile::fake()->image('finish.png'),
+            'completion_photo' => $this->fakeImage('finish.png'),
         ])->assertRedirect(route('goals.show', $goal));
 
         $goal->refresh();

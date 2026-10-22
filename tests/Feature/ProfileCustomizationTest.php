@@ -7,7 +7,6 @@ use App\Models\League;
 use App\Models\User;
 use App\ProfileVisibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -61,7 +60,7 @@ class ProfileCustomizationTest extends TestCase
         $user = User::factory()->create();
         $fields = ['name' => $user->name, 'username' => $user->username];
 
-        $this->actingAs($user)->put(route('profile.update'), $fields + ['cover' => UploadedFile::fake()->image('cover.png', 1200, 400)]);
+        $this->actingAs($user)->put(route('profile.update'), $fields + ['cover' => $this->fakeImage('cover.png')]);
         $path = $user->fresh()->cover_path;
         Storage::disk(User::AVATAR_DISK)->assertExists($path);
         $this->actingAs($user)->get(route('covers.show', $user))->assertOk();
@@ -102,7 +101,7 @@ class ProfileCustomizationTest extends TestCase
         Storage::fake('local');
         $owner = User::factory()->create(['profile_visibility' => ProfileVisibility::Everyone]);
         $goal = Goal::factory()->for($owner)->create();
-        $goal->complete('Done', UploadedFile::fake()->image('finish.png')->store('goal-photos', 'local'));
+        $goal->complete('Done', $this->fakeImage('finish.png')->store('goal-photos', 'local'));
         $viewer = User::factory()->create();
 
         $this->actingAs($viewer)->get(route('goals.photo', $goal))->assertOk();

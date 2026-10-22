@@ -102,7 +102,7 @@ class ProfileTest extends TestCase
         $this->actingAs($user)->put(route('profile.update'), [
             'name' => $user->name,
             'username' => $user->username,
-            'avatar' => UploadedFile::fake()->image('me.png', 400, 400),
+            'avatar' => $this->fakeImage('me.png'),
         ]);
 
         $path = $user->fresh()->avatar_path;

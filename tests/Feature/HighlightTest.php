@@ -10,7 +10,6 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\ProfileVisibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -22,7 +21,7 @@ class HighlightTest extends TestCase
     {
         Storage::fake('local');
         $goal = Goal::factory()->create(['title' => 'Run a half marathon']);
-        $goal->complete('Hardest thing I have trained for.', UploadedFile::fake()->image('finish.png')->store('goal-photos', 'local'));
+        $goal->complete('Hardest thing I have trained for.', $this->fakeImage('finish.png')->store('goal-photos', 'local'));
 
         $this->actingAs($goal->user)
             ->get(route('highlights.create', ['goal' => $goal->id]))

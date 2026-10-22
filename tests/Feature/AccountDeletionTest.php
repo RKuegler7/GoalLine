@@ -19,7 +19,7 @@ class AccountDeletionTest extends TestCase
     {
         Storage::fake('local');
         $user = User::factory()->create();
-        $user->replaceAvatar(UploadedFile::fake()->image('me.png')->store('avatars', 'local'));
+        $user->replaceAvatar($this->fakeImage('me.png')->store('avatars', 'local'));
         $goal = Goal::factory()->for($user)->create();
         $material = PlanMaterial::storeUpload($goal, UploadedFile::fake()->create('plan.pdf', 50, 'application/pdf'), null);
         $highlight = Highlight::factory()->for($user)->create();

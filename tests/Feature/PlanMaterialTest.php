@@ -71,7 +71,7 @@ class PlanMaterialTest extends TestCase
         PlanMaterial::factory()->count(PlanMaterial::MAX_PER_GOAL)->for($goal)->create();
 
         $this->actingAs($goal->user)
-            ->post(route('goals.materials.store', $goal), ['material' => UploadedFile::fake()->image('plan.png')])
+            ->post(route('goals.materials.store', $goal), ['material' => $this->fakeImage('plan.png')])
             ->assertSessionHasErrors('material');
     }
 
@@ -82,7 +82,7 @@ class PlanMaterialTest extends TestCase
         $stranger = User::factory()->create();
 
         $this->actingAs($stranger)
-            ->post(route('goals.materials.store', $material->goal), ['material' => UploadedFile::fake()->image('plan.png')])
+            ->post(route('goals.materials.store', $material->goal), ['material' => $this->fakeImage('plan.png')])
             ->assertForbidden();
 
         $this->actingAs($stranger)->delete(route('materials.destroy', $material))->assertForbidden();
@@ -92,7 +92,7 @@ class PlanMaterialTest extends TestCase
     public function test_removing_a_material_deletes_its_file(): void
     {
         $goal = Goal::factory()->create();
-        $material = PlanMaterial::storeUpload($goal, UploadedFile::fake()->image('plan.png'), null);
+        $material = PlanMaterial::storeUpload($goal, $this->fakeImage('plan.png'), null);
 
         $this->actingAs($goal->user)->delete(route('materials.destroy', $material));
 
