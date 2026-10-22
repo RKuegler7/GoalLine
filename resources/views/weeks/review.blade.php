@@ -61,7 +61,7 @@
                     @elseif ($writing)
                         <p class="relative mt-2 text-ivory/85">Your coach is reading your week and writing your tip&hellip;</p>
                     @else
-                        <p class="relative mt-2 text-ivory/85">The coach couldn&rsquo;t write a tip this time.</p>
+                        <p class="relative mt-2 text-ivory/85">{{ app(App\Services\AiBudget::class)->blockedReason(auth()->user()) ?? 'The coach couldn’t write a tip this time.' }}</p>
                         <form method="POST" action="{{ route('goalweeks.review.store', $week) }}" class="relative mt-3">
                             @csrf
                             <input type="hidden" name="retry" value="1">

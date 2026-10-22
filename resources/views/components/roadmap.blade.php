@@ -5,6 +5,7 @@
     $weeksPerStretch = $goal->weeksPerStretch();
     $canEdit = $goal->isActive();
     $replanFrom = $goal->replanFromPosition();
+    $aiPaused = $status === App\RoadmapStatus::Failed ? app(App\Services\AiBudget::class)->blockedReason($goal->user) : null;
 @endphp
 
 @if ($status === App\RoadmapStatus::Ready)
@@ -91,7 +92,7 @@
                 </div>
             @elseif ($status === App\RoadmapStatus::Failed)
                 <h2 class="mt-3 font-serif text-2xl font-medium text-club">We couldn't build your roadmap just now</h2>
-                <p class="mx-auto mt-2 max-w-md text-ink/70">Nothing's lost. Give it another try.</p>
+                <p class="mx-auto mt-2 max-w-md text-ink/70">{{ $aiPaused ?? "Nothing's lost. Give it another try." }}</p>
             @else
                 <h2 class="mt-3 font-serif text-2xl font-medium text-club">Get your game plan</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">

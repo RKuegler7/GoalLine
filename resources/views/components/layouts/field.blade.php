@@ -32,7 +32,11 @@
     <footer class="border-t border-line">
         <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-6">
             <x-brand.wordmark tone="dark" class="h-5" />
-            <span class="eyebrow text-club">Get in line.</span>
+            <nav class="flex items-center gap-4 text-sm text-ink/60" aria-label="Legal">
+                <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a>
+                <a href="{{ route('terms') }}" class="hover:text-club">Terms</a>
+                <span class="eyebrow hidden text-club sm:inline">Get in line.</span>
+            </nav>
         </div>
     </footer>
 </body>

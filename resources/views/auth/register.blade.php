@@ -1,6 +1,10 @@
-<x-auth-card title="Create your account" eyebrow="Get in line" intro="Start with one goal that matters. We'll help you build the plan.">
+<x-auth-card title="Create your account" :eyebrow="$inviteOnly ? 'Private beta' : 'Get in line'" intro="Start with one goal that matters. We'll help you build the plan.">
     <form method="POST" action="{{ route('register') }}" class="space-y-5">
         @csrf
+
+        @if ($inviteOnly)
+            <x-form.input name="invite" label="Invite code" :value="$invite" autocomplete="off" hint="GoalLine is invite-only for now. Your code is in your invite link." />
+        @endif
 
         <x-form.input name="name" label="Name" autocomplete="name" required autofocus />
         <x-form.input name="email" label="Email" type="email" autocomplete="email" required />
@@ -11,6 +15,7 @@
         <input type="hidden" name="timezone" value="{{ old('timezone') }}" data-detect-timezone>
 
         <x-form.button>Create account</x-form.button>
+        <p class="text-center text-xs text-ink/55">By creating an account, you agree to the <a href="{{ route('terms') }}" class="font-semibold text-club hover:underline">Terms</a> and <a href="{{ route('privacy') }}" class="font-semibold text-club hover:underline">Privacy policy</a>.</p>
     </form>
 
     <p class="mt-6 border-t border-line pt-6 text-center text-sm text-ink/70">

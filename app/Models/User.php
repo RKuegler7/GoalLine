@@ -107,6 +107,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Whether this person runs GoalLine: their email is in the ADMIN_EMAILS setting.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasVerifiedEmail() && in_array(strtolower($this->email), array_map('strtolower', config('goalline.admin_emails')), true);
+    }
+
+    /**
      * Devices where this person turned on push notifications.
      *
      * @return HasMany<PushSubscription, $this>

@@ -134,7 +134,13 @@
     </form>
 
     <div class="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-4 border-t border-line pt-6">
-        <p class="text-sm text-ink/55">Done with GoalLine?</p>
+        <p class="text-sm text-ink/55">
+            <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a> &middot; <a href="{{ route('terms') }}" class="hover:text-club">Terms</a>
+            @can('admin')
+                &middot; <a href="{{ route('admin.index') }}" class="font-semibold text-club hover:underline">Admin</a>
+            @endcan
+            &middot; Done with GoalLine?
+        </p>
         <a href="{{ route('account.delete') }}" class="text-sm font-semibold text-ink/60 hover:text-red-700">Delete account</a>
     </div>
 </x-layouts.app>

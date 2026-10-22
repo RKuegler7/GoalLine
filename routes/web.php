@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -35,6 +36,8 @@ use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
+Route::view('/privacy', 'legal.privacy')->name('privacy');
+Route::view('/terms', 'legal.terms')->name('terms');
 
 // Calendar apps fetch this without logging in; the secret token in the link is the key.
 Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
@@ -124,6 +127,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/goalweeks/{week}/review', [WeekReviewController::class, 'store'])->name('goalweeks.review.store')->middleware('throttle:10,1');
 
     Route::get('/inbox', InboxController::class)->name('inbox');
+
+    Route::middleware('can:admin')->prefix('admin')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('admin.index');
+        Route::post('/invites', [AdminController::class, 'storeInvite'])->name('admin.invites.store');
+        Route::delete('/invites/{invite}', [AdminController::class, 'revokeInvite'])->name('admin.invites.revoke');
+    });
+
     Route::get('/settings/notifications', [NotificationSettingsController::class, 'edit'])->name('settings.notifications');
     Route::put('/settings/notifications', [NotificationSettingsController::class, 'update'])->name('settings.notifications.update');
     Route::post('/settings/calendar/reset', [CalendarController::class, 'reset'])->name('calendar.reset');

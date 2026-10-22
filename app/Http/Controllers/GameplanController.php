@@ -6,6 +6,7 @@ use App\Clock;
 use App\Models\Goal;
 use App\Models\RoadmapTask;
 use App\Services\WeekPlanner;
+use App\Usage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -49,6 +50,8 @@ class GameplanController extends Controller
             $task->update(['planned_on' => $day]);
         }
 
+        Usage::track($request->user(), 'week-planned');
+
         return redirect()->route('planner.show')->with('status', 'Week planned.');
     }
 
@@ -61,6 +64,7 @@ class GameplanController extends Controller
             ->map(fn (Goal $goal) => $goal->currentWeek())
             ->filter()
             ->sum(fn ($week) => $planner->autoPlan($week));
+        Usage::track($request->user(), 'week-planned');
 
         return redirect()->route('planner.show')->with('status', $scheduled > 0
             ? "Planned {$scheduled} ".($scheduled === 1 ? 'task' : 'tasks').' across the rest of your week.'

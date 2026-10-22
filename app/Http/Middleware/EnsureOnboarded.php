@@ -16,6 +16,7 @@ class EnsureOnboarded
     private const ALLOWED_DURING_WELCOME = [
         'welcome.*', 'logout', 'verification.*', 'avatars.show', 'covers.show',
         'goals.store', 'leagues.find', 'leagues.join', 'leagues.join.store', 'people.index', 'follows.*', 'profiles.show',
+        'privacy', 'terms', 'calendar.feed',
     ];
 
     /**

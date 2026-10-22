@@ -8,8 +8,16 @@ use App\Jobs\AwardBadges;
 use App\Models\Cheer;
 use App\Models\Goal;
 use App\Models\HabitLog;
+use App\Models\Highlight;
+use App\Models\HighlightComment;
 use App\Models\LeagueMember;
+use App\Models\LeagueMessage;
+use App\Models\PushSubscription;
 use App\Models\RoadmapTask;
+use App\Models\User;
+use App\Models\WeekReview;
+use App\Usage;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Minishlink\WebPush\WebPush;
 
@@ -36,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('admin', fn (User $user) => $user->isAdmin());
+
+        $this->trackUsage();
+
         // Check for new badges whenever someone does something that could earn one.
         RoadmapTask::updated(function (RoadmapTask $task) {
             if ($task->wasChanged('completed_at') && $task->completed_at) {
@@ -48,6 +60,31 @@ class AppServiceProvider extends ServiceProvider
         Goal::updated(function (Goal $goal) {
             if ($goal->wasChanged('status') && $goal->status === GoalStatus::Completed) {
                 AwardBadges::dispatch($goal->user);
+            }
+        });
+    }
+
+    /**
+     * Record feature use for the admin page: event names only, never content.
+     */
+    private function trackUsage(): void
+    {
+        Goal::created(fn (Goal $goal) => Usage::track($goal->user, 'goal-created'));
+        RoadmapTask::updated(function (RoadmapTask $task) {
+            if ($task->wasChanged('completed_at') && $task->completed_at) {
+                Usage::track($task->week->goal->user, 'check-in');
+            }
+        });
+        HabitLog::created(fn (HabitLog $log) => Usage::track($log->habit->goal->user, 'habit-log'));
+        WeekReview::created(fn (WeekReview $review) => Usage::track($review->week->goal->user, 'week-reviewed'));
+        Highlight::created(fn (Highlight $highlight) => Usage::track($highlight->user, 'highlight-shared'));
+        Cheer::created(fn (Cheer $cheer) => Usage::track($cheer->user, 'cheer'));
+        HighlightComment::created(fn (HighlightComment $comment) => Usage::track($comment->user, 'comment'));
+        LeagueMember::created(fn (LeagueMember $member) => Usage::track($member->user, 'league-joined'));
+        PushSubscription::created(fn (PushSubscription $subscription) => Usage::track($subscription->user, 'push-enabled'));
+        LeagueMessage::created(function (LeagueMessage $message) {
+            if (! $message->is_system) {
+                Usage::track($message->user, 'chat-message');
             }
         });
     }

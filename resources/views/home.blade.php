@@ -25,7 +25,7 @@
                     </a>
                 @else
                     <a href="{{ route('register') }}" class="rounded-full bg-ivory px-7 py-3 font-semibold text-club shadow-lg shadow-black/10 transition hover:bg-chalk">
-                        Get started
+                        {{ config('goalline.beta.invite_only') ? 'Have an invite? Join the beta' : 'Get started' }}
                     </a>
                     <a href="{{ route('login') }}" class="rounded-full border border-ivory/70 px-7 py-3 font-semibold text-ivory transition hover:border-ivory hover:bg-ivory/10">
                         Log in
