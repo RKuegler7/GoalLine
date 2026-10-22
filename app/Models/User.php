@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -29,6 +30,11 @@ class User extends Authenticatable implements MustVerifyEmail
      * Profile photos are kept on the private disk and served through a route.
      */
     public const AVATAR_DISK = 'local';
+
+    /**
+     * How long before the same person can be nudged again.
+     */
+    public const NUDGE_COOLDOWN_HOURS = 20;
 
     /**
      * Default values for new members.
@@ -296,6 +302,27 @@ class User extends Authenticatable implements MustVerifyEmail
     public function follows(User $other): bool
     {
         return $this->following()->whereKey($other->id)->exists();
+    }
+
+    /**
+     * Whether this person can nudge another: friends (mutual follows) and GoalLeague mates.
+     */
+    public function canNudge(User $other): bool
+    {
+        return ! $this->is($other)
+            && (($this->follows($other) && $other->follows($this)) || $this->sharesLeagueWith($other));
+    }
+
+    /**
+     * Whether this person already nudged another recently. One nudge a day keeps it friendly.
+     */
+    public function recentlyNudged(User $other): bool
+    {
+        return DB::table('nudges')
+            ->where('sender_id', $this->id)
+            ->where('recipient_id', $other->id)
+            ->where('created_at', '>=', now()->subHours(self::NUDGE_COOLDOWN_HOURS))
+            ->exists();
     }
 
     /**

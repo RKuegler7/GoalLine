@@ -23,6 +23,7 @@ use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeagueRecapController;
 use App\Http\Controllers\NotificationSettingsController;
+use App\Http\Controllers\NudgeController;
 use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
@@ -124,6 +125,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/notifications', [NotificationSettingsController::class, 'update'])->name('settings.notifications.update');
     Route::post('/settings/calendar/reset', [CalendarController::class, 'reset'])->name('calendar.reset');
     Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::post('/u/{user}/nudge', [NudgeController::class, 'store'])->name('nudges.store')->middleware(['verified', 'throttle:30,1']);
     Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');

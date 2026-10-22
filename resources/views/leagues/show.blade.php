@@ -91,6 +91,11 @@
                                 </div>
                             @endif
                         </div>
+                        @if ($mine && $opponent = ($matchup['home']->is($me) ? $matchup['away'] : $matchup['home']))
+                            <div class="mt-3 flex justify-end">
+                                <x-nudge-button :user="$opponent->user" />
+                            </div>
+                        @endif
                         @php
                             $standing = match ($matchup['homeOutcome']) {
                                 App\MatchupOutcome::Win => 'leads',

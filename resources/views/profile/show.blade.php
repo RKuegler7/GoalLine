@@ -53,6 +53,7 @@
                         @if ($isFriend)
                             <span class="eyebrow rounded-full bg-ivory/15 px-3 py-1.5 text-[0.65rem] text-ivory">Friends</span>
                         @endif
+                        <x-nudge-button :user="$user" tone="light" />
                         <x-follow-button :user="$user" :following="$following" tone="light" />
                     </div>
                 @endif
