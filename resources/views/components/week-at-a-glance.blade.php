@@ -8,7 +8,7 @@
 
 <section class="rounded-2xl border border-line bg-white px-5 py-4">
     <div class="flex items-baseline justify-between gap-4">
-        <h2 class="eyebrow text-club">Week at a glance</h2>
+        <h2 class="eyebrow text-club">Week at a glance <a href="{{ route('recap.week') }}" class="ml-2 font-sans text-xs font-semibold tracking-normal normal-case text-club hover:underline">Your week &rarr;</a></h2>
         <span class="text-sm text-ink/55">{{ $total }} {{ Str::plural('check-in', $total) }} &middot; {{ $activeDays }} of 7 days</span>
     </div>
     <ol class="mt-4 grid grid-cols-7 gap-2">

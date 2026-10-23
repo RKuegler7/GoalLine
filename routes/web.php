@@ -32,6 +32,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
+use App\Http\Controllers\WeeklyRecapController;
 use App\Http\Controllers\WeekReviewController;
 use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
@@ -128,6 +129,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goalweeks/{week}/review', [WeekReviewController::class, 'store'])->name('goalweeks.review.store')->middleware('throttle:10,1');
 
     Route::get('/inbox', InboxController::class)->name('inbox');
+    Route::get('/my-week', WeeklyRecapController::class)->name('recap.week');
 
     Route::middleware('can:admin')->prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index');

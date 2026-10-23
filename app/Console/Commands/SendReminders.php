@@ -13,8 +13,10 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\DailyReminder;
 use App\Notifications\GoalWeeksFinal;
+use App\Notifications\WeeklyRecapReady;
 use App\Services\DailyStreak;
 use App\Services\TodaysGameplan;
+use App\Services\WeeklyRecap;
 use Carbon\CarbonInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
@@ -34,6 +36,11 @@ class SendReminders extends Command
      * How long after the chosen time a reminder can still go out, in case the scheduler missed a run.
      */
     public const WINDOW_MINUTES = 90;
+
+    /**
+     * When the Sunday weekly recap goes out, on each member's clock.
+     */
+    public const WEEKLY_RECAP_AT = '18:00';
 
     public function handle(): int
     {
@@ -81,6 +88,12 @@ class SendReminders extends Command
 
         if ($this->isDue($settings->eveningAt, $now) && $this->claim($user, 'evening')) {
             $sent += $this->sendEvening($user, $goals());
+        }
+
+        // Sunday evening: the week in review. It goes out even if the evening nudge is turned off.
+        if ($now->isSunday() && $this->isDue(self::WEEKLY_RECAP_AT, $now) && $this->claim($user, 'weekly-recap')) {
+            $user->notify(new WeeklyRecapReady((new WeeklyRecap($user))->headline()));
+            $sent++;
         }
 
         return $sent;

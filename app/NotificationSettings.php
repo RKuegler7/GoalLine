@@ -15,6 +15,7 @@ final class NotificationSettings
      */
     public const CATEGORIES = [
         'reminders' => ['Daily reminders', 'Your morning gameplan, and an evening nudge when there is still work left.'],
+        'recap' => ['Weekly recap', 'Sunday evening: your week in check-ins, points, streak, and wins.'],
         'results' => ['GoalWeek results', 'When a GoalWeek is final, with your result and points.'],
         'badges' => ['Badges and awards', 'When you earn a badge or win a GoalLeague award.'],
         'leagues' => ['GoalLeagues and challenges', 'Weekly and season recaps, challenge results, and people joining.'],
@@ -31,6 +32,7 @@ final class NotificationSettings
      */
     public const EMAIL_DEFAULTS = [
         'reminders' => true,
+        'recap' => true,
         'results' => true,
         'badges' => true,
         'leagues' => true,
@@ -47,6 +49,7 @@ final class NotificationSettings
      */
     public const PUSH_DEFAULTS = [
         'reminders' => true,
+        'recap' => true,
         'results' => true,
         'badges' => true,
         'leagues' => true,
