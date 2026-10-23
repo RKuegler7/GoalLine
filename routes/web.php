@@ -12,6 +12,7 @@ use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
@@ -130,11 +132,15 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/inbox', InboxController::class)->name('inbox');
     Route::get('/my-week', WeeklyRecapController::class)->name('recap.week');
+    Route::post('/kickoff/dismiss', [KickoffController::class, 'dismiss'])->name('kickoff.dismiss');
+    Route::post('/usage/installed', [KickoffController::class, 'installed'])->name('usage.installed')->middleware('throttle:10,1');
+    Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store')->middleware('throttle:10,60');
 
     Route::middleware('can:admin')->prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.index');
         Route::post('/invites', [AdminController::class, 'storeInvite'])->name('admin.invites.store');
         Route::delete('/invites/{invite}', [AdminController::class, 'revokeInvite'])->name('admin.invites.revoke');
+        Route::post('/feedback/{feedback}/resolve', [AdminController::class, 'resolveFeedback'])->name('admin.feedback.resolve');
     });
 
     Route::get('/settings/notifications', [NotificationSettingsController::class, 'edit'])->name('settings.notifications');

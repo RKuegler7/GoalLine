@@ -13,6 +13,7 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Services\DailyStreak;
 use App\Services\HighlightFeed;
+use App\Services\KickoffChecklist;
 use App\Services\LeagueSnapshot;
 use App\Services\ProfileStats;
 use App\Services\TodaysGameplan;
@@ -35,6 +36,7 @@ class DashboardController extends Controller
             'goals' => $goals,
             'gameplan' => new TodaysGameplan($goals, $user),
             'streak' => new DailyStreak($user),
+            'kickoff' => new KickoffChecklist($user),
             'stats' => $stats,
             'greeting' => $this->greeting(),
             'weekPoints' => $goals->sum(fn (Goal $goal) => $goal->currentWeek()?->result()?->points() ?? 0),

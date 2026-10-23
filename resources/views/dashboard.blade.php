@@ -48,6 +48,10 @@
     <x-install-app class="mb-6" />
     <x-push-nudge class="mb-6" />
 
+    @if ($kickoff->isVisible())
+        <x-kickoff-checklist :kickoff="$kickoff" class="mb-6" />
+    @endif
+
     <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
         {{-- This GoalWeek, goal by goal. --}}
         <div class="min-w-0 space-y-6">

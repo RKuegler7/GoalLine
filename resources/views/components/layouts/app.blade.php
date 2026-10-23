@@ -17,7 +17,7 @@
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-screen bg-ivory pb-24 font-sans text-ink antialiased md:pb-0">
+<body class="min-h-screen bg-ivory pb-24 font-sans text-ink antialiased md:pb-0" data-signed-in>
     <section class="bg-club pt-[env(safe-area-inset-top)]">
         <header class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
@@ -121,5 +121,8 @@
             @endforeach
         </ul>
     </nav>
+    @if (config('goalline.beta.invite_only'))
+        <x-feedback-button />
+    @endif
 </body>
 </html>

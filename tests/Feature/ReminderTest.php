@@ -48,15 +48,18 @@ class ReminderTest extends TestCase
         $user = User::factory()->create(['timezone' => 'America/Chicago']);
         $week = $this->goalFor($user, ['Build the first prototype' => '2026-10-21', 'Book calls' => '2026-10-21']);
 
+        $this->travelTo(Carbon::parse('2026-10-21 12:00', 'America/Chicago'));
         $week->tasks[0]->forceFill(['completed_at' => now()])->save();
         $this->at('2026-10-21 20:00', 'America/Chicago');
         Notification::assertSentTo($user, DailyReminder::class, fn (DailyReminder $reminder) => $reminder->moment === 'evening'
             && $reminder->headline === "1 thing left on today's gameplan"
             && $reminder->items === ['Book calls']);
 
+        // Thursday: nothing planned, and an early check-in keeps the streak safe, so there's nothing to nudge about.
         Notification::fake();
+        $this->travelTo(Carbon::parse('2026-10-22 12:00', 'America/Chicago'));
         $week->tasks[1]->forceFill(['completed_at' => now()])->save();
-        $this->at('2026-10-22 20:00', 'America/Chicago'); // Nothing planned for Thursday.
+        $this->at('2026-10-22 20:00', 'America/Chicago');
         Notification::assertNothingSentTo($user);
     }
 

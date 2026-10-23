@@ -33,6 +33,8 @@ final class Usage
         'challenge-joined' => 'Joined a challenge',
         'challenge-check-in' => 'Checked in on a challenge',
         'push-enabled' => 'Turned on push',
+        'app-installed' => 'Opened from the home screen',
+        'feedback' => 'Sent beta feedback',
     ];
 
     public static function track(?User $user, string $name): void

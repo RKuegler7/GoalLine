@@ -517,3 +517,33 @@ if (pushNudge && 'PushManager' in window && 'Notification' in window && Notifica
         }
     });
 }
+
+/**
+ * Opened from the home screen: tell GoalLine once, so the Kickoff checklist can check off "add to home screen".
+ */
+const INSTALL_REPORTED_KEY = 'goalline:install-reported';
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+if (isInstalled && csrfToken && document.querySelector('[data-signed-in]')) {
+    let reported = false;
+
+    try {
+        reported = localStorage.getItem(INSTALL_REPORTED_KEY) === '1';
+    } catch {
+        // Storage unavailable: reporting again is harmless.
+    }
+
+    if (!reported) {
+        fetch('/usage/installed', { method: 'POST', headers: { 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' } })
+            .then((response) => {
+                if (response.ok) {
+                    try {
+                        localStorage.setItem(INSTALL_REPORTED_KEY, '1');
+                    } catch {
+                        // Fine.
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+}

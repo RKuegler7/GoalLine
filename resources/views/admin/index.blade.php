@@ -85,6 +85,34 @@
             </table>
         </section>
 
+        {{-- Beta feedback. --}}
+        <section id="feedback" class="scroll-mt-6 rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+            <div class="flex items-end justify-between gap-4">
+                <h2 class="eyebrow text-club">Beta feedback</h2>
+                <span class="text-sm text-ink/50">{{ $feedback->whereNull('resolved_at')->count() }} open</span>
+            </div>
+            @if ($feedback->isEmpty())
+                <p class="mt-3 text-sm text-ink/60">No notes yet. Testers send them with the Feedback button at the bottom right of every page.</p>
+            @else
+                <ul class="mt-3 divide-y divide-line">
+                    @foreach ($feedback as $note)
+                        <li @class(['flex flex-wrap items-start gap-3 py-3', 'opacity-50' => $note->resolved_at])>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-xs text-ink/50">{{ $note->member ?? 'Former member' }} &middot; {{ App\Clock::shortTime(Carbon\Carbon::parse($note->created_at)) }}@if ($note->page) &middot; on <code>{{ $note->page }}</code>@endif</p>
+                                <p class="mt-1 whitespace-pre-line text-sm text-ink">{{ $note->body }}</p>
+                            </div>
+                            @unless ($note->resolved_at)
+                                <form method="POST" action="{{ route('admin.feedback.resolve', $note->id) }}">
+                                    @csrf
+                                    <button type="submit" class="rounded-full border border-club/30 px-3 py-1 text-xs font-semibold text-club hover:border-club">Mark handled</button>
+                                </form>
+                            @endunless
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
         {{-- Beta invites. --}}
         <section id="invites" class="scroll-mt-6 rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
             <h2 class="eyebrow text-club">Beta invites</h2>
