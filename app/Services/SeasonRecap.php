@@ -113,7 +113,7 @@ class SeasonRecap
 
         Notification::send(
             $this->league->members->pluck('user'),
-            new LeagueRecap($this->league, "The {$this->league->name} season is over. See who won Champion, MVP, and the rest of the awards."),
+            new LeagueRecap($this->league->withoutRelations(), "The {$this->league->name} season is over. See who won Champion, MVP, and the rest of the awards."),
         );
     }
 
@@ -183,7 +183,7 @@ class SeasonRecap
                 $text .= ' Player of the Week: '.($recap['players']->contains(fn (LeagueMember $player) => $player->is($member)) && $recap['players']->count() === 1 ? 'you!' : $playerNames.'.');
             }
 
-            $member->user->notify(new LeagueRecap($this->league, $text));
+            $member->user->notify(new LeagueRecap($this->league->withoutRelations(), $text));
         }
     }
 

@@ -100,7 +100,7 @@ class ChallengeController extends Controller
         $member = $challenge->members()->firstOrCreate(['user_id' => $request->user()->id]);
 
         if ($member->wasRecentlyCreated && ! $challenge->creator->is($request->user())) {
-            $challenge->creator->notify(new ChallengeJoined($challenge, $request->user()));
+            $challenge->creator->notify(new ChallengeJoined($challenge->withoutRelations(), $request->user()));
         }
 
         return redirect()->route('challenges.show', $challenge)->with('status', "You're in. Check in every day you do it.");

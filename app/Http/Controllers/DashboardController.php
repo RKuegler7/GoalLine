@@ -117,7 +117,7 @@ class DashboardController extends Controller
             ->whereHas('goal', fn ($goals) => $goals->where('user_id', $user->id))
             ->where('ends_on', '>=', Clock::today()->subDays(14))
             ->where('starts_on', '<=', Clock::today())
-            ->with(['goal.weeks', 'tasks'])
+            ->with(['goal.weeks', 'goal.habits.logs', 'tasks'])
             ->latest('ends_on')
             ->get()
             ->first(fn (RoadmapWeek $week) => in_array($week->result(), [GoalWeekResult::Past, GoalWeekResult::Smashed], true)

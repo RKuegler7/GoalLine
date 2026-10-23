@@ -42,7 +42,7 @@ class ChallengeWrapUp
             $text = "\u{201C}{$challenge->title}\u{201D} is over.{$place} with {$row['days']} of {$challenge->target_days} days"
                 .($row['finished'] ? '. Challenge complete!' : '.');
 
-            $user->notify(new ChallengeFinished($challenge, $text));
+            $user->notify(new ChallengeFinished($challenge->withoutRelations(), $text));
 
             if ($row['finished']) {
                 $this->awarder->award($user, Badge::ChallengeFinisher);
