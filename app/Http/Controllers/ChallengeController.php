@@ -117,9 +117,11 @@ class ChallengeController extends Controller
         $existing = $challenge->checkIns()->where('user_id', $request->user()->id)->whereDate('checked_on', $day)->first();
         $existing ? $existing->delete() : $challenge->checkIns()->create(['user_id' => $request->user()->id, 'checked_on' => $day]);
 
-        return $request->input('return') === 'gameplan'
-            ? redirect()->to(route('dashboard').'#gameplan')
-            : redirect()->route('challenges.show', $challenge);
+        return match ($request->input('return')) {
+            'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'list' => redirect()->route('leagues.index'),
+            default => redirect()->route('challenges.show', $challenge),
+        };
     }
 
     /**

@@ -37,7 +37,7 @@ class NavigationTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('highlights.index'))
             ->assertOk()
-            ->assertSee('Celebrate the crossings');
+            ->assertSee('Around the League');
     }
 
     public function test_leagues_tab_shows_unread_chat_messages(): void

@@ -152,6 +152,16 @@ class ChallengeTest extends TestCase
         $this->assertSame(1, $running->members()->count());
     }
 
+    public function test_you_can_check_in_right_from_the_challenge_card(): void
+    {
+        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['title' => 'Cold showers', 'starts_on' => '2026-10-19', 'ends_on' => '2026-10-25']);
+        $challenge->members()->create(['user_id' => $this->avery->id]);
+
+        $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('I did it today')->assertSee('0/7');
+        $this->actingAs($this->avery)->post(route('challenges.check-in', $challenge), ['return' => 'list'])->assertRedirect(route('leagues.index'));
+        $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('Done today')->assertSee('1/7');
+    }
+
     public function test_the_goalleagues_page_lists_challenges(): void
     {
         $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['title' => 'Read 20 pages a day']);

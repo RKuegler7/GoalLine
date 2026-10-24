@@ -120,6 +120,18 @@ class BetaReadinessTest extends TestCase
         $this->assertNull(Invite::usable($invite->code));
     }
 
+    public function test_verified_admins_get_an_admin_link_in_the_top_bar(): void
+    {
+        $admin = User::factory()->create(['email' => 'admin@goalline.app']);
+        $this->actingAs($admin)->get(route('dashboard'))->assertSee('href="'.route('admin.index').'"', false);
+
+        // Until the email is verified, it isn't an admin account yet.
+        $admin->forceFill(['email_verified_at' => null])->save();
+        $this->actingAs($admin)->get(route('dashboard'))->assertDontSee('href="'.route('admin.index').'"', false);
+
+        $this->actingAs(User::factory()->create())->get(route('dashboard'))->assertDontSee('href="'.route('admin.index').'"', false);
+    }
+
     public function test_usage_is_tracked_and_shown_on_the_admin_page(): void
     {
         $admin = User::factory()->create(['email' => 'admin@goalline.app']);

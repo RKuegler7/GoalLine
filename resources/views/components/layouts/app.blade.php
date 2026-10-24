@@ -44,6 +44,9 @@
                 <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold text-club transition hover:bg-white md:flex">
                     <x-icon name="plus" class="size-4" /> New goal
                 </a>
+                @can('admin')
+                    <a href="{{ route('admin.index') }}" @class(['rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ring-1 ring-inset transition', 'bg-gold text-ink ring-gold' => request()->routeIs('admin.*'), 'text-gold ring-gold/60 hover:bg-gold hover:text-ink' => ! request()->routeIs('admin.*')])>Admin</a>
+                @endcan
                 <a href="{{ route('inbox') }}" @class(['relative rounded-full p-1.5 transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
                     aria-label="Inbox{{ $inboxCount ? ', '.$inboxCount.' new' : '' }}">
                     <x-icon name="bell" class="size-6" />

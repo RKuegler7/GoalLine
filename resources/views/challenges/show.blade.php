@@ -9,8 +9,12 @@
 <x-layouts.app :title="$challenge->title.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues &amp; challenges</a>
-            <p class="eyebrow mt-6 text-mint">
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues &amp; Challenges</a>
+            @php
+                $myDays = $challenge->checkIns->where('user_id', $me->id)->map(fn ($checkIn) => $checkIn->checked_on->toDateString())->flip();
+            @endphp
+            <p class="eyebrow mt-6 flex items-center gap-1.5 text-gold">
+                <x-icon name="flag" class="size-4" />
                 Challenge &middot;
                 @if (! $challenge->hasStarted())
                     starts {{ $challenge->starts_on->format('l, M j') }}
@@ -20,11 +24,29 @@
                     day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}
                 @endif
             </p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $challenge->title }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-balance text-ivory sm:text-5xl">{{ $challenge->title }}</h1>
             @if ($challenge->description)
                 <p class="mt-3 max-w-xl whitespace-pre-line text-ivory/85">{{ $challenge->description }}</p>
             @endif
-            <p class="mt-3 text-sm text-ivory/70">
+
+            {{-- The challenge track: one square per day, gold where you checked in. --}}
+            <ol class="mt-6 flex flex-wrap gap-1.5" aria-label="Your days in this challenge">
+                @for ($day = $challenge->starts_on->copy(); $day->lte($challenge->ends_on); $day->addDay())
+                    @php
+                        $done = $myDays->has($day->toDateString());
+                        $isToday = $day->isSameDay($today);
+                    @endphp
+                    <li @class([
+                        'size-5 rounded-md sm:size-6',
+                        'bg-gold' => $done,
+                        'bg-ivory/15' => ! $done && $day->lte($today),
+                        'bg-ivory/5 ring-1 ring-ivory/15 ring-inset' => ! $done && $day->gt($today),
+                        'ring-2 ring-ivory ring-offset-2 ring-offset-club' => $isToday,
+                    ]) title="{{ $day->format('D, M j') }}{{ $done ? ': checked in' : '' }}"><span class="sr-only">{{ $day->format('M j') }}{{ $done ? ', checked in' : '' }}</span></li>
+                @endfor
+            </ol>
+
+            <p class="mt-4 text-sm text-ivory/70">
                 {{ $challenge->starts_on->format('M j') }}&ndash;{{ $challenge->ends_on->format('M j') }} &middot;
                 finish by checking in on {{ $challenge->target_days }} of {{ $challenge->lengthInDays() }} days &middot;
                 {{ $challenge->members->count() }} {{ Str::plural('member', $challenge->members->count()) }}

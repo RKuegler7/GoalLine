@@ -1,9 +1,9 @@
-<x-layouts.app title="Highlights · GoalLine">
+<x-layouts.app title="Around the League · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">Highlights</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Celebrate the crossings</h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Finished goals, great GoalWeeks, and milestones from the people you follow and your GoalLeague mates.</p>
+            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Around the League</h1>
+            <p class="mt-3 max-w-xl text-ivory/85">Celebrate the wins: finished goals, great GoalWeeks, and milestones from your friends and GoalLeague mates.</p>
         </div>
     </x-slot:hero>
 

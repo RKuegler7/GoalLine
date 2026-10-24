@@ -24,7 +24,11 @@ class LeagueController extends Controller
 
         return view('leagues.index', [
             'leagues' => $leagues,
-            'challenges' => $request->user()->challenges()->withCount('members')->orderByDesc('ends_on')->get(),
+            'challenges' => $request->user()->challenges()
+                ->withCount(['members', 'checkIns as my_days' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)])
+                ->withExists(['checkIns as checked_today' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)->whereDate('checked_on', Clock::today()->toDateString())])
+                ->orderByDesc('ends_on')
+                ->get(),
         ]);
     }
 

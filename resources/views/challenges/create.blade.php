@@ -1,7 +1,7 @@
 <x-layouts.app title="Start a challenge · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues &amp; challenges</a>
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues &amp; Challenges</a>
             <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Start a challenge</h1>
             <p class="mt-3 max-w-xl text-ivory/85">A short sprint with friends: one thing, every day. Check in each day you do it and climb the leaderboard.</p>
         </div>

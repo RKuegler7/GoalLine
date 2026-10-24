@@ -108,7 +108,7 @@
             {{-- Highlights. --}}
             <section>
                 <div class="flex items-end justify-between gap-4">
-                    <h2 class="eyebrow text-club">Highlights</h2>
+                    <h2 class="eyebrow text-club">Around the League</h2>
                     <a href="{{ route('highlights.index') }}" class="text-sm font-semibold text-club hover:underline">Feed</a>
                 </div>
                 <div class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
