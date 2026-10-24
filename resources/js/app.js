@@ -657,3 +657,20 @@ function openCropper(input) {
 document.querySelectorAll('input[type="file"][data-crop]').forEach((input) => {
     input.addEventListener('change', () => openCropper(input));
 });
+
+/**
+ * The account menu closes when you click anywhere else or press Escape.
+ */
+document.querySelectorAll('[data-account-menu]').forEach((menu) => {
+    document.addEventListener('click', (event) => {
+        if (menu.open && !menu.contains(event.target)) {
+            menu.open = false;
+        }
+    });
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && menu.open) {
+            menu.open = false;
+            menu.querySelector('summary')?.focus();
+        }
+    });
+});

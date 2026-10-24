@@ -4,6 +4,17 @@
             <p class="eyebrow text-mint">Compete together</p>
             <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">GoalLeagues &amp; Challenges</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Go head-to-head every GoalWeek, or take on a short challenge together. Friendly competition keeps you in line.</p>
+            <div class="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <a href="{{ route('leagues.create') }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-ivory px-7 py-3.5 text-base font-semibold text-club shadow-lg shadow-black/10 transition hover:bg-white">
+                    <x-icon name="leagues" class="size-5" /> Start a GoalLeague
+                </a>
+                <a href="{{ route('challenges.create') }}" class="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-3.5 text-base font-semibold text-ink shadow-lg shadow-black/10 transition hover:brightness-105">
+                    <x-icon name="flag" class="size-5" /> Start a challenge
+                </a>
+                <a href="#join" class="inline-flex items-center justify-center gap-2 rounded-full border-2 border-ivory/70 px-7 py-3 text-base font-semibold text-ivory transition hover:border-ivory hover:bg-ivory/10">
+                    Join with a code
+                </a>
+            </div>
         </div>
     </x-slot:hero>
 
@@ -113,7 +124,7 @@
             <span class="mt-3 inline-block text-sm font-semibold text-club group-hover:underline">Create a GoalLeague &rarr;</span>
         </a>
 
-        <form method="POST" action="{{ route('leagues.find') }}" class="rounded-2xl border border-line bg-white px-6 py-5">
+        <form id="join" method="POST" action="{{ route('leagues.find') }}" class="scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
             @csrf
             <p class="eyebrow text-club">Join a GoalLeague</p>
             <label for="code" class="mt-2 block font-serif text-xl font-medium text-club">Have an invite code?</label>

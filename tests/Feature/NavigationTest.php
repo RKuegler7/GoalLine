@@ -32,6 +32,22 @@ class NavigationTest extends TestCase
         $this->assertMatchesRegularExpression('/href="'.preg_quote(route('leagues.index'), '/').'"\s+aria-current="page"/', $response->getContent());
     }
 
+    public function test_the_account_menu_holds_your_locker_settings_and_log_out(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('dashboard'))
+            ->assertSee('Account menu')
+            ->assertSeeInOrder(['My Locker', 'Profile settings', 'Notifications &amp; calendar', 'Log out'], false);
+    }
+
+    public function test_goalleagues_and_challenges_are_easy_to_start_or_join(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get(route('leagues.index'))
+            ->assertSee('GoalLeagues &amp; Challenges', false)
+            ->assertSeeInOrder(['Start a GoalLeague', 'Start a challenge', 'Join with a code']);
+    }
+
     public function test_highlights_tab_has_a_feed(): void
     {
         $this->actingAs(User::factory()->create())

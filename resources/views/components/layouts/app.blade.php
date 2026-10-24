@@ -28,7 +28,7 @@
             <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
                 @foreach ($tabs as $tab)
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
-                        'relative rounded-full px-4 py-2 text-sm font-semibold transition',
+                        'relative rounded-full px-3 py-2 text-sm font-semibold whitespace-nowrap transition lg:px-4',
                         'bg-ivory/15 text-ivory' => $tab['active'],
                         'text-ivory/70 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
                     ])>
@@ -40,13 +40,10 @@
                 @endforeach
             </nav>
 
-            <div class="flex items-center gap-3">
-                <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold text-club transition hover:bg-white md:flex">
-                    <x-icon name="plus" class="size-4" /> New goal
+            <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+                <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="New goal">
+                    <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
-                @can('admin')
-                    <a href="{{ route('admin.index') }}" @class(['rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider ring-1 ring-inset transition', 'bg-gold text-ink ring-gold' => request()->routeIs('admin.*'), 'text-gold ring-gold/60 hover:bg-gold hover:text-ink' => ! request()->routeIs('admin.*')])>Admin</a>
-                @endcan
                 <a href="{{ route('inbox') }}" @class(['relative rounded-full p-1.5 transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
                     aria-label="Inbox{{ $inboxCount ? ', '.$inboxCount.' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
@@ -54,13 +51,30 @@
                         <span class="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
                     @endif
                 </a>
-                <a href="{{ route('profile.show') }}" class="rounded-full ring-2 ring-ivory/25 transition hover:ring-ivory/60" aria-label="My Locker">
-                    <x-avatar :user="$viewer" tone="light" class="size-9 text-xs" />
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="hidden md:block">
-                    @csrf
-                    <button type="submit" class="text-sm font-medium text-ivory/70 hover:text-ivory">Log out</button>
-                </form>
+
+                {{-- Account menu: your locker, settings, admin, and log out, under your photo. --}}
+                <details class="relative" data-account-menu>
+                    <summary class="flex cursor-pointer list-none rounded-full ring-2 ring-ivory/25 transition hover:ring-ivory/60 [&::-webkit-details-marker]:hidden" aria-label="Account menu">
+                        <x-avatar :user="$viewer" tone="light" class="size-9 text-xs" />
+                    </summary>
+                    <div class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-1.5 text-sm shadow-xl">
+                        <p class="truncate border-b border-line px-4 pt-1.5 pb-2.5">
+                            <span class="block font-semibold text-ink">{{ $viewer->name }}</span>
+                            <span class="block text-xs text-ink/50">{{ '@'.$viewer->username }}</span>
+                        </p>
+                        <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-ink hover:bg-mint">My Locker</a>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-ink hover:bg-mint">Profile settings</a>
+                        <a href="{{ route('settings.notifications') }}" class="block px-4 py-2 text-ink hover:bg-mint">Notifications &amp; calendar</a>
+                        <a href="{{ route('recap.week') }}" class="block px-4 py-2 text-ink hover:bg-mint">Your week</a>
+                        @can('admin')
+                            <a href="{{ route('admin.index') }}" class="block px-4 py-2 font-semibold text-ink hover:bg-gold/20"><span class="mr-1.5 inline-block size-2 rounded-full bg-gold align-middle"></span>Admin</a>
+                        @endcan
+                        <form method="POST" action="{{ route('logout') }}" class="mt-1 border-t border-line pt-1">
+                            @csrf
+                            <button type="submit" class="block w-full px-4 py-2 text-left text-ink/70 hover:bg-ivory hover:text-ink">Log out</button>
+                        </form>
+                    </div>
+                </details>
             </div>
         </header>
 

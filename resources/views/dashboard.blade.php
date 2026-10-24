@@ -96,10 +96,11 @@
                     <x-league-snapshot :snapshot="$snapshot" class="mt-3" />
                 @empty
                     <div class="mt-3 rounded-2xl border border-line bg-white px-5 py-4">
-                        <p class="text-ink/70">Go head-to-head every GoalWeek with friends. Optional, and a lot of fun.</p>
-                        <div class="mt-3 flex gap-2">
-                            <a href="{{ route('leagues.create') }}" class="rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Start one</a>
-                            <a href="{{ route('leagues.index') }}" class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold text-club hover:border-club/40">Join with a code</a>
+                        <p class="text-ink/70">Go head-to-head every GoalWeek with friends, or take on a challenge together.</p>
+                        <div class="mt-4 grid gap-2">
+                            <a href="{{ route('leagues.create') }}" class="flex items-center justify-center gap-2 rounded-full bg-club px-5 py-2.5 font-semibold text-ivory hover:bg-club-dark"><x-icon name="leagues" class="size-4" /> Start a GoalLeague</a>
+                            <a href="{{ route('challenges.create') }}" class="flex items-center justify-center gap-2 rounded-full bg-gold px-5 py-2.5 font-semibold text-ink hover:brightness-105"><x-icon name="flag" class="size-4" /> Start a challenge</a>
+                            <a href="{{ route('leagues.index') }}#join" class="rounded-full border border-club/30 px-5 py-2.5 text-center font-semibold text-club hover:border-club">Join with a code</a>
                         </div>
                     </div>
                 @endforelse
