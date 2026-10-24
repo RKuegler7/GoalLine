@@ -547,3 +547,113 @@ if (isInstalled && csrfToken && document.querySelector('[data-signed-in]')) {
             .catch(() => {});
     }
 }
+
+/**
+ * Photo cropping: after picking a profile or cover photo, drag and zoom it into shape before it uploads.
+ * The cropped image replaces the chosen file, so the form submits as usual.
+ */
+import Cropper from 'cropperjs';
+import 'cropperjs/dist/cropper.css';
+
+const CROP_SHAPES = {
+    avatar: { aspectRatio: 1, width: 600, height: 600, title: 'Crop your profile photo', round: true },
+    cover: { aspectRatio: 3, width: 1800, height: 600, title: 'Crop your cover photo', round: false },
+};
+
+function openCropper(input) {
+    const shape = CROP_SHAPES[input.dataset.crop];
+    const file = input.files?.[0];
+
+    if (!shape || !file || !file.type.startsWith('image/')) {
+        return;
+    }
+
+    const dialog = document.createElement('dialog');
+    dialog.className = 'w-[min(36rem,calc(100vw-2rem))] rounded-2xl p-0 backdrop:bg-ink/60';
+    dialog.innerHTML = `
+        <div class="border-b border-line px-5 py-3"><h2 class="font-serif text-lg font-medium text-club"></h2>
+            <p class="text-xs text-ink/55">Drag to move. Pinch, scroll, or use the slider to zoom.</p></div>
+        <div class="bg-ink/5 ${shape.round ? 'crop-round' : ''}" style="height: min(60vh, 24rem)"><img alt="" class="block max-w-full"></div>
+        <div class="flex items-center gap-3 px-5 py-3">
+            <label class="flex flex-1 items-center gap-2 text-xs text-ink/60">Zoom <input type="range" min="0" max="1" step="0.01" value="0" class="flex-1 accent-club" data-zoom></label>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-line px-5 py-3">
+            <button type="button" class="rounded-full px-4 py-2 text-sm font-semibold text-ink/70 hover:text-ink" data-cancel>Cancel</button>
+            <button type="button" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark" data-use>Use photo</button>
+        </div>`;
+    dialog.querySelector('h2').textContent = shape.title;
+    document.body.append(dialog);
+
+    const image = dialog.querySelector('img');
+    const url = URL.createObjectURL(file);
+    image.src = url;
+    let cropper = null;
+    let baseRatio = 1;
+
+    const close = () => {
+        cropper?.destroy();
+        URL.revokeObjectURL(url);
+        dialog.close();
+        dialog.remove();
+    };
+
+    image.addEventListener('load', () => {
+        cropper = new Cropper(image, {
+            aspectRatio: shape.aspectRatio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 1,
+            background: false,
+            guides: false,
+            ready() {
+                baseRatio = cropper.getImageData().width / cropper.getImageData().naturalWidth;
+            },
+        });
+    }, { once: true });
+
+    dialog.querySelector('[data-zoom]').addEventListener('input', (event) => {
+        cropper?.zoomTo(baseRatio * (1 + Number(event.target.value) * 3));
+    });
+
+    dialog.querySelector('[data-cancel]').addEventListener('click', () => {
+        input.value = '';
+        close();
+    });
+
+    dialog.addEventListener('cancel', () => {
+        input.value = '';
+        close();
+    });
+
+    dialog.querySelector('[data-use]').addEventListener('click', () => {
+        const canvas = cropper?.getCroppedCanvas({ width: shape.width, height: shape.height, imageSmoothingQuality: 'high', fillColor: '#ffffff' });
+
+        if (!canvas) {
+            close();
+
+            return;
+        }
+
+        canvas.toBlob((blob) => {
+            if (blob) {
+                const cropped = new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+                const transfer = new DataTransfer();
+                transfer.items.add(cropped);
+                input.files = transfer.files;
+
+                // Show the result right away in the preview next to the field, if there is one.
+                const preview = input.closest('section, form')?.querySelector(shape.round ? 'img.rounded-full' : '[data-cover-preview] img');
+                if (preview) {
+                    preview.src = URL.createObjectURL(blob);
+                }
+            }
+            close();
+        }, 'image/jpeg', 0.9);
+    });
+
+    dialog.showModal();
+}
+
+document.querySelectorAll('input[type="file"][data-crop]').forEach((input) => {
+    input.addEventListener('change', () => openCropper(input));
+});

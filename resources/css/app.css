@@ -29,3 +29,9 @@
     letter-spacing: 0.2em;
     text-transform: uppercase;
 }
+
+/* The photo cropper shows a round guide for profile photos. */
+.crop-round .cropper-view-box,
+.crop-round .cropper-face {
+    border-radius: 50%;
+}

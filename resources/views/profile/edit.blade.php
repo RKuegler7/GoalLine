@@ -18,7 +18,7 @@
                 <x-avatar :user="$user" class="size-20 text-2xl" />
                 <div class="min-w-0 flex-1">
                     <label for="avatar" class="mb-1.5 block text-sm font-medium text-ink/80">Profile photo</label>
-                    <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp"
+                    <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" data-crop="avatar"
                         class="block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
                     <p class="mt-1.5 text-sm text-ink/55">JPG, PNG, or WebP, up to 2 MB.</p>
                     @error('avatar')
@@ -43,7 +43,7 @@
                     @endif
                 </div>
                 <label for="cover" class="sr-only">Cover photo</label>
-                <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp"
+                <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" data-crop="cover"
                     class="mt-3 block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
                 <p class="mt-1.5 text-sm text-ink/55">A wide photo works best: a finish line, your desk, your team. Up to 4 MB.</p>
                 @error('cover')

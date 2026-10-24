@@ -45,6 +45,18 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Hosting
+    |--------------------------------------------------------------------------
+    |
+    | On when GoalLine is served through CloudFront: every request is treated as
+    | arriving at APP_URL (https), whatever address the server itself sees.
+    |
+    */
+
+    'behind_cloudfront' => (bool) env('BEHIND_CLOUDFRONT', false),
+
     'beta' => [
         'invite_only' => (bool) env('BETA_INVITE_ONLY', true),
     ],

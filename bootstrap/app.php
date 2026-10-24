@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureOnboarded;
 use App\Http\Middleware\TrackActivity;
+use App\Http\Middleware\UsePublicAddress;
 use App\Http\Middleware\UseViewerTimezone;
 use App\Notifications\AdminAlert;
 use Illuminate\Foundation\Application;
@@ -20,8 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [UseViewerTimezone::class, EnsureOnboarded::class, TrackActivity::class]);
 
-        // CloudFront sits in front in production: trust its forwarded client address.
+        // CloudFront sits in front in production: trust its forwarded client address, and treat every
+        // request as arriving at the public https address so signed links validate.
         $middleware->trustProxies(at: '*');
+        $middleware->prepend(UsePublicAddress::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
