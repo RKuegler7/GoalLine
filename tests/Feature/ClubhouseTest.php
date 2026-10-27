@@ -41,14 +41,14 @@ class ClubhouseTest extends TestCase
         $this->actingAs($goal->user)
             ->get(route('dashboard'))
             ->assertSee('Build the first prototype')
-            ->assertSee('0 of 2 planned tasks done');
+            ->assertSee('0 of 4 points (0%)');
 
         $this->actingAs($goal->user)
             ->post(route('roadmap.tasks.check', $task), ['return' => 'clubhouse'])
             ->assertRedirect(route('dashboard').'#goal-'.$goal->id);
 
         $this->assertNotNull($task->fresh()->completed_at);
-        $this->actingAs($goal->user)->get(route('dashboard'))->assertSee('1 of 2 planned tasks done');
+        $this->actingAs($goal->user)->get(route('dashboard'))->assertSee('1 of 4 points (25%)');
     }
 
     public function test_week_at_a_glance_counts_check_ins_per_day(): void
@@ -89,6 +89,7 @@ class ClubhouseTest extends TestCase
         [$goal, $week] = $this->goalWithCurrentWeek();
         $week->tasks->each(fn ($task) => $task->forceFill(['completed_at' => now()])->save());
         $week->forceFill(['milestone_hit_at' => now()])->save();
+        $week->tasks()->create(['position' => 3, 'description' => 'Extra demo', 'is_bonus' => true])->forceFill(['completed_at' => now()])->save(); // 5 of 4 points: past the line.
 
         $this->actingAs($goal->user)
             ->get(route('dashboard'))
@@ -101,7 +102,7 @@ class ClubhouseTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('dashboard'))
             ->assertSee('How scoring works')
-            ->assertSee('win 3, tie 1, loss 0');
+            ->assertSee('wins 2, the same band draws 1');
     }
 
     /**

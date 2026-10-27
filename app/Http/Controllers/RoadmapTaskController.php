@@ -47,7 +47,34 @@ class RoadmapTaskController extends Controller
             $task->update(['description' => $description]);
         }
 
+        $this->updateTrackedNumber($request, $task);
+
         return $this->backTo($week);
+    }
+
+    /**
+     * Set or clear the number a task tracks ("5 miles"). Only before its GoalWeek starts, so nobody can lower the
+     * plan once the week is underway.
+     */
+    private function updateTrackedNumber(Request $request, RoadmapTask $task): void
+    {
+        if (! $request->has('track_target') || $task->week->isStarted()) {
+            return;
+        }
+
+        $validated = $request->validate([
+            'track_target' => ['nullable', 'numeric', 'gt:0', 'max:100000'],
+            'track_unit' => ['nullable', 'required_with:track_target', 'string', 'max:20'],
+        ], [
+            'track_unit.required_with' => 'Add a unit, like "miles", "pages", or "minutes".',
+            'track_target.gt' => 'The plan has to be more than zero.',
+        ]);
+
+        filled($validated['track_target'] ?? null)
+            ? $task->trackNumber((float) $validated['track_target'], (string) $validated['track_unit'])
+            : $task->stopTrackingNumber();
+
+        $task->save();
     }
 
     /**

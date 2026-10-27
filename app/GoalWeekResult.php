@@ -2,6 +2,12 @@
 
 namespace App;
 
+/**
+ * A GoalWeek's band, set by the share of its planned points that were earned:
+ * Short of the line under 90%, In line 90–100%, Past the line over 100%, Smashed the line at 150% and up
+ * (uncapped). A Smashed week only counts as Smashed with proof or the matchup opponent's OK; until then
+ * it's credited as Past the line.
+ */
 enum GoalWeekResult: string
 {
     case Short = 'short';
@@ -10,33 +16,48 @@ enum GoalWeekResult: string
     case Smashed = 'smashed';
 
     /**
-     * Below this share of planned tasks, a GoalWeek falls short of the line.
+     * At or above this share of planned points, a GoalWeek is in line.
      */
-    public const IN_LINE_AT = 0.70;
+    public const IN_LINE_AT = 0.90;
+
+    /**
+     * Above this share, a GoalWeek is past the line.
+     */
+    public const PAST_ABOVE = 1.00;
+
+    /**
+     * At or above this share, a GoalWeek smashed the line (with proof or the opponent's OK).
+     */
+    public const SMASHED_AT = 1.50;
 
     /**
      * Below this share, an In line result is a close call.
      */
-    public const SAFELY_IN_LINE_AT = 0.80;
+    public const SAFELY_IN_LINE_AT = 0.95;
 
     /**
-     * Bonus work needed to smash the line, as a share of planned tasks (at least one task).
+     * Score a GoalWeek from the share of planned points earned (1.0 is exactly the plan).
+     * A share that would be Smashed counts only when the week is verified; otherwise it's Past.
      */
-    public const SMASH_BONUS_SHARE = 0.20;
-
-    /**
-     * Score a GoalWeek from its planned tasks, bonus tasks, and milestone.
-     */
-    public static function score(int $planned, int $plannedDone, int $bonusDone, bool $milestoneHit): self
+    public static function score(float $share, bool $smashVerified = true): self
     {
-        $share = $planned > 0 ? $plannedDone / $planned : 1.0;
+        // Rounded to whole hundredths of a percent, so 0.9 doesn't become 0.8999… and fall short.
+        $share = round($share, 4);
 
         return match (true) {
             $share < self::IN_LINE_AT => self::Short,
-            $share < 1.0 || ! $milestoneHit => self::InLine,
-            $bonusDone >= max(1, (int) ceil($planned * self::SMASH_BONUS_SHARE)) => self::Smashed,
+            $share <= self::PAST_ABOVE => self::InLine,
+            $share >= self::SMASHED_AT && $smashVerified => self::Smashed,
             default => self::Past,
         };
+    }
+
+    /**
+     * Whether a share is high enough to smash the line, verified or not.
+     */
+    public static function reachesSmashed(float $share): bool
+    {
+        return round($share, 4) >= self::SMASHED_AT;
     }
 
     /**
@@ -53,7 +74,7 @@ enum GoalWeekResult: string
     }
 
     /**
-     * GoalWeek result points.
+     * Line points for the band: 0 to 3.
      */
     public function points(): int
     {

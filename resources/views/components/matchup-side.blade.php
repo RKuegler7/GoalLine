@@ -7,7 +7,7 @@
         <p class="truncate font-medium text-ink">{{ $member->user->name }}</p>
         <div @class(['mt-1 flex flex-wrap items-center gap-1.5', 'justify-end' => $align === 'right'])>
             @if ($result['result'])
-                <x-goalweek-result :result="$result['result']" :not-started="$result['goalWeek']?->isNotStarted() ?? false" />
+                <x-goalweek-result :result="$result['result']" :not-started="$result['goalWeek']?->isNotStarted() ?? false" :needs-proof="$result['goalWeek']?->needsProofForSmashed() ?? false" />
             @else
                 <span class="text-xs text-ink/50">No GoalWeek yet</span>
             @endif

@@ -107,6 +107,7 @@
                             So far, {{ $matchup['home']->user->name }} {{ $standing }} {{ $matchup['away']?->user->name ?? 'the league median' }}.
                             Final a day after the week ends.
                         </p>
+                        <x-matchup-timeline :league="$league" :week="$week" :matchup="$matchup" :open="$mine" />
                     </li>
                 @endforeach
             </ul>
@@ -157,7 +158,7 @@
             </table>
         </div>
         <p class="mt-2 text-xs text-ink/50">
-            Points = GoalWeek result (0&ndash;3) + matchup (win 3, tie 1, loss 0), up to 6 a week. Ties in the table go to result points, then wins.
+            Points = line points for your band (0&ndash;3) + match points (better band wins 2, same band draws 1), up to 5 a week. Ties in the table go to result points, then wins.
         </p>
     </section>
 

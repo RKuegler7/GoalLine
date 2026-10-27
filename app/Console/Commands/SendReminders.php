@@ -148,7 +148,7 @@ class SendReminders extends Command
 
         $closeCalls = $gameplan->entries
             ->filter(fn (array $entry) => $entry['week']->isCloseCall() || $entry['week']->result() === GoalWeekResult::Short)
-            ->map(fn (array $entry) => "\u{201C}{$entry['goal']->title}\u{201D} is at {$entry['week']->result()->label()}. ".$entry['week']->tasksToSafety().' more check-ins gets you safely in line.')
+            ->map(fn (array $entry) => "\u{201C}{$entry['goal']->title}\u{201D} is at {$entry['week']->result()->label()}. ".$entry['week']->pointsToSafety().' more '.str('point')->plural($entry['week']->pointsToSafety()).' gets you safely in line. One more day on the line.')
             ->values()
             ->all();
 
@@ -211,7 +211,7 @@ class SendReminders extends Command
 
         return $goals
             ->flatMap(fn (Goal $goal) => $goal->weeks->filter(fn (RoadmapWeek $week) => $week->ends_on->isSameDay($endedOn)))
-            ->filter(fn (RoadmapWeek $week) => $week->doneUnits() < $week->plannedUnits() || ! $week->milestone_hit_at)
+            ->filter(fn (RoadmapWeek $week) => $week->earnedPoints() < $week->plannedPoints())
             ->values();
     }
 

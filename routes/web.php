@@ -34,6 +34,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
+use App\Http\Controllers\SmashedConfirmationController;
+use App\Http\Controllers\TaskProofController;
 use App\Http\Controllers\WeeklyRecapController;
 use App\Http\Controllers\WeekReviewController;
 use App\Http\Controllers\WelcomeController;
@@ -127,6 +129,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/roadmap-tasks/{task}/check', [CheckInController::class, 'toggleTask'])->name('roadmap.tasks.check');
     Route::post('/goalweeks/{week}/milestone', [CheckInController::class, 'toggleMilestone'])->name('goalweeks.milestone');
+    Route::post('/roadmap-tasks/{task}/proof', [TaskProofController::class, 'store'])->name('roadmap.tasks.proof.store')->middleware('throttle:20,1');
+    Route::get('/roadmap-tasks/{task}/proof', [TaskProofController::class, 'show'])->name('roadmap.tasks.proof');
+    Route::post('/roadmap-tasks/{task}/proof-request', [TaskProofController::class, 'request'])->name('roadmap.tasks.proof.request')->middleware(['verified', 'throttle:30,1']);
+    Route::post('/goalweeks/{week}/confirm-smashed', [SmashedConfirmationController::class, 'store'])->name('goalweeks.confirm-smashed')->middleware('verified');
     Route::get('/goalweeks/{week}/review', [WeekReviewController::class, 'show'])->name('goalweeks.review');
     Route::post('/goalweeks/{week}/review', [WeekReviewController::class, 'store'])->name('goalweeks.review.store')->middleware('throttle:10,1');
 

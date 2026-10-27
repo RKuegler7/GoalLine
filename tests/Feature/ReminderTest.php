@@ -95,6 +95,7 @@ class ReminderTest extends TestCase
         $user = User::factory()->create();
         $week = $this->goalFor($user, ['Build the first prototype' => '2026-10-21']);
         $week->tasks[0]->forceFill(['completed_at' => Carbon::parse('2026-10-21 12:00')])->save();
+        $week->forceFill(['milestone_hit_at' => Carbon::parse('2026-10-22 12:00')])->save(); // 3 of 3 points: in line.
 
         $this->at('2026-10-26 07:30'); // Monday: still open.
         Notification::assertNotSentTo($user, GoalWeeksFinal::class);

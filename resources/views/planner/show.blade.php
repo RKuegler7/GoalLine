@@ -76,7 +76,8 @@
                     $week = $weeks[$goal->id];
                     $openDays = $planner->openDays($week);
                     $habits = $week->habits()->whereNull('archived_at');
-                    $logFrom = $week->starts_on->max($monday)->copy();
+                    // Catch-up check-ins: today and yesterday only.
+                    $logFrom = $week->starts_on->max($today->copy()->subDays(App\Http\Controllers\HabitController::BACKFILL_DAYS))->copy();
                 @endphp
                 <section class="overflow-hidden rounded-2xl border border-line bg-white">
                     <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
@@ -135,7 +136,7 @@
                                 @foreach ($habits as $habit)
                                     <li class="flex flex-wrap items-center justify-between gap-2">
                                         <span class="text-sm text-ink">{{ $habit->title }} <span class="text-ink/50">&middot; {{ $habit->cadence() }} &middot; {{ $habit->doneIn($week) }} of {{ $habit->targetFor($week) }} done</span></span>
-                                        {{-- Forgot to log a day? Catch up on any day so far this week. --}}
+                                        {{-- Forgot to log yesterday? Catch up here. --}}
                                         <span class="flex items-center gap-1.5">
                                             @for ($day = $logFrom->copy(); $day->lte($today); $day = $day->copy()->addDay())
                                                 <span class="flex flex-col items-center">

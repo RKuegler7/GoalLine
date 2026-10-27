@@ -51,7 +51,7 @@ class HighlightTest extends TestCase
         $this->actingAs($goal->user)->get(route('highlights.create', ['week' => $week->id]))->assertForbidden();
         $this->actingAs($goal->user)->get(route('highlights.create', ['milestone' => $week->id]))->assertForbidden();
 
-        $great = $this->weekWith($goal, done: 2, of: 2, milestone: true, position: 2);
+        $great = $this->weekWith($goal, done: 2, of: 2, milestone: true, position: 2, bonus: 1);
         $this->actingAs($goal->user)->get(route('highlights.create', ['week' => $great->id]))->assertOk()->assertSee('Past the line');
         $this->actingAs($goal->user)->get(route('highlights.create', ['milestone' => $great->id]))->assertOk()->assertSee('Hit a milestone');
     }
@@ -159,7 +159,7 @@ class HighlightTest extends TestCase
         $this->actingAs($goal->user)->get(route('goals.show', $goal))->assertSee('Share to Highlights');
     }
 
-    private function weekWith(Goal $goal, int $done, int $of, bool $milestone, int $position = 1): RoadmapWeek
+    private function weekWith(Goal $goal, int $done, int $of, bool $milestone, int $position = 1, int $bonus = 0): RoadmapWeek
     {
         $week = $goal->weeks()->create([
             'position' => $position,
@@ -173,6 +173,13 @@ class HighlightTest extends TestCase
         foreach (range(1, $of) as $index) {
             $week->tasks()->create(['position' => $index, 'description' => "Task {$index}"])
                 ->forceFill(['completed_at' => $index <= $done ? now() : null])->save();
+        }
+
+        foreach (range(1, $bonus) as $index) {
+            if ($bonus > 0) {
+                $week->tasks()->create(['position' => $of + $index, 'description' => "Bonus {$index}", 'is_bonus' => true])
+                    ->forceFill(['completed_at' => now()])->save();
+            }
         }
 
         return $week;

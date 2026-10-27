@@ -68,13 +68,14 @@ class BadgeTest extends TestCase
         $user = User::factory()->create();
         $goal = Goal::factory()->for($user)->create(['target_date' => '2026-12-31']);
 
-        // Three locked GoalWeeks, every task done; the last one with the milestone too.
+        // Three locked GoalWeeks, the task and milestone done each time (in line); the last with bonus work too (past).
         foreach ([['2026-09-28', '2026-10-04'], ['2026-10-05', '2026-10-11'], ['2026-10-12', '2026-10-18']] as $index => [$starts, $ends]) {
             $week = $goal->weeks()->create(['position' => $index + 1, 'starts_on' => $starts, 'ends_on' => $ends, 'focus' => 'Work', 'milestone' => 'Done.']);
             $week->tasks()->create(['position' => 1, 'description' => 'Task'])->forceFill(['completed_at' => $starts])->saveQuietly();
+            $week->forceFill(['milestone_hit_at' => $ends])->save();
 
             if ($index === 2) {
-                $week->forceFill(['milestone_hit_at' => $ends])->save();
+                $week->tasks()->create(['position' => 2, 'description' => 'Bonus', 'is_bonus' => true])->forceFill(['completed_at' => $starts])->saveQuietly();
             }
         }
 

@@ -33,6 +33,7 @@ class WeeklyRecapTest extends TestCase
         $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
         $week = $goal->weeks()->create(['position' => 1, 'starts_on' => '2026-10-19', 'ends_on' => '2026-10-25', 'focus' => 'Prototype', 'milestone' => 'Done.']);
         $week->tasks()->create(['position' => 1, 'description' => 'Build it'])->forceFill(['completed_at' => '2026-10-21 10:00'])->saveQuietly();
+        $week->forceFill(['milestone_hit_at' => '2026-10-24 10:00'])->save(); // 1 task + 3 runs + milestone: 6 of 6, in line.
         $this->habit = $goal->habits()->create(['title' => 'Run', 'times_per_week' => 3]);
         foreach (['2026-10-20', '2026-10-21', '2026-10-25'] as $day) {
             $this->habit->logs()->create(['logged_on' => $day]);
@@ -61,7 +62,7 @@ class WeeklyRecapTest extends TestCase
         $this->actingAs($this->user)
             ->get(route('recap.week'))
             ->assertOk()
-            ->assertSee('Your week so far')
+            ->assertSee('Your process this week')
             ->assertSee('Launch the business')
             ->assertSee('Plan my week');
 

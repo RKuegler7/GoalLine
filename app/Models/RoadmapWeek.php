@@ -31,6 +31,11 @@ class RoadmapWeek extends Model
     public const REVIEW_OPENS_DAYS_BEFORE_END = 1;
 
     /**
+     * What hitting the GoalWeek's milestone is worth, in planned points.
+     */
+    public const MILESTONE_POINTS = 2;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -41,6 +46,7 @@ class RoadmapWeek extends Model
             'starts_on' => 'date',
             'ends_on' => 'date',
             'milestone_hit_at' => 'datetime',
+            'smashed_confirmed_at' => 'datetime',
         ];
     }
 
@@ -61,7 +67,7 @@ class RoadmapWeek extends Model
      */
     public function tasks(): HasMany
     {
-        return $this->hasMany(RoadmapTask::class)->orderBy('position');
+        return $this->hasMany(RoadmapTask::class)->orderBy('position')->chaperone('week');
     }
 
     /**
@@ -165,31 +171,54 @@ class RoadmapWeek extends Model
     }
 
     /**
-     * Planned work this GoalWeek: planned (non-bonus) tasks plus each habit's weekly target.
+     * Planned points this GoalWeek: planned (non-bonus) tasks' points, one point per planned habit day, and the
+     * milestone.
      */
-    public function plannedUnits(): int
+    public function plannedPoints(): int
     {
-        return $this->tasks->reject->is_bonus->count()
-            + $this->habits()->sum(fn (Habit $habit) => $habit->targetFor($this));
+        return $this->tasks->reject->is_bonus->sum('points')
+            + $this->habits()->sum(fn (Habit $habit) => $habit->targetFor($this))
+            + self::MILESTONE_POINTS;
     }
 
     /**
-     * Planned work done: planned tasks checked off plus habit check-ins, up to each habit's target.
+     * Points earned: every task checked off (bonus tasks too, and numeric tasks scaled by their result), every habit
+     * day logged, and the milestone. Earning more than planned is how a week gets past the line.
      */
-    public function doneUnits(): int
+    public function earnedPoints(): float
     {
-        return $this->tasks->reject->is_bonus->filter->completed_at->count()
-            + $this->habits()->sum(fn (Habit $habit) => min($habit->targetFor($this), $habit->doneIn($this)));
+        return $this->tasks->sum(fn (RoadmapTask $task) => $task->earnedPoints())
+            + $this->habits()->sum(fn (Habit $habit) => $habit->doneIn($this))
+            + ($this->milestone_hit_at ? self::MILESTONE_POINTS : 0);
     }
 
     /**
-     * Share of the planned work that's done, from 0 to 1.
+     * Share of the planned points earned: 1.0 is exactly the plan, and it can go well above.
      */
     public function completionShare(): float
     {
-        $planned = $this->plannedUnits();
+        $planned = $this->plannedPoints();
 
-        return $planned === 0 ? 1.0 : $this->doneUnits() / $planned;
+        return $planned === 0 ? 1.0 : $this->earnedPoints() / $planned;
+    }
+
+    /**
+     * Whether a Smashed week can count as Smashed: at least one check-in has proof, or the matchup opponent confirmed it.
+     */
+    public function isSmashVerified(): bool
+    {
+        return $this->smashed_confirmed_at !== null
+            || $this->tasks->contains(fn (RoadmapTask $task) => $task->completed_at && $task->isVerified());
+    }
+
+    /**
+     * Whether the week reached Smashed but is credited as Past the line until there's proof or the opponent's OK.
+     */
+    public function needsProofForSmashed(): bool
+    {
+        return $this->isStarted()
+            && GoalWeekResult::reachesSmashed($this->completionShare())
+            && ! $this->isSmashVerified();
     }
 
     /**
@@ -201,12 +230,7 @@ class RoadmapWeek extends Model
             return null;
         }
 
-        return GoalWeekResult::score(
-            planned: $this->plannedUnits(),
-            plannedDone: $this->doneUnits(),
-            bonusDone: $this->tasks->filter->is_bonus->filter->completed_at->count(),
-            milestoneHit: $this->milestone_hit_at !== null,
-        );
+        return GoalWeekResult::score($this->completionShare(), $this->isSmashVerified());
     }
 
     /**
@@ -216,8 +240,7 @@ class RoadmapWeek extends Model
     public function isNotStarted(): bool
     {
         return $this->starts_on->isSameDay(Clock::today())
-            && $this->milestone_hit_at === null
-            && $this->doneUnits() === 0;
+            && $this->earnedPoints() == 0;
     }
 
     /**
@@ -225,15 +248,33 @@ class RoadmapWeek extends Model
      */
     public function isCloseCall(): bool
     {
-        return $this->result() === GoalWeekResult::InLine && $this->completionShare() < GoalWeekResult::SAFELY_IN_LINE_AT;
+        return $this->result() === GoalWeekResult::InLine && round($this->completionShare(), 4) < GoalWeekResult::SAFELY_IN_LINE_AT;
     }
 
     /**
-     * How many more check-ins (tasks or habit days) would put the GoalWeek safely in line.
+     * How many more points would put the GoalWeek safely in line.
      */
-    public function tasksToSafety(): int
+    public function pointsToSafety(): int
     {
-        return max(0, (int) ceil($this->plannedUnits() * GoalWeekResult::SAFELY_IN_LINE_AT) - $this->doneUnits());
+        return max(0, (int) ceil($this->plannedPoints() * GoalWeekResult::SAFELY_IN_LINE_AT - $this->earnedPoints() - 0.0001));
+    }
+
+    /**
+     * How many more points would put the GoalWeek in line, past the line, or into Smashed territory.
+     */
+    public function pointsTo(float $share): int
+    {
+        return max(0, (int) ceil($this->plannedPoints() * $share - $this->earnedPoints() - 0.0001));
+    }
+
+    /**
+     * Who confirmed this week's Smashed result.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function smashedConfirmer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'smashed_confirmed_by');
     }
 
     /**

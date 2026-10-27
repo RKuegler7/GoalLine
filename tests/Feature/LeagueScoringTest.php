@@ -68,11 +68,11 @@ class LeagueScoringTest extends TestCase
         $leader = $standings->first();
         $this->assertTrue($leader['member']->is($alex));
         $this->assertSame([2, 1, 1, 0], [$leader['played'], $leader['wins'], $leader['ties'], $leader['losses']]);
-        $this->assertSame(2 + 1 + 3 + 1, $leader['total'], 'Past (2) + win (3), then in line (1) + tie (1).');
+        $this->assertSame(2 + 2 + 1 + 1, $leader['total'], 'Past (2) + win (2), then in line (1) + draw (1).');
 
         $runnerUp = $standings->last();
         $this->assertSame([0, 1, 1], [$runnerUp['wins'], $runnerUp['ties'], $runnerUp['losses']]);
-        $this->assertSame(1 + 0 + 1 + 1, $runnerUp['total'], 'In line and lost earns just 1 point.');
+        $this->assertSame(1 + 0 + 1 + 1, $runnerUp['total'], 'In line and lost earns just the 1 line point.');
 
         $record = (new ProfileStats($alex->user))->leagueRecord();
         $this->assertSame(['wins' => 1, 'ties' => 1, 'losses' => 0], $record);
@@ -92,7 +92,7 @@ class LeagueScoringTest extends TestCase
         $table = new LeagueTable($league->fresh());
         $table->settle();
 
-        $this->assertSame(3 + 3, $table->standings()->first()['total']);
+        $this->assertSame(3 + 2, $table->standings()->first()['total'], 'Smashed (3) + win (2): the most a week can earn.');
     }
 
     public function test_weeks_wait_to_settle_until_results_lock(): void
@@ -164,11 +164,12 @@ class LeagueScoringTest extends TestCase
      */
     private function scoreWeek(LeagueMember $member, string $monday, string $result): void
     {
-        [$done, $bonus, $milestone] = match ($result) {
-            'short' => [0, 0, false],
-            'in_line' => [2, 0, false],
-            'past' => [2, 0, true],
-            'smashed' => [2, 1, true],
+        // 2 planned tasks + the milestone = 4 planned points; bonus tasks are 1 point each.
+        [$done, $bonus, $milestone, $proof] = match ($result) {
+            'short' => [0, 0, false, false],
+            'in_line' => [2, 0, true, false],   // 4 of 4
+            'past' => [2, 1, true, false],      // 5 of 4
+            'smashed' => [2, 2, true, true],    // 6 of 4, with proof
         };
 
         $goal = $member->goal;
@@ -183,7 +184,7 @@ class LeagueScoringTest extends TestCase
 
         foreach (range(1, 2 + $bonus) as $position) {
             $week->tasks()->create(['position' => $position, 'description' => "Task {$position}", 'is_bonus' => $position > 2])
-                ->forceFill(['completed_at' => $position <= $done || $position > 2 ? now() : null])->save();
+                ->forceFill(['completed_at' => $position <= $done || $position > 2 ? now() : null, 'proof_path' => $proof && $position === 1 ? 'proofs/test.png' : null])->save();
         }
     }
 }

@@ -37,22 +37,10 @@
         @foreach ($gameplan->entries as $entry)
             @foreach ($entry['tasks'] as $task)
                 <li class="flex items-start gap-3 py-3">
-                    <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}">
-                        @csrf
-                        <input type="hidden" name="return" value="gameplan">
-                        <button type="submit" title="{{ $task->completed_at ? 'Mark as not done' : 'Check off' }}" @class([
-                            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition',
-                            'border-grass bg-grass text-white' => $task->completed_at,
-                            'border-grass/60 hover:border-grass hover:bg-mint' => ! $task->completed_at,
-                        ])>
-                            @if ($task->completed_at)
-                                {!! $check !!}
-                            @endif
-                            <span class="sr-only">{{ $task->completed_at ? 'Done: ' : 'Check off: ' }}{{ $task->description }}</span>
-                        </button>
-                    </form>
+                    <x-task-check :task="$task" return="gameplan" size="size-6" />
                     <div class="min-w-0 flex-1">
                         <p @class(['text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink' => ! $task->completed_at])>{{ $task->description }}</p>
+                        <x-task-details :task="$task" return="gameplan" context="gameplan" />
                         <p class="mt-0.5 flex flex-wrap gap-x-2 text-xs text-ink/50">
                             <a href="{{ route('goals.show', $entry['goal']) }}" class="hover:text-club hover:underline">{{ $entry['goal']->title }}</a>
                             @if ($gameplan->isCarriedOver($task))

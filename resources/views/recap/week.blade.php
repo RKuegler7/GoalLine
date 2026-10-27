@@ -10,7 +10,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
             <p class="eyebrow text-mint">{{ $recap->monday->format('M j') }}&ndash;{{ $recap->sunday->format('M j') }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $isThisWeek ? 'Your week so far' : 'Your week' }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $isThisWeek ? 'Your process this week' : 'Your process that week' }}</h1>
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([
                     ['Check-ins', $recap->checkIns(), 'tasks, habits, and challenges'],

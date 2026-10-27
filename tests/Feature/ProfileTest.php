@@ -144,11 +144,12 @@ class ProfileTest extends TestCase
         $start = today()->subWeeks(count($results) + 1);
 
         foreach ($results as $index => $result) {
+            // 2 planned tasks + the milestone = 4 planned points; bonus tasks are 1 point each.
             [$planned, $done, $bonus, $milestone] = match ($result) {
-                'short' => [2, 0, 0, false],
-                'in_line' => [2, 2, 0, false],
-                'past' => [2, 2, 0, true],
-                'smashed' => [2, 2, 1, true],
+                'short' => [2, 0, 0, false],   // 0 of 4
+                'in_line' => [2, 2, 0, true],  // 4 of 4
+                'past' => [2, 2, 1, true],     // 5 of 4
+                'smashed' => [2, 2, 2, true],  // 6 of 4, with proof below
             };
 
             $week = $goal->weeks()->create([
@@ -162,7 +163,10 @@ class ProfileTest extends TestCase
 
             foreach (range(1, $planned + $bonus) as $position) {
                 $week->tasks()->create(['position' => $position, 'description' => "Task {$position}", 'is_bonus' => $position > $planned])
-                    ->forceFill(['completed_at' => $position <= $done || $position > $planned ? now() : null])->save();
+                    ->forceFill([
+                        'completed_at' => $position <= $done || $position > $planned ? now() : null,
+                        'proof_path' => $result === 'smashed' && $position === 1 ? 'proofs/test.png' : null,
+                    ])->save();
             }
         }
 

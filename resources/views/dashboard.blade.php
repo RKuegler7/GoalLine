@@ -15,6 +15,8 @@
                 {{ $greeting }}, {{ Str::before(auth()->user()->name, ' ') }}.
             </h1>
 
+            <p class="mt-2 font-serif text-lg text-mint">Trust the process. Show up today.</p>
+
             <x-daily-streak :streak="$streak" class="mt-4" />
 
             {{-- Scoreboard. --}}

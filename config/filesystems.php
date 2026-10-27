@@ -28,6 +28,19 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Proof Photos Disk
+    |--------------------------------------------------------------------------
+    |
+    | Where "Show your work" photos are saved. They're private and served only to
+    | people allowed to see them. Point PROOF_DISK at another disk (like s3) to move
+    | them without code changes.
+    |
+    */
+
+    'proof_disk' => env('PROOF_DISK', 'uploads'),
+
     'disks' => [
 
         'local' => [

@@ -34,20 +34,18 @@ class HabitTest extends TestCase
         $habit = $goal->habits()->create(['title' => 'Run', 'times_per_week' => 3]);
         $week->tasks->each(fn ($task) => $task->forceFill(['completed_at' => now()])->save());
 
-        // 2 tasks done, 0 of 3 runs: 2 of 5.
-        $this->assertSame(5, $this->fresh($week)->plannedUnits());
+        // 2 tasks + 3 runs + milestone (2) = 7 planned points; 2 tasks done and no runs yet is 2 of 7.
+        $this->assertSame(7, $this->fresh($week)->plannedPoints());
         $this->assertSame(GoalWeekResult::Short, $this->fresh($week)->result());
 
         $habit->logs()->create(['logged_on' => '2026-10-19']);
         $habit->logs()->create(['logged_on' => '2026-10-20']);
-        $this->assertSame(GoalWeekResult::InLine, $this->fresh($week)->result()); // 4 of 5
-
         $habit->logs()->create(['logged_on' => '2026-10-21']);
         $week->forceFill(['milestone_hit_at' => now()])->save();
-        $this->assertSame(GoalWeekResult::Past, $this->fresh($week)->result());
+        $this->assertSame(GoalWeekResult::InLine, $this->fresh($week)->result()); // 7 of 7
     }
 
-    public function test_extra_check_ins_beyond_the_target_do_not_inflate_the_result(): void
+    public function test_extra_habit_days_beyond_the_target_count_as_extra_work(): void
     {
         [$goal, $week] = $this->goalWithCurrentWeek();
         $habit = $goal->habits()->create(['title' => 'Stretch', 'times_per_week' => 1]);
@@ -56,7 +54,9 @@ class HabitTest extends TestCase
             $habit->logs()->create(['logged_on' => $day]);
         }
 
-        $this->assertSame(1, $this->fresh($week)->doneUnits());
+        // One habit day was planned; all three count, which is how habits help push a week past the line.
+        $this->assertSame(5, $this->fresh($week)->plannedPoints());
+        $this->assertEqualsWithDelta(3.0, $this->fresh($week)->earnedPoints(), 0.001);
     }
 
     public function test_targets_scale_with_the_length_of_the_goalweek(): void
@@ -83,15 +83,17 @@ class HabitTest extends TestCase
         $this->assertSame(0, $habit->logs()->count());
     }
 
-    public function test_a_missed_day_earlier_in_the_week_can_be_logged_but_not_a_future_one(): void
+    public function test_yesterday_can_be_logged_but_not_earlier_days_or_future_ones(): void
     {
         [$goal] = $this->goalWithCurrentWeek();
         $habit = $goal->habits()->create(['title' => 'Run', 'times_per_week' => 3]);
 
-        $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-19'])->assertRedirect();
-        $this->assertSame('2026-10-19', $habit->logs()->sole()->logged_on->toDateString());
+        $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-20'])->assertRedirect();
+        $this->assertSame('2026-10-20', $habit->logs()->sole()->logged_on->toDateString());
 
+        $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-19'])->assertSessionHas('status');
         $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-22'])->assertForbidden();
+        $this->assertSame(1, $habit->logs()->count());
     }
 
     public function test_locked_goalweeks_and_other_peoples_habits_cannot_be_logged(): void
@@ -100,7 +102,7 @@ class HabitTest extends TestCase
         $habit = $goal->habits()->create(['title' => 'Run', 'times_per_week' => 3]);
         $goal->weeks()->create(['position' => 0, 'starts_on' => '2026-10-12', 'ends_on' => '2026-10-18', 'focus' => 'Before', 'milestone' => 'Done.']);
 
-        $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-14'])->assertForbidden();
+        $this->actingAs($goal->user)->post(route('habits.log', $habit), ['date' => '2026-10-14'])->assertSessionHas('status'); // Too far back.
         $this->actingAs(User::factory()->create())->post(route('habits.log', $habit))->assertForbidden();
         $this->assertSame(0, $habit->logs()->count());
     }

@@ -674,3 +674,19 @@ document.querySelectorAll('[data-account-menu]').forEach((menu) => {
         }
     });
 });
+
+/**
+ * "Show your work (optional)": open the proof panel under a checked-off task.
+ */
+document.querySelectorAll('[data-open-proof]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+        const panel = document.getElementById(link.dataset.openProof);
+
+        if (panel) {
+            event.preventDefault();
+            panel.hidden = false;
+            panel.querySelector('input[type="file"]')?.focus();
+            link.hidden = true;
+        }
+    });
+});

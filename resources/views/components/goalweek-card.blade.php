@@ -11,19 +11,16 @@
     $short = $result === App\GoalWeekResult::Short && ! $notStarted;
 
     $habits = $week->habits();
-    $units = $week->plannedUnits();
-    $plannedLeft = $units - $week->doneUnits();
-    $toInLine = max(0, (int) ceil($units * App\GoalWeekResult::IN_LINE_AT) - $week->doneUnits());
-    $bonusNeeded = max(1, (int) ceil($units * App\GoalWeekResult::SMASH_BONUS_SHARE)) - $week->tasks->filter->is_bonus->filter->completed_at->count();
-    $checkIns = fn (int $count) => $count.' more '.($habits->isEmpty() ? Str::plural('task', $count) : Str::plural('check-in', $count));
+    $needsProof = $week->needsProofForSmashed();
+    $morePoints = fn (int $count) => $count.' more '.Str::plural('point', $count);
 
     $nudge = match (true) {
-        $notStarted => 'New GoalWeek. Check off your first task to get going.',
-        $result === App\GoalWeekResult::Short => 'Check off '.$checkIns($toInLine).' to get in line.',
-        $closeCall => 'Close call: '.$checkIns($week->tasksToSafety()).' gets you safely in line.',
-        $result === App\GoalWeekResult::InLine && $plannedLeft > 0 => 'Finish '.$checkIns($plannedLeft).' and hit your milestone to get past the line.',
-        $result === App\GoalWeekResult::InLine => 'Hit your milestone to get past the line.',
-        $result === App\GoalWeekResult::Past => 'Past the line! Add and finish '.$bonusNeeded.' bonus '.Str::plural('task', $bonusNeeded).' to smash it.',
+        $notStarted => 'New GoalWeek. Trust the process: check off your first task to get going.',
+        $result === App\GoalWeekResult::Short => 'Earn '.$morePoints($week->pointsTo(App\GoalWeekResult::IN_LINE_AT)).' to get in line. One more day on the line.',
+        $closeCall => 'Close call: '.$morePoints($week->pointsToSafety()).' gets you safely in line.',
+        $result === App\GoalWeekResult::InLine => 'Earn '.$morePoints(max(1, $week->pointsTo(App\GoalWeekResult::PAST_ABOVE))).' to get past the line. Bonus work and beating your numbers count.',
+        $needsProof => 'You reached Smashed! Show your work on a check-in, or ask your opponent to confirm, so it counts in full.',
+        $result === App\GoalWeekResult::Past => 'Past the line! '.ucfirst($morePoints($week->pointsTo(App\GoalWeekResult::SMASHED_AT))).' smashes it.',
         $result === App\GoalWeekResult::Smashed => 'You smashed the line this GoalWeek.',
         default => null,
     };
@@ -51,7 +48,7 @@
 
         @if ($result && ($past || ! $current))
             <div class="flex items-center gap-2">
-                <x-goalweek-result :result="$result" :close-call="$closeCall" />
+                <x-goalweek-result :result="$result" :close-call="$closeCall" :needs-proof="$needsProof" />
                 @if ($week->goal->user_id === auth()->id() && in_array($result, [App\GoalWeekResult::Past, App\GoalWeekResult::Smashed], true))
                     <a href="{{ route('highlights.create', ['week' => $week]) }}" class="text-xs font-semibold text-club hover:underline">Share</a>
                 @endif
@@ -117,9 +114,9 @@
         ])>
             <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="text-sm font-semibold text-ink">This GoalWeek so far</span>
-                <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" />
+                <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" :needs-proof="$needsProof" />
             </div>
-            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned work done this GoalWeek" />
+            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" />
             @if ($nudge)
                 <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
                     {{ $nudge }}
@@ -134,68 +131,69 @@
     <ul class="mt-4 space-y-2 border-t border-line pt-4">
         @foreach ($week->tasks as $task)
             <li class="group flex items-start gap-3 text-ink/85">
-                @if ($checkable)
-                    <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}">
-                        @csrf
-                        <button type="submit" title="{{ $task->completed_at ? 'Mark as not done' : 'Check off' }}" @class([
-                            'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2 transition',
-                            'border-grass bg-grass text-white' => $task->completed_at,
-                            'border-grass/60 hover:border-grass hover:bg-mint' => ! $task->completed_at,
-                        ])>
-                            @if ($task->completed_at)
-                                <svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
-                            @endif
-                            <span class="sr-only">{{ $task->completed_at ? 'Done: '.$task->description : 'Check off: '.$task->description }}</span>
-                        </button>
-                    </form>
-                @else
-                    <span @class([
-                        'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                        'border-grass bg-grass text-white' => $task->completed_at,
-                        'border-grass/40' => ! $task->completed_at,
-                    ]) aria-hidden="true">
-                        @if ($task->completed_at)
-                            <svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3.5 8.5l3 3 6-7" /></svg>
-                        @endif
-                    </span>
-                @endif
+                <x-task-check :task="$task" :checkable="$checkable" />
 
-                @if ($editable)
-                    <details class="min-w-0 flex-1">
-                        <summary class="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
-                            <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
-                                {{ $task->description }}
-                                @if ($task->is_bonus)
-                                    <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink no-underline">Bonus</span>
-                                @endif
-                            </span>
-                            <span class="shrink-0 text-xs font-semibold text-club opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">Edit</span>
-                        </summary>
-                        <div class="mt-2 flex flex-col gap-2 sm:flex-row">
-                            <form method="POST" action="{{ route('roadmap.tasks.update', $task) }}" class="flex flex-1 gap-2">
-                                @csrf
-                                @method('PUT')
-                                <label for="task-{{ $task->id }}" class="sr-only">Task</label>
-                                <input id="task-{{ $task->id }}" name="description" value="{{ $task->description }}" maxlength="250" required
-                                    class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                                <button type="submit" class="rounded-lg bg-club px-3 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Save</button>
-                            </form>
-                            <form method="POST" action="{{ route('roadmap.tasks.destroy', $task) }}"
-                                onsubmit="return confirm('Remove this task? Your coach will check you\'re still in line.')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50">Remove</button>
-                            </form>
-                        </div>
-                    </details>
-                @else
-                    <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
-                        {{ $task->description }}
-                        @if ($task->is_bonus)
-                            <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink">Bonus</span>
-                        @endif
-                    </span>
-                @endif
+                <div class="min-w-0 flex-1">
+                    @if ($editable)
+                        <details>
+                            <summary class="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                                <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
+                                    {{ $task->description }}
+                                    @if ($task->is_bonus)
+                                        <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink no-underline">Bonus</span>
+                                    @endif
+                                </span>
+                                <span class="shrink-0 text-xs font-semibold text-club opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">Edit</span>
+                            </summary>
+                            <div class="mt-2 space-y-2">
+                                <form method="POST" action="{{ route('roadmap.tasks.update', $task) }}" class="space-y-2">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="flex gap-2">
+                                        <label for="task-{{ $task->id }}" class="sr-only">Task</label>
+                                        <input id="task-{{ $task->id }}" name="description" value="{{ $task->description }}" maxlength="250" required
+                                            class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                                        <button type="submit" class="rounded-lg bg-club px-3 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Save</button>
+                                    </div>
+                                    @if (! $week->isStarted())
+                                        {{-- Numbers can only be set before the GoalWeek starts, so nobody lowers the plan mid-week. --}}
+                                        <fieldset class="flex flex-wrap items-center gap-2 text-xs text-ink/65">
+                                            <legend class="sr-only">Track a number (optional)</legend>
+                                            <span>Track a number (optional):</span>
+                                            <label for="track-target-{{ $task->id }}" class="sr-only">Plan</label>
+                                            <input id="track-target-{{ $task->id }}" name="track_target" type="number" inputmode="decimal" step="any" min="0" value="{{ $task->result_target }}" placeholder="5"
+                                                class="w-20 rounded-lg border border-line bg-white px-2 py-1 text-sm tabular-nums outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                                            <label for="track-unit-{{ $task->id }}" class="sr-only">Unit</label>
+                                            <input id="track-unit-{{ $task->id }}" name="track_unit" maxlength="20" value="{{ $task->result_unit }}" placeholder="miles"
+                                                class="w-24 rounded-lg border border-line bg-white px-2 py-1 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                                            <span class="text-ink/45">Leave blank for a simple check-off.</span>
+                                        </fieldset>
+                                        @error('track_target')
+                                            <p class="text-xs text-red-700">{{ $message }}</p>
+                                        @enderror
+                                        @error('track_unit')
+                                            <p class="text-xs text-red-700">{{ $message }}</p>
+                                        @enderror
+                                    @endif
+                                </form>
+                                <form method="POST" action="{{ route('roadmap.tasks.destroy', $task) }}"
+                                    onsubmit="return confirm('Remove this task? Your coach will check you\'re still in line.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50">Remove</button>
+                                </form>
+                            </div>
+                        </details>
+                    @else
+                        <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
+                            {{ $task->description }}
+                            @if ($task->is_bonus)
+                                <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink">Bonus</span>
+                            @endif
+                        </span>
+                    @endif
+                    <x-task-details :task="$task" :checkable="$checkable" context="goal" />
+                </div>
             </li>
         @endforeach
     </ul>

@@ -9,7 +9,7 @@ enum MatchupOutcome: string
     case Loss = 'loss';
 
     /**
-     * Compare two GoalWeek result point totals, soccer-style.
+     * Compare two GoalWeeks' line points: the better band wins, the same band draws.
      */
     public static function compare(float $mine, float $theirs): self
     {
@@ -21,12 +21,12 @@ enum MatchupOutcome: string
     }
 
     /**
-     * Matchup points: 3 for a win, 1 for a tie, 0 for a loss.
+     * Match points: 2 for a win, 1 for a draw, 0 for a loss. With line points (0–3), a week is worth 0–5.
      */
     public function points(): int
     {
         return match ($this) {
-            self::Win => 3,
+            self::Win => 2,
             self::Tie => 1,
             self::Loss => 0,
         };

@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Gate;
 class HabitController extends Controller
 {
     /**
+     * How many days back a check-in can be logged: yesterday, and no earlier.
+     */
+    public const BACKFILL_DAYS = 1;
+
+    /**
      * Add a habit to a goal. Your coach checks it still keeps you in line.
      */
     public function store(Request $request, Goal $goal): RedirectResponse
@@ -60,6 +65,11 @@ class HabitController extends Controller
 
         $day = $request->filled('date') ? Clock::today()->setDateFrom($request->date('date')) : Clock::today();
         abort_if($day->gt(Clock::today()), 403, "You can't check in for a day that hasn't happened yet.");
+
+        // Fair play: check-ins are for today or yesterday, never further back.
+        if ($day->lt(Clock::today()->subDays(self::BACKFILL_DAYS))) {
+            return $this->back($request, $habit->goal, 'Check-ins are for today or yesterday. Earlier days stay as they are: one more day on the line starts now.');
+        }
 
         $week = $habit->goal->weeks()->with('goal')->get()->first(fn (RoadmapWeek $week) => $day->between($week->starts_on, $week->ends_on));
         abort_unless($week?->isCheckable(), 403, 'Check-ins for that day are closed.');

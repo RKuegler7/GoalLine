@@ -138,6 +138,18 @@ class League extends Model
     }
 
     /**
+     * The league week that includes a given day, or null outside the season.
+     */
+    public function weekNumberOn(CarbonInterface $day): ?int
+    {
+        if ($day->lt($this->starts_on) || $day->gt($this->ends_on)) {
+            return null;
+        }
+
+        return intdiv((int) $this->starts_on->diffInDays($day), 7) + 1;
+    }
+
+    /**
      * The league week that includes today, if the season is underway.
      */
     public function currentWeek(): ?int
