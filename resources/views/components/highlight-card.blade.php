@@ -72,7 +72,7 @@
                     'bg-mint text-club hover:bg-grass/20' => ! $cheered,
                 ])>
                     <x-icon name="highlights" class="size-4" />
-                    {{ $cheered ? 'Kudos given' : 'Kudos' }}
+                    {{ $cheered ? 'Cheered' : 'Cheer' }}
                 </button>
             </form>
             @if ($summary = $highlight->cheerSummary($viewer))

@@ -78,7 +78,7 @@
     <div id="proof-{{ $context }}-{{ $task->id }}" data-proof-panel @if (! $justChecked && ! $proofError) hidden @endif
         class="mt-2 rounded-xl border border-club/25 bg-mint/50 px-3 py-2.5 text-sm">
         <p class="font-semibold text-club">Show your work (optional)</p>
-        <p class="mt-0.5 text-xs text-ink/70">Add a photo or screenshot. It earns a Verified check, shows your league the process behind your goal, earns kudos, and keeps scoring fair. A Smashed week needs proof or your opponent's OK to count in full.</p>
+        <p class="mt-0.5 text-xs text-ink/70">Add a photo or screenshot. It earns a Verified check, shows your league the process behind your goal, earns cheers, and keeps scoring fair. A Smashed week needs proof or your opponent's OK to count in full.</p>
         @php
             $postLeagues = $task->week->goal->postingLeagues();
             $inLeague = $postLeagues->isNotEmpty();

@@ -155,7 +155,7 @@ class HighlightController extends Controller
     }
 
     /**
-     * Give kudos, or take them back.
+     * Cheer a post, or take the cheer back.
      */
     public function cheer(Request $request, Highlight $highlight): RedirectResponse
     {
@@ -163,7 +163,7 @@ class HighlightController extends Controller
 
         $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $request->user()->id]);
 
-        // One notification per fan per highlight, even if they toggle their kudos.
+        // One notification per fan per highlight, even if they toggle the cheer.
         $fan = $request->user();
         $alreadyTold = $highlight->user->notifications()->where('type', HighlightCheered::class)
             ->where('data->highlight_id', $highlight->id)->where('data->actor_id', $fan->id)->exists();

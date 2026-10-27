@@ -84,7 +84,7 @@ enum Badge: string
             self::HabitHero => self::HABIT_HERO_CHECK_INS.' habit check-ins.',
             self::Finisher => 'Crossed the GoalLine on a goal.',
             self::TeamPlayer => 'Joined a GoalLeague.',
-            self::HypeSquad => 'Gave kudos on '.self::HYPE_SQUAD_CHEERS.' posts.',
+            self::HypeSquad => 'Cheered '.self::HYPE_SQUAD_CHEERS.' posts.',
             self::WeekWarrior => 'A '.self::WEEK_WARRIOR_DAYS.'-day check-in streak.',
             self::Unstoppable => 'A '.self::UNSTOPPABLE_DAYS.'-day check-in streak.',
             self::ChallengeFinisher => 'Finished a challenge.',

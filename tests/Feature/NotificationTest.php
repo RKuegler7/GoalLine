@@ -29,12 +29,12 @@ class NotificationTest extends TestCase
         $this->actingAs($jordan)->post(route('friends.request', $sam)); // Already asked: no second notification.
         $this->actingAs($sam)->post(route('friends.request', $jordan)); // Asking back accepts.
 
-        $this->assertSame(["Jordan Rivera sent you a friend request. Friends give each other kudos and see each other's shared posts."], $sam->notifications()->pluck('data')->pluck('text')->all());
+        $this->assertSame(["Jordan Rivera sent you a friend request. Friends cheer each other on and see each other's shared posts."], $sam->notifications()->pluck('data')->pluck('text')->all());
         $this->assertSame("Sam Okafor accepted your friend request. You're friends now.", $jordan->notifications()->sole()->data['text']);
         $this->assertTrue($jordan->isFriendsWith($sam));
     }
 
-    public function test_kudos_notify_the_owner_once_and_never_for_your_own_highlight(): void
+    public function test_cheers_notify_the_owner_once_and_never_for_your_own_highlight(): void
     {
         $highlight = Highlight::factory()->create(['headline' => 'Ran a half marathon']);
         $owner = $highlight->user;
@@ -49,7 +49,7 @@ class NotificationTest extends TestCase
 
         $notification = $owner->notifications()->sole();
         $this->assertSame(HighlightCheered::class, $notification->type);
-        $this->assertSame('Sam Okafor gave you kudos: Ran a half marathon', $notification->data['text']);
+        $this->assertSame('Sam Okafor cheered your post: Ran a half marathon', $notification->data['text']);
     }
 
     public function test_sharing_a_highlight_tells_friends_who_can_see_it(): void

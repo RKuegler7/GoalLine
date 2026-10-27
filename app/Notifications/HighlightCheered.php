@@ -17,7 +17,7 @@ class HighlightCheered extends GoalLineNotification
     protected function message(User $notifiable): array
     {
         return [
-            'text' => $this->fan->name.' gave you kudos: '.($this->highlight->isPost() ? $this->highlight->detail : $this->highlight->headline),
+            'text' => $this->fan->name.' cheered your post: '.($this->highlight->isPost() ? $this->highlight->detail : $this->highlight->headline),
             'url' => ($this->highlight->league_id ? route('leagues.feed', $this->highlight->league_id) : route('highlights.index')).'#highlight-'.$this->highlight->id,
             'actor_id' => $this->fan->id,
             'highlight_id' => $this->highlight->id,

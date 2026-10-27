@@ -10,7 +10,7 @@ use Illuminate\View\View;
 class InboxController extends Controller
 {
     /**
-     * Everything that's happened around you: kudos, friend requests, friends' highlights, GoalLeague news, and results.
+     * Everything that's happened around you: cheers, friend requests, friends' highlights, GoalLeague news, and results.
      * Opening the Inbox marks it all read; what was new stays highlighted for this visit.
      */
     public function __invoke(Request $request): View

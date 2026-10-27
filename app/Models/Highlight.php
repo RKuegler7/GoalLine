@@ -163,7 +163,7 @@ class Highlight extends Model
     }
 
     /**
-     * Kudos from people who saw it.
+     * Cheers from people who saw it.
      *
      * @return HasMany<Cheer, $this>
      */
@@ -201,7 +201,7 @@ class Highlight extends Model
     }
 
     /**
-     * Whether this person has given it kudos.
+     * Whether this person has cheered it.
      */
     public function isCheeredBy(User $user): bool
     {
@@ -209,7 +209,7 @@ class Highlight extends Model
     }
 
     /**
-     * "Sam and Priya gave kudos", "Sam, Priya, and 3 others gave kudos", or "You gave kudos".
+     * "Sam and Priya cheered", "Sam, Priya, and 3 others cheered", or "You cheered".
      */
     public function cheerSummary(User $viewer): ?string
     {
@@ -226,6 +226,6 @@ class Highlight extends Model
 
         return ($others > 0
             ? $shown->implode(', ').", and {$others} ".($others === 1 ? 'other' : 'others')
-            : $shown->join(', ', ' and ')).' gave kudos';
+            : $shown->join(', ', ' and ')).' cheered';
     }
 }

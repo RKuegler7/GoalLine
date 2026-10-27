@@ -16,7 +16,7 @@ class FriendRequested extends GoalLineNotification
     protected function message(User $notifiable): array
     {
         return [
-            'text' => "{$this->requester->name} sent you a friend request. Friends give each other kudos and see each other's shared posts.",
+            'text' => "{$this->requester->name} sent you a friend request. Friends cheer each other on and see each other's shared posts.",
             'url' => route('friends.index'),
             'actor_id' => $this->requester->id,
         ];

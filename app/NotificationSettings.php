@@ -21,7 +21,7 @@ final class NotificationSettings
         'leagues' => ['GoalLeagues and challenges', 'Weekly and season recaps, challenge results, and people joining.'],
         'mentions' => ['Comments and mentions', 'When someone comments on your highlight or @mentions you.'],
         'nudges' => ['Nudges', 'When a friend or league mate nudges you to check in.'],
-        'social' => ['Kudos and friends', 'When someone gives you kudos, sends a friend request, or accepts yours.'],
+        'social' => ['Cheers and friends', 'When someone cheers your post, sends a friend request, or accepts yours.'],
         'news' => ['GoalLine news', 'New features and the occasional note from the team.'],
     ];
 

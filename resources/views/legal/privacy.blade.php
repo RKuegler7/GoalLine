@@ -5,7 +5,7 @@
     <ul>
         <li><strong>Your account:</strong> name, email, username, password (stored encrypted, never readable), time zone, and anything you add to your locker, like a photo, bio, or location.</li>
         <li><strong>Your goals and progress:</strong> goals, roadmaps, tasks, habits, check-ins, milestones, weekly reviews, and plan materials you upload.</li>
-        <li><strong>What you share:</strong> posts, highlights, photos (with location data removed), kudos, comments, GoalLeague chat messages, your friends, and any reports you make. Posts go only to the audience you pick: your GoalLeague, or your GoalLeague and friends.</li>
+        <li><strong>What you share:</strong> posts, highlights, photos (with location data removed), cheers, comments, GoalLeague chat messages, your friends, and any reports you make. Posts go only to the audience you pick: your GoalLeague, or your GoalLeague and friends.</li>
         <li><strong>Notifications:</strong> your notification settings, and if you turn on push notifications, a technical address for your device from your browser&rsquo;s push service.</li>
         <li><strong>How you use GoalLine:</strong> which features are used and when (for example &ldquo;checked off a task&rdquo; or &ldquo;opened the app today&rdquo;), so we can see what&rsquo;s working. We don&rsquo;t record the content of what you write for this.</li>
     </ul>

@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('highlights.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Around the League</a>
             <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Friends</h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Doing it with friends makes it stick. Friends give each other kudos, nudge each other, and see the posts you share with friends.</p>
+            <p class="mt-3 max-w-xl text-ivory/85">Doing it with friends makes it stick. Friends cheer each other on, nudge each other, and see the posts you share with friends.</p>
         </div>
     </x-slot:hero>
 

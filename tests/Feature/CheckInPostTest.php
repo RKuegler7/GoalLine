@@ -80,7 +80,7 @@ class CheckInPostTest extends TestCase
         Storage::disk('uploads')->assertExists($post->photo_path);
 
         $this->actingAs($this->lee)->get(route('leagues.feed', $this->league))->assertOk()->assertSeeInOrder([
-            'Avery Lee', 'Morning Milers', 'Run for Avery Lee', $post->photoUrl(), 'Rainy, but done.', 'Build the prototype', 'Verified', 'Riverside trail', 'Kudos',
+            'Avery Lee', 'Morning Milers', 'Run for Avery Lee', 'Riverside trail', $post->photoUrl(), 'Cheer', 'Verified', 'Rainy, but done.', 'Build the prototype',
         ], false);
         $this->actingAs($this->lee)->get($post->photoUrl())->assertOk();
     }
@@ -183,7 +183,7 @@ class CheckInPostTest extends TestCase
         $this->assertSame(0, Highlight::count());
     }
 
-    public function test_kudos_count_on_a_post(): void
+    public function test_cheers_count_on_a_post(): void
     {
         $this->actingAs($this->avery)->post(route('roadmap.tasks.proof.store', $this->checkedOffTask()), ['proof' => $this->fakeImage()]);
         $post = Highlight::sole();
@@ -193,9 +193,9 @@ class CheckInPostTest extends TestCase
         $this->actingAs($this->sam)->post(route('highlights.cheer', $post));
 
         $this->assertSame(2, $post->cheers()->count());
-        $this->actingAs($this->avery)->get(route('leagues.feed', $this->league))->assertSee('Lee Park and Sam Okafor gave kudos');
-        Notification::assertSentTo($this->avery, HighlightCheered::class, fn (HighlightCheered $kudos) => $kudos->fan->is($this->lee)
-            && $kudos->toArray($this->avery)['text'] === 'Lee Park gave you kudos: Build the prototype');
+        $this->actingAs($this->avery)->get(route('leagues.feed', $this->league))->assertSee('Lee Park and Sam Okafor cheered');
+        Notification::assertSentTo($this->avery, HighlightCheered::class, fn (HighlightCheered $cheer) => $cheer->fan->is($this->lee)
+            && $cheer->toArray($this->avery)['text'] === 'Lee Park cheered your post: Build the prototype');
     }
 
     public function test_the_friends_feed_starts_with_an_encouraging_empty_state(): void

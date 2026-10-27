@@ -73,7 +73,7 @@ class PushNotificationTest extends TestCase
         $this->assertContains(WebPushChannel::class, (new FriendRequested($follower))->via($user));
         $this->assertNotContains(WebPushChannel::class, (new Announcement('News'))->via($user)); // News is off by default.
 
-        // Turned off for kudos and friends.
+        // Turned off for cheers and friends.
         $this->actingAs($user)->put(route('settings.notifications.update'), ['push' => ['social' => '0', 'news' => '1']]);
         $user->refresh();
         $this->assertNotContains(WebPushChannel::class, (new FriendRequested($follower))->via($user));

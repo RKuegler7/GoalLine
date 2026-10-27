@@ -35,7 +35,7 @@
             <span class="grid size-10 place-items-center rounded-full bg-mint text-club"><x-icon name="highlights" class="size-5" /></span>
             <span>
                 <span class="block font-serif text-lg font-medium text-ink">League feed</span>
-                <span class="block text-sm text-ink/65">The work behind everyone's check-ins. Give kudos for the process.</span>
+                <span class="block text-sm text-ink/65">The work behind everyone's check-ins. Cheer the process.</span>
             </span>
         </span>
         @if ($reportedPosts > 0)

@@ -44,7 +44,7 @@
         {{-- Push on this device: app.js shows the right state once it knows what the browser supports. --}}
         <section class="rounded-2xl border border-line bg-white p-6 sm:p-8" data-push-panel data-vapid-key="{{ config('services.webpush.public_key') }}">
             <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="bell" class="size-4" /> Phone notifications</h2>
-            <p data-push-state="off" class="mt-2 text-sm text-ink/65">Get your gameplan, nudges, kudos, and results as notifications on this device.</p>
+            <p data-push-state="off" class="mt-2 text-sm text-ink/65">Get your gameplan, nudges, cheers, and results as notifications on this device.</p>
             <p data-push-state="on" hidden class="mt-2 text-sm font-medium text-club">Notifications are on for this device.</p>
             <p data-push-state="blocked" hidden class="mt-2 text-sm text-amber-800">Notifications are blocked for GoalLine in this browser. Allow them in your browser or phone settings, then come back.</p>
             <p data-push-state="unsupported" hidden class="mt-2 text-sm text-ink/65">This browser can&rsquo;t receive notifications. On iPhone, add GoalLine to your home screen first, then open it from there.</p>

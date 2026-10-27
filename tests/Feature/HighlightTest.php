@@ -111,7 +111,7 @@ class HighlightTest extends TestCase
         $this->actingAs($viewer)->post(route('highlights.cheer', $highlight))->assertForbidden();
     }
 
-    public function test_kudos_toggle_and_name_who_gave_them(): void
+    public function test_cheers_toggle_and_name_who_cheered(): void
     {
         $author = User::factory()->create(['name' => 'Jordan Rivera', 'profile_visibility' => ProfileVisibility::Everyone]);
         $fan = User::factory()->create(['name' => 'Sam Okafor']);
@@ -121,21 +121,21 @@ class HighlightTest extends TestCase
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight));
         $this->assertSame(1, $highlight->cheers()->count());
 
-        $this->actingAs($author)->get(route('highlights.index'))->assertSee('Sam Okafor gave kudos');
-        $this->actingAs($fan)->get(route('highlights.index'))->assertSee('You gave kudos')->assertSee('Kudos given');
+        $this->actingAs($author)->get(route('highlights.index'))->assertSee('Sam Okafor cheered');
+        $this->actingAs($fan)->get(route('highlights.index'))->assertSee('You cheered')->assertSee('Cheered');
 
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight));
         $this->assertSame(0, $highlight->cheers()->count());
     }
 
-    public function test_kudos_summary_names_two_people_then_counts_the_rest(): void
+    public function test_cheer_summary_names_two_people_then_counts_the_rest(): void
     {
         $highlight = Highlight::factory()->create();
         foreach (['Ava', 'Ben', 'Cal', 'Dee'] as $name) {
             $highlight->cheers()->create(['user_id' => User::factory()->create(['name' => $name])->id]);
         }
 
-        $this->assertSame('Ava, Ben, and 2 others gave kudos', $highlight->load('cheers.user')->cheerSummary($highlight->user));
+        $this->assertSame('Ava, Ben, and 2 others cheered', $highlight->load('cheers.user')->cheerSummary($highlight->user));
     }
 
     public function test_authors_can_remove_highlights_and_get_a_share_card(): void
