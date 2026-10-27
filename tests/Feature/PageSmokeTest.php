@@ -42,7 +42,7 @@ class PageSmokeTest extends TestCase
             'goalleague' => ['leagues.show'],
             'goalleague recap' => ['leagues.recap'],
             'highlights' => ['highlights.index'],
-            'find people' => ['people.index'],
+            'friends' => ['friends.index'],
             'my locker' => ['profile.show'],
             'edit locker' => ['profile.edit'],
         ];

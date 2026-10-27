@@ -57,6 +57,12 @@ return [
 
     'behind_cloudfront' => (bool) env('BEHIND_CLOUDFRONT', false),
 
+    /*
+    | "Suggest a caption" on check-in posts. Shown only when an Anthropic key is set; uses the AI caps above.
+    */
+
+    'caption_suggestions' => (bool) env('CAPTION_SUGGESTIONS', true),
+
     'beta' => [
         'invite_only' => (bool) env('BETA_INVITE_ONLY', true),
     ],

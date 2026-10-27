@@ -24,6 +24,11 @@ use Illuminate\View\View;
 class DashboardController extends Controller
 {
     /**
+     * How many friend posts the Clubhouse shows at a time.
+     */
+    private const FRIEND_FEED_SIZE = 4;
+
+    /**
      * The Clubhouse: Today's Gameplan, this GoalWeek across every goal, GoalLeagues, highlights, and the scoreboard.
      */
     public function __invoke(Request $request): View
@@ -42,7 +47,7 @@ class DashboardController extends Controller
             'weekPoints' => $goals->sum(fn (Goal $goal) => $goal->currentWeek()?->result()?->points() ?? 0),
             'activity' => $this->weekActivity($user),
             'leagues' => $user->leagues()->latest('starts_on')->get()->map(fn ($league) => new LeagueSnapshot($league, $user)),
-            'highlights' => (new HighlightFeed($user))->latest(3),
+            'friendFeed' => (new HighlightFeed($user))->friends(self::FRIEND_FEED_SIZE),
             'shareable' => $this->shareableMoment($user),
             'retired' => $user->goals()->where('status', GoalStatus::Retired)->latest('retired_at')->get(),
         ]);

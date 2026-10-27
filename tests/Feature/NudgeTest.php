@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Friendship;
 use App\Models\Goal;
 use App\Models\League;
 use App\Models\User;
@@ -33,7 +34,7 @@ class NudgeTest extends TestCase
     public function test_friends_can_nudge_once_a_day_with_a_message_about_what_is_left(): void
     {
         Notification::fake();
-        $this->makeFriends();
+        $this->makeFriends($this->sam, $this->jordan);
         $goal = Goal::factory()->for($this->jordan)->create(['target_date' => '2026-12-31']);
         $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
         $week = $goal->weeks()->create(['position' => 1, 'starts_on' => '2026-10-19', 'ends_on' => '2026-10-25', 'focus' => 'Work', 'milestone' => 'Done.']);
@@ -53,10 +54,10 @@ class NudgeTest extends TestCase
         Notification::assertSentToTimes($this->jordan, Nudged::class, 2);
     }
 
-    public function test_league_mates_can_nudge_but_strangers_and_one_way_follows_cannot(): void
+    public function test_league_mates_can_nudge_but_strangers_and_pending_requests_cannot(): void
     {
         Notification::fake();
-        $this->sam->following()->attach($this->jordan); // Sam follows Jordan, not mutual.
+        Friendship::create(['requester_id' => $this->sam->id, 'addressee_id' => $this->jordan->id]); // Asked, not accepted yet.
 
         $this->actingAs($this->sam)->post(route('nudges.store', $this->jordan))->assertForbidden();
         $this->actingAs($this->sam)->post(route('nudges.store', $this->sam))->assertForbidden();
@@ -73,16 +74,10 @@ class NudgeTest extends TestCase
     {
         $this->actingAs($this->sam)->get(route('profiles.show', $this->jordan))->assertDontSee('Nudge Jordan');
 
-        $this->makeFriends();
+        $this->makeFriends($this->sam, $this->jordan);
         $this->actingAs($this->sam)->get(route('profiles.show', $this->jordan))->assertSee('Nudge Jordan');
 
         $this->actingAs($this->sam)->post(route('nudges.store', $this->jordan));
         $this->actingAs($this->sam)->get(route('profiles.show', $this->jordan))->assertSee('Nudged today');
-    }
-
-    private function makeFriends(): void
-    {
-        $this->sam->following()->attach($this->jordan);
-        $this->jordan->following()->attach($this->sam);
     }
 }

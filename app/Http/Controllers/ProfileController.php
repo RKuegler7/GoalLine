@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Clock;
 use App\GoalStatus;
 use App\Http\Requests\ProfileRequest;
-use App\Models\Highlight;
 use App\Models\User;
 use App\Services\ActivityHeatmap;
 use App\Services\ProfileStats;
@@ -36,19 +35,14 @@ class ProfileController extends Controller
         }
 
         $viewer = $request->user();
-        $following = $viewer->follows($user);
 
         return view('profile.show', [
             'stats' => new ProfileStats($user),
             // Days on the locker owner's clock, wherever the viewer is.
             'heatmap' => Clock::for($user, fn () => new ActivityHeatmap($user)),
             'isOwn' => $viewer->is($user),
-            'following' => $following,
-            'isFriend' => $following && $user->follows($viewer),
             'friends' => $user->friends(),
-            'highlights' => $user->highlights()->with(['user', 'cheers.user', 'comments.user'])->limit(4)->get()
-                ->filter(fn (Highlight $highlight) => Gate::allows('view', $highlight))
-                ->values(),
+            'highlights' => $user->highlights()->visibleTo($viewer)->with(['user', 'cheers.user', 'comments.user', 'task', 'league'])->limit(4)->get(),
         ]);
     }
 

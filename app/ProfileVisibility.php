@@ -15,7 +15,7 @@ enum ProfileVisibility: string
     {
         return match ($this) {
             self::Private => 'Only me',
-            self::Leagues => 'My league mates',
+            self::Leagues => 'Friends and league mates',
             self::Everyone => 'Everyone on GoalLine',
         };
     }
@@ -27,7 +27,7 @@ enum ProfileVisibility: string
     {
         return match ($this) {
             self::Private => 'Your profile is hidden from everyone else.',
-            self::Leagues => 'People in your leagues can see your profile.',
+            self::Leagues => 'Your friends and the people in your GoalLeagues can see your profile.',
             self::Everyone => 'Anyone signed in to GoalLine can see your profile.',
         };
     }

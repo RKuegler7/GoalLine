@@ -6,7 +6,7 @@ use App\Models\Highlight;
 use App\Models\User;
 
 /**
- * Someone you follow shared a win. Inbox only: these can be frequent.
+ * A friend shared a win. Inbox only: these can be frequent.
  */
 class FriendHighlight extends GoalLineNotification
 {

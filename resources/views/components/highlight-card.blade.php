@@ -19,6 +19,9 @@
         ->values();
 @endphp
 
+@if ($highlight->isPost())
+    <x-post-card :post="$highlight" />
+@else
 <article id="highlight-{{ $highlight->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex items-center gap-3 px-5 pt-4">
         <a href="{{ $highlight->user->profileUrl() }}" class="shrink-0"><x-avatar :user="$highlight->user" class="size-10 text-xs" /></a>
@@ -34,19 +37,7 @@
                 'bg-mint text-club' => $highlight->kind === App\HighlightKind::MilestoneHit,
             ])>{{ $highlight->kind->label() }}</span>
         </div>
-        @if ($mine)
-            <details class="relative shrink-0">
-                <summary class="cursor-pointer list-none rounded-full px-2 text-xl leading-none text-ink/40 hover:text-ink [&::-webkit-details-marker]:hidden" aria-label="Highlight options">&hellip;</summary>
-                <div class="absolute right-0 z-10 mt-1 w-48 overflow-hidden rounded-xl border border-line bg-white py-1 text-sm shadow-lg">
-                    <a href="{{ route('highlights.card', $highlight) }}" class="block px-4 py-2 text-ink hover:bg-mint">Get share card</a>
-                    <form method="POST" action="{{ route('highlights.destroy', $highlight) }}" onsubmit="return confirm('Remove this highlight?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="block w-full px-4 py-2 text-left text-red-700 hover:bg-red-50">Remove</button>
-                    </form>
-                </div>
-            </details>
-        @endif
+        <x-post-options :post="$highlight" />
     </header>
 
     <div class="mt-4">
@@ -81,7 +72,7 @@
                     'bg-mint text-club hover:bg-grass/20' => ! $cheered,
                 ])>
                     <x-icon name="highlights" class="size-4" />
-                    {{ $cheered ? 'Cheered' : 'Cheer' }}
+                    {{ $cheered ? 'Kudos given' : 'Kudos' }}
                 </button>
             </form>
             @if ($summary = $highlight->cheerSummary($viewer))
@@ -125,3 +116,4 @@
         </form>
     </div>
 </article>
+@endif

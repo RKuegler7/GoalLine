@@ -25,7 +25,7 @@ final class Usage
         'week-planned' => 'Planned their week',
         'week-reviewed' => 'Reviewed a GoalWeek',
         'highlight-shared' => 'Shared a highlight',
-        'cheer' => 'Cheered',
+        'cheer' => 'Gave kudos',
         'comment' => 'Commented',
         'chat-message' => 'Posted in league chat',
         'nudge' => 'Nudged someone',

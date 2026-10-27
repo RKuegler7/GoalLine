@@ -108,24 +108,48 @@
                 @endforelse
             </section>
 
-            {{-- Highlights. --}}
-            <section>
+            {{-- Friends feed. --}}
+            <section id="friends-feed" class="scroll-mt-24">
                 <div class="flex items-end justify-between gap-4">
-                    <h2 class="eyebrow text-club">Around the League</h2>
-                    <a href="{{ route('highlights.index') }}" class="text-sm font-semibold text-club hover:underline">Feed</a>
+                    <h2 class="eyebrow text-club">Friends</h2>
+                    <a href="{{ route('highlights.index') }}" class="text-sm font-semibold text-club hover:underline">Around the League</a>
                 </div>
                 <div class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-                    @forelse ($highlights as $highlight)
-                        <a href="{{ route('highlights.index') }}#highlight-{{ $highlight->id }}" class="flex items-start gap-3 px-4 py-3 hover:bg-mint/40">
-                            <x-avatar :user="$highlight->user" class="size-8 text-[0.6rem]" />
-                            <span class="min-w-0">
+                    @forelse ($friendFeed as $highlight)
+                        <a href="{{ $highlight->league_id ? route('leagues.feed', $highlight->league_id) : route('highlights.index') }}#highlight-{{ $highlight->id }}" class="flex items-start gap-3 px-4 py-3 hover:bg-mint/40">
+                            <x-avatar :user="$highlight->user" class="size-8 shrink-0 text-[0.6rem]" />
+                            <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/55">&middot; {{ $highlight->kind->label() }}</span></span>
-                                <span class="block truncate text-sm text-ink/70">{{ $highlight->headline }}</span>
+                                <span class="block truncate text-sm text-ink/70">{{ $highlight->isPost() ? $highlight->detail : $highlight->headline }}</span>
+                                @if ($highlight->caption)
+                                    <span class="block truncate text-xs text-ink/50">&ldquo;{{ $highlight->caption }}&rdquo;</span>
+                                @endif
                             </span>
+                            @if ($highlight->photoUrl())
+                                <img src="{{ $highlight->photoUrl() }}" alt="" class="size-12 shrink-0 rounded-lg object-cover" loading="lazy">
+                            @endif
                         </a>
                     @empty
-                        <p class="px-4 py-3 text-sm text-ink/60">Follow friends to see their wins here. <a href="{{ route('people.index') }}" class="font-semibold text-club hover:underline">Find people</a></p>
+                        <p class="px-4 py-3 text-sm text-ink/60">
+                            @if (auth()->user()->friendIds()->isEmpty() && ! $friendFeed->previousPageUrl())
+                                Goals stick better with company. <a href="{{ route('friends.index') }}" class="font-semibold text-club hover:underline">Add a friend</a> by their username or email, and their check-ins and wins show up here.
+                            @else
+                                Quiet for now. When friends show their work or have a great week, it lands here. Why not go first?
+                            @endif
+                        </p>
                     @endforelse
+                    @if ($friendFeed->previousPageUrl() || $friendFeed->hasMorePages())
+                        <nav class="flex justify-between px-4 py-2 text-xs font-semibold">
+                            @if ($friendFeed->previousPageUrl())
+                                <a href="{{ $friendFeed->previousPageUrl() }}#friends-feed" class="text-club hover:underline">&larr; Newer</a>
+                            @else
+                                <span></span>
+                            @endif
+                            @if ($friendFeed->hasMorePages())
+                                <a href="{{ $friendFeed->nextPageUrl() }}#friends-feed" class="text-club hover:underline">Older &rarr;</a>
+                            @endif
+                        </nav>
+                    @endif
                 </div>
             </section>
 

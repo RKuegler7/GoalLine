@@ -15,7 +15,7 @@ class UserPolicy
         return match (true) {
             $viewer->is($user) => true,
             $user->profile_visibility === ProfileVisibility::Everyone => true,
-            $user->profile_visibility === ProfileVisibility::Leagues => $viewer->sharesLeagueWith($user),
+            $user->profile_visibility === ProfileVisibility::Leagues => $viewer->isFriendsWith($user) || $viewer->sharesLeagueWith($user),
             default => false,
         };
     }

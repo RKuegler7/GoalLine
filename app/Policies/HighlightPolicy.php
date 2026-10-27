@@ -4,33 +4,40 @@ namespace App\Policies;
 
 use App\Models\Highlight;
 use App\Models\User;
-use Illuminate\Support\Facades\Gate;
 
 class HighlightPolicy
 {
     /**
-     * Highlights go to the author's followers and GoalLeague mates, as long as the author's locker is visible to them.
+     * Who sees a highlight or post follows the one rule in Highlight::scopeVisibleTo, so the feeds and the photo
+     * route can never disagree.
      */
     public function view(User $viewer, Highlight $highlight): bool
     {
-        $author = $highlight->user;
-
-        if ($viewer->is($author)) {
-            return true;
-        }
-
-        if (Gate::forUser($viewer)->denies('viewProfile', $author)) {
-            return false;
-        }
-
-        return $viewer->follows($author) || $viewer->sharesLeagueWith($author);
+        return Highlight::query()->visibleTo($viewer)->whereKey($highlight->id)->exists();
     }
 
     /**
-     * Only the author can remove a highlight or download its share card.
+     * Anyone who can see someone else's post can report it.
+     */
+    public function report(User $viewer, Highlight $highlight): bool
+    {
+        return $highlight->user_id !== $viewer->id && $this->view($viewer, $highlight);
+    }
+
+    /**
+     * Only the author can download a share card.
+     */
+    public function share(User $user, Highlight $highlight): bool
+    {
+        return $highlight->user_id === $user->id;
+    }
+
+    /**
+     * The author can remove a highlight; a GoalLeague owner can remove a post shared to their league.
      */
     public function delete(User $user, Highlight $highlight): bool
     {
-        return $highlight->user()->is($user);
+        return $highlight->user_id === $user->id
+            || ($highlight->league_id !== null && $highlight->league?->commissioner_id === $user->id);
     }
 }

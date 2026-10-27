@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Storage;
 
 #[Fillable(['position', 'description', 'is_bonus', 'planned_on'])]
@@ -77,6 +78,16 @@ class RoadmapTask extends Model
     public function proofRequests(): HasMany
     {
         return $this->hasMany(ProofRequest::class);
+    }
+
+    /**
+     * The check-in post made from this task's photo, if it was shared.
+     *
+     * @return HasOne<Highlight, $this>
+     */
+    public function post(): HasOne
+    {
+        return $this->hasOne(Highlight::class, 'roadmap_task_id');
     }
 
     /**

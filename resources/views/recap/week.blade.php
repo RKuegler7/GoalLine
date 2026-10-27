@@ -86,7 +86,7 @@
                     @if ($recap->cheersReceived() > 0)
                         <li class="flex items-center gap-3">
                             <span class="flex size-9 items-center justify-center rounded-full bg-grass text-white"><x-icon name="highlights" class="size-5" /></span>
-                            <span class="text-ink">{{ $recap->cheersReceived() }} {{ Str::plural('cheer', $recap->cheersReceived()) }} on your highlights</span>
+                            <span class="text-ink">{{ $recap->cheersReceived() }} kudos on your posts</span>
                         </li>
                     @endif
                 </ul>

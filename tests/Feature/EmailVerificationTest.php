@@ -47,7 +47,7 @@ class EmailVerificationTest extends TestCase
         $this->actingAs($user)->get(route('goals.create'))->assertOk();
 
         $this->actingAs($user)->post(route('leagues.join.store', $league->invite_code))->assertRedirect(route('verification.notice'));
-        $this->actingAs($user)->post(route('follows.store', User::factory()->create()))->assertRedirect(route('verification.notice'));
+        $this->actingAs($user)->post(route('friends.request', User::factory()->create()))->assertRedirect(route('verification.notice'));
     }
 
     public function test_verification_can_be_resent(): void

@@ -30,10 +30,10 @@ class CommentTest extends TestCase
         $this->owner = User::factory()->create(['name' => 'Jordan Rivera', 'username' => 'jordan', 'profile_visibility' => ProfileVisibility::Everyone]);
         $this->highlight = Highlight::factory()->for($this->owner)->create(['headline' => 'Ran a half marathon']);
         $this->fan = User::factory()->create(['name' => 'Sam Okafor', 'username' => 'sam']);
-        $this->fan->following()->attach($this->owner);
+        $this->makeFriends($this->fan, $this->owner);
     }
 
-    public function test_followers_can_comment_and_the_author_hears_about_it(): void
+    public function test_friends_can_comment_and_the_author_hears_about_it(): void
     {
         Notification::fake();
 
@@ -59,7 +59,7 @@ class CommentTest extends TestCase
     {
         Notification::fake();
         $friend = User::factory()->create(['username' => 'avery']);
-        $friend->following()->attach($this->owner);
+        $this->makeFriends($friend, $this->owner);
         $stranger = User::factory()->create(['username' => 'drew']);
 
         $this->actingAs($this->fan)->post(route('highlights.comments.store', $this->highlight), ['body' => '@avery you have to see this. @drew too.']);

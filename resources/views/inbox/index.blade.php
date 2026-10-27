@@ -4,7 +4,7 @@
             <div class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Inbox</h1>
-                    <p class="mt-3 max-w-xl text-ivory/85">Cheers, follows, your friends&rsquo; highlights, GoalLeague news, and your results.</p>
+                    <p class="mt-3 max-w-xl text-ivory/85">Kudos, friend requests, your friends&rsquo; highlights, GoalLeague news, and your results.</p>
                 </div>
                 <a href="{{ route('settings.notifications') }}" class="rounded-full border border-ivory/60 px-4 py-1.5 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">Settings</a>
             </div>
@@ -16,8 +16,8 @@
             <section class="rounded-2xl border border-line bg-white px-6 py-10 text-center">
                 <x-icon name="bell" class="mx-auto size-8 text-club/50" />
                 <h2 class="mt-3 font-serif text-2xl font-medium text-club">All quiet</h2>
-                <p class="mx-auto mt-2 max-w-md text-ink/70">When someone cheers you on, follows you, or joins your GoalLeague, you&rsquo;ll hear about it here.</p>
-                <a href="{{ route('people.index') }}" class="mt-5 inline-block rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Find friends</a>
+                <p class="mx-auto mt-2 max-w-md text-ink/70">When someone gives you kudos, sends a friend request, or joins your GoalLeague, you&rsquo;ll hear about it here.</p>
+                <a href="{{ route('friends.index') }}" class="mt-5 inline-block rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Add friends</a>
             </section>
         @else
             <ul class="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">

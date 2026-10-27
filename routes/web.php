@@ -13,7 +13,7 @@ use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\FollowController;
+use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
@@ -28,7 +28,6 @@ use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeagueRecapController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
-use App\Http\Controllers\PeopleController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
@@ -94,12 +93,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/highlights/{highlight}/cheer', [HighlightController::class, 'cheer'])->name('highlights.cheer')->can('view', 'highlight')->middleware(['verified', 'throttle:60,1']);
     Route::post('/highlights/{highlight}/comments', [HighlightCommentController::class, 'store'])->name('highlights.comments.store')->can('view', 'highlight')->middleware(['verified', 'throttle:30,1']);
     Route::delete('/comments/{comment}', [HighlightCommentController::class, 'destroy'])->name('highlights.comments.destroy');
+    Route::post('/highlights/{highlight}/report', [HighlightController::class, 'report'])->name('highlights.report')->can('report', 'highlight')->middleware(['verified', 'throttle:20,1']);
     Route::get('/highlights/{highlight}/photo', [HighlightController::class, 'photo'])->name('highlights.photo')->can('view', 'highlight');
-    Route::get('/highlights/{highlight}/card', [HighlightController::class, 'card'])->name('highlights.card')->can('delete', 'highlight');
+    Route::get('/highlights/{highlight}/card', [HighlightController::class, 'card'])->name('highlights.card')->can('share', 'highlight');
 
-    Route::get('/people', [PeopleController::class, 'index'])->name('people.index');
-    Route::post('/u/{user}/follow', [FollowController::class, 'store'])->name('follows.store')->middleware('verified');
-    Route::delete('/u/{user}/follow', [FollowController::class, 'destroy'])->name('follows.destroy');
+    Route::get('/friends', [FriendshipController::class, 'index'])->name('friends.index');
+    Route::post('/friends', [FriendshipController::class, 'store'])->name('friends.store')->middleware(['verified', 'throttle:20,1']);
+    Route::post('/u/{user}/friend', [FriendshipController::class, 'request'])->name('friends.request')->middleware(['verified', 'throttle:20,1']);
+    Route::post('/friendships/{friendship}/accept', [FriendshipController::class, 'accept'])->name('friends.accept');
+    Route::delete('/friendships/{friendship}', [FriendshipController::class, 'destroy'])->name('friends.destroy');
+    Route::redirect('/people', '/friends');
 
     Route::get('/goals/create', [GoalController::class, 'create'])->name('goals.create');
     Route::post('/goals', [GoalController::class, 'store'])->name('goals.store');
@@ -130,6 +133,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/roadmap-tasks/{task}/check', [CheckInController::class, 'toggleTask'])->name('roadmap.tasks.check');
     Route::post('/goalweeks/{week}/milestone', [CheckInController::class, 'toggleMilestone'])->name('goalweeks.milestone');
     Route::post('/roadmap-tasks/{task}/proof', [TaskProofController::class, 'store'])->name('roadmap.tasks.proof.store')->middleware('throttle:20,1');
+    Route::post('/roadmap-tasks/{task}/caption', [TaskProofController::class, 'caption'])->name('roadmap.tasks.caption')->middleware(['verified', 'throttle:10,1']);
     Route::get('/roadmap-tasks/{task}/proof', [TaskProofController::class, 'show'])->name('roadmap.tasks.proof');
     Route::post('/roadmap-tasks/{task}/proof-request', [TaskProofController::class, 'request'])->name('roadmap.tasks.proof.request')->middleware(['verified', 'throttle:30,1']);
     Route::post('/goalweeks/{week}/confirm-smashed', [SmashedConfirmationController::class, 'store'])->name('goalweeks.confirm-smashed')->middleware('verified');
@@ -184,6 +188,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
     Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware(['verified', 'throttle:10,60']);
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
+    Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 

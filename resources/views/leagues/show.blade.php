@@ -30,6 +30,21 @@
         </div>
     </x-slot:hero>
 
+    <a href="{{ route('leagues.feed', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 transition hover:border-club/40">
+        <span class="flex items-center gap-3">
+            <span class="grid size-10 place-items-center rounded-full bg-mint text-club"><x-icon name="highlights" class="size-5" /></span>
+            <span>
+                <span class="block font-serif text-lg font-medium text-ink">League feed</span>
+                <span class="block text-sm text-ink/65">The work behind everyone's check-ins. Give kudos for the process.</span>
+            </span>
+        </span>
+        @if ($reportedPosts > 0)
+            <span class="shrink-0 rounded-full bg-red-50 px-3 py-1 text-xs font-semibold text-red-700">{{ $reportedPosts }} {{ Str::plural('report', $reportedPosts) }} to review</span>
+        @else
+            <span class="shrink-0 text-sm font-semibold text-club">Open &rarr;</span>
+        @endif
+    </a>
+
     @if ($status === App\LeagueStatus::Finished)
         <a href="{{ route('leagues.recap', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-gold/60 bg-gold/15 px-5 py-4 transition hover:bg-gold/25">
             <span class="flex items-center gap-3">

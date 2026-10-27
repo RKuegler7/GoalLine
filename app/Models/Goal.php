@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
@@ -235,6 +236,26 @@ class Goal extends Model
     public function weeksPerStretch(): int
     {
         return $this->weeks->map(fn (RoadmapWeek $week) => $week->lengthInWeeks())->max() ?? 1;
+    }
+
+    /**
+     * GoalLeagues this goal plays in.
+     *
+     * @return BelongsToMany<League, $this>
+     */
+    public function leagues(): BelongsToMany
+    {
+        return $this->belongsToMany(League::class, 'league_members')->orderBy('leagues.id');
+    }
+
+    /**
+     * The GoalLeagues a check-in post from this goal can go to, looked up once per goal.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, League>
+     */
+    public function postingLeagues(): \Illuminate\Database\Eloquent\Collection
+    {
+        return once(fn () => $this->leagues()->get());
     }
 
     /**

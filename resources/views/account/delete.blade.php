@@ -12,7 +12,7 @@
         <p class="text-lg text-ink">This permanently deletes everything:</p>
         <ul class="list-disc space-y-1 pl-5 text-ink/75">
             <li>Your goals, roadmaps, check-ins, and uploaded plans</li>
-            <li>Your photos, highlights, and cheers</li>
+            <li>Your photos, posts, highlights, and kudos</li>
             <li>Your GoalLeague memberships and chat messages</li>
         </ul>
         <p class="text-ink/70">It can't be undone. If you just need a break, you can retire goals instead.</p>

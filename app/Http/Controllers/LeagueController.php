@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Clock;
 use App\Models\League;
 use App\Models\LeagueMessage;
+use App\Models\PostReport;
 use App\Services\LeagueTable;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -102,6 +103,9 @@ class LeagueController extends Controller
             'me' => $league->memberFor($request->user()),
             'myGoals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
             'messages' => $league->messages()->with('user')->latest('id')->limit(LeagueMessage::RECENT_COUNT)->get()->reverse()->values(),
+            'reportedPosts' => $league->commissioner_id === $request->user()->id
+                ? PostReport::where('league_id', $league->id)->whereHas('highlight')->distinct()->count('highlight_id')
+                : 0,
         ]);
     }
 

@@ -50,11 +50,8 @@
                     </div>
                 @else
                     <div class="flex shrink-0 items-center gap-3 self-start sm:self-auto">
-                        @if ($isFriend)
-                            <span class="eyebrow rounded-full bg-ivory/15 px-3 py-1.5 text-[0.65rem] text-ivory">Friends</span>
-                        @endif
                         <x-nudge-button :user="$user" tone="light" />
-                        <x-follow-button :user="$user" :following="$following" tone="light" />
+                        <x-friend-button :user="$user" tone="light" />
                     </div>
                 @endif
             </div>
@@ -252,11 +249,11 @@
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">Friends</h2>
                 @if ($isOwn)
-                    <a href="{{ route('people.index') }}" class="text-sm font-semibold text-club hover:underline">Find people</a>
+                    <a href="{{ route('friends.index') }}" class="text-sm font-semibold text-club hover:underline">Add friends</a>
                 @endif
             </div>
             @if ($friends->isEmpty())
-                <p class="mt-2 text-ink/60">{{ $isOwn ? 'Friends are people you follow who follow you back.' : 'No friends to show yet.' }}</p>
+                <p class="mt-2 text-ink/60">{{ $isOwn ? 'Add friends by their exact username or email.' : 'No friends to show yet.' }}</p>
             @else
                 <ul class="mt-3 flex flex-wrap gap-2">
                     @foreach ($friends as $friend)

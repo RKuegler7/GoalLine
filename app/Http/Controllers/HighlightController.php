@@ -7,6 +7,8 @@ use App\GoalWeekResult;
 use App\HighlightKind;
 use App\Models\Goal;
 use App\Models\Highlight;
+use App\Models\League;
+use App\Models\PostReport;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\FriendHighlight;
@@ -29,7 +31,12 @@ class HighlightController extends Controller
     private const PAGE_SIZE = 20;
 
     /**
-     * The feed: highlights from people you follow, your GoalLeague mates, and you.
+     * How many posts a GoalLeague feed page shows.
+     */
+    private const LEAGUE_PAGE_SIZE = 10;
+
+    /**
+     * The feed: highlights and posts from your friends, your GoalLeague mates, and you.
      */
     public function index(Request $request): View
     {
@@ -58,7 +65,7 @@ class HighlightController extends Controller
     }
 
     /**
-     * Share the highlight with followers and GoalLeague mates.
+     * Share the highlight with friends and GoalLeague mates.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -92,9 +99,9 @@ class HighlightController extends Controller
         };
         $highlight->forceFill(['photo_path' => $photoPath])->save();
 
-        // Let followers who can see this locker know.
+        // Let friends who can see it know.
         Notification::send(
-            $request->user()->followers()->get()->filter(fn (User $follower) => Gate::forUser($follower)->allows('viewProfile', $request->user())),
+            $request->user()->friends()->filter(fn (User $friend) => Gate::forUser($friend)->allows('view', $highlight)),
             new FriendHighlight($highlight),
         );
 
@@ -104,15 +111,51 @@ class HighlightController extends Controller
     /**
      * Remove one of your highlights.
      */
-    public function destroy(Highlight $highlight): RedirectResponse
+    public function destroy(Request $request, Highlight $highlight): RedirectResponse
     {
+        $byLeagueOwner = $highlight->user_id !== $request->user()->id;
         $highlight->delete();
 
-        return redirect()->route('highlights.index')->with('status', 'Highlight removed.');
+        return $byLeagueOwner
+            ? back()->with('status', 'Post removed from the league.')
+            : redirect()->route('highlights.index')->with('status', $highlight->isPost() ? 'Post removed.' : 'Highlight removed.');
     }
 
     /**
-     * Cheer a highlight, or take the cheer back.
+     * Report a post: it's hidden from you right away, and the GoalLeague owner sees the report.
+     */
+    public function report(Request $request, Highlight $highlight): RedirectResponse
+    {
+        $validated = $request->validate(['reason' => ['nullable', 'string', 'max:'.PostReport::MAX_REASON]]);
+
+        $highlight->reports()->firstOrCreate(
+            ['reporter_id' => $request->user()->id],
+            ['league_id' => $highlight->league_id, 'reason' => filled($validated['reason'] ?? null) ? trim($validated['reason']) : null],
+        );
+
+        return back()->with('status', $highlight->league_id
+            ? 'Thanks for telling us. That post is hidden for you, and the league owner will take a look.'
+            : 'Thanks for telling us. That post is hidden for you.');
+    }
+
+    /**
+     * A GoalLeague's feed: the work behind everyone's check-ins, newest first. The owner also sees reports.
+     */
+    public function league(Request $request, League $league): View
+    {
+        $isOwner = $league->commissioner_id === $request->user()->id;
+
+        return view('leagues.feed', [
+            'league' => $league,
+            'posts' => (new HighlightFeed($request->user()))->league($league, self::LEAGUE_PAGE_SIZE),
+            'reports' => $isOwner
+                ? PostReport::where('league_id', $league->id)->whereHas('highlight')->with('highlight.user', 'reporter')->latest()->get()->groupBy('highlight_id')
+                : collect(),
+        ]);
+    }
+
+    /**
+     * Give kudos, or take them back.
      */
     public function cheer(Request $request, Highlight $highlight): RedirectResponse
     {
@@ -120,7 +163,7 @@ class HighlightController extends Controller
 
         $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $request->user()->id]);
 
-        // One notification per fan per highlight, even if they toggle the cheer.
+        // One notification per fan per highlight, even if they toggle their kudos.
         $fan = $request->user();
         $alreadyTold = $highlight->user->notifications()->where('type', HighlightCheered::class)
             ->where('data->highlight_id', $highlight->id)->where('data->actor_id', $fan->id)->exists();

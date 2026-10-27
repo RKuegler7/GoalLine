@@ -74,13 +74,13 @@ class HighlightTest extends TestCase
         $this->assertSame(1, Highlight::count());
     }
 
-    public function test_the_feed_shows_followed_people_and_league_mates_but_not_strangers(): void
+    public function test_the_feed_shows_friends_and_league_mates_but_not_strangers(): void
     {
         $viewer = User::factory()->create();
         $followed = User::factory()->create(['profile_visibility' => ProfileVisibility::Everyone]);
         $mate = User::factory()->create();
         $stranger = User::factory()->create(['profile_visibility' => ProfileVisibility::Everyone]);
-        $viewer->following()->attach($followed);
+        $this->makeFriends($viewer, $followed);
         $league = League::factory()->create(['commissioner_id' => $viewer->id]);
         $league->members()->create(['user_id' => $viewer->id]);
         $league->members()->create(['user_id' => $mate->id]);
@@ -102,7 +102,7 @@ class HighlightTest extends TestCase
     {
         $viewer = User::factory()->create();
         $author = User::factory()->create(['profile_visibility' => ProfileVisibility::Everyone]);
-        $viewer->following()->attach($author);
+        $this->makeFriends($viewer, $author);
         $highlight = Highlight::factory()->for($author)->create(['headline' => 'Hidden win']);
 
         $author->update(['profile_visibility' => ProfileVisibility::Private]);
@@ -111,31 +111,31 @@ class HighlightTest extends TestCase
         $this->actingAs($viewer)->post(route('highlights.cheer', $highlight))->assertForbidden();
     }
 
-    public function test_cheers_toggle_and_name_who_cheered(): void
+    public function test_kudos_toggle_and_name_who_gave_them(): void
     {
         $author = User::factory()->create(['name' => 'Jordan Rivera', 'profile_visibility' => ProfileVisibility::Everyone]);
         $fan = User::factory()->create(['name' => 'Sam Okafor']);
-        $fan->following()->attach($author);
+        $this->makeFriends($fan, $author);
         $highlight = Highlight::factory()->for($author)->create();
 
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight));
         $this->assertSame(1, $highlight->cheers()->count());
 
-        $this->actingAs($author)->get(route('highlights.index'))->assertSee('Sam Okafor cheered');
-        $this->actingAs($fan)->get(route('highlights.index'))->assertSee('You cheered')->assertSee('Cheered');
+        $this->actingAs($author)->get(route('highlights.index'))->assertSee('Sam Okafor gave kudos');
+        $this->actingAs($fan)->get(route('highlights.index'))->assertSee('You gave kudos')->assertSee('Kudos given');
 
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight));
         $this->assertSame(0, $highlight->cheers()->count());
     }
 
-    public function test_cheer_summary_names_two_people_then_counts_the_rest(): void
+    public function test_kudos_summary_names_two_people_then_counts_the_rest(): void
     {
         $highlight = Highlight::factory()->create();
         foreach (['Ava', 'Ben', 'Cal', 'Dee'] as $name) {
             $highlight->cheers()->create(['user_id' => User::factory()->create(['name' => $name])->id]);
         }
 
-        $this->assertSame('Ava, Ben, and 2 others cheered', $highlight->load('cheers.user')->cheerSummary($highlight->user));
+        $this->assertSame('Ava, Ben, and 2 others gave kudos', $highlight->load('cheers.user')->cheerSummary($highlight->user));
     }
 
     public function test_authors_can_remove_highlights_and_get_a_share_card(): void

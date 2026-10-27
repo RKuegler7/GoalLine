@@ -94,8 +94,7 @@ class QueryBudgetTest extends TestCase
             $league->members()->create(['user_id' => $person->id, 'goal_id' => $person->goals()->first()->id]);
 
             if (! $person->is($me)) {
-                $me->following()->attach($person);
-                $person->following()->attach($me);
+                $this->makeFriends($me, $person);
                 Highlight::factory()->for($person)->count(2)->create();
             }
         }

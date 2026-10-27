@@ -8,9 +8,9 @@ use App\Models\League;
 use App\Models\User;
 use App\Notifications\Announcement;
 use App\Notifications\FriendHighlight;
+use App\Notifications\FriendRequested;
 use App\Notifications\HighlightCheered;
 use App\Notifications\LeagueMemberJoined;
-use App\Notifications\NewFollower;
 use App\ProfileVisibility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -20,26 +20,27 @@ class NotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_following_someone_lands_in_their_inbox(): void
+    public function test_friend_requests_and_accepts_land_in_the_inbox(): void
     {
         $sam = User::factory()->create(['name' => 'Sam Okafor', 'profile_visibility' => ProfileVisibility::Everyone]);
         $jordan = User::factory()->create(['name' => 'Jordan Rivera', 'profile_visibility' => ProfileVisibility::Everyone]);
 
-        $this->actingAs($jordan)->post(route('follows.store', $sam));
-        $this->actingAs($jordan)->post(route('follows.store', $sam)); // Already following: no second notification.
-        $this->actingAs($sam)->post(route('follows.store', $jordan));
+        $this->actingAs($jordan)->post(route('friends.request', $sam));
+        $this->actingAs($jordan)->post(route('friends.request', $sam)); // Already asked: no second notification.
+        $this->actingAs($sam)->post(route('friends.request', $jordan)); // Asking back accepts.
 
-        $this->assertSame(['Jordan Rivera started following you.'], $sam->notifications()->pluck('data')->pluck('text')->all());
-        $this->assertSame('Sam Okafor followed you back. You\'re friends now.', $jordan->notifications()->sole()->data['text']);
+        $this->assertSame(["Jordan Rivera sent you a friend request. Friends give each other kudos and see each other's shared posts."], $sam->notifications()->pluck('data')->pluck('text')->all());
+        $this->assertSame("Sam Okafor accepted your friend request. You're friends now.", $jordan->notifications()->sole()->data['text']);
+        $this->assertTrue($jordan->isFriendsWith($sam));
     }
 
-    public function test_cheers_notify_the_owner_once_and_never_for_your_own_highlight(): void
+    public function test_kudos_notify_the_owner_once_and_never_for_your_own_highlight(): void
     {
         $highlight = Highlight::factory()->create(['headline' => 'Ran a half marathon']);
         $owner = $highlight->user;
         $owner->forceFill(['profile_visibility' => ProfileVisibility::Everyone])->save();
         $fan = User::factory()->create(['name' => 'Sam Okafor']);
-        $fan->following()->attach($owner);
+        $this->makeFriends($fan, $owner);
 
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight))->assertRedirect();
         $this->actingAs($fan)->post(route('highlights.cheer', $highlight)); // Un-cheer.
@@ -48,10 +49,10 @@ class NotificationTest extends TestCase
 
         $notification = $owner->notifications()->sole();
         $this->assertSame(HighlightCheered::class, $notification->type);
-        $this->assertSame('Sam Okafor cheered your highlight: Ran a half marathon', $notification->data['text']);
+        $this->assertSame('Sam Okafor gave you kudos: Ran a half marathon', $notification->data['text']);
     }
 
-    public function test_sharing_a_highlight_tells_followers_who_can_see_it(): void
+    public function test_sharing_a_highlight_tells_friends_who_can_see_it(): void
     {
         Notification::fake();
         $goal = Goal::factory()->create();
@@ -59,7 +60,7 @@ class NotificationTest extends TestCase
         $me = $goal->user;
         $me->forceFill(['profile_visibility' => ProfileVisibility::Everyone])->save();
         $fan = User::factory()->create();
-        $fan->following()->attach($me);
+        $this->makeFriends($fan, $me);
 
         $this->actingAs($me)->post(route('highlights.store'), ['goal' => $goal->id]);
         Notification::assertSentTo($fan, FriendHighlight::class);
@@ -104,10 +105,10 @@ class NotificationTest extends TestCase
     public function test_email_follows_each_persons_settings(): void
     {
         $user = User::factory()->create();
-        $follower = User::factory()->create();
+        $requester = User::factory()->create();
 
         // Social is inbox-only by default; news also goes to email.
-        $this->assertSame(['database'], (new NewFollower($follower))->via($user));
+        $this->assertSame(['database'], (new FriendRequested($requester))->via($user));
         $this->assertSame(['database', 'mail'], (new Announcement('Hi'))->via($user));
 
         $this->actingAs($user)
@@ -119,14 +120,14 @@ class NotificationTest extends TestCase
             ->assertRedirect(route('settings.notifications'));
 
         $user->refresh();
-        $this->assertSame(['database', 'mail'], (new NewFollower($follower))->via($user));
+        $this->assertSame(['database', 'mail'], (new FriendRequested($requester))->via($user));
         $this->assertSame(['database'], (new Announcement('Hi'))->via($user));
         $this->assertSame('06:30', $user->notificationSettings()->morningAt);
         $this->assertNull($user->notificationSettings()->eveningAt);
 
         // No email until the address is verified.
         $user->forceFill(['email_verified_at' => null])->save();
-        $this->assertSame(['database'], (new NewFollower($follower))->via($user));
+        $this->assertSame(['database'], (new FriendRequested($requester))->via($user));
     }
 
     public function test_reminder_times_must_be_from_the_list(): void

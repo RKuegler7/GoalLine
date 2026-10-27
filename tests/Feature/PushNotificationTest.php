@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Notifications\Announcement;
 use App\Notifications\Channels\WebPushChannel;
 use App\Notifications\DailyReminder;
-use App\Notifications\NewFollower;
+use App\Notifications\FriendRequested;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,16 +67,16 @@ class PushNotificationTest extends TestCase
         $follower = User::factory()->create();
 
         // No device yet: no push.
-        $this->assertNotContains(WebPushChannel::class, (new NewFollower($follower))->via($user));
+        $this->assertNotContains(WebPushChannel::class, (new FriendRequested($follower))->via($user));
 
         $this->actingAs($user)->postJson(route('push.subscribe'), $this->subscription());
-        $this->assertContains(WebPushChannel::class, (new NewFollower($follower))->via($user));
+        $this->assertContains(WebPushChannel::class, (new FriendRequested($follower))->via($user));
         $this->assertNotContains(WebPushChannel::class, (new Announcement('News'))->via($user)); // News is off by default.
 
-        // Turned off for cheers and follows.
+        // Turned off for kudos and friends.
         $this->actingAs($user)->put(route('settings.notifications.update'), ['push' => ['social' => '0', 'news' => '1']]);
         $user->refresh();
-        $this->assertNotContains(WebPushChannel::class, (new NewFollower($follower))->via($user));
+        $this->assertNotContains(WebPushChannel::class, (new FriendRequested($follower))->via($user));
         $this->assertContains(WebPushChannel::class, (new Announcement('News'))->via($user));
 
         // Without VAPID keys, push stays off entirely.
@@ -91,14 +91,14 @@ class PushNotificationTest extends TestCase
         $this->actingAs($user)->postJson(route('push.subscribe'), $this->subscription('https://push.example.com/send/device-2'));
 
         $this->mock(WebPush::class, function (MockInterface $mock) {
-            $mock->shouldReceive('queueNotification')->twice()->withArgs(fn (Subscription $subscription, string $payload) => json_decode($payload, true)['body'] === 'Sam Okafor started following you.');
+            $mock->shouldReceive('queueNotification')->twice()->withArgs(fn (Subscription $subscription, string $payload) => str_starts_with(json_decode($payload, true)['body'], 'Sam Okafor sent you a friend request.'));
             $mock->shouldReceive('flush')->once()->andReturnUsing(function () {
                 yield new MessageSentReport(new Request('POST', self::ENDPOINT), new Response(201));
                 yield new MessageSentReport(new Request('POST', 'https://push.example.com/send/device-2'), new Response(410), false, 'Gone');
             });
         });
 
-        $user->notify(new NewFollower(User::factory()->create(['name' => 'Sam Okafor'])));
+        $user->notify(new FriendRequested(User::factory()->create(['name' => 'Sam Okafor'])));
 
         $this->assertSame([hash('sha256', self::ENDPOINT)], $user->pushSubscriptions()->pluck('endpoint_hash')->all());
     }

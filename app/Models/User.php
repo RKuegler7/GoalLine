@@ -8,6 +8,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -296,40 +297,52 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * People this person follows.
+     * Friend requests and friendships this person is part of, either side.
      *
-     * @return BelongsToMany<User, $this>
+     * @return Builder<Friendship>
      */
-    public function following(): BelongsToMany
+    public function friendships(): Builder
     {
-        return $this->belongsToMany(User::class, 'follows', 'follower_id', 'followed_id')->withTimestamps();
+        return Friendship::query()->where(fn ($query) => $query->where('requester_id', $this->id)->orWhere('addressee_id', $this->id));
     }
 
     /**
-     * People who follow this person.
+     * IDs of this person's accepted friends.
      *
-     * @return BelongsToMany<User, $this>
+     * @return Collection<int, int>
      */
-    public function followers(): BelongsToMany
+    public function friendIds(): Collection
     {
-        return $this->belongsToMany(User::class, 'follows', 'followed_id', 'follower_id')->withTimestamps();
+        return $this->friendships()
+            ->where('status', Friendship::ACCEPTED)
+            ->get(['requester_id', 'addressee_id'])
+            ->toBase()
+            ->map(fn (Friendship $friendship) => $friendship->requester_id === $this->id ? $friendship->addressee_id : $friendship->requester_id)
+            ->values();
     }
 
     /**
-     * Whether this person follows another.
+     * Whether two people are friends.
      */
-    public function follows(User $other): bool
+    public function isFriendsWith(User $other): bool
     {
-        return $this->following()->whereKey($other->id)->exists();
+        return ! $this->is($other) && Friendship::between($this, $other)->where('status', Friendship::ACCEPTED)->exists();
     }
 
     /**
-     * Whether this person can nudge another: friends (mutual follows) and GoalLeague mates.
+     * The friendship or pending request between this person and another, if any.
+     */
+    public function friendshipWith(User $other): ?Friendship
+    {
+        return Friendship::between($this, $other)->first();
+    }
+
+    /**
+     * Whether this person can nudge another: friends and GoalLeague mates.
      */
     public function canNudge(User $other): bool
     {
-        return ! $this->is($other)
-            && (($this->follows($other) && $other->follows($this)) || $this->sharesLeagueWith($other));
+        return ! $this->is($other) && ($this->isFriendsWith($other) || $this->sharesLeagueWith($other));
     }
 
     /**
@@ -345,13 +358,13 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Friends: people who follow this person and are followed back.
+     * This person's friends, by name.
      *
      * @return \Illuminate\Database\Eloquent\Collection<int, User>
      */
     public function friends(): \Illuminate\Database\Eloquent\Collection
     {
-        return $this->following()->whereIn('users.id', $this->followers()->select('users.id'))->orderBy('name')->get();
+        return User::whereIn('id', $this->friendIds())->orderBy('name')->get();
     }
 
     /**

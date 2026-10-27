@@ -690,3 +690,36 @@ document.querySelectorAll('[data-open-proof]').forEach((link) => {
         }
     });
 });
+
+/**
+ * "Suggest a caption": ask Claude for one and drop it in the box to edit. It never posts anything.
+ */
+document.querySelectorAll('[data-suggest-caption]').forEach((button) => {
+    const status = button.parentElement.querySelector('[data-suggest-status]');
+    const box = document.getElementById(button.dataset.target);
+
+    button.addEventListener('click', async () => {
+        button.disabled = true;
+        status.textContent = 'Thinking…';
+
+        try {
+            const response = await fetch(button.dataset.suggestCaption, {
+                method: 'POST',
+                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await response.json();
+
+            if (data.caption && box) {
+                box.value = data.caption;
+                box.focus();
+                status.textContent = 'Edit it however you like.';
+            } else {
+                status.textContent = data.message || "Couldn't suggest one right now. Write your own!";
+            }
+        } catch {
+            status.textContent = "Couldn't suggest one right now. Write your own!";
+        } finally {
+            button.disabled = false;
+        }
+    });
+});
