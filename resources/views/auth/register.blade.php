@@ -2,7 +2,9 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-5">
         @csrf
 
-        @if ($inviteOnly)
+        @if ($leagueInvite)
+            <p class="rounded-xl border border-grass/40 bg-mint px-4 py-3 text-sm text-club">You're invited to <strong>{{ $leagueInvite->league->name }}</strong>. Create your account, then pick your goal and join.</p>
+        @elseif ($inviteOnly)
             <x-form.input name="invite" label="Invite code" :value="$invite" autocomplete="off" hint="GoalLine is invite-only for now. Your code is in your invite link." />
         @endif
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
 use App\Models\Invite;
+use App\Models\LeagueInvite;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -24,6 +25,7 @@ class RegisteredUserController extends Controller
         return view('auth.register', [
             'inviteOnly' => config('goalline.beta.invite_only'),
             'invite' => $request->query('invite'),
+            'leagueInvite' => LeagueInvite::findUsable($request->session()->get('league_invite')),
         ]);
     }
 
@@ -55,6 +57,11 @@ class RegisteredUserController extends Controller
         Auth::login($user);
 
         $request->session()->regenerate();
+
+        // Signed up from a league invite: straight back to it to pick a goal and join.
+        if ($request->hasLeagueInvite()) {
+            return redirect()->to($request->session()->get('league_join_return'));
+        }
 
         return redirect()->route('welcome.show');
     }

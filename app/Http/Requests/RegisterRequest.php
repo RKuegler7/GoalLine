@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Invite;
+use App\Models\LeagueInvite;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -49,11 +50,20 @@ class RegisterRequest extends FormRequest
     }
 
     /**
+     * A friend's GoalLeague invite link also gets someone into the private beta: the league owner vouches for them.
+     */
+    public function hasLeagueInvite(): bool
+    {
+        return LeagueInvite::findUsable($this->session()->get('league_invite')) !== null;
+    }
+
+    /**
      * During the private beta, everyone but the admins needs an invite.
      */
     public function needsInvite(): bool
     {
         return config('goalline.beta.invite_only')
+            && ! $this->hasLeagueInvite()
             && ! in_array(strtolower((string) $this->input('email')), array_map('strtolower', config('goalline.admin_emails')), true);
     }
 }

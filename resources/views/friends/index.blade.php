@@ -8,6 +8,8 @@
     </x-slot:hero>
 
     <div class="mx-auto max-w-2xl space-y-8">
+        <x-people-search-form label="Find people" />
+
         {{-- Add a friend: exact username or email only. No directory. --}}
         <form method="POST" action="{{ route('friends.store') }}" class="rounded-2xl border border-line bg-white p-5">
             @csrf
@@ -74,6 +76,26 @@
                 </ul>
             @endif
         </section>
+
+        @if ($leagueMates->isNotEmpty())
+            <section>
+                <h2 class="eyebrow text-club">People in your leagues</h2>
+                <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
+                    @foreach ($leagueMates as $mate)
+                        <li class="flex flex-wrap items-center gap-3 px-5 py-3">
+                            <a href="{{ $mate->profileUrl() }}" class="flex min-w-0 flex-1 items-center gap-3">
+                                <x-avatar :user="$mate" class="size-10 text-xs" />
+                                <span class="min-w-0">
+                                    <span class="block truncate font-medium text-ink">{{ $mate->name }}</span>
+                                    <span class="block truncate text-sm text-ink/55">{{ '@'.$mate->username }}</span>
+                                </span>
+                            </a>
+                            <x-friend-button :user="$mate" />
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
 
         @if ($outgoing->isNotEmpty())
             <section>

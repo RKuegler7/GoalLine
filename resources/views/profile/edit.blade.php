@@ -125,6 +125,15 @@
                     @endforeach
                 </div>
             </fieldset>
+
+            <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3 transition hover:border-club/40 has-checked:border-club has-checked:bg-mint">
+                <input type="hidden" name="discoverable" value="0">
+                <input type="checkbox" name="discoverable" value="1" class="mt-1 accent-club" @checked(old('discoverable', $user->discoverable))>
+                <span>
+                    <span class="block font-medium text-ink">Let people find me by name</span>
+                    <span class="block text-sm text-ink/60">When off, people can only find you by your exact username or email. Your email is never shown to anyone.</span>
+                </span>
+            </label>
         </section>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">

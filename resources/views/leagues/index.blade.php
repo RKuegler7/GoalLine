@@ -170,6 +170,9 @@
                             @php
                                 $unread = $league->memberFor(auth()->user())?->unreadCount() ?? 0;
                             @endphp
+                            @if ($league->members->count() < App\Models\League::INVITE_PROMPT_BELOW && $league->isJoinable())
+                                <span class="shrink-0 rounded-full bg-gold px-2.5 py-1 text-xs font-semibold text-ink">Invite friends</span>
+                            @endif
                             @if ($unread > 0)
                                 <span class="shrink-0 rounded-full bg-club px-2 py-0.5 text-xs font-semibold text-ivory tabular-nums" title="Unread chat messages">{{ $unread }} new</span>
                             @endif

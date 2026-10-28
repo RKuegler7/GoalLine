@@ -17,7 +17,20 @@
         <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-10">
             @csrf
 
-            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" required autofocus />
+            @if ($fromGoal)
+                <p class="rounded-xl bg-mint px-4 py-3 text-sm text-club">Filled in from &ldquo;{{ $fromGoal->title }}&rdquo;. Change anything you like. Next you'll invite your people.</p>
+            @endif
+
+            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" :value="$fromGoal ? Str::limit($fromGoal->title, 70, '').' League' : null" required autofocus />
+
+            <div>
+                <label for="category" class="mb-1.5 block text-sm font-medium text-ink/80">Kind of goal</label>
+                <select id="category" name="category" class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                    @foreach (App\GoalCategory::cases() as $category)
+                        <option value="{{ $category->value }}" @selected(old('category', $fromGoal?->category?->value) === $category->value)>{{ $category->label() }}</option>
+                    @endforeach
+                </select>
+            </div>
             <x-form.textarea name="description" label="What's this league about? (optional)" maxlength="280"
                 hint="For example: everyone sitting for FAR on December 15." />
 
@@ -25,7 +38,7 @@
                 <label for="goal_id" class="mb-1.5 block text-sm font-medium text-ink/80">Your goal in this league</label>
                 <select id="goal_id" name="goal_id" required class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                     @foreach ($goals as $goal)
-                        <option value="{{ $goal->id }}" @selected(old('goal_id') == $goal->id)>{{ $goal->title }} (by {{ $goal->target_date->format('M j, Y') }})</option>
+                        <option value="{{ $goal->id }}" @selected(old('goal_id', $fromGoal?->id) == $goal->id)>{{ $goal->title }} (by {{ $goal->target_date->format('M j, Y') }})</option>
                     @endforeach
                 </select>
                 @error('goal_id')
@@ -47,7 +60,7 @@
                     @enderror
                 </div>
 
-                <x-form.input name="ends_on" label="Season ends" type="date" :value="$goals->first()->target_date->format('Y-m-d')"
+                <x-form.input name="ends_on" label="Season ends" type="date" :value="($fromGoal ?? $goals->first())->target_date->format('Y-m-d')"
                     hint="Usually your shared deadline. We round to that week's Sunday." required />
             </div>
 

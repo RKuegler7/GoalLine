@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable'])]
 #[Hidden(['password', 'remember_token', 'calendar_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -76,6 +76,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'kickoff_dismissed_at' => 'datetime',
             'password' => 'hashed',
             'profile_visibility' => ProfileVisibility::class,
+            'discoverable' => 'boolean',
             'notification_settings' => 'array',
         ];
     }

@@ -40,7 +40,11 @@ class GoalController extends Controller
             return redirect()->route('welcome.crew')->with('status', 'Goal set. Your roadmap is being built while you finish setting up.');
         }
 
-        return redirect()->route('goals.show', $goal)->with('status', 'Goal set. You\'re in line.');
+        if ($request->input('from') === 'league' && ($return = $request->session()->get('league_join_return'))) {
+            return redirect()->to($return.'?goal='.$goal->id)->with('status', 'Goal set. Now join the league with it.');
+        }
+
+        return redirect()->route('goals.next', $goal)->with('status', 'Goal set. You\'re in line.');
     }
 
     /**

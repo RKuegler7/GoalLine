@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Clock;
+use App\GoalCategory;
 use App\LeagueStatus;
 use Carbon\CarbonInterface;
 use Database\Factories\LeagueFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'description', 'starts_on', 'ends_on'])]
+#[Fillable(['name', 'description', 'category', 'starts_on', 'ends_on'])]
 class League extends Model
 {
     /** @use HasFactory<LeagueFactory> */
@@ -58,6 +59,7 @@ class League extends Model
         return [
             'starts_on' => 'date',
             'ends_on' => 'date',
+            'category' => GoalCategory::class,
         ];
     }
 
@@ -186,6 +188,48 @@ class League extends Model
         } while (self::where('invite_code', $code)->exists());
 
         return $code;
+    }
+
+    /**
+     * The size below which the league page keeps an "Invite friends" button front and center.
+     */
+    public const INVITE_PROMPT_BELOW = 4;
+
+    /**
+     * Invites into this league.
+     *
+     * @return HasMany<LeagueInvite, $this>
+     */
+    public function invites(): HasMany
+    {
+        return $this->hasMany(LeagueInvite::class);
+    }
+
+    /**
+     * The league's current shareable link, made the first time it's needed.
+     */
+    public function shareableInvite(): LeagueInvite
+    {
+        return $this->invites()->usable()->where('kind', LeagueInvite::LINK)->latest('id')->first()
+            ?? $this->invites()->create(['kind' => LeagueInvite::LINK, 'expires_at' => now()->addDays(LeagueInvite::DEFAULT_EXPIRY_DAYS)]);
+    }
+
+    /**
+     * Invite codes are read aloud and typed by hand: ignore case, spaces, and a missing dash.
+     */
+    public static function normalizeInviteCode(string $code): string
+    {
+        $code = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $code));
+
+        return strlen($code) === 8 ? substr($code, 0, 4).'-'.substr($code, 4) : $code;
+    }
+
+    /**
+     * Make a new short invite code, so the old one stops working.
+     */
+    public function regenerateInviteCode(): void
+    {
+        $this->forceFill(['invite_code' => self::uniqueInviteCode()])->save();
     }
 
     /**

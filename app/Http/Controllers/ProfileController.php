@@ -66,7 +66,7 @@ class ProfileController extends Controller
     public function update(ProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility']));
+        $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable']));
         $emailChanged = $user->isDirty('email');
 
         if ($emailChanged) {

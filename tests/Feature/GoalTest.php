@@ -33,7 +33,7 @@ class GoalTest extends TestCase
         ]);
 
         $goal = $user->goals()->sole();
-        $response->assertRedirect(route('goals.show', $goal));
+        $response->assertRedirect(route('goals.next', $goal));
 
         $this->assertSame('Pass the CPA exam', $goal->title);
         $this->assertSame(GoalCategory::Career, $goal->category);

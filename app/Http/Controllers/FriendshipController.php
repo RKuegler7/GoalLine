@@ -23,6 +23,7 @@ class FriendshipController extends Controller
 
         return view('friends.index', [
             'friends' => $me->friends(),
+            'leagueMates' => User::whereIn('id', $me->leagueMateIds())->orderBy('name')->get(),
             'incoming' => $pending->where('addressee_id', $me->id)->values(),
             'outgoing' => $pending->where('requester_id', $me->id)->values(),
             'friendships' => $me->friendships()->where('status', Friendship::ACCEPTED)->get()

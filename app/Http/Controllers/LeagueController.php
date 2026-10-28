@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Clock;
+use App\GoalCategory;
+use App\Models\Goal;
 use App\Models\League;
+use App\Models\LeagueInvite;
 use App\Models\LeagueMessage;
 use App\Models\PostReport;
 use App\Services\GroupTasks;
@@ -39,9 +42,13 @@ class LeagueController extends Controller
      */
     public function create(Request $request): View
     {
+        $goals = $request->user()->goals()->active()->orderBy('target_date')->get();
+
         return view('leagues.create', [
-            'goals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
+            'goals' => $goals,
             'kickoffs' => self::kickoffOptions(),
+            // Coming from "Play it with friends?": fill the league in from that goal.
+            'fromGoal' => $goals->firstWhere('id', $request->integer('goal')),
         ]);
     }
 
@@ -58,6 +65,7 @@ class LeagueController extends Controller
             'starts_on' => ['required', Rule::in($kickoffs)],
             'ends_on' => ['required', 'date', 'after:starts_on'],
             'goal_id' => ['required', Rule::exists('goals', 'id')->where('user_id', $request->user()->id)->where('status', 'active')],
+            'category' => ['nullable', Rule::enum(GoalCategory::class)],
         ], [
             'starts_on.in' => 'Pick one of the upcoming Mondays.',
             'goal_id.required' => 'Pick the goal you will play in this league.',
@@ -74,6 +82,7 @@ class LeagueController extends Controller
             $league = new League([
                 'name' => $validated['name'],
                 'description' => $validated['description'] ?? null,
+                'category' => $validated['category'] ?? Goal::find($validated['goal_id'])->category,
                 'starts_on' => $startsOn,
                 'ends_on' => $endsOn,
             ]);
@@ -84,7 +93,7 @@ class LeagueController extends Controller
             return $league;
         });
 
-        return redirect()->route('leagues.show', $league)->with('status', 'League created. Share your invite code to bring people in.');
+        return redirect()->to(route('leagues.show', $league).'#invite')->with('status', 'League created. Now invite your people: share the link, the code, or send invites below.');
     }
 
     /**
@@ -107,6 +116,10 @@ class LeagueController extends Controller
             'me' => $league->memberFor($request->user()),
             'myGoals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
             'messages' => $league->messages()->with('user')->latest('id')->limit(LeagueMessage::RECENT_COUNT)->get()->reverse()->values(),
+            'shareInvite' => $league->shareableInvite(),
+            'pendingInvites' => $league->commissioner_id === $request->user()->id
+                ? $league->invites()->usable()->where('kind', '!=', LeagueInvite::LINK)->with('invitee')->latest('id')->get()
+                : collect(),
             'groupTasks' => $league->groupTasks()->with('votes', 'proposer')->latest('id')->limit(12)->get(),
             'groupTaskWeeks' => collect($groupTasks->proposableWeeks($league))->mapWithKeys(fn (int $week) => [$week => $groupTasks->slotsLeft($league, $week)]),
             'groupTasksEnabled' => $groupTasks->isEnabledFor($league),

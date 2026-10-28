@@ -1,5 +1,12 @@
 <x-layouts.welcome :step="3" title="Who's in your corner?" intro="Goals stick when people are watching. Join a GoalLeague, start one, or add friends. All optional.">
     <div class="space-y-4">
+        @if ($pendingInvite = App\Models\LeagueInvite::findUsable(session('league_invite')))
+            <a href="{{ $pendingInvite->url() }}" class="block rounded-2xl border-2 border-club bg-mint px-6 py-5">
+                <span class="eyebrow text-club">You're invited</span>
+                <span class="mt-1 block font-serif text-xl text-club">Join {{ $pendingInvite->league->name }} &rarr;</span>
+            </a>
+        @endif
+
         @unless ($user->hasVerifiedEmail())
             <p class="rounded-xl border border-gold/50 bg-gold/15 px-4 py-3 text-sm text-ink">
                 Verify your email first to join GoalLeagues and add friends. We sent a link to {{ $user->email }}.

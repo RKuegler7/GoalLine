@@ -27,6 +27,14 @@ class LeaguePolicy
     }
 
     /**
+     * Only the league owner manages invites and members.
+     */
+    public function manage(User $user, League $league): bool
+    {
+        return $league->commissioner_id === $user->id;
+    }
+
+    /**
      * The commissioner can call off a league before kickoff.
      */
     public function delete(User $user, League $league): bool

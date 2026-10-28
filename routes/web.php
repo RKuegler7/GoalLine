@@ -17,6 +17,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\GoalNextStepController;
 use App\Http\Controllers\GroupTaskController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightCommentController;
@@ -24,11 +25,13 @@ use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
+use App\Http\Controllers\LeagueInviteController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeagueRecapController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
+use App\Http\Controllers\PeopleSearchController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
@@ -47,6 +50,9 @@ Route::view('/terms', 'legal.terms')->name('terms');
 
 // Calendar apps fetch this without logging in; the secret token in the link is the key.
 Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
+
+// League invite links open for anyone; joining needs an account.
+Route::get('/invite/{token}', [LeagueInviteController::class, 'show'])->name('leagues.invite.show')->middleware('throttle:60,1');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -197,6 +203,14 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
     Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join');
+    Route::post('/invite/{token}', [LeagueInviteController::class, 'join'])->name('leagues.invite.join')->middleware('verified');
+    Route::post('/leagues/{league}/invites', [LeagueInviteController::class, 'store'])->name('leagues.invites.store')->can('view', 'league')->middleware(['verified', 'throttle:20,60']);
+    Route::post('/leagues/{league}/invite-link', [LeagueInviteController::class, 'regenerate'])->name('leagues.invites.regenerate');
+    Route::delete('/league-invites/{invite}', [LeagueInviteController::class, 'revoke'])->name('leagues.invites.revoke');
+    Route::delete('/leagues/{league}/members/{member}', [LeagueInviteController::class, 'removeMember'])->name('leagues.members.destroy');
+    Route::get('/people/search', [PeopleSearchController::class, 'index'])->name('people.search')->middleware('throttle:30,1');
+    Route::get('/goals/{goal}/next', [GoalNextStepController::class, 'show'])->name('goals.next')->can('update', 'goal');
+    Route::post('/goals/{goal}/next', [GoalNextStepController::class, 'choose'])->name('goals.next.choose')->can('update', 'goal');
     Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware('verified');
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
     Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');

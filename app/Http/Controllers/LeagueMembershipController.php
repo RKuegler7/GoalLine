@@ -38,8 +38,13 @@ class LeagueMembershipController extends Controller
             return redirect()->route('leagues.show', $league);
         }
 
+        // Coming back here after setting a goal.
+        $request->session()->put('league_join_return', route('leagues.join', $league->invite_code));
+
         return view('leagues.join', [
             'league' => $league,
+            'invite' => null,
+            'joinAction' => route('leagues.join.store', $league->invite_code),
             'goals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
         ]);
     }
@@ -104,13 +109,8 @@ class LeagueMembershipController extends Controller
         return redirect()->route('leagues.index')->with('status', 'You left '.$league->name.'.');
     }
 
-    /**
-     * Invite codes are read aloud and typed by hand: ignore case, spaces, and a missing dash.
-     */
     private function normalize(string $code): string
     {
-        $code = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $code));
-
-        return strlen($code) === 8 ? substr($code, 0, 4).'-'.substr($code, 4) : $code;
+        return League::normalizeInviteCode($code);
     }
 }

@@ -33,7 +33,7 @@ class LeagueTest extends TestCase
         ]);
 
         $league = League::sole();
-        $response->assertRedirect(route('leagues.show', $league));
+        $response->assertRedirect(route('leagues.show', $league).'#invite');
         $this->assertTrue($league->commissioner->is($goal->user));
         $this->assertSame('2026-12-20', $league->ends_on->toDateString(), 'Seasons end on a Sunday.');
         $this->assertSame(8, $league->weeksCount());

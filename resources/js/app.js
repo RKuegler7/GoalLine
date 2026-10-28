@@ -723,3 +723,30 @@ document.querySelectorAll('[data-suggest-caption]').forEach((button) => {
         }
     });
 });
+
+/**
+ * Copy buttons (invite links and codes), and Share, which opens the phone's share sheet where there is one.
+ */
+document.querySelectorAll('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(button.dataset.copy);
+            const label = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => (button.textContent = label), 1500);
+        } catch {
+            window.prompt('Copy this:', button.dataset.copy);
+        }
+    });
+});
+
+document.querySelectorAll('[data-share-url]').forEach((button) => {
+    if (!navigator.share) {
+        return;
+    }
+
+    button.hidden = false;
+    button.addEventListener('click', () => {
+        navigator.share({ title: button.dataset.shareTitle, text: button.dataset.shareText, url: button.dataset.shareUrl }).catch(() => {});
+    });
+});
