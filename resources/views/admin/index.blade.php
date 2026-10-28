@@ -40,6 +40,19 @@
             </ol>
         </section>
 
+        {{-- Photo storage: S3 keeps uploads through deploys. --}}
+        <section class="rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+            <h2 class="eyebrow text-club">Photo storage</h2>
+            @if ($storage['s3'] && $storage['working'])
+                <p class="mt-2 text-sm text-ink"><span class="font-semibold text-grass">&check; Working.</span> Photos and plan files are saved in the private S3 bucket <span class="font-mono">{{ $storage['bucket'] }}</span>, so they survive deploys.</p>
+            @elseif ($storage['s3'])
+                <p class="mt-2 text-sm text-red-700"><span class="font-semibold">S3 is turned on but not working.</span> Check the bucket name, the region, and that the server's role can use the bucket.</p>
+                <p class="mt-1 font-mono text-xs text-ink/60">{{ $storage['problem'] }}</p>
+            @else
+                <p class="mt-2 text-sm text-ink/75"><span class="font-semibold text-amber-800">On the server's own disk.</span> Uploaded photos vanish every time you deploy. Set <span class="font-mono">UPLOADS_DISK=s3</span> and <span class="font-mono">AWS_BUCKET</span> to keep them.</p>
+            @endif
+        </section>
+
         {{-- AI spend. --}}
         <section class="rounded-2xl border border-line bg-white px-5 py-4">
             <h2 class="eyebrow text-club">AI spend</h2>

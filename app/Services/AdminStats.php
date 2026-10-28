@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Usage;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * The numbers on the admin page: who's using GoalLine, what they use, and what AI costs.
@@ -93,6 +96,31 @@ class AdminStats
             ->sortByDesc('uses')
             ->values()
             ->all();
+    }
+
+    /**
+     * Where members' photos and plan files are kept, and whether that storage is working right now. On the server's
+     * own disk, uploads vanish on every deploy; in S3 they last.
+     *
+     * @return array{s3: bool, bucket: ?string, working: bool, problem: ?string}
+     */
+    public function photoStorage(): array
+    {
+        $s3 = config('filesystems.disks.uploads.driver') === 's3';
+
+        try {
+            $disk = Storage::disk('uploads');
+            $disk->put('health/admin-check.txt', now()->toIso8601String());
+            $working = $disk->exists('health/admin-check.txt');
+            $disk->delete('health/admin-check.txt');
+            $problem = null;
+        } catch (Throwable $error) {
+            report($error);
+            $working = false;
+            $problem = class_basename($error).': '.Str::limit($error->getMessage(), 160);
+        }
+
+        return ['s3' => $s3, 'bucket' => $s3 ? config('filesystems.disks.uploads.bucket') : null, 'working' => $working, 'problem' => $problem];
     }
 
     /**

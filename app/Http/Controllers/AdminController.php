@@ -22,6 +22,7 @@ class AdminController extends Controller
             'dailyActive' => $stats->dailyActive(),
             'features' => $stats->featureUse(),
             'ai' => $stats->aiSpend(),
+            'storage' => $stats->photoStorage(),
             'invites' => Invite::withCount('members')->latest()->get(),
             'inviteOnly' => config('goalline.beta.invite_only'),
             'feedback' => DB::table('feedback')
