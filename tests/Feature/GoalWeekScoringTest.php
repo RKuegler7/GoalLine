@@ -115,8 +115,8 @@ class GoalWeekScoringTest extends TestCase
         $this->actingAs($goal->user)->post(route('goalweeks.milestone', $week));
         $this->assertSame(GoalWeekResult::InLine, $week->fresh('tasks')->result()); // 6 of 6
 
-        $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $week), ['description' => 'Extra set']);
-        $bonus = $week->tasks()->where('is_bonus', true)->sole();
+        // Bonus work beyond the plan (from before personal tasks were capped) still counts toward the result.
+        $bonus = $week->tasks()->create(['position' => 99, 'description' => 'Extra set', 'is_bonus' => true]);
         $this->actingAs($goal->user)->post(route('roadmap.tasks.check', $bonus));
         $this->assertSame(GoalWeekResult::Past, $week->fresh('tasks')->result()); // 7 of 6
 
@@ -139,7 +139,7 @@ class GoalWeekScoringTest extends TestCase
             ->assertSee('Close call: 1 more point gets you safely in line.');
     }
 
-    public function test_tasks_added_during_the_goalweek_are_bonus_but_earlier_ones_are_planned(): void
+    public function test_tasks_members_add_are_personal_and_count_in_the_plan(): void
     {
         Queue::fake();
         [$goal, $current] = $this->goalWithWeek(today()->subDays(2), tasks: 2);
@@ -147,12 +147,19 @@ class GoalWeekScoringTest extends TestCase
             'position' => 2, 'starts_on' => today()->addDays(5), 'ends_on' => today()->addDays(11),
             'focus' => 'Next', 'milestone' => 'Next milestone.',
         ]);
+        $upcoming->tasks()->create(['position' => 1, 'description' => 'Planned work'])->forceFill(['points' => 20])->save();
+        $plannedBefore = $upcoming->fresh('tasks')->plannedPoints();
 
-        $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $current), ['description' => 'Extra practice set']);
-        $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $upcoming), ['description' => 'Plan ahead']);
+        $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $upcoming), ['description' => 'Plan ahead', 'points' => 2]);
+        $added = $upcoming->tasks()->where('description', 'Plan ahead')->sole();
+        $this->assertTrue($added->is_personal);
+        $this->assertFalse($added->is_bonus);
+        $this->assertSame($plannedBefore + 2, $upcoming->fresh('tasks')->plannedPoints());
 
-        $this->assertTrue($current->tasks()->where('description', 'Extra practice set')->sole()->is_bonus);
-        $this->assertFalse($upcoming->tasks()->sole()->is_bonus);
+        // Past Tuesday of a GoalWeek, nothing more can be added to it.
+        $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $current), ['description' => 'Extra practice set'])
+            ->assertSessionHasErrorsIn('week'.$current->id, 'description');
+        $this->assertSame(0, $current->tasks()->where('description', 'Extra practice set')->count());
     }
 
     public function test_upcoming_goalweeks_cannot_be_checked_off_yet(): void

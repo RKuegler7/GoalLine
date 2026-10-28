@@ -6,6 +6,7 @@ use App\Clock;
 use App\Models\League;
 use App\Models\LeagueMessage;
 use App\Models\PostReport;
+use App\Services\GroupTasks;
 use App\Services\LeagueTable;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
@@ -89,8 +90,11 @@ class LeagueController extends Controller
     /**
      * The league: invite, GoalGroup matchups, standings, and past weeks.
      */
-    public function show(Request $request, League $league): View
+    public function show(Request $request, League $league, GroupTasks $groupTasks): View
     {
+        // Votes whose 24 hours are up are settled before showing them.
+        $groupTasks->closeDue($league);
+
         $table = new LeagueTable($league);
         $table->settle();
 
@@ -103,6 +107,9 @@ class LeagueController extends Controller
             'me' => $league->memberFor($request->user()),
             'myGoals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
             'messages' => $league->messages()->with('user')->latest('id')->limit(LeagueMessage::RECENT_COUNT)->get()->reverse()->values(),
+            'groupTasks' => $league->groupTasks()->with('votes', 'proposer')->latest('id')->limit(12)->get(),
+            'groupTaskWeeks' => collect($groupTasks->proposableWeeks($league))->mapWithKeys(fn (int $week) => [$week => $groupTasks->slotsLeft($league, $week)]),
+            'groupTasksEnabled' => $groupTasks->isEnabledFor($league),
             'reportedPosts' => $league->commissioner_id === $request->user()->id
                 ? PostReport::where('league_id', $league->id)->whereHas('highlight')->distinct()->count('highlight_id')
                 : 0,

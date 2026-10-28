@@ -17,6 +17,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\GroupTaskController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
@@ -188,6 +189,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
     Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware(['verified', 'throttle:10,60']);
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
+    Route::post('/leagues/{league}/group-tasks', [GroupTaskController::class, 'store'])->name('leagues.group-tasks.store')->can('view', 'league')->middleware(['verified', 'throttle:10,1']);
+    Route::post('/group-tasks/{groupTask}/vote', [GroupTaskController::class, 'vote'])->name('group-tasks.vote')->middleware(['verified', 'throttle:30,1']);
     Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');

@@ -189,6 +189,16 @@ class League extends Model
     }
 
     /**
+     * Group tasks proposed in this league.
+     *
+     * @return HasMany<GroupTask, $this>
+     */
+    public function groupTasks(): HasMany
+    {
+        return $this->hasMany(GroupTask::class);
+    }
+
+    /**
      * Chat messages and league updates, oldest first.
      *
      * @return HasMany<LeagueMessage, $this>

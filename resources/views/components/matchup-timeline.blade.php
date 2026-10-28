@@ -16,7 +16,9 @@
             ->values();
         $tasks->load('proofRequests');
 
-        return ['member' => $member, 'goalWeek' => $result['goalWeek'], 'other' => $other, 'tasks' => $tasks];
+        $personal = ($result['goalWeek']?->tasks ?? collect())->where('is_personal', true)->values();
+
+        return ['member' => $member, 'goalWeek' => $result['goalWeek'], 'other' => $other, 'tasks' => $tasks, 'personal' => $personal];
     });
     $total = $rows->sum(fn ($row) => $row['tasks']->count());
 @endphp
@@ -34,6 +36,12 @@
             @endphp
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-ink">{{ $owner->name }}</p>
+                @if ($row['personal']->isNotEmpty())
+                    <p class="mt-0.5 text-[0.7rem] text-ink/55">
+                        Added by {{ $owner->is($viewer) ? 'you' : Str::before($owner->name, ' ') }}:
+                        {{ $row['personal']->map(fn ($task) => $task->description.' ('.$task->points.' '.Str::plural('pt', $task->points).')')->implode(', ') }}
+                    </p>
+                @endif
 
                 @if ($row['goalWeek']?->needsProofForSmashed())
                     <div class="mt-1.5 rounded-lg bg-sky-50 px-2.5 py-2 text-xs text-sky-900 ring-1 ring-sky-200 ring-inset">
@@ -57,6 +65,9 @@
                             <li class="text-xs">
                                 <span class="text-ink/45 tabular-nums">{{ App\Clock::shortTime($task->completed_at) }}</span>
                                 <span class="text-ink">{{ $task->description }}</span>
+                                @if ($task->isGroupTask() || $task->is_personal)
+                                    <x-task-tags :task="$task" />
+                                @endif
                                 @if ($task->result_required && $task->result_value !== null)
                                     <span class="text-ink/60 tabular-nums">&middot; {{ $task->formatNumber($task->result_value) }}</span>
                                 @endif

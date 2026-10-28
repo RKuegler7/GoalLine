@@ -134,7 +134,7 @@
                 <x-task-check :task="$task" :checkable="$checkable" />
 
                 <div class="min-w-0 flex-1">
-                    @if ($editable)
+                    @if ($editable && ! $task->isGroupTask())
                         <details>
                             <summary class="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
                                 <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
@@ -217,13 +217,36 @@
     @endif
 
     @if ($editable)
-        <form method="POST" action="{{ route('roadmap.tasks.store', $week) }}" class="mt-3 flex gap-2">
-            @csrf
-            <label for="new-task-{{ $week->id }}" class="sr-only">Add a task to {{ $week->label() }}</label>
-            <input id="new-task-{{ $week->id }}" name="description" maxlength="250" required
-                placeholder="{{ $current ? 'Add a bonus task' : 'Add your own task' }}"
-                class="min-w-0 flex-1 rounded-lg border border-dashed border-line bg-ivory/60 px-3 py-1.5 text-sm outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10">
-            <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-club hover:bg-mint">Add</button>
-        </form>
+        @php
+            $personalErrors = $errors->getBag("week{$week->id}");
+            $pointsLeft = min(App\Models\RoadmapWeek::PERSONAL_TASK_MAX_POINTS, $week->personalPointsLeft());
+            $canAddPersonal = $week->acceptsPersonalTasks() && $week->personalTasksLeft() > 0 && $pointsLeft > 0;
+        @endphp
+        @if ($canAddPersonal)
+            <form method="POST" action="{{ route('roadmap.tasks.store', $week) }}" class="mt-3">
+                @csrf
+                <div class="flex gap-2">
+                    <label for="new-task-{{ $week->id }}" class="sr-only">Add a personal task to {{ $week->label() }}</label>
+                    <input id="new-task-{{ $week->id }}" name="description" maxlength="250" required placeholder="Add a personal task, like &ldquo;stretch 10 minutes&rdquo;"
+                        class="min-w-0 flex-1 rounded-lg border border-dashed border-line bg-ivory/60 px-3 py-1.5 text-sm outline-none placeholder:text-ink/40 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10">
+                    <label for="new-task-points-{{ $week->id }}" class="sr-only">Points</label>
+                    <select id="new-task-points-{{ $week->id }}" name="points" class="rounded-lg border border-line bg-white px-2 py-1.5 text-sm">
+                        @foreach (range(1, $pointsLeft) as $points)
+                            <option value="{{ $points }}">{{ $points }} {{ Str::plural('pt', $points) }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-club hover:bg-mint">Add</button>
+                </div>
+                <p class="mt-1 text-xs text-ink/50">
+                    {{ $week->personalTasksLeft() }} of {{ App\Models\RoadmapWeek::PERSONAL_TASK_LIMIT }} personal tasks and {{ $week->personalPointsLeft() }} {{ Str::plural('point', $week->personalPointsLeft()) }} left.
+                    Your league sees them labeled &ldquo;Added by&rdquo; you. Open until Tuesday 11:59 p.m. of the GoalWeek.
+                </p>
+            </form>
+        @elseif ($week->acceptsPersonalTasks())
+            <p class="mt-3 text-xs text-ink/50">This GoalWeek's personal tasks are full: up to {{ App\Models\RoadmapWeek::PERSONAL_TASK_LIMIT }}, worth up to 15% of the planned points.</p>
+        @endif
+        @if ($personalErrors->any())
+            <p class="mt-1 text-xs text-red-700">{{ $personalErrors->first() }}</p>
+        @endif
     @endif
 </li>

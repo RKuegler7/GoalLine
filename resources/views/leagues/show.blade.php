@@ -129,6 +129,122 @@
         </section>
     @endif
 
+    {{-- Group tasks: proposed by anyone, in everyone's GoalWeek if two thirds vote yes within 24 hours. --}}
+    <section id="group-tasks" class="mt-8 scroll-mt-6">
+        <div class="flex items-end justify-between gap-4">
+            <h2 class="eyebrow text-club">Group tasks</h2>
+            @if ($groupTasksEnabled)
+                <span class="text-xs text-ink/55">Needs {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} yes votes within 24 hours</span>
+            @endif
+        </div>
+
+        @if (! $groupTasksEnabled)
+            <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">Group tasks open up once a second member joins. Then anyone can propose one, and if two thirds of the league say yes within 24 hours, it goes on everyone's GoalWeek.</p>
+        @else
+            @php
+                $groupErrors = $errors->getBag('groupTask');
+                $openWeeks = $groupTaskWeeks->filter(fn ($slots) => $slots > 0);
+                $voting = $groupTasks->where('status', App\Models\GroupTask::VOTING);
+                $decided = $groupTasks->where('status', '!=', App\Models\GroupTask::VOTING)->take(6);
+            @endphp
+
+            @foreach ($voting as $groupTask)
+                @php
+                    $myVote = $groupTask->voteOf(auth()->user());
+                @endphp
+                <article class="mt-3 rounded-2xl border border-gold/50 bg-white px-5 py-4">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="eyebrow text-[0.6rem] text-ink/50">Voting &middot; Week {{ $groupTask->week }} &middot; {{ $groupTask->points }} {{ Str::plural('pt', $groupTask->points) }}</p>
+                            <h3 class="mt-1 font-serif text-lg font-medium text-ink">{{ $groupTask->title }}</h3>
+                            @if ($groupTask->description)
+                                <p class="text-sm text-ink/65">{{ $groupTask->description }}</p>
+                            @endif
+                            <p class="mt-1 text-xs text-ink/50">Proposed by {{ $groupTask->proposer?->name ?? 'a former member' }} &middot; voting closes {{ App\Clock::shortTime($groupTask->closes_at) }}</p>
+                        </div>
+                        <p class="shrink-0 text-sm tabular-nums"><span class="font-semibold text-grass">{{ $groupTask->yesCount() }} yes</span> &middot; <span class="text-ink/55">{{ $groupTask->noCount() }} no</span></p>
+                    </div>
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        @foreach ([1 => 'Yes', 0 => 'No'] as $value => $label)
+                            <form method="POST" action="{{ route('group-tasks.vote', $groupTask) }}">
+                                @csrf
+                                <input type="hidden" name="approve" value="{{ $value }}">
+                                <button type="submit" aria-pressed="{{ $myVote === (bool) $value ? 'true' : 'false' }}" @class([
+                                    'rounded-full px-4 py-1.5 text-sm font-semibold transition',
+                                    'bg-club text-ivory' => $myVote === (bool) $value,
+                                    'border border-line text-ink/70 hover:border-club/40' => $myVote !== (bool) $value,
+                                ])>{{ $label }}</button>
+                            </form>
+                        @endforeach
+                        <span class="text-xs text-ink/50">{{ $myVote === null ? "You haven't voted yet." : 'You can change your vote until it closes.' }}</span>
+                    </div>
+                </article>
+            @endforeach
+
+            @if ($openWeeks->isNotEmpty())
+                <details class="mt-3 rounded-2xl border border-line bg-white px-5 py-4" @if ($groupErrors->any()) open @endif>
+                    <summary class="cursor-pointer list-none font-semibold text-club [&::-webkit-details-marker]:hidden">+ Propose a group task</summary>
+                    <form method="POST" action="{{ route('leagues.group-tasks.store', $league) }}" class="mt-3 space-y-3">
+                        @csrf
+                        <div>
+                            <label for="group-title" class="text-sm font-semibold text-ink/80">Task</label>
+                            <input id="group-title" name="title" maxlength="120" required value="{{ old('title') }}" placeholder="Read 20 minutes before bed"
+                                class="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                        </div>
+                        <div>
+                            <label for="group-description" class="text-sm font-semibold text-ink/80">Details <span class="font-normal text-ink/45">(optional)</span></label>
+                            <input id="group-description" name="description" maxlength="500" value="{{ old('description') }}"
+                                class="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <div>
+                                <label for="group-week" class="text-sm font-semibold text-ink/80">Week</label>
+                                <select id="group-week" name="week" class="mt-1 block rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                                    @foreach ($openWeeks as $openWeek => $slots)
+                                        <option value="{{ $openWeek }}" @selected((int) old('week') === $openWeek)>Week {{ $openWeek }} &middot; starts {{ $league->weekStartsOn($openWeek)->format('M j') }} &middot; {{ $slots }} {{ Str::plural('slot', $slots) }} left</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label for="group-points" class="text-sm font-semibold text-ink/80">Points</label>
+                                <select id="group-points" name="points" class="mt-1 block rounded-lg border border-line bg-white px-3 py-2 text-sm">
+                                    @foreach (range(App\Models\GroupTask::MIN_POINTS, App\Models\GroupTask::MAX_POINTS) as $points)
+                                        <option value="{{ $points }}" @selected((int) old('points', App\Models\GroupTask::DEFAULT_POINTS) === $points)>{{ $points }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <p class="text-xs text-ink/55">Your yes counts right away. If {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} members say yes within 24 hours, it goes on everyone's GoalWeek for that week and counts in everyone's plan. Not enough yes votes means no task. Up to {{ App\Services\GroupTasks::MAX_PASSED_PER_WEEK }} a week.</p>
+                        @if ($groupErrors->any())
+                            <p class="text-sm text-red-700">{{ $groupErrors->first() }}</p>
+                        @endif
+                        <button type="submit" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Propose to the league</button>
+                    </form>
+                </details>
+            @elseif ($voting->isEmpty())
+                <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">No weeks left with open group task slots this season.</p>
+            @endif
+
+            @if ($decided->isNotEmpty())
+                <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white text-sm">
+                    @foreach ($decided as $groupTask)
+                        <li class="flex flex-wrap items-center justify-between gap-2 px-5 py-2.5">
+                            <span class="min-w-0">
+                                <span class="font-medium text-ink">{{ $groupTask->title }}</span>
+                                <span class="text-ink/50">&middot; Week {{ $groupTask->week }} &middot; {{ $groupTask->points }} {{ Str::plural('pt', $groupTask->points) }}</span>
+                            </span>
+                            @if ($groupTask->status === App\Models\GroupTask::PASSED)
+                                <span class="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-club">Passed &middot; on everyone's plan</span>
+                            @else
+                                <span class="rounded-full bg-ink/5 px-2.5 py-0.5 text-xs font-semibold text-ink/60" title="{{ $groupTask->outcome_note }}">Did not pass</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        @endif
+    </section>
+
     {{-- Standings. --}}
     <section class="mt-8">
         <h2 class="eyebrow text-club">Standings</h2>

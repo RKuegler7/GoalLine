@@ -8,27 +8,47 @@ use App\Models\RoadmapWeek;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RoadmapTaskController extends Controller
 {
     /**
-     * Add a task of the person's own to a stretch.
+     * Add a personal task to a GoalWeek. It counts in the plan like any other task, so it's capped: three a week,
+     * 1 to 5 points each, 15% of the AI-planned points in all, and only until Tuesday 11:59 p.m. of the week.
+     * The league sees it labeled "Added by".
      */
     public function store(Request $request, RoadmapWeek $week): RedirectResponse
     {
         $this->authorizeEditing($week);
-        $description = $this->validatedDescription($request);
+        $validated = $request->validateWithBag("week{$week->id}", [
+            'description' => ['required', 'string', 'max:250'],
+            'points' => ['nullable', 'integer', 'min:1', 'max:'.RoadmapWeek::PERSONAL_TASK_MAX_POINTS],
+        ]);
+        $description = trim($validated['description']);
+        $points = (int) ($validated['points'] ?? 1);
+        $week->load('tasks');
+
+        $problem = match (true) {
+            ! $week->acceptsPersonalTasks() => 'Personal tasks can be added until Tuesday 11:59 p.m. of the GoalWeek.',
+            $week->personalTasksLeft() === 0 => 'You can add up to '.RoadmapWeek::PERSONAL_TASK_LIMIT.' personal tasks a GoalWeek.',
+            $points > $week->personalPointsLeft() => $week->personalPointsLeft() === 0
+                ? 'No personal points left this GoalWeek. Personal tasks can add up to 15% of the planned points.'
+                : 'Only '.$week->personalPointsLeft().' personal '.Str::plural('point', $week->personalPointsLeft()).' left this GoalWeek (15% of the planned points).',
+            default => null,
+        };
+
+        if ($problem) {
+            throw ValidationException::withMessages(['description' => $problem])->errorBag("week{$week->id}");
+        }
 
         $week->tasks()->create([
             'position' => ($week->tasks()->max('position') ?? 0) + 1,
             'description' => $description,
-            // Tasks added once the GoalWeek is underway are extra work beyond the plan.
-            'is_bonus' => $week->isCurrent(),
-            // and land on today's gameplan.
             'planned_on' => $week->isCurrent() ? Clock::today() : null,
-        ]);
+        ])->forceFill(['is_personal' => true, 'points' => $points])->save();
 
-        $week->goal->recordRoadmapChange("Added a task to {$this->label($week)}: \"{$description}\"");
+        $week->goal->recordRoadmapChange("Added a personal task ({$points} ".Str::plural('point', $points).") to {$this->label($week)}: \"{$description}\"");
 
         return $this->backTo($week);
     }
@@ -40,6 +60,7 @@ class RoadmapTaskController extends Controller
     {
         $week = $task->week;
         $this->authorizeEditing($week);
+        abort_if($task->isGroupTask(), 403, 'Group tasks are set by a league vote.');
         $description = $this->validatedDescription($request);
 
         if ($description !== $task->description) {
@@ -84,6 +105,7 @@ class RoadmapTaskController extends Controller
     {
         $week = $task->week;
         $this->authorizeEditing($week);
+        abort_if($task->isGroupTask(), 403, 'Group tasks are set by a league vote.');
 
         $task->delete();
         $week->goal->recordRoadmapChange("Removed a task from {$this->label($week)}: \"{$task->description}\"");

@@ -22,6 +22,9 @@ Schedule::command('goalline:send-reminders')->everyFifteenMinutes()->withoutOver
 // Settle finished GoalLeague weeks, send weekly recaps, hand out season awards, and wrap up challenges.
 Schedule::command('goalline:settle-leagues')->hourly()->withoutOverlapping();
 
+// Group task votes run 24 hours; settle the ones whose time is up.
+Schedule::command('goalline:close-group-votes')->everyFiveMinutes()->withoutOverlapping();
+
 Artisan::command('goalline:announce {message : The news, in one line} {--url= : Where it links to}', function (string $message) {
     $count = 0;
 

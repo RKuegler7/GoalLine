@@ -126,14 +126,16 @@ class GameplanTest extends TestCase
         $this->assertSame(['2026-10-22', '2026-10-21', '2026-10-23', '2026-10-24'], $days);
     }
 
-    public function test_bonus_tasks_added_mid_week_land_on_today(): void
+    public function test_personal_tasks_added_mid_week_land_on_today(): void
     {
+        $this->travelTo(Carbon::parse('2026-10-20 09:00', config('app.timezone'))); // Tuesday, the last day to add one.
         [$goal, $week] = $this->goalWithCurrentWeek(['Build the first prototype' => '2026-10-21']);
+        $week->tasks->first()->forceFill(['points' => 20])->save();
 
         $this->actingAs($goal->user)->post(route('roadmap.tasks.store', $week), ['description' => 'Demo at the meetup']);
 
-        $bonus = $week->tasks()->where('is_bonus', true)->sole();
-        $this->assertSame('2026-10-21', $bonus->planned_on->toDateString());
+        $personal = $week->tasks()->where('is_personal', true)->sole();
+        $this->assertSame('2026-10-20', $personal->planned_on->toDateString());
     }
 
     public function test_habit_check_ins_show_in_week_at_a_glance(): void

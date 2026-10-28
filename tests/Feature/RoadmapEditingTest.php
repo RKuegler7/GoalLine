@@ -49,6 +49,7 @@ class RoadmapEditingTest extends TestCase
     public function test_adding_a_task_saves_it_and_queues_a_coach_review(): void
     {
         Queue::fake();
+        $this->currentWeek->tasks()->first()->forceFill(['points' => 20])->save(); // Room for personal points.
 
         $this->actingAs($this->goal->user)
             ->post(route('roadmap.tasks.store', $this->currentWeek), ['description' => 'Book a study room'])
@@ -56,7 +57,7 @@ class RoadmapEditingTest extends TestCase
 
         $this->assertSame(['Do the work', 'Book a study room'], $this->currentWeek->tasks()->pluck('description')->all());
         $this->assertSame(RoadmapStatus::Pending, $this->goal->fresh()->plan_check_status);
-        $this->assertSame(['Added a task to GoalWeek 2: "Book a study room"'], $this->goal->fresh()->pending_changes);
+        $this->assertSame(['Added a personal task (1 point) to GoalWeek 2: "Book a study room"'], $this->goal->fresh()->pending_changes);
         Queue::assertPushed(ReviewRoadmapChanges::class);
     }
 

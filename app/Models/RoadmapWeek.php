@@ -36,6 +36,16 @@ class RoadmapWeek extends Model
     public const MILESTONE_POINTS = 2;
 
     /**
+     * Personal tasks: at most this many a GoalWeek, each worth 1 to PERSONAL_TASK_MAX_POINTS, together no more than
+     * PERSONAL_SHARE_PERCENT of the AI-planned points.
+     */
+    public const PERSONAL_TASK_LIMIT = 3;
+
+    public const PERSONAL_TASK_MAX_POINTS = 5;
+
+    public const PERSONAL_SHARE_PERCENT = 15;
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -134,6 +144,42 @@ class RoadmapWeek extends Model
     public function isStarted(): bool
     {
         return $this->starts_on->lte(Clock::today());
+    }
+
+    /**
+     * Personal tasks can be added before the GoalWeek starts and until Tuesday 11:59 p.m. of it, so nobody pads a
+     * plan after the fact.
+     */
+    public function acceptsPersonalTasks(): bool
+    {
+        return $this->isEditable() && Clock::today()->lte($this->starts_on->copy()->addDay());
+    }
+
+    /**
+     * Points the AI coach planned: its tasks and the milestone, not personal, group, or bonus tasks.
+     */
+    public function aiPlannedPoints(): int
+    {
+        return $this->tasks->reject(fn (RoadmapTask $task) => $task->is_bonus || $task->is_personal || $task->isGroupTask())->sum('points')
+            + self::MILESTONE_POINTS;
+    }
+
+    /**
+     * Personal points still allowed this GoalWeek: 15% of the AI-planned points, rounded down, minus what's added.
+     */
+    public function personalPointsLeft(): int
+    {
+        $used = $this->tasks->where('is_personal', true)->sum('points');
+
+        return max(0, intdiv($this->aiPlannedPoints() * self::PERSONAL_SHARE_PERCENT, 100) - $used);
+    }
+
+    /**
+     * Personal tasks still allowed this GoalWeek.
+     */
+    public function personalTasksLeft(): int
+    {
+        return max(0, self::PERSONAL_TASK_LIMIT - $this->tasks->where('is_personal', true)->count());
     }
 
     /**

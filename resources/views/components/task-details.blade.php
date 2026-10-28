@@ -13,6 +13,7 @@
 @endphp
 
 <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink/55">
+    <x-task-tags :task="$task" />
     @if ($task->result_required)
         <span class="tabular-nums">
             @if ($done && $task->result_value !== null)

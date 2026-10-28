@@ -49,6 +49,7 @@ class RoadmapTask extends Model
         return [
             'completed_at' => 'datetime',
             'is_bonus' => 'boolean',
+            'is_personal' => 'boolean',
             'planned_on' => 'date',
             'points' => 'integer',
             'result_required' => 'boolean',
@@ -78,6 +79,24 @@ class RoadmapTask extends Model
     public function proofRequests(): HasMany
     {
         return $this->hasMany(ProofRequest::class);
+    }
+
+    /**
+     * The GoalLeague group task this copy came from, if it's a group task.
+     *
+     * @return BelongsTo<GroupTask, $this>
+     */
+    public function groupTask(): BelongsTo
+    {
+        return $this->belongsTo(GroupTask::class);
+    }
+
+    /**
+     * Whether it's a group task the GoalLeague voted in.
+     */
+    public function isGroupTask(): bool
+    {
+        return $this->group_task_id !== null;
     }
 
     /**
