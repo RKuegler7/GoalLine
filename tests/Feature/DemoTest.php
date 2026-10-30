@@ -45,7 +45,7 @@ class DemoTest extends TestCase
         $this->assertCount(4, $visitor->friends());
         $this->assertSame(4, $visitor->notifications()->count());
 
-        $this->get(route('dashboard'))->assertOk()->assertSee("You're in the GoalLine demo", false)->assertSee('Run the Austin Marathon by March')->assertSee('Get a 4.0 GPA this fall');
+        $this->get(route('dashboard'))->assertOk()->assertSee("You're in the GoalLine demo", false)->assertSee('Run the DC Marathon by March')->assertSee('Get a 4.0 GPA this fall');
     }
 
     public function test_every_main_page_works_in_the_demo_with_live_matchups(): void
@@ -64,7 +64,7 @@ class DemoTest extends TestCase
             $this->get($page)->assertOk();
         }
 
-        $this->get(route('leagues.feed', $running))->assertSee('Lady Bird Lake Trail')->assertSee('Verified');
+        $this->get(route('leagues.feed', $running))->assertSee('Rock Creek Park trail')->assertSee('Verified');
         $this->get(Highlight::whereNotNull('photo_path')->first()->photoUrl())->assertOk();
     }
 
@@ -101,8 +101,8 @@ class DemoTest extends TestCase
         $this->assertStringEndsWith('@demo.goalline.invalid', $visitor->fresh()->email);
 
         // And real members can't see into a demo.
-        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Priya Shah')->sole()->profileUrl())->assertViewIs('profile.private');
-        $this->actingAs($real)->get(route('people.search', ['q' => 'priya']))->assertDontSee('Priya Shah');
+        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Red Dufour')->sole()->profileUrl())->assertViewIs('profile.private');
+        $this->actingAs($real)->get(route('people.search', ['q' => 'dufour']))->assertDontSee('Red Dufour');
         $this->actingAs($real)->get(route('leagues.join', $study->invite_code))->assertNotFound();
     }
 
