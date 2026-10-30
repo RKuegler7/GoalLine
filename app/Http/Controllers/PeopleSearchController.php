@@ -46,6 +46,7 @@ class PeopleSearchController extends Controller
 
         return User::query()
             ->whereKeyNot($viewer->id)
+            ->where('demo_sandbox', $viewer->demo_sandbox)
             ->where(fn (Builder $match) => $match
                 ->whereRaw('lower(username) = ?', [$handle])
                 ->orWhereRaw('lower(email) = ?', [mb_strtolower($query)])

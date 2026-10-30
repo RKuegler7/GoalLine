@@ -38,6 +38,8 @@ class AiBudget
             $this->spentThisMonth() >= $config['monthly_budget_usd'] => 'GoalLine has reached its AI budget for this month.',
             $this->spentToday() >= $config['daily_budget_usd'] => 'GoalLine has reached its AI budget for today.',
             $user !== null && $this->requestsToday($user) >= $config['daily_requests_per_member'] => "You've used today's AI coaching. It resets tomorrow.",
+            $user?->isDemo() && $this->requestsToday($user) >= config('goalline.demo.ai_requests_per_visitor') => 'The demo includes a few AI coaching requests, and you\'ve used them. Join the beta for the full coach.',
+            $user?->isDemo() && $this->demoRequestsToday() >= config('goalline.demo.ai_requests_per_day') => 'The demo\'s AI coaching is resting for today. Join the beta for the full coach.',
             default => null,
         };
     }
@@ -78,6 +80,15 @@ class AiBudget
     public function spentThisMonth(): float
     {
         return (float) DB::table('ai_requests')->where('created_at', '>=', today()->startOfMonth())->sum('cost_usd');
+    }
+
+    public function demoRequestsToday(): int
+    {
+        return DB::table('ai_requests')
+            ->join('users', 'users.id', '=', 'ai_requests.user_id')
+            ->whereNotNull('users.demo_sandbox')
+            ->where('ai_requests.created_at', '>=', today())
+            ->count();
     }
 
     public function requestsToday(User $user): int

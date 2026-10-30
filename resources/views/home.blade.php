@@ -32,6 +32,13 @@
                     </a>
                 @endauth
             </div>
+
+            @if (config('goalline.demo.enabled') && auth()->guest())
+                <a href="{{ route('demo') }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 font-semibold text-ink shadow-lg shadow-black/10 transition hover:brightness-105">
+                    Try the demo &rarr;
+                </a>
+                <p class="mt-2 text-sm text-ivory/70">One click. A pretend account with friends, two GoalLeagues mid-season, and a live matchup. No sign-up.</p>
+            @endif
         </div>
     </x-slot:hero>
 

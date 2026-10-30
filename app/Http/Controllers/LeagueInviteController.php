@@ -30,6 +30,7 @@ class LeagueInviteController extends Controller
         abort_unless($invite, 404);
         $league = $invite->league;
         $user = $request->user();
+        abort_if($user && ! $league->commissioner->sharesWorldWith($user), 404);
 
         if ($user && $league->memberFor($user)) {
             return redirect()->route('leagues.show', $league);
@@ -63,6 +64,7 @@ class LeagueInviteController extends Controller
         abort_unless($invite, 410, 'This invite has expired or been turned off. Ask for a new one.');
         $league = $invite->league->load('members');
         $user = $request->user();
+        abort_unless($league->commissioner->sharesWorldWith($user), 404);
 
         if ($league->memberFor($user)) {
             return redirect()->route('leagues.show', $league);
@@ -108,12 +110,15 @@ class LeagueInviteController extends Controller
         ]);
         $who = trim($validated['who']);
         $isEmail = filter_var($who, FILTER_VALIDATE_EMAIL) !== false;
-        $person = $isEmail
-            ? User::whereRaw('lower(email) = ?', [strtolower($who)])->first()
-            : User::whereRaw('lower(username) = ?', [strtolower(ltrim($who, '@'))])->first();
+        $person = ($isEmail
+            ? User::whereRaw('lower(email) = ?', [strtolower($who)])
+            : User::whereRaw('lower(username) = ?', [strtolower(ltrim($who, '@'))]))
+            ->where('demo_sandbox', $request->user()->demo_sandbox)
+            ->first();
 
         $problem = match (true) {
             ! $league->isJoinable() => 'This league has kicked off, so new members can\'t join this season.',
+            $isEmail && $request->user()->isDemo() => 'Email invites are turned off in the demo. Invite one of your demo friends by @username.',
             ! $isEmail && ! $person => 'No one has that username. Check the spelling, or invite them by email.',
             $person && $league->memberFor($person) !== null => "{$person->name} is already in the league.",
             default => null,

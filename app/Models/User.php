@@ -110,6 +110,23 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Whether this is a one-click demo account (a visitor or one of their pretend friends).
+     */
+    public function isDemo(): bool
+    {
+        return $this->demo_sandbox !== null;
+    }
+
+    /**
+     * Whether two people live in the same world: both real members, or both in the same demo. Demo accounts never
+     * reach real members, and real members never see demo ones.
+     */
+    public function sharesWorldWith(User $other): bool
+    {
+        return $this->demo_sandbox === $other->demo_sandbox;
+    }
+
+    /**
      * Whether this person runs GoalLine: their email is in the ADMIN_EMAILS setting.
      */
     public function isAdmin(): bool

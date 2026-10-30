@@ -23,8 +23,8 @@ class AdminStats
     public function members(): array
     {
         return [
-            'total' => User::count(),
-            'lastWeek' => User::where('created_at', '>=', now()->subDays(7))->count(),
+            'total' => User::whereNull('demo_sandbox')->count(),
+            'lastWeek' => User::whereNull('demo_sandbox')->where('created_at', '>=', now()->subDays(7))->count(),
         ];
     }
 

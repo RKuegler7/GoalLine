@@ -84,6 +84,18 @@
     <x-goal-line />
 
     <main class="mx-auto max-w-5xl px-4 py-10">
+        @if ($viewer->isDemo())
+            <div class="mb-6 flex flex-col gap-2 rounded-xl border border-club/30 bg-mint px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                <p class="text-ink"><span class="font-semibold text-club">You're in the GoalLine demo</span> as {{ $viewer->name }}. Your friends and leagues are pretend, so click anything. This demo is deleted in {{ config('goalline.demo.ttl_hours') }} hours.</p>
+                <div class="flex shrink-0 items-center gap-4">
+                    <a href="{{ route('demo') }}" class="font-semibold text-club hover:underline">Start over</a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="font-semibold text-club hover:underline">Leave the demo</button>
+                    </form>
+                </div>
+            </div>
+        @endif
         @unless ($viewer->hasVerifiedEmail() || request()->routeIs('verification.notice'))
             <div class="mb-6 flex flex-col gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-ink"><span class="font-semibold">Verify your email</span> to unlock GoalLeagues, Highlights, and friends. We sent a link to {{ $viewer->email }}.</p>

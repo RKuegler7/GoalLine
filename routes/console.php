@@ -5,6 +5,7 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\Announcement;
 use App\Services\ChallengeWrapUp;
+use App\Services\DemoWorld;
 use App\Services\LeagueTable;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -21,6 +22,9 @@ Schedule::command('goalline:send-reminders')->everyFifteenMinutes()->withoutOver
 
 // Settle finished GoalLeague weeks, send weekly recaps, hand out season awards, and wrap up challenges.
 Schedule::command('goalline:settle-leagues')->hourly()->withoutOverlapping();
+
+// Demo worlds are deleted after DEMO_TTL_HOURS.
+Schedule::call(fn () => DemoWorld::pruneExpired())->name('prune-demos')->hourly()->withoutOverlapping();
 
 // Group task votes run 24 hours; settle the ones whose time is up.
 Schedule::command('goalline:close-group-votes')->everyFiveMinutes()->withoutOverlapping();

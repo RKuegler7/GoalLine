@@ -43,7 +43,7 @@ class FriendshipController extends Controller
         $who = strtolower(ltrim(trim($validated['who']), '@'));
         $person = User::whereRaw('lower(username) = ?', [$who])->orWhereRaw('lower(email) = ?', [$who])->first();
 
-        if (! $person || $person->is($request->user())) {
+        if (! $person || $person->is($request->user()) || ! $person->sharesWorldWith($request->user())) {
             return back()->withErrors(['who' => "No one with that exact username or email. Check the spelling, or ask them for their username (it's on their locker)."])->withInput();
         }
 
@@ -57,6 +57,7 @@ class FriendshipController extends Controller
     {
         $me = $request->user();
         abort_if($me->is($user), 422, "You can't add yourself.");
+        abort_unless($me->sharesWorldWith($user), 404);
         $name = str($user->name)->before(' ');
         $existing = $me->friendshipWith($user);
 

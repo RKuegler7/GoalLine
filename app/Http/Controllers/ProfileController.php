@@ -67,6 +67,9 @@ class ProfileController extends Controller
     {
         $user = $request->user();
         $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable']));
+        if ($user->isDemo()) {
+            $user->email = $user->getOriginal('email');
+        }
         $emailChanged = $user->isDirty('email');
 
         if ($emailChanged) {

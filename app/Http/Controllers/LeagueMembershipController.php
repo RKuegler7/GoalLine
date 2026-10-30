@@ -33,6 +33,7 @@ class LeagueMembershipController extends Controller
     public function create(Request $request, string $code): View|RedirectResponse
     {
         $league = League::where('invite_code', $this->normalize($code))->with('members.user', 'commissioner')->firstOrFail();
+        abort_unless($league->commissioner->sharesWorldWith($request->user()), 404);
 
         if ($league->memberFor($request->user())) {
             return redirect()->route('leagues.show', $league);
@@ -54,7 +55,8 @@ class LeagueMembershipController extends Controller
      */
     public function store(Request $request, string $code): RedirectResponse
     {
-        $league = League::where('invite_code', $this->normalize($code))->with('members')->firstOrFail();
+        $league = League::where('invite_code', $this->normalize($code))->with('members', 'commissioner')->firstOrFail();
+        abort_unless($league->commissioner->sharesWorldWith($request->user()), 404);
 
         if ($league->memberFor($request->user())) {
             return redirect()->route('leagues.show', $league);

@@ -35,10 +35,16 @@ final class Usage
         'push-enabled' => 'Turned on push',
         'app-installed' => 'Opened from the home screen',
         'feedback' => 'Sent beta feedback',
+        'demo-started' => 'Started the demo',
     ];
 
     public static function track(?User $user, string $name): void
     {
+        // Demo worlds stay out of the numbers; only the visit itself is counted, as demo-started.
+        if ($user?->isDemo() && $name !== 'demo-started') {
+            return;
+        }
+
         DB::table('usage_events')->insert(['user_id' => $user?->id, 'name' => $name, 'created_at' => now()]);
     }
 

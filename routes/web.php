@@ -12,6 +12,7 @@ use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
@@ -50,6 +51,9 @@ Route::view('/terms', 'legal.terms')->name('terms');
 
 // Calendar apps fetch this without logging in; the secret token in the link is the key.
 Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
+
+// One click into a demo world: for judges, professors, and the curious. Keeps beta invites for real members.
+Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo')->middleware('throttle:10,60');
 
 // League invite links open for anyone; joining needs an account.
 Route::get('/invite/{token}', [LeagueInviteController::class, 'show'])->name('leagues.invite.show')->middleware('throttle:60,1');

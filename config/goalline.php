@@ -63,6 +63,25 @@ return [
 
     'caption_suggestions' => (bool) env('CAPTION_SUGGESTIONS', true),
 
+    /*
+    |--------------------------------------------------------------------------
+    | One-click demo
+    |--------------------------------------------------------------------------
+    |
+    | /demo signs a visitor into their own pretend world: friends, two
+    | GoalLeagues mid-season, a challenge, and posts. Demo worlds can't email
+    | anyone or reach real members, get a small AI allowance, and are deleted
+    | after ttl_hours.
+    |
+    */
+
+    'demo' => [
+        'enabled' => (bool) env('DEMO_ENABLED', true),
+        'ttl_hours' => (int) env('DEMO_TTL_HOURS', 48),
+        'ai_requests_per_visitor' => (int) env('DEMO_AI_REQUESTS_PER_VISITOR', 3),
+        'ai_requests_per_day' => (int) env('DEMO_AI_REQUESTS_PER_DAY', 40),
+    ],
+
     'beta' => [
         'invite_only' => (bool) env('BETA_INVITE_ONLY', true),
     ],

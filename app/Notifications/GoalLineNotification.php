@@ -46,6 +46,11 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
     {
         $channels = $this->showsInInbox() ? ['database'] : [];
 
+        // Demo accounts have made-up addresses and no devices: inbox only.
+        if ($notifiable->isDemo()) {
+            return $channels;
+        }
+
         $settings = $notifiable->notificationSettings();
 
         if ($settings->wantsPush($this->category()) && WebPushChannel::isConfigured() && $notifiable->pushSubscriptions()->exists()) {

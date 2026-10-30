@@ -84,6 +84,7 @@ class ChallengeController extends Controller
     public function join(Request $request, string $code): View|RedirectResponse
     {
         $challenge = Challenge::findByCode($code) ?? abort(404);
+        abort_unless($challenge->creator->sharesWorldWith($request->user()), 404);
 
         if ($challenge->members()->where('user_id', $request->user()->id)->exists()) {
             return redirect()->route('challenges.show', $challenge);
@@ -95,6 +96,7 @@ class ChallengeController extends Controller
     public function joinStore(Request $request, string $code): RedirectResponse
     {
         $challenge = Challenge::findByCode($code) ?? abort(404);
+        abort_unless($challenge->creator->sharesWorldWith($request->user()), 404);
         abort_if($challenge->isOver(), 403, 'This challenge is over.');
 
         $member = $challenge->members()->firstOrCreate(['user_id' => $request->user()->id]);
