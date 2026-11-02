@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Jobs\GenerateRoadmap;
 use App\Jobs\ReadPlanMaterial;
 use App\Models\Goal;
+use App\Models\GoalIntake;
 use App\Models\PlanMaterial;
 use App\Models\User;
 use App\RoadmapStatus;
@@ -113,9 +114,24 @@ class PlanMaterialTest extends TestCase
         ]);
 
         $goal = $user->goals()->sole();
-        $this->assertSame(RoadmapStatus::Pending, $goal->roadmap_status);
         $this->assertSame(1, $goal->materials()->count());
         Queue::assertPushed(ReadPlanMaterial::class, fn (ReadPlanMaterial $job) => $job->thenBuildRoadmap);
+
+        // Answering the questions while the plan is still being read waits for the reading to build the roadmap.
+        $this->actingAs($user)->post(route('goals.intake.store', $goal), ['from' => 'new', 'skip' => 1]);
+        $this->assertSame(RoadmapStatus::Pending, $goal->fresh()->roadmap_status);
+        Queue::assertNotPushed(GenerateRoadmap::class);
+    }
+
+    public function test_reading_waits_for_the_intake_questions_before_building(): void
+    {
+        Queue::fake([GenerateRoadmap::class]);
+        $material = PlanMaterial::factory()->create();
+        GoalIntake::factory()->for($material->goal)->create();
+        $this->mock(RoadmapPlanner::class, fn (MockInterface $mock) => $mock->shouldReceive('readMaterial')->andThrow(new RuntimeException('Unreadable')));
+
+        (new ReadPlanMaterial($material, thenBuildRoadmap: true))->handle(app(RoadmapPlanner::class));
+
         Queue::assertNotPushed(GenerateRoadmap::class);
     }
 

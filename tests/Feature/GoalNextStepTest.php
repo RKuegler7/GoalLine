@@ -25,8 +25,12 @@ class GoalNextStepTest extends TestCase
         Queue::fake();
         $this->me = User::factory()->create();
         $this->actingAs($this->me)->post(route('goals.store'), ['title' => 'Run a half marathon', 'category' => 'fitness', 'target_date' => today()->addMonths(3)->toDateString()])
-            ->assertRedirect(route('goals.next', $this->me->goals()->sole()));
+            ->assertRedirect(route('goals.intake', ['goal' => $this->me->goals()->sole(), 'from' => 'new']));
         $this->goal = $this->me->goals()->sole();
+
+        // After the intake questions comes "Play it with friends?".
+        $this->actingAs($this->me)->post(route('goals.intake.store', $this->goal), ['from' => 'new', 'skip' => 1])
+            ->assertRedirect(route('goals.next', $this->goal));
     }
 
     public function test_setting_a_goal_asks_play_it_with_friends(): void

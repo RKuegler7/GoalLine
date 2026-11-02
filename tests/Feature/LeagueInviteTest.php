@@ -81,7 +81,8 @@ class LeagueInviteTest extends TestCase
         $this->actingAs($dave)->get($invite->url())->assertSee("Set the goal you'll play", false)->assertSee('name="from" value="league"', false);
         $response = $this->actingAs($dave)->post(route('goals.store'), ['from' => 'league', 'title' => 'Pass FAR', 'category' => 'academic', 'target_date' => '2026-12-15']);
         $goal = $dave->goals()->sole();
-        $response->assertRedirect($invite->url().'?goal='.$goal->id);
+        $response->assertRedirect(route('goals.intake', ['goal' => $goal, 'from' => 'league']));
+        $this->actingAs($dave)->post(route('goals.intake.store', $goal), ['from' => 'league', 'skip' => 1])->assertRedirect($invite->url().'?goal='.$goal->id);
 
         $this->actingAs($dave)->post(route('leagues.invite.join', $invite->token), ['goal_id' => $goal->id])->assertRedirect(route('welcome.crew'));
         $this->assertNotNull($this->league->memberFor($dave));

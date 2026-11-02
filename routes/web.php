@@ -18,6 +18,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\GoalIntakeController;
 use App\Http\Controllers\GoalNextStepController;
 use App\Http\Controllers\GroupTaskController;
 use App\Http\Controllers\HabitController;
@@ -213,6 +214,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/league-invites/{invite}', [LeagueInviteController::class, 'revoke'])->name('leagues.invites.revoke');
     Route::delete('/leagues/{league}/members/{member}', [LeagueInviteController::class, 'removeMember'])->name('leagues.members.destroy');
     Route::get('/people/search', [PeopleSearchController::class, 'index'])->name('people.search')->middleware('throttle:30,1');
+    Route::get('/goals/{goal}/intake', [GoalIntakeController::class, 'show'])->name('goals.intake')->can('update', 'goal');
+    Route::post('/goals/{goal}/intake', [GoalIntakeController::class, 'store'])->name('goals.intake.store')->can('update', 'goal');
     Route::get('/goals/{goal}/next', [GoalNextStepController::class, 'show'])->name('goals.next')->can('update', 'goal');
     Route::post('/goals/{goal}/next', [GoalNextStepController::class, 'choose'])->name('goals.next.choose')->can('update', 'goal');
     Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware('verified');

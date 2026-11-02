@@ -67,7 +67,11 @@ class WelcomeTest extends TestCase
             'category' => 'career',
             'target_date' => today()->addWeeks(10)->format('Y-m-d'),
             'from' => 'welcome',
-        ])->assertRedirect(route('welcome.crew'));
+        ])->assertRedirect(route('goals.intake', ['goal' => $newcomer->goals()->sole(), 'from' => 'welcome']));
+
+        $this->actingAs($newcomer)->get(route('goals.intake', ['goal' => $newcomer->goals()->sole(), 'from' => 'welcome']))->assertOk()->assertSee('A few questions first');
+        $this->actingAs($newcomer)->post(route('goals.intake.store', $newcomer->goals()->sole()), ['from' => 'welcome', 'skip' => 1])
+            ->assertRedirect(route('welcome.crew'));
     }
 
     public function test_joining_a_goalleague_in_the_walkthrough_returns_to_it(): void

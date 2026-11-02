@@ -9,10 +9,13 @@ use Illuminate\Http\RedirectResponse;
 class RoadmapController extends Controller
 {
     /**
-     * Build the roadmap, or re-plan it from the current stretch onward.
+     * Build the roadmap, or re-plan it from the current stretch onward. Building now skips any unanswered intake
+     * questions.
      */
     public function store(Goal $goal): RedirectResponse
     {
+        $goal->intake?->skip();
+
         if ($goal->roadmap_status !== RoadmapStatus::Pending) {
             $from = $goal->roadmap_status === RoadmapStatus::Ready ? $goal->replanFromPosition() : null;
 

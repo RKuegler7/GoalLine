@@ -23,10 +23,15 @@ Weeks follow each member's own time zone (default America/New_York).
 ## Goals and roadmaps
 
 1. A member names a goal, a category, a target date and why it matters, and can upload plan files (PDF or image) for the coach to read once.
-2. The coach (Claude, `ANTHROPIC_MODEL`) builds a roadmap of GoalWeeks. Each week has a focus, a milestone and daily tasks with points.
-3. For the first 7 days a goal can be removed outright. After that it's locked in and can be retired, never silently deleted.
-4. Every edit to a roadmap is logged and sent back to the coach for a check. The member can take the coach's fix or keep their plan.
-5. Habits ("Stretch 10 minutes", daily or X times a week, on chosen days) count in scoring.
+2. **Intake questions.** Before planning, the coach writes 5 to 8 questions specific to the goal (starting point, time available, constraints, obstacles). Question types are pick one, pick any, a number with a unit, a few words, and a 1-to-5 scale. Each question has "I'm not sure" and Skip, and the member can skip them all. The questions show one at a time with a progress bar.
+   - The coach's questions are checked before use. Unknown types, choice questions with fewer than 2 options, and empty text are dropped. Text is stripped of markup and capped. Fewer than 5 usable questions means the built-in set is used.
+   - Built-in questions for each category are used right away when there's no API key or an AI cap is reached, when the coach fails, or after 45 seconds of waiting. Failures are logged and never shown to the member.
+   - Physical goals (the Fitness category, or a title like "run", "marathon" or "lift") always get one question about injuries or health. Their plans use conservative progression (beginners add no more than about 10% weekly volume), include rest days, and start more cautiously after a recent injury, saying why. The goal page shows: "GoalLine plans are general guidance, not medical advice. Check with a doctor if you have health concerns."
+   - The answers go to the coach with every plan, review and weekly tip. The goal page shows "Your plan is built from" with the key answers to the owner only. "Edit answers" re-plans only the GoalWeeks that haven't started, so this week and its check-ins stay as they are.
+3. The coach (Claude, `ANTHROPIC_MODEL`) builds a roadmap of GoalWeeks. Each week has a focus, a milestone and daily tasks with points.
+4. For the first 7 days a goal can be removed outright. After that it's locked in and can be retired, never silently deleted.
+5. Every edit to a roadmap is logged and sent back to the coach for a check. The member can take the coach's fix or keep their plan.
+6. Habits ("Stretch 10 minutes", daily or X times a week, on chosen days) count in scoring.
 
 ## Scoring
 
@@ -128,6 +133,7 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | roadmap_tasks | Tasks: day, points, bonus, personal, group task link, number range and result, proof photo, check-off time |
 | habits / habit_logs | Recurring habits (times a week, days) and the days they were logged |
 | plan_materials | Uploaded plan files and the coach's digest of each |
+| goal_intakes | The intake questions for a goal (coach-written or built-in) and the member's answers |
 | week_reviews | End-of-week reflections and the coach's tip |
 | leagues | GoalLeagues: name, category, season dates, invite code, owner |
 | league_members | Who plays which goal in a league |

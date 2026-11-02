@@ -75,6 +75,8 @@
         </section>
     @endif
 
+    <x-intake-summary :goal="$goal" />
+
     <x-plan-materials :goal="$goal" />
 
     <x-habits-panel :goal="$goal" />

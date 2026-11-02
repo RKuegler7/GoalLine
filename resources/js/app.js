@@ -750,3 +750,69 @@ document.querySelectorAll('[data-share-url]').forEach((button) => {
         navigator.share({ title: button.dataset.shareTitle, text: button.dataset.shareText, url: button.dataset.shareUrl }).catch(() => {});
     });
 });
+
+/**
+ * Intake questions, one at a time with a progress bar. "I'm not sure" and "Skip" mark the question and move on;
+ * answering clears the mark. Without this script every question shows at once and blank answers count as skipped.
+ */
+document.querySelectorAll('[data-intake]').forEach((form) => {
+    const questions = [...form.querySelectorAll('[data-intake-question]')];
+    const current = form.querySelector('[data-intake-current]');
+    const bar = form.querySelector('[data-intake-bar]');
+    const firstWithError = questions.findIndex((question) => question.querySelector('.text-red-700'));
+    let step = Math.max(0, firstWithError);
+
+    const show = (index) => {
+        step = Math.min(Math.max(index, 0), questions.length - 1);
+        questions.forEach((question, i) => (question.hidden = i !== step));
+        current.textContent = step + 1;
+        bar.style.width = `${Math.round(((step + 1) / questions.length) * 100)}%`;
+        questions[step].querySelector('input:not([type="hidden"])')?.focus({ preventScroll: true });
+    };
+
+    const refreshMarks = (question) => {
+        const status = question.querySelector('[data-intake-status]').value;
+        question.querySelectorAll('[data-intake-mark]').forEach((button) => button.toggleAttribute('data-active', button.dataset.intakeMark === status));
+    };
+
+    questions.forEach((question, index) => {
+        const status = question.querySelector('[data-intake-status]');
+        const next = question.querySelector('[data-intake-next]');
+        const back = question.querySelector('[data-intake-back]');
+
+        next.hidden = index === questions.length - 1;
+        back.hidden = index === 0;
+        next.addEventListener('click', () => show(index + 1));
+        back.addEventListener('click', () => show(index - 1));
+
+        question.querySelectorAll('[data-intake-mark]').forEach((button) => {
+            button.addEventListener('click', () => {
+                status.value = status.value === button.dataset.intakeMark ? '' : button.dataset.intakeMark;
+                refreshMarks(question);
+
+                if (status.value && index < questions.length - 1) {
+                    show(index + 1);
+                }
+            });
+        });
+
+        question.addEventListener('input', (event) => {
+            if (event.target !== status) {
+                status.value = '';
+                refreshMarks(question);
+            }
+        });
+
+        question.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && event.target.matches('input[type="text"], input[type="number"]') && index < questions.length - 1) {
+                event.preventDefault();
+                show(index + 1);
+            }
+        });
+
+        refreshMarks(question);
+    });
+
+    form.querySelector('[data-intake-progress]').hidden = false;
+    show(step);
+});

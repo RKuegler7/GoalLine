@@ -18,7 +18,7 @@ class RoadmapTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_setting_a_goal_queues_its_roadmap(): void
+    public function test_setting_a_goal_queues_its_roadmap_after_the_intake_questions(): void
     {
         Queue::fake();
         $user = User::factory()->create();
@@ -30,6 +30,11 @@ class RoadmapTest extends TestCase
         ]);
 
         $goal = $user->goals()->sole();
+        Queue::assertNotPushed(GenerateRoadmap::class);
+
+        $this->actingAs($user)->post(route('goals.intake.store', $goal), ['from' => 'new', 'skip' => 1]);
+
+        $goal->refresh();
         $this->assertSame(RoadmapStatus::Pending, $goal->roadmap_status);
         Queue::assertPushed(GenerateRoadmap::class, fn (GenerateRoadmap $job) => $job->goal->is($goal));
     }

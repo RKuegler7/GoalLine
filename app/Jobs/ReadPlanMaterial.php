@@ -43,7 +43,8 @@ class ReadPlanMaterial implements ShouldQueue
     }
 
     /**
-     * Read the file once and keep its digest. The roadmap is built afterward either way.
+     * Read the file once and keep its digest. The roadmap is built afterward either way, unless the person is still
+     * answering the intake questions; finishing them builds it.
      */
     private function read(RoadmapPlanner $planner): void
     {
@@ -56,7 +57,7 @@ class ReadPlanMaterial implements ShouldQueue
             $this->material->forceFill(['status' => RoadmapStatus::Failed])->save();
             report($exception);
         } finally {
-            if ($this->thenBuildRoadmap) {
+            if ($this->thenBuildRoadmap && ! $this->material->goal->intake()->first()?->isOpen()) {
                 GenerateRoadmap::dispatch($this->material->goal);
             }
         }

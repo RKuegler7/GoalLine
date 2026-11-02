@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
@@ -219,6 +220,48 @@ class Goal extends Model
         $this->forceFill(['roadmap_status' => RoadmapStatus::Pending])->save();
 
         GenerateRoadmap::dispatch($this, $fromPosition);
+    }
+
+    /**
+     * Build the first roadmap once the intake questions are answered or skipped. If an uploaded plan is still being
+     * read, reading it builds the roadmap next.
+     */
+    public function startRoadmap(): void
+    {
+        if ($this->materials()->where('status', RoadmapStatus::Pending)->exists()) {
+            $this->forceFill(['roadmap_status' => RoadmapStatus::Pending])->save();
+
+            return;
+        }
+
+        $this->requestRoadmap();
+    }
+
+    /**
+     * The first stretch that hasn't started yet, where a refresh can change the plan without touching this week.
+     */
+    public function upcomingPosition(): ?int
+    {
+        return $this->weeks->first(fn (RoadmapWeek $week) => $week->starts_on->gt(Clock::today()))?->position;
+    }
+
+    /**
+     * The coach's intake questions and the person's answers.
+     *
+     * @return HasOne<GoalIntake, $this>
+     */
+    public function intake(): HasOne
+    {
+        return $this->hasOne(GoalIntake::class);
+    }
+
+    /**
+     * Whether this is a physical goal, which gets a health question, a cautious plan, and a not-medical-advice note.
+     */
+    public function isPhysical(): bool
+    {
+        return $this->category === GoalCategory::Fitness
+            || preg_match('/\b(run|running|marathon|5k|10k|race|triathlon|lift|lifting|squat|bench|deadlift|weight|swim|cycling|bike|hike|workout|gym|75 hard|steps)\b/i', $this->title) === 1;
     }
 
     /**
