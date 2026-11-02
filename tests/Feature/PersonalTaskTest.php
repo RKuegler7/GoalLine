@@ -95,7 +95,7 @@ class PersonalTaskTest extends TestCase
         $this->actingAs($this->avery)->get(route('goals.show', $this->week->goal))->assertSee('Added by you');
 
         $this->travelTo(Carbon::parse('2026-11-03 12:00', config('app.timezone')));
-        $this->actingAs($sam)->get(route('leagues.show', $league))->assertSeeInOrder(['Added by Avery:', 'Stretch 10 minutes (2 pts)']);
+        $this->actingAs($sam)->get(route('leagues.matchups', $league))->assertSeeInOrder(['Added by Avery:', 'Stretch 10 minutes (2 pts)']);
     }
 
     private function add(string $description, int $points): TestResponse

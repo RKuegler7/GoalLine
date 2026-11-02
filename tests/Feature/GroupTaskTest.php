@@ -107,16 +107,16 @@ class GroupTaskTest extends TestCase
         $this->makeLeague(3);
         $before = $this->members->map(fn (User $member) => $this->goalWeekOf($member)->plannedPoints());
 
-        $groupTask = $this->propose(['title' => 'Walk 10,000 steps', 'points' => 7]);
+        $groupTask = $this->propose(['title' => 'Walk 10,000 steps', 'points' => 3]);
         $this->vote($this->members[1], $groupTask, true);
 
         foreach ($this->members as $index => $member) {
             $week = $this->goalWeekOf($member);
             $task = $week->tasks->firstWhere('group_task_id', $groupTask->id);
             $this->assertSame('Walk 10,000 steps', $task->description);
-            $this->assertSame(7, $task->points);
+            $this->assertSame(3, $task->points);
             $this->assertFalse($task->is_bonus);
-            $this->assertSame($before[$index] + 7, $week->plannedPoints());
+            $this->assertSame($before[$index] + 3, $week->plannedPoints());
         }
 
         // It's set by the vote: nobody can reword or remove it.
@@ -131,27 +131,27 @@ class GroupTaskTest extends TestCase
     {
         $this->makeLeague(2);
         $this->vote($this->members[1], $this->propose(['title' => 'Read 20 minutes']), true);
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'read 20 minutes', 'points' => 5, 'week' => 1])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'read 20 minutes', 'points' => 2, 'week' => 1])
             ->assertSessionHasErrorsIn('groupTask', ['title' => 'That task is already proposed for that week.']);
 
         $this->actingAs($this->members[0])->get(route('leagues.show', $this->league))->assertSee('Week 1 &middot; starts Nov 2 &middot; 1 slot left', false);
 
         $this->vote($this->members[1], $this->propose(['title' => 'No phone after 10']), true);
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 5, 'week' => 1])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 2, 'week' => 1])
             ->assertSessionHasErrorsIn('groupTask', ['title' => 'Week 1 already has 2 group tasks.']);
         $this->assertSame(2, GroupTask::where('status', GroupTask::PASSED)->count());
     }
 
-    public function test_the_week_must_start_after_the_vote_ends_and_points_are_1_to_10(): void
+    public function test_the_week_must_start_after_the_vote_ends_and_size_is_1_to_3_points(): void
     {
         $this->makeLeague(2);
         $this->travelTo(Carbon::parse('2026-11-01 09:00', 'America/New_York')); // Sunday: week 1 starts in 15 hours.
 
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 5, 'week' => 1])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 2, 'week' => 1])
             ->assertSessionHasErrorsIn('groupTask', ['title' => 'Pick a week that starts after the 24-hour vote ends.']);
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 11, 'week' => 2])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 4, 'week' => 2])
             ->assertSessionHasErrorsIn('groupTask', 'points');
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 5, 'week' => 2])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 2, 'week' => 2])
             ->assertSessionHasNoErrors();
     }
 
@@ -159,14 +159,28 @@ class GroupTaskTest extends TestCase
     {
         $this->makeLeague(1);
         $this->actingAs($this->members[0])->get(route('leagues.show', $this->league))->assertSee('Group tasks open up once a second member joins.');
-        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 5, 'week' => 1])
+        $this->actingAs($this->members[0])->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Stretch', 'points' => 2, 'week' => 1])
             ->assertSessionHasErrorsIn('groupTask', ['title' => 'Group tasks need at least two members in the league.']);
 
         $this->makeLeague(3);
         $groupTask = $this->propose();
         $outsider = User::factory()->create();
         $this->actingAs($outsider)->post(route('group-tasks.vote', $groupTask), ['approve' => 1])->assertForbidden();
-        $this->actingAs($outsider)->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Mine', 'points' => 5, 'week' => 1])->assertForbidden();
+        $this->actingAs($outsider)->post(route('leagues.group-tasks.store', $this->league), ['title' => 'Mine', 'points' => 2, 'week' => 1])->assertForbidden();
+    }
+
+    public function test_group_task_sizes_are_explained_against_a_typical_goalweek(): void
+    {
+        $this->makeLeague(3); // Each GoalWeek plans 3 points: one task and the milestone.
+
+        $this->actingAs($this->members[0])->get(route('leagues.show', $this->league))->assertOk()
+            ->assertSee('How big is it?')
+            ->assertSee('A regular task on your roadmap is worth 1 point.')
+            ->assertSee('A typical GoalWeek in this league is about 3 planned points.')
+            ->assertSeeInOrder(['Quick', '1 pt', 'About 33% of a typical week', 'Solid', '2 pts', 'About 67% of a typical week', 'Big', '3 pts', 'About 100% of a typical week']);
+
+        $groupTask = $this->propose(['points' => 2]);
+        $this->assertSame('Solid · 2 pts', $groupTask->sizeLabel());
     }
 
     private function makeLeague(int $size): void
@@ -189,7 +203,7 @@ class GroupTaskTest extends TestCase
     private function propose(array $overrides = []): GroupTask
     {
         $this->actingAs($this->members[0])
-            ->post(route('leagues.group-tasks.store', $this->league), [...['title' => 'Read 20 minutes', 'points' => 5, 'week' => 1], ...$overrides])
+            ->post(route('leagues.group-tasks.store', $this->league), [...['title' => 'Read 20 minutes', 'points' => 2, 'week' => 1], ...$overrides])
             ->assertSessionHasNoErrors();
 
         return GroupTask::latest('id')->first();

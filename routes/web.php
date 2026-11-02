@@ -28,6 +28,7 @@ use App\Http\Controllers\InboxController;
 use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueInviteController;
+use App\Http\Controllers\LeagueMatchupController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeagueRecapController;
@@ -202,6 +203,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
     Route::post('/leagues/{league}/group-tasks', [GroupTaskController::class, 'store'])->name('leagues.group-tasks.store')->can('view', 'league')->middleware(['verified', 'throttle:10,1']);
     Route::post('/group-tasks/{groupTask}/vote', [GroupTaskController::class, 'vote'])->name('group-tasks.vote')->middleware(['verified', 'throttle:30,1']);
+    Route::get('/leagues/{league}/matchups/{week?}', [LeagueMatchupController::class, 'show'])->name('leagues.matchups')->can('view', 'league')->whereNumber('week');
     Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');

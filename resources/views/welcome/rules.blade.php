@@ -5,7 +5,7 @@
                 ['Every week is a GoalWeek', 'Monday to Sunday on your clock. Each one has planned tasks, your recurring habits, and one milestone from your roadmap.'],
                 ['Check in as you go', 'Trust the process: show up today. Check off tasks and log habits for today or yesterday. Add your own tasks mid-week and they count as bonus work.'],
                 ['Your result', 'Your share of the week\'s planned points sets your band: Short of the line under 90%, In line 90 to 100%, Past the line 101 to 149%, Smashed the line at 150% and up (with proof or your opponent\'s OK). That earns 0 to 3 line points.'],
-                ['GoalLeagues (optional)', 'Each week you face a GoalGroup opponent. The better band wins 2 points, the same band draws 1. Up to 5 points a week.'],
+                ['GoalLeagues (optional)', 'Each GoalWeek you face one league mate in the GoalWeek Matchup. The better band wins 2 points, the same band draws 1. Up to 5 points a week.'],
                 ['Your coach has your back', 'Change your plan anytime. Your coach checks you are still in line and suggests a fix if not.'],
             ] as [$heading, $body])
                 <li class="flex gap-4 rounded-2xl border border-line bg-white px-5 py-4">

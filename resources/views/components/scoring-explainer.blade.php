@@ -13,7 +13,7 @@
             <li class="flex items-center justify-between gap-2"><x-goalweek-result :result="App\GoalWeekResult::Smashed" /> <span>150% and up</span></li>
         </ul>
         <p>Bonus tasks, extra habit days, and beating a task&rsquo;s number (7 of a planned 5 miles) push you past 100%. A Smashed week needs proof on a check-in or your opponent&rsquo;s OK to count in full. 90&ndash;94% shows as a close call.</p>
-        <p>In GoalLeagues, you also play a GoalGroup opponent: the better band <span class="font-semibold text-ink">wins 2, the same band draws 1</span>. Line points plus match points: up to 5 a GoalWeek.</p>
+        <p>In GoalLeagues, you also face a weekly matchup opponent: the better band <span class="font-semibold text-ink">wins 2, the same band draws 1</span>. Line points plus match points: up to 5 a GoalWeek.</p>
         <p>Check-ins are for today or yesterday. They close the day after a GoalWeek ends, then the result is final.</p>
     </div>
 </details>

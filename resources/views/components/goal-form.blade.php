@@ -1,13 +1,16 @@
-@props(['goal' => null, 'action', 'method' => 'POST', 'submit', 'from' => null, 'cancelUrl' => null, 'cancelLabel' => 'Cancel'])
+@props(['goal' => null, 'action', 'method' => 'POST', 'submit', 'from' => null, 'cancelUrl' => null, 'cancelLabel' => 'Cancel', 'league' => null])
 
 @php
-    $selectedCategory = old('category', $goal?->category?->value);
+    $selectedCategory = old('category', $goal?->category?->value ?? $league?->category?->value);
 @endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-7">
     @csrf
     @if ($from)
         <input type="hidden" name="from" value="{{ $from }}">
+    @endif
+    @if ($league)
+        <input type="hidden" name="league_id" value="{{ $league->id }}">
     @endif
     @method($method)
 

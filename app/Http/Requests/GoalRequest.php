@@ -31,6 +31,7 @@ class GoalRequest extends FormRequest
             'category' => ['required', Rule::enum(GoalCategory::class)],
             'target_date' => ['required', 'date', 'after:'.Clock::today()->toDateString()],
             'why' => ['nullable', 'string', 'max:1000'],
+            'league_id' => ['nullable', 'integer'],
             ...PlanMaterial::rules(required: false),
         ];
     }

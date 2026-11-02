@@ -16,7 +16,7 @@ class GoalIntakeController extends Controller
      * Where the person goes after the questions: back into the walkthrough, back to the league they're joining,
      * on to "Play it with friends?" for a new goal, or back to the goal when editing answers.
      */
-    private const FLOWS = ['welcome', 'league', 'new'];
+    private const FLOWS = ['welcome', 'league', 'new', 'league_home'];
 
     /**
      * The goal-specific questions, one at a time, or a short wait while the coach writes them.
@@ -66,6 +66,10 @@ class GoalIntakeController extends Controller
                 ? redirect()->to($return.'?goal='.$goal->id)->with('status', 'Goal set. Now join the league with it.')
                 : redirect()->route('goals.show', $goal)->with('status', $status),
             'new' => redirect()->route('goals.next', $goal)->with('status', "Goal set. You're in line. Your plan is being built from your answers."),
+            // Back to the GoalLeague this goal was just set for.
+            'league_home' => ($league = $goal->leagues()->latest('league_members.id')->first())
+                ? redirect()->to(route('leagues.show', $league).'#invite')->with('status', 'Your goal is set for '.$league->name.'. Its plan is being built from your answers.')
+                : redirect()->route('goals.show', $goal)->with('status', $status),
             default => redirect()->route('goals.show', $goal)->with('status', $status),
         };
     }

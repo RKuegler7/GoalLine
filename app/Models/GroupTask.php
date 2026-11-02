@@ -25,11 +25,31 @@ class GroupTask extends Model
 
     public const FAILED = 'failed';
 
+    /**
+     * Group tasks come in three sizes, measured against a regular roadmap task (1 point), so everyone knows what a
+     * group task is worth next to the rest of their week: [points => [name, what it's like]].
+     */
+    public const SIZES = [
+        1 => ['Quick', 'Like one regular task: 10 to 30 minutes.'],
+        2 => ['Solid', 'Like two regular tasks, or one long session.'],
+        3 => ['Big', 'A real stretch, like a long run or a practice exam.'],
+    ];
+
     public const MIN_POINTS = 1;
 
-    public const MAX_POINTS = 10;
+    public const MAX_POINTS = 3;
 
-    public const DEFAULT_POINTS = 5;
+    public const DEFAULT_POINTS = 1;
+
+    /**
+     * "Solid · 2 pts", or just the points for tasks from before sizes.
+     */
+    public function sizeLabel(): string
+    {
+        $points = $this->points.' '.($this->points === 1 ? 'pt' : 'pts');
+
+        return isset(self::SIZES[$this->points]) ? self::SIZES[$this->points][0].' · '.$points : $points;
+    }
 
     /**
      * Get the attributes that should be cast.

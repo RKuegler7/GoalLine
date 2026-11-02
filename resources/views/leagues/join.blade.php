@@ -46,23 +46,7 @@
         @elseif ($goals->isEmpty())
             <p class="font-serif text-xl text-club">Set the goal you'll play.</p>
             <p class="mt-2 text-ink/70">Each member brings one goal into the league. Set yours here, then join with it.</p>
-            <form method="POST" action="{{ route('goals.store') }}" class="mt-5 space-y-4">
-                @csrf
-                <input type="hidden" name="from" value="league">
-                <x-form.input name="title" label="Your goal" maxlength="120" placeholder="Pass FAR by December 15" required />
-                <div class="grid gap-4 sm:grid-cols-2">
-                    <div>
-                        <label for="join-category" class="mb-1.5 block text-sm font-medium text-ink/80">Kind of goal</label>
-                        <select id="join-category" name="category" required class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                            @foreach (App\GoalCategory::cases() as $category)
-                                <option value="{{ $category->value }}" @selected(old('category', $league->category?->value) === $category->value)>{{ $category->label() }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <x-form.input name="target_date" label="Done by" type="date" :value="$league->ends_on->format('Y-m-d')" required />
-                </div>
-                <x-form.button class="sm:w-auto sm:px-8">Set goal</x-form.button>
-            </form>
+            @include('leagues.partials.new-goal-form')
         @else
             <form method="POST" action="{{ $joinAction }}" class="space-y-6">
                 @csrf
@@ -91,10 +75,10 @@
                     <x-form.button class="sm:w-auto sm:px-8">Join GoalLeague</x-form.button>
                 </div>
             </form>
-            <p class="mt-3 text-center text-sm text-ink/55">
-                Want to play a different goal?
-                <a href="{{ route('goals.create') }}" class="font-semibold text-club hover:underline">Set a new one</a>
-            </p>
+            <details class="mt-4 rounded-xl border border-dashed border-line px-4 py-3" @if ($errors->has('title') || $errors->has('target_date')) open @endif>
+                <summary class="cursor-pointer text-sm font-semibold text-club">Want to play a different goal? Set a new one for this league</summary>
+                @include('leagues.partials.new-goal-form')
+            </details>
         @endif
     </div>
 </x-dynamic-component>

@@ -58,7 +58,7 @@ class DemoTest extends TestCase
         $running = League::where('name', 'Marathon by March')->whereHas('members', fn ($members) => $members->where('user_id', $visitor->id))->sole();
         $study = League::where('name', '4.0 This Fall')->whereHas('members', fn ($members) => $members->where('user_id', $visitor->id))->sole();
 
-        $this->get(route('leagues.show', $running))->assertOk()->assertSee('week 4 of 20')->assertSee('Group tasks')->assertSee('10-minute foam roll after the long run');
+        $this->get(route('leagues.show', $running))->assertOk()->assertSee('GoalWeek 4 of 20')->assertSee('GoalWeek 4 Matchup')->assertSee('Group tasks')->assertSee('10-minute foam roll after the long run');
         $this->get(route('leagues.show', $study))->assertOk()->assertSee('Manage invites and members'); // The visitor runs this one.
         $this->assertSame(3, $running->fresh()->results->pluck('week')->unique()->count()); // Weeks 1 to 3 scored.
 
@@ -67,6 +67,7 @@ class DemoTest extends TestCase
             $this->get($page)->assertOk();
         }
 
+        $this->get(route('leagues.matchups', $running))->assertOk()->assertSee('Your matchup')->assertSee('Scoreboard');
         $this->get(route('leagues.feed', $running))->assertSee('Rock Creek Park trail')->assertSee('Verified');
         $this->get(Highlight::whereNotNull('photo_path')->first()->photoUrl())->assertOk();
     }

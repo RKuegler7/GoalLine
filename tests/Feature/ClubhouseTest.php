@@ -79,7 +79,7 @@ class ClubhouseTest extends TestCase
             ->assertSee('Launch Crew')
             ->assertSee('Week 1 of 4')
             ->assertSee('1st')
-            ->assertSee("This week's GoalGroup", false)
+            ->assertSee('GoalWeek 1 Matchup')
             ->assertSee('Sam')
             ->assertSee('League chat');
     }

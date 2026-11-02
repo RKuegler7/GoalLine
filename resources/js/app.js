@@ -816,3 +816,59 @@ document.querySelectorAll('[data-intake]').forEach((form) => {
     form.querySelector('[data-intake-progress]').hidden = false;
     show(step);
 });
+
+/**
+ * Matchup carousel: swipe (native scroll snapping), or use the arrows, dots, and scoreboard rows. The dot for the
+ * matchup in view is highlighted.
+ */
+document.querySelectorAll('[data-carousel]').forEach((carousel) => {
+    const track = carousel.querySelector('[data-carousel-track]');
+    const slides = [...carousel.querySelectorAll('[data-carousel-slide]')];
+    const dots = [...carousel.querySelectorAll('[data-carousel-dot]')];
+    let current = 0;
+
+    const go = (index) => {
+        const slide = slides[Math.min(Math.max(index, 0), slides.length - 1)];
+        track.scrollTo({ left: slide.offsetLeft - (track.clientWidth - slide.clientWidth) / 2, behavior: 'smooth' });
+    };
+
+    const mark = (index) => {
+        current = index;
+        dots.forEach((dot, i) => dot.toggleAttribute('data-active', i === index));
+    };
+
+    const observer = new IntersectionObserver(
+        (entries) => entries.forEach((entry) => entry.isIntersecting && mark(slides.indexOf(entry.target))),
+        { root: track, threshold: 0.6 },
+    );
+    slides.forEach((slide) => observer.observe(slide));
+    mark(0);
+
+    carousel.querySelector('[data-carousel-prev]')?.addEventListener('click', () => go(current - 1));
+    carousel.querySelector('[data-carousel-next]')?.addEventListener('click', () => go(current + 1));
+    dots.forEach((dot, index) => dot.addEventListener('click', (event) => {
+        event.preventDefault();
+        go(index);
+    }));
+    document.querySelectorAll('[data-carousel-jump]').forEach((link) => link.addEventListener('click', (event) => {
+        event.preventDefault();
+        carousel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        go(Number(link.dataset.carouselJump));
+    }));
+});
+
+/**
+ * Show extra fields only for one choice of a select, such as "A new goal for this league". Without this script the
+ * fields always show.
+ */
+document.querySelectorAll('[data-reveal]').forEach((select) => {
+    const target = document.getElementById(select.dataset.reveal);
+    const sync = () => {
+        const shown = select.value === select.dataset.revealValue;
+        target.hidden = !shown;
+        target.querySelectorAll('input').forEach((input) => (input.required = shown));
+    };
+
+    select.addEventListener('change', sync);
+    sync();
+});

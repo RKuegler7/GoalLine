@@ -1,4 +1,4 @@
-{{-- One side of a GoalGroup matchup: who, their GoalWeek result, and the outcome. --}}
+{{-- One side of a matchup: who, their GoalWeek result, and the outcome. --}}
 @props(['member', 'result', 'outcome', 'final', 'align' => 'left'])
 
 <div @class(['flex min-w-0 flex-1 items-center gap-3', 'flex-row-reverse text-right' => $align === 'right'])>

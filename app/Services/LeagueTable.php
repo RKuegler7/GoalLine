@@ -122,6 +122,19 @@ class LeagueTable
     }
 
     /**
+     * The middle member's planned points for a league week, so points like a group task's can be shown as a share
+     * of a typical GoalWeek. Null when nobody has a GoalWeek then.
+     */
+    public function typicalPlannedPoints(int $week): ?int
+    {
+        $planned = $this->league->members
+            ->map(fn (LeagueMember $member) => $this->memberResult($member, $week)['goalWeek']?->plannedPoints())
+            ->filter();
+
+        return $planned->isEmpty() ? null : (int) round($planned->median());
+    }
+
+    /**
      * Whether every member's result for a league week is final.
      */
     public function isFinal(int $week): bool

@@ -131,7 +131,7 @@ class LeagueScoringTest extends TestCase
         $this->assertSame(MatchupOutcome::compare($bye['homeResult']['points'], $expectedMedian), $bye['homeOutcome']);
     }
 
-    public function test_league_page_shows_standings_and_this_weeks_goalgroups(): void
+    public function test_league_page_shows_standings_and_this_goalweeks_matchup(): void
     {
         $league = $this->league(members: 2, startsOn: '2026-10-19', endsOn: '2026-11-15');
         $this->travelTo('2026-10-21');
@@ -139,9 +139,60 @@ class LeagueScoringTest extends TestCase
         $this->actingAs($league->commissioner)
             ->get(route('leagues.show', $league))
             ->assertOk()
-            ->assertSee('Week 1 GoalGroups')
-            ->assertSee('Standings')
-            ->assertSee('So far,');
+            ->assertSee('GoalWeek 1 Matchup')
+            ->assertSee(route('leagues.matchups', [$league, 1]))
+            ->assertSee('See all 1 matchup')
+            ->assertSee('Standings');
+    }
+
+    public function test_the_goalweek_matchup_page_shows_who_leads_bands_and_points_to_the_next_band(): void
+    {
+        $league = $this->league(members: 4, startsOn: '2026-10-19', endsOn: '2026-11-15');
+        [$first, $second] = collect((new LeagueTable($league))->pairings(1))->first();
+        $this->scoreWeek($first, '2026-10-19', 'past');
+        $this->scoreWeek($second, '2026-10-19', 'in_line');
+        $this->travelTo('2026-10-21');
+
+        $response = $this->actingAs($first->user)->get(route('leagues.matchups', $league))->assertOk()
+            ->assertSee('GoalWeek 1 Matchup')
+            ->assertSee('Your matchup')
+            ->assertSee('Live')
+            ->assertSee("{$first->user->name} leads: Past the line beats In line.")
+            ->assertSee('125%')
+            ->assertSee('if it ended now, +4 pts', false)
+            ->assertSee('1 more point to Past the line')
+            ->assertSee('Scoreboard')
+            ->assertSee('data-carousel-slide', false);
+
+        // The viewer's matchup comes first, then the others.
+        $this->assertSame(4, substr_count($response->getContent(), 'data-carousel-slide'));
+        $this->assertSame(2, substr_count($response->getContent(), 'data-carousel-dot'));
+
+        $this->actingAs($first->user)->get(route('leagues.matchups', [$league, 2]))->assertNotFound(); // Not played yet.
+        $this->actingAs(User::factory()->create())->get(route('leagues.matchups', $league))->assertForbidden();
+    }
+
+    public function test_past_goalweek_matchups_are_final_and_reachable_from_the_results(): void
+    {
+        $league = $this->league(members: 2, startsOn: '2026-10-19', endsOn: '2026-11-15');
+        [$home, $away] = collect((new LeagueTable($league))->pairings(1))->first();
+        $this->scoreWeek($home, '2026-10-19', 'smashed');
+        $this->scoreWeek($away, '2026-10-19', 'short');
+        $this->travelTo('2026-10-28');
+
+        $this->actingAs($home->user)->get(route('leagues.show', $league))->assertSee(route('leagues.matchups', [$league, 1]));
+        $this->actingAs($home->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
+            ->assertSee('Final')
+            ->assertSee("{$home->user->name} won: Smashed the line beats Short of the line.")
+            ->assertSee('+5 pts', false);
+    }
+
+    public function test_a_forming_league_has_no_matchups_yet(): void
+    {
+        $league = $this->league(members: 2);
+
+        $this->actingAs($league->commissioner)->get(route('leagues.matchups', $league))
+            ->assertRedirect(route('leagues.show', $league));
     }
 
     private function league(int $members, string $startsOn = '2026-10-26', string $endsOn = '2026-12-20'): League

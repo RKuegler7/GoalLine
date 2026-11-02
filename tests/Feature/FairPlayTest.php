@@ -67,7 +67,7 @@ class FairPlayTest extends TestCase
         $this->actingAs($stranger)->post(route('goalweeks.confirm-smashed', $week))->assertForbidden();
         $this->actingAs($this->avery)->post(route('goalweeks.confirm-smashed', $week))->assertForbidden();
 
-        $this->actingAs($this->sam)->get(route('leagues.show', $this->league))->assertSee('Confirm their Smashed week');
+        $this->actingAs($this->sam)->get(route('leagues.matchups', $this->league))->assertSee('Confirm their Smashed week');
         $this->actingAs($this->sam)->post(route('goalweeks.confirm-smashed', $week))->assertRedirect();
 
         $week = $week->fresh('tasks');
@@ -203,7 +203,7 @@ class FairPlayTest extends TestCase
         $task->forceFill(['completed_at' => now()])->save();
         $before = $week->fresh('tasks')->result();
 
-        $this->actingAs($this->sam)->get(route('leagues.show', $this->league))->assertSee('Show your work?');
+        $this->actingAs($this->sam)->get(route('leagues.matchups', $this->league))->assertSee('Show your work?');
         $this->actingAs($this->sam)->post(route('roadmap.tasks.proof.request', $task))->assertSessionHas('status');
         $this->actingAs($this->sam)->post(route('roadmap.tasks.proof.request', $task));
 
@@ -220,7 +220,7 @@ class FairPlayTest extends TestCase
         $task->forceFill(['completed_at' => now()])->save();
 
         $this->actingAs($this->sam)
-            ->get(route('leagues.show', $this->league))
+            ->get(route('leagues.matchups', $this->league))
             ->assertSee("This week's check-ins (1)", false)
             ->assertSee('Build the prototype');
     }

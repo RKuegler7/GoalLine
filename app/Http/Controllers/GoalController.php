@@ -8,24 +8,28 @@ use App\Models\Goal;
 use App\Models\GoalIntake;
 use App\Models\PlanMaterial;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class GoalController extends Controller
 {
     /**
-     * Show the form for setting a new goal.
+     * Show the form for setting a new goal, optionally to play in one of the person's GoalLeagues.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('goals.create');
+        return view('goals.create', ['league' => $request->user()->leagues()->find($request->integer('league'))]);
     }
 
     /**
      * Save a new goal for the current user, then ask the goal-specific questions its roadmap is built from.
+     * Set from a GoalLeague, it becomes the person's goal in that league.
      */
     public function store(GoalRequest $request): RedirectResponse
     {
-        $goal = $request->user()->goals()->create($request->safe()->except(['material', 'material_note']));
+        $goal = $request->user()->goals()->create($request->safe()->except(['material', 'material_note', 'league_id']));
+        $league = $request->user()->leagues()->find($request->validated('league_id'));
+        $league?->memberFor($request->user())->update(['goal_id' => $goal->id]);
 
         if ($request->hasFile('material')) {
             // Read the uploaded plan while the questions are answered, so the first roadmap is built around both.
@@ -37,7 +41,7 @@ class GoalController extends Controller
 
         return redirect()->route('goals.intake', [
             'goal' => $goal,
-            'from' => in_array($request->input('from'), ['welcome', 'league'], true) ? $request->input('from') : 'new',
+            'from' => $league ? 'league_home' : (in_array($request->input('from'), ['welcome', 'league'], true) ? $request->input('from') : 'new'),
         ]);
     }
 
@@ -62,7 +66,7 @@ class GoalController extends Controller
      */
     public function update(GoalRequest $request, Goal $goal): RedirectResponse
     {
-        $goal->update($request->safe()->except(['material', 'material_note']));
+        $goal->update($request->safe()->except(['material', 'material_note', 'league_id']));
 
         return redirect()->route('goals.show', $goal)->with('status', 'Goal updated.');
     }

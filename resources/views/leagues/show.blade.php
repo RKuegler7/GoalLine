@@ -13,7 +13,7 @@
                 @if ($status === App\LeagueStatus::Forming)
                     Forming &middot; kicks off {{ $league->starts_on->format('l, M j') }}
                 @elseif ($status === App\LeagueStatus::Active)
-                    In season &middot; week {{ $week }} of {{ $league->weeksCount() }}
+                    In season &middot; GoalWeek {{ $week }} of {{ $league->weeksCount() }}
                 @else
                     Season over
                 @endif
@@ -32,6 +32,83 @@
             @endif
         </div>
     </x-slot:hero>
+
+    @if ($matchupWeek)
+        {{-- This GoalWeek's matchup: yours at a glance, and the way into every matchup. --}}
+        <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-6 block overflow-hidden rounded-2xl border-2 border-club bg-white transition hover:shadow-md">
+            <div class="flex items-center justify-between gap-3 bg-club px-5 py-3">
+                <h2 class="font-serif text-xl font-medium text-ivory">GoalWeek {{ $matchupWeek }} Matchup</h2>
+                <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[0.6rem] text-mint">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
+            </div>
+            @if ($myCard)
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-4">
+                    @foreach ([$myCard['home'], $myCard['away']] as $index => $side)
+                        @if ($index === 1)
+                            <span class="font-serif text-sm text-ink/40">vs</span>
+                        @endif
+                        <div @class(['min-w-0', 'text-right' => $index === 1])>
+                            <p class="truncate font-semibold text-ink">{{ $side ? $side['member']->user->name : 'League median' }}</p>
+                            <p class="font-serif text-3xl font-medium text-club tabular-nums">
+                                @if ($side)
+                                    {{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}
+                                @else
+                                    {{ $myCard['median'] === null ? '–' : round($myCard['median'], 1) }}
+                                @endif
+                            </p>
+                            @if ($side && $side['result'])
+                                <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" />
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+                <p class="border-t border-line px-5 py-2.5 text-sm text-ink/75">{{ $myCard['verdict'] }}</p>
+            @endif
+            <p class="flex items-center justify-between border-t border-line bg-mint/40 px-5 py-2.5 text-sm font-semibold text-club">
+                <span>See all {{ $matchupCount }} {{ Str::plural('matchup', $matchupCount) }} &middot; swipe through them</span><span>&rarr;</span>
+            </p>
+        </a>
+    @endif
+
+    {{-- Your goal in this league: edit it, switch to another, or set a new one for this league. --}}
+    <section class="mb-6 rounded-2xl border border-line bg-white px-5 py-4">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+                <h2 class="eyebrow text-club">Your goal in this league</h2>
+                @if ($me->goal)
+                    <a href="{{ route('goals.show', $me->goal) }}" class="mt-1 block font-serif text-lg font-medium text-club hover:underline">{{ $me->goal->title }}</a>
+                    <p class="text-xs text-ink/55">By {{ $me->goal->target_date->format('M j, Y') }} &middot; {{ $me->goal->isActive() ? 'in progress' : $me->goal->status->value }}</p>
+                @else
+                    <p class="mt-1 text-sm text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as short of the line.</p>
+                @endif
+            </div>
+            @if ($me->goal?->isActive())
+                <a href="{{ route('goals.edit', $me->goal) }}" class="shrink-0 rounded-full border border-club/40 px-4 py-1.5 text-sm font-semibold text-club hover:border-club">Edit goal</a>
+            @endif
+        </div>
+        <details class="mt-3 border-t border-line pt-3" @if ($errors->has('goal_id')) open @endif>
+            <summary class="cursor-pointer list-none text-sm font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">Play a different goal here</summary>
+            @php
+                $otherGoals = $myGoals->reject(fn ($goal) => $goal->id === $me->goal_id);
+            @endphp
+            @if ($otherGoals->isNotEmpty())
+                <form method="POST" action="{{ route('leagues.membership.update', $league) }}" class="mt-3 flex flex-col gap-2 sm:flex-row">
+                    @csrf
+                    @method('PUT')
+                    <label for="league-goal" class="sr-only">Switch to another goal</label>
+                    <select id="league-goal" name="goal_id" class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club">
+                        @foreach ($otherGoals as $goal)
+                            <option value="{{ $goal->id }}">{{ $goal->title }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-club hover:border-club/40">Switch to this goal</button>
+                </form>
+            @endif
+            <a href="{{ route('goals.create', ['league' => $league->id]) }}" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">
+                <x-icon name="plus" class="size-4" /> Set a new goal for this league
+            </a>
+            <p class="mt-2 text-xs text-ink/50">Switching affects GoalWeeks that aren't final yet. Settled results stay as they are.</p>
+        </details>
+    </section>
 
     <a href="{{ route('leagues.feed', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 transition hover:border-club/40">
         <span class="flex items-center gap-3">
@@ -61,182 +138,10 @@
         </a>
     @endif
 
-    {{-- Invite: a shareable link and code, invites by email or username, people search, and, for the owner, pending
-         invites and members. Always here, so a new league never leaves you with nowhere to invite people. --}}
-    @php
-        $isOwner = $league->commissioner_id === auth()->id();
-        $joinable = $league->isJoinable();
-        $inviteErrors = $errors->getBag('invite');
-    @endphp
-    <section id="invite" class="mb-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
-        <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="eyebrow text-club">Invite your people</h2>
-            <span class="text-sm text-ink/55">{{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }}</span>
-        </div>
-
-        @if (! $joinable)
-            <p class="mt-2 text-sm text-ink/65">
-                {{ $status === App\LeagueStatus::Forming ? 'This league is full.' : 'This season has kicked off, so the schedule is locked and new members can\'t join. Start a new GoalLeague to bring more people in.' }}
-            </p>
-        @else
-            <div class="mt-3 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">
-                <div>
-                    <p class="text-sm text-ink/60">Invite code</p>
-                    <div class="flex items-center gap-2">
-                        <p class="font-mono text-3xl font-semibold tracking-[0.2em] text-club">{{ $league->invite_code }}</p>
-                        <button type="button" data-copy="{{ $league->invite_code }}" class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-club hover:border-club/40">Copy</button>
-                    </div>
-                </div>
-                <div class="min-w-0 sm:border-l sm:border-line sm:pl-4">
-                    <label for="invite-link" class="text-sm text-ink/60">Invite link</label>
-                    <div class="mt-1 flex gap-2">
-                        <input id="invite-link" readonly value="{{ $shareInvite->url() }}" onclick="this.select()"
-                            class="block min-w-0 flex-1 rounded-lg border border-line bg-ivory px-3 py-2 text-sm text-ink/80 outline-none focus:border-club">
-                        <button type="button" data-copy="{{ $shareInvite->url() }}" class="rounded-lg border border-line px-3 py-2 text-sm font-semibold text-club hover:border-club/40">Copy</button>
-                        <button type="button" data-share-url="{{ $shareInvite->url() }}" data-share-title="Join {{ $league->name }} on GoalLine"
-                            data-share-text="Join my GoalLeague {{ $league->name }} on GoalLine. We get more done together." hidden
-                            class="rounded-lg bg-club px-3 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Share</button>
-                    </div>
-                    <p class="mt-1 text-xs text-ink/50">
-                        {{ $shareInvite->expires_at ? 'Expires '.App\Clock::local($shareInvite->expires_at)->format('M j') : 'Never expires' }}{{ $shareInvite->max_uses ? ' · '.$shareInvite->uses.' of '.$shareInvite->max_uses.' uses' : '' }}.
-                        People can join until kickoff.
-                    </p>
-                </div>
-            </div>
-
-            <form method="POST" action="{{ route('leagues.invites.store', $league) }}" class="mt-5">
-                @csrf
-                <label for="invite-who" class="text-sm font-semibold text-ink/80">Invite by email or username</label>
-                <div class="mt-1 flex gap-2">
-                    <input id="invite-who" name="who" required value="{{ old('who') }}" autocomplete="off" autocapitalize="none" placeholder="friend@email.com or @username"
-                        class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                    <button type="submit" class="rounded-lg bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Send invite</button>
-                </div>
-                @if ($inviteErrors->any())
-                    <p class="mt-1.5 text-sm text-red-700">{{ $inviteErrors->first() }}</p>
-                @else
-                    <p class="mt-1 text-xs text-ink/50">Email invites arrive by email; username invites land in their GoalLine inbox. Each works once and expires in {{ App\Models\LeagueInvite::DEFAULT_EXPIRY_DAYS }} days.</p>
-                @endif
-            </form>
-
-            <x-people-search-form :league="$league" label="Find friends to invite" class="mt-4 border-dashed bg-ivory/50" />
-        @endif
-
-        @if ($isOwner)
-            <details class="mt-5 border-t border-line pt-4" @if ($pendingInvites->isNotEmpty() || session('status') && str_contains(session('status'), 'invite')) open @endif>
-                <summary class="cursor-pointer list-none text-sm font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">Manage invites and members</summary>
-
-                @if ($joinable)
-                    <form method="POST" action="{{ route('leagues.invites.regenerate', $league) }}" class="mt-3 rounded-xl bg-ivory px-4 py-3 text-sm">
-                        @csrf
-                        <p class="font-semibold text-ink/80">New invite link</p>
-                        <p class="text-xs text-ink/55">The current link stops working.</p>
-                        <div class="mt-2 flex flex-wrap items-end gap-3">
-                            <div>
-                                <label for="link-expiry" class="block text-xs text-ink/60">Expires</label>
-                                <select id="link-expiry" name="expires_in_days" class="rounded-lg border border-line bg-white px-2 py-1.5 text-sm">
-                                    @foreach (App\Models\LeagueInvite::EXPIRY_CHOICES as $days)
-                                        <option value="{{ $days }}" @selected($days === App\Models\LeagueInvite::DEFAULT_EXPIRY_DAYS)>{{ $days ? 'In '.$days.' '.Str::plural('day', $days) : 'Never' }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="link-uses" class="block text-xs text-ink/60">Max uses (optional)</label>
-                                <input id="link-uses" name="max_uses" type="number" min="1" max="{{ App\Models\League::MAX_MEMBERS }}" placeholder="No limit" class="w-28 rounded-lg border border-line bg-white px-2 py-1.5 text-sm">
-                            </div>
-                            <label class="flex items-center gap-1.5 text-xs text-ink/70"><input type="checkbox" name="new_code" value="1"> New code too</label>
-                            <button type="submit" class="rounded-full border border-club/40 px-4 py-1.5 text-sm font-semibold text-club hover:border-club">Make new link</button>
-                        </div>
-                    </form>
-                @endif
-
-                <h3 class="mt-4 text-xs font-semibold text-ink/60 uppercase">Pending invites</h3>
-                @forelse ($pendingInvites as $pending)
-                    <div class="mt-2 flex items-center justify-between gap-3 text-sm">
-                        <span class="min-w-0 truncate text-ink/80">{{ $pending->recipientLabel() }} <span class="text-ink/45">&middot; expires {{ App\Clock::local($pending->expires_at)?->format('M j') ?? 'never' }}</span></span>
-                        <form method="POST" action="{{ route('leagues.invites.revoke', $pending) }}">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-red-700">Revoke</button>
-                        </form>
-                    </div>
-                @empty
-                    <p class="mt-1 text-sm text-ink/50">None right now.</p>
-                @endforelse
-
-                <h3 class="mt-4 text-xs font-semibold text-ink/60 uppercase">Members</h3>
-                <ul class="mt-1 space-y-1.5">
-                    @foreach ($league->members as $leagueMember)
-                        <li class="flex items-center justify-between gap-3 text-sm">
-                            <span class="flex min-w-0 items-center gap-2"><x-avatar :user="$leagueMember->user" class="size-6 text-[0.55rem]" /> <span class="truncate">{{ $leagueMember->user->name }}</span>
-                                @if ($leagueMember->user_id === $league->commissioner_id)
-                                    <span class="text-xs text-ink/45">Owner</span>
-                                @endif
-                            </span>
-                            @if ($leagueMember->user_id !== $league->commissioner_id)
-                                <form method="POST" action="{{ route('leagues.members.destroy', [$league, $leagueMember]) }}" onsubmit="return confirm('Remove {{ addslashes($leagueMember->user->name) }} from the league?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-red-700">Remove</button>
-                                </form>
-                            @endif
-                        </li>
-                    @endforeach
-                </ul>
-            </details>
-        @endif
-    </section>
-
-
-    @if ($week)
-        {{-- This week's GoalGroups, scored live. --}}
-        <section class="mt-6">
-            <div class="flex items-end justify-between gap-4">
-                <h2 class="eyebrow text-club">Week {{ $week }} GoalGroups</h2>
-                <span class="text-sm text-ink/50">{{ $league->weekStartsOn($week)->format('M j') }}&ndash;{{ $league->weekEndsOn($week)->format('M j') }} &middot; live</span>
-            </div>
-            <ul class="mt-3 space-y-3">
-                @foreach (collect($table->matchups($week))->sortByDesc(fn ($m) => $m['home']->is($me) || $m['away']?->is($me)) as $matchup)
-                    @php
-                        $mine = $matchup['home']->is($me) || $matchup['away']?->is($me);
-                    @endphp
-                    <li @class(['rounded-2xl border bg-white px-5 py-4', 'border-club ring-4 ring-mint' => $mine, 'border-line' => ! $mine])>
-                        <div class="flex items-center gap-3">
-                            <x-matchup-side :member="$matchup['home']" :result="$matchup['homeResult']" :outcome="$matchup['homeOutcome']" :final="false" />
-                            <span class="eyebrow shrink-0 text-[0.65rem] text-ink/40">vs</span>
-                            @if ($matchup['away'])
-                                <x-matchup-side :member="$matchup['away']" :result="$matchup['awayResult']" :outcome="$matchup['awayOutcome']" :final="false" align="right" />
-                            @else
-                                <div class="flex-1 text-right">
-                                    <p class="font-medium text-ink">League median</p>
-                                    <p class="mt-1 text-xs text-ink/55">
-                                        {{ $matchup['median'] === null ? 'No one else yet' : round($matchup['median'], 1).' pts this week' }}
-                                    </p>
-                                </div>
-                            @endif
-                        </div>
-                        @if ($mine && $opponent = ($matchup['home']->is($me) ? $matchup['away'] : $matchup['home']))
-                            <div class="mt-3 flex justify-end">
-                                <x-nudge-button :user="$opponent->user" />
-                            </div>
-                        @endif
-                        @php
-                            $standing = match ($matchup['homeOutcome']) {
-                                App\MatchupOutcome::Win => 'leads',
-                                App\MatchupOutcome::Tie => 'is level with',
-                                App\MatchupOutcome::Loss => 'trails',
-                            };
-                        @endphp
-                        <p class="mt-3 border-t border-line pt-2 text-xs text-ink/55">
-                            So far, {{ $matchup['home']->user->name }} {{ $standing }} {{ $matchup['away']?->user->name ?? 'the league median' }}.
-                            Final a day after the week ends.
-                        </p>
-                        <x-matchup-timeline :league="$league" :week="$week" :matchup="$matchup" :open="$mine" />
-                    </li>
-                @endforeach
-            </ul>
-        </section>
+    @if ($status === App\LeagueStatus::Forming)
+        @include('leagues.partials.invite')
     @endif
+
 
     {{-- Group tasks: proposed by anyone, in everyone's GoalWeek if two thirds vote yes within 24 hours. --}}
     <section id="group-tasks" class="mt-8 scroll-mt-6">
@@ -264,7 +169,7 @@
                 <article class="mt-3 rounded-2xl border border-gold/50 bg-white px-5 py-4">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="eyebrow text-[0.6rem] text-ink/50">Voting &middot; Week {{ $groupTask->week }} &middot; {{ $groupTask->points }} {{ Str::plural('pt', $groupTask->points) }}</p>
+                            <p class="eyebrow text-[0.6rem] text-ink/50">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
                             <h3 class="mt-1 font-serif text-lg font-medium text-ink">{{ $groupTask->title }}</h3>
                             @if ($groupTask->description)
                                 <p class="text-sm text-ink/65">{{ $groupTask->description }}</p>
@@ -307,22 +212,41 @@
                         </div>
                         <div class="flex flex-wrap gap-3">
                             <div>
-                                <label for="group-week" class="text-sm font-semibold text-ink/80">Week</label>
+                                <label for="group-week" class="text-sm font-semibold text-ink/80">GoalWeek</label>
                                 <select id="group-week" name="week" class="mt-1 block rounded-lg border border-line bg-white px-3 py-2 text-sm">
                                     @foreach ($openWeeks as $openWeek => $slots)
-                                        <option value="{{ $openWeek }}" @selected((int) old('week') === $openWeek)>Week {{ $openWeek }} &middot; starts {{ $league->weekStartsOn($openWeek)->format('M j') }} &middot; {{ $slots }} {{ Str::plural('slot', $slots) }} left</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div>
-                                <label for="group-points" class="text-sm font-semibold text-ink/80">Points</label>
-                                <select id="group-points" name="points" class="mt-1 block rounded-lg border border-line bg-white px-3 py-2 text-sm">
-                                    @foreach (range(App\Models\GroupTask::MIN_POINTS, App\Models\GroupTask::MAX_POINTS) as $points)
-                                        <option value="{{ $points }}" @selected((int) old('points', App\Models\GroupTask::DEFAULT_POINTS) === $points)>{{ $points }}</option>
+                                        <option value="{{ $openWeek }}" @selected((int) old('week') === $openWeek)>GoalWeek {{ $openWeek }} &middot; starts {{ $league->weekStartsOn($openWeek)->format('M j') }} &middot; {{ $slots }} {{ Str::plural('slot', $slots) }} left</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
+                        <fieldset>
+                            <legend class="text-sm font-semibold text-ink/80">How big is it?</legend>
+                            <p class="text-xs text-ink/55">
+                                A regular task on your roadmap is worth 1 point.
+                                @if ($typicalPoints)
+                                    A typical GoalWeek in this league is about {{ $typicalPoints }} planned points.
+                                @endif
+                            </p>
+                            <div class="mt-2 grid gap-2 sm:grid-cols-3">
+                                @foreach (App\Models\GroupTask::SIZES as $points => [$size, $like])
+                                    <label class="flex cursor-pointer flex-col rounded-xl border border-line bg-white px-3 py-2.5 transition hover:border-club/40 has-checked:border-club has-checked:bg-mint has-focus-visible:ring-4 has-focus-visible:ring-club/10">
+                                        <span class="flex items-center justify-between gap-2">
+                                            <span class="flex items-center gap-2 font-semibold text-ink">
+                                                <input type="radio" name="points" value="{{ $points }}" class="accent-club" @checked((int) old('points', App\Models\GroupTask::DEFAULT_POINTS) === $points)>
+                                                {{ $size }}
+                                            </span>
+                                            <span class="text-sm font-semibold text-club">{{ $points }} {{ Str::plural('pt', $points) }}</span>
+                                        </span>
+                                        <span class="mt-1 text-xs text-ink/60">{{ $like }}</span>
+                                        @if ($typicalPoints)
+                                            <span class="mt-1 text-xs text-ink/45">About {{ max(1, round($points / $typicalPoints * 100)) }}% of a typical week</span>
+                                        @endif
+                                    </label>
+                                @endforeach
+                            </div>
+                            <p class="mt-2 text-xs text-ink/55">It's added to everyone's plan, so finishing it keeps you on pace and skipping it costs the same share for everyone.</p>
+                        </fieldset>
                         <p class="text-xs text-ink/55">Your yes counts right away. If {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} members say yes within 24 hours, it goes on everyone's GoalWeek for that week and counts in everyone's plan. Not enough yes votes means no task. Up to {{ App\Services\GroupTasks::MAX_PASSED_PER_WEEK }} a week.</p>
                         @if ($groupErrors->any())
                             <p class="text-sm text-red-700">{{ $groupErrors->first() }}</p>
@@ -340,7 +264,7 @@
                         <li class="flex flex-wrap items-center justify-between gap-2 px-5 py-2.5">
                             <span class="min-w-0">
                                 <span class="font-medium text-ink">{{ $groupTask->title }}</span>
-                                <span class="text-ink/50">&middot; Week {{ $groupTask->week }} &middot; {{ $groupTask->points }} {{ Str::plural('pt', $groupTask->points) }}</span>
+                                <span class="text-ink/50">&middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</span>
                             </span>
                             @if ($groupTask->status === App\Models\GroupTask::PASSED)
                                 <span class="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-club">Passed &middot; on everyone's plan</span>
@@ -416,7 +340,7 @@
                     @endphp
                     <details class="rounded-2xl border border-line bg-white px-5 py-3" @if ($loop->first) open @endif>
                         <summary class="cursor-pointer font-medium text-club">
-                            Week {{ $pastWeek }} <span class="font-normal text-ink/50">&middot; {{ $league->weekStartsOn($pastWeek)->format('M j') }}&ndash;{{ $league->weekEndsOn($pastWeek)->format('M j') }}</span>
+                            GoalWeek {{ $pastWeek }} <span class="font-normal text-ink/50">&middot; {{ $league->weekStartsOn($pastWeek)->format('M j') }}&ndash;{{ $league->weekEndsOn($pastWeek)->format('M j') }}</span>
                         </summary>
                         <ul class="mt-2 divide-y divide-line">
                             @foreach ($rows as $row)
@@ -434,38 +358,19 @@
                                 </li>
                             @endforeach
                         </ul>
+                        <a href="{{ route('leagues.matchups', [$league, $pastWeek]) }}" class="mt-1 inline-block text-sm font-semibold text-club hover:underline">GoalWeek {{ $pastWeek }} Matchup &rarr;</a>
                     </details>
                 @endforeach
             </div>
         </section>
     @endif
 
-    {{-- Your league goal. --}}
-    <section class="mt-8 rounded-2xl border border-line bg-white px-6 py-5">
-        <h2 class="eyebrow text-club">Your league goal</h2>
-        @if ($me->goal)
-            <p class="mt-2 text-ink">
-                <a href="{{ route('goals.show', $me->goal) }}" class="font-serif text-lg font-medium text-club hover:underline">{{ $me->goal->title }}</a>
-                <span class="text-sm text-ink/55">&middot; {{ $me->goal->status->value === 'active' ? 'in progress' : $me->goal->status->value }}</span>
-            </p>
-        @else
-            <p class="mt-2 text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as short of the line.</p>
-        @endif
-        @if ($myGoals->isNotEmpty())
-            <form method="POST" action="{{ route('leagues.membership.update', $league) }}" class="mt-3 flex flex-col gap-2 sm:flex-row">
-                @csrf
-                @method('PUT')
-                <label for="league-goal" class="sr-only">Switch league goal</label>
-                <select id="league-goal" name="goal_id" class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club">
-                    @foreach ($myGoals as $goal)
-                        <option value="{{ $goal->id }}" @selected($me->goal_id === $goal->id)>{{ $goal->title }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="rounded-lg px-4 py-2 text-sm font-semibold text-club hover:bg-mint">Switch goal</button>
-            </form>
-            <p class="mt-1.5 text-xs text-ink/50">Switching affects GoalWeeks that aren't final yet. Settled results stay as they are.</p>
-        @endif
-    </section>
+
+    @unless ($status === App\LeagueStatus::Forming)
+        <div class="mt-8">
+            @include('leagues.partials.invite')
+        </div>
+    @endunless
 
     {{-- League chat. Works as plain forms; app.js adds live updates and sending without a page reload. --}}
     <section id="chat" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white"

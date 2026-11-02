@@ -41,8 +41,8 @@
     </a>
 
     @if ($matchup)
-        <div class="mx-5 mt-3 rounded-xl bg-ivory px-3 py-2.5">
-            <p class="eyebrow text-[0.58rem] text-ink/50">This week's GoalGroup</p>
+        <a href="{{ route('leagues.matchups', $league) }}" class="mx-5 mt-3 block rounded-xl bg-ivory px-3 py-2.5 hover:bg-mint/50">
+            <p class="flex items-center justify-between eyebrow text-[0.58rem] text-ink/50"><span>GoalWeek {{ $league->currentWeek() }} Matchup</span><span class="text-club">&rarr;</span></p>
             <div class="mt-1.5 flex items-center justify-between gap-2 text-sm">
                 <span class="font-semibold text-ink">You</span>
                 <span @class([
@@ -65,7 +65,7 @@
                     @endif
                 </span>
             </div>
-        </div>
+        </a>
     @endif
 
     <a href="{{ route('leagues.show', $league) }}#chat" class="mt-3 flex items-center justify-between border-t border-line px-5 py-2.5 text-sm hover:bg-mint/30">

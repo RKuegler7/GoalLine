@@ -7,13 +7,9 @@
         </div>
     </x-slot:hero>
 
-    @if ($goals->isEmpty())
-        <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-8 text-center">
-            <p class="font-serif text-xl text-club">You'll need a goal to play.</p>
-            <p class="mt-2 text-ink/70">Each member brings one goal into the league, and its GoalWeek results score your matchups.</p>
-            <a href="{{ route('goals.create') }}" class="mt-5 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Set a goal first</a>
-        </div>
-    @else
+    @php
+        $goalChoice = old('goal_id', $fromGoal?->id ?? ($goals->isEmpty() ? 'new' : $goals->first()->id));
+    @endphp
         <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-10">
             @csrf
 
@@ -36,14 +32,23 @@
 
             <div>
                 <label for="goal_id" class="mb-1.5 block text-sm font-medium text-ink/80">Your goal in this league</label>
-                <select id="goal_id" name="goal_id" required class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                <select id="goal_id" name="goal_id" required data-reveal="new-league-goal" data-reveal-value="new"
+                    class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                     @foreach ($goals as $goal)
-                        <option value="{{ $goal->id }}" @selected(old('goal_id', $fromGoal?->id) == $goal->id)>{{ $goal->title }} (by {{ $goal->target_date->format('M j, Y') }})</option>
+                        <option value="{{ $goal->id }}" @selected((string) $goalChoice === (string) $goal->id)>{{ $goal->title }} (by {{ $goal->target_date->format('M j, Y') }})</option>
                     @endforeach
+                    <option value="new" @selected($goalChoice === 'new')>+ A new goal for this league</option>
                 </select>
                 @error('goal_id')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror
+
+                <div id="new-league-goal" class="mt-3 space-y-4 rounded-xl bg-mint/60 p-4">
+                    <p class="text-sm text-club">Name the goal you'll play here. After you create the league, GoalLine asks a few questions and builds its plan.</p>
+                    <x-form.input name="goal_title" label="Your goal" maxlength="120" placeholder="Pass FAR by December 15" />
+                    <x-form.input name="goal_target_date" label="Done by" type="date" :min="App\Clock::today()->addDay()->format('Y-m-d')"
+                        hint="Usually the same as the season's end." />
+                </div>
             </div>
 
             <div class="grid gap-6 sm:grid-cols-2">
@@ -60,13 +65,13 @@
                     @enderror
                 </div>
 
-                <x-form.input name="ends_on" label="Season ends" type="date" :value="($fromGoal ?? $goals->first())->target_date->format('Y-m-d')"
+                <x-form.input name="ends_on" label="Season ends" type="date" :value="($fromGoal ?? $goals->first())?->target_date->format('Y-m-d')"
                     hint="Usually your shared deadline. We round to that week's Sunday." required />
             </div>
 
             <p class="rounded-xl bg-ivory px-4 py-3 text-sm text-ink/70">
                 GoalLeagues hold up to {{ App\Models\League::MAX_MEMBERS }} people; {{ App\Models\League::RECOMMENDED_MEMBERS }} or fewer works best, so everyone knows each other.
-                Each GoalWeek you face a GoalGroup opponent in a rotating round-robin. With an odd number of members, one person plays the league median.
+                Each GoalWeek you face one league mate in the GoalWeek Matchup, rotating round-robin. With an odd number of members, one person plays the league median.
             </p>
 
             <div class="flex flex-col-reverse gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-end">
@@ -74,5 +79,4 @@
                 <x-form.button class="sm:w-auto sm:px-8">Create GoalLeague</x-form.button>
             </div>
         </form>
-    @endif
 </x-layouts.app>
