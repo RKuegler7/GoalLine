@@ -36,10 +36,12 @@ use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
 use App\Http\Controllers\PeopleSearchController;
 use App\Http\Controllers\PlanMaterialController;
+use App\Http\Controllers\PlanRefinementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
+use App\Http\Controllers\RoadmapWeekController;
 use App\Http\Controllers\SmashedConfirmationController;
 use App\Http\Controllers\TaskProofController;
 use App\Http\Controllers\WeeklyRecapController;
@@ -186,6 +188,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/goalweeks/{week}/tasks', [RoadmapTaskController::class, 'store'])->name('roadmap.tasks.store');
     Route::put('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'update'])->name('roadmap.tasks.update');
     Route::delete('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'destroy'])->name('roadmap.tasks.destroy');
+    Route::post('/roadmap-tasks/{task}/move', [RoadmapTaskController::class, 'move'])->name('roadmap.tasks.move');
+    Route::put('/goalweeks/{week}', [RoadmapWeekController::class, 'update'])->name('goalweeks.update');
+    Route::post('/goals/{goal}/refinements', [PlanRefinementController::class, 'store'])->name('goals.refinements.store')->can('update', 'goal')->middleware(['verified', 'throttle:10,60']);
+    Route::get('/goals/{goal}/refinements/{refinement}', [PlanRefinementController::class, 'show'])->name('goals.refinements.show')->can('update', 'goal');
+    Route::post('/goals/{goal}/refinements/{refinement}/accept', [PlanRefinementController::class, 'accept'])->name('goals.refinements.accept')->can('update', 'goal');
+    Route::post('/goals/{goal}/refinements/{refinement}/discard', [PlanRefinementController::class, 'discard'])->name('goals.refinements.discard')->can('update', 'goal');
+    Route::post('/goals/{goal}/plan-versions/{version}/restore', [PlanRefinementController::class, 'restore'])->name('goals.plan-versions.restore')->can('update', 'goal');
 
     Route::get('/challenges/create', [ChallengeController::class, 'create'])->name('challenges.create');
     Route::post('/challenges', [ChallengeController::class, 'store'])->name('challenges.store')->middleware(['verified', 'throttle:10,60']);

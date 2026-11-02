@@ -6,6 +6,7 @@
     $canEdit = $goal->isActive();
     $replanFrom = $goal->replanFromPosition();
     $aiPaused = $status === App\RoadmapStatus::Failed ? app(App\Services\AiBudget::class)->blockedReason($goal->user) : null;
+    $editableWeeks = $canEdit && $status === App\RoadmapStatus::Ready ? app(App\Services\PlanEditor::class)->editableWeeks($goal) : collect();
 @endphp
 
 @if ($status === App\RoadmapStatus::Ready)
@@ -32,12 +33,16 @@
                     Your plan runs one <span class="font-semibold text-club">GoalWeek</span> at a time, with one milestone to hit each week.
                 @endif
                 @if ($canEdit)
-                    Make it yours: add, reword, or remove tasks, and your coach will check you're still in line.
+                    Make it yours: refine it with the coach below, or edit, move, and reorder tasks yourself. Your coach checks you're still in line.
                 @endif
             </p>
         </div>
 
         <x-coach-check :goal="$goal" />
+
+        @if ($canEdit)
+            <x-refine-plan :goal="$goal" :editable-weeks="$editableWeeks" />
+        @endif
 
         @php
             $scored = $goal->weeks->filter(fn ($week) => $week->result() !== null);
@@ -63,9 +68,11 @@
 
         <ol class="mt-4 space-y-3">
             @foreach ($goal->weeks as $week)
-                <x-goalweek-card :week="$week" :weeks-per-stretch="$weeksPerStretch" :can-edit="$canEdit" />
+                <x-goalweek-card :week="$week" :weeks-per-stretch="$weeksPerStretch" :can-edit="$canEdit" :editable-weeks="$editableWeeks" />
             @endforeach
         </ol>
+
+        <x-plan-history :goal="$goal" />
     </section>
 @else
     @if ($status === App\RoadmapStatus::Pending)

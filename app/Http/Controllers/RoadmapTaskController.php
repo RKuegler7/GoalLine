@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Clock;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
+use App\Services\PlanEditor;
+use App\Services\WeekPlanner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -64,8 +66,9 @@ class RoadmapTaskController extends Controller
         $description = $this->validatedDescription($request);
 
         if ($description !== $task->description) {
-            $week->goal->recordRoadmapChange("Changed a task in {$this->label($week)} from \"{$task->description}\" to \"{$description}\"");
+            $before = $task->description;
             $task->update(['description' => $description]);
+            $week->goal->recordRoadmapChange("Changed a task in {$this->label($week)} from \"{$before}\" to \"{$description}\"");
         }
 
         $this->updateTrackedNumber($request, $task);
@@ -111,6 +114,48 @@ class RoadmapTaskController extends Controller
         $week->goal->recordRoadmapChange("Removed a task from {$this->label($week)}: \"{$task->description}\"");
 
         return $this->backTo($week);
+    }
+
+    /**
+     * Reorder a task within its GoalWeek (up or down), or move one of the coach's tasks to another GoalWeek. Moving
+     * between weeks only works between GoalWeeks that haven't started (or this one before any check-in), so nobody
+     * shifts work out of a week that's underway.
+     */
+    public function move(Request $request, RoadmapTask $task, PlanEditor $editor): RedirectResponse
+    {
+        $week = $task->week;
+        $this->authorizeEditing($week);
+        $validated = $request->validate([
+            'direction' => ['nullable', 'in:up,down'],
+            'week_id' => ['nullable', 'integer'],
+        ]);
+
+        if ($validated['direction'] ?? null) {
+            $tasks = $week->tasks()->get()->values();
+            $index = $tasks->search(fn (RoadmapTask $candidate) => $candidate->is($task));
+            $swap = $tasks->get($validated['direction'] === 'up' ? $index - 1 : $index + 1);
+
+            if ($swap) {
+                $tasks->splice($index, 1);
+                $tasks->splice($validated['direction'] === 'up' ? $index - 1 : $index + 1, 0, [$task]);
+                $tasks->each(fn (RoadmapTask $item, int $position) => $item->forceFill(['position' => $position + 1])->save());
+                $week->goal->recordRoadmapChange("Reordered the tasks in {$this->label($week)}");
+            }
+
+            return $this->backTo($week);
+        }
+
+        $goal = $week->goal->load('weeks.tasks', 'habits.logs');
+        $editable = $editor->editableWeeks($goal);
+        $target = $editable->firstWhere('id', (int) ($validated['week_id'] ?? 0));
+        abort_unless($target && $target->id !== $week->id && $editable->contains('id', $week->id) && PlanEditor::isPlanTask($task) && ! $task->completed_at, 403,
+            'Tasks can move only between GoalWeeks that haven\'t started.');
+
+        $task->forceFill(['roadmap_week_id' => $target->id, 'position' => ($target->tasks->max('position') ?? 0) + 1, 'planned_on' => null])->save();
+        app(WeekPlanner::class)->autoPlan($target->load('tasks'));
+        $goal->recordRoadmapChange("Moved \"{$task->description}\" from {$this->label($week)} to {$this->label($target)}");
+
+        return $this->backTo($target);
     }
 
     /**

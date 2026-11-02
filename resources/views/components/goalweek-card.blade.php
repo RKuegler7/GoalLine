@@ -1,4 +1,4 @@
-@props(['week', 'weeksPerStretch', 'canEdit'])
+@props(['week', 'weeksPerStretch', 'canEdit', 'editableWeeks' => collect()])
 
 @php
     $current = $week->isCurrent();
@@ -13,6 +13,9 @@
     $habits = $week->habits();
     $needsProof = $week->needsProofForSmashed();
     $morePoints = fn (int $count) => $count.' more '.Str::plural('point', $count);
+    // Focus, milestone, and moving tasks between weeks: only GoalWeeks that haven't started (or this one before any check-in).
+    $planEditable = $canEdit && $editableWeeks->contains('id', $week->id);
+    $moveTargets = $planEditable ? $editableWeeks->reject(fn ($other) => $other->id === $week->id) : collect();
 
     $nudge = match (true) {
         $notStarted => 'New GoalWeek. Trust the process: check off your first task to get going.',
@@ -58,6 +61,28 @@
     </div>
 
     <h3 @class(['mt-3 font-serif text-xl font-medium', 'text-club' => ! $past, 'text-club/70' => $past])>{{ $week->focus }}</h3>
+    @if ($planEditable)
+        @php
+            $weekErrors = $errors->getBag("weekPlan{$week->id}");
+        @endphp
+        <details class="mt-1" @if ($weekErrors->any()) open @endif>
+            <summary class="cursor-pointer list-none text-xs font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">Edit focus and milestone</summary>
+            <form method="POST" action="{{ route('goalweeks.update', $week) }}" class="mt-2 space-y-2 rounded-xl bg-ivory p-3">
+                @csrf
+                @method('PUT')
+                <label for="focus-{{ $week->id }}" class="block text-xs font-semibold text-ink/70">Focus</label>
+                <input id="focus-{{ $week->id }}" name="focus" value="{{ $week->focus }}" maxlength="250" required
+                    class="w-full rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                <label for="milestone-{{ $week->id }}" class="block text-xs font-semibold text-ink/70">Milestone</label>
+                <input id="milestone-{{ $week->id }}" name="milestone" value="{{ $week->milestone }}" maxlength="500" required
+                    class="w-full rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                @if ($weekErrors->any())
+                    <p class="text-xs text-red-700">{{ $weekErrors->first() }}</p>
+                @endif
+                <button type="submit" class="rounded-lg bg-club px-3 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Save</button>
+            </form>
+        </details>
+    @endif
 
     <div class="mt-1 flex items-start gap-3">
         @if ($checkable)
@@ -176,6 +201,27 @@
                                         @enderror
                                     @endif
                                 </form>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @foreach (['up' => 'Move up', 'down' => 'Move down'] as $direction => $directionLabel)
+                                        <form method="POST" action="{{ route('roadmap.tasks.move', $task) }}">
+                                            @csrf
+                                            <input type="hidden" name="direction" value="{{ $direction }}">
+                                            <button type="submit" class="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-ink/70 hover:border-club/40">{{ $directionLabel }}</button>
+                                        </form>
+                                    @endforeach
+                                    @if ($moveTargets->isNotEmpty() && App\Services\PlanEditor::isPlanTask($task) && ! $task->completed_at)
+                                        <form method="POST" action="{{ route('roadmap.tasks.move', $task) }}" class="flex items-center gap-1.5">
+                                            @csrf
+                                            <label for="move-{{ $task->id }}" class="sr-only">Move to another GoalWeek</label>
+                                            <select id="move-{{ $task->id }}" name="week_id" class="rounded-lg border border-line bg-white px-2 py-1 text-xs">
+                                                @foreach ($moveTargets as $target)
+                                                    <option value="{{ $target->id }}">{{ $target->label() }}</option>
+                                                @endforeach
+                                            </select>
+                                            <button type="submit" class="rounded-lg border border-line px-2.5 py-1 text-xs font-semibold text-club hover:border-club/40">Move</button>
+                                        </form>
+                                    @endif
+                                </div>
                                 <form method="POST" action="{{ route('roadmap.tasks.destroy', $task) }}"
                                     onsubmit="return confirm('Remove this task? Your coach will check you\'re still in line.')">
                                     @csrf

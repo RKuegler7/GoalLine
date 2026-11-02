@@ -31,7 +31,11 @@ Weeks follow each member's own time zone (default America/New_York).
 3. The coach (Claude, `ANTHROPIC_MODEL`) builds a roadmap of GoalWeeks. Each week has a focus, a milestone and daily tasks with points.
 4. For the first 7 days a goal can be removed outright. After that it's locked in and can be retired, never silently deleted.
 5. Every edit to a roadmap is logged and sent back to the coach for a check. The member can take the coach's fix or keep their plan.
-6. Habits ("Stretch 10 minutes", daily or X times a week, on chosen days) count in scoring.
+6. **Refine your plan.** On the goal page, the member tells the coach what to change in their own words (with idea chips like "Make weeks lighter, I have finals"). The coach rewrites only the GoalWeeks that can change and explains why. A preview shows every change week by week (tasks added, removed and moved, focus and milestone, planned points before and after), and nothing is saved until they tap Accept. Discard leaves the plan as it was. Malformed coach output is rejected and shown as a friendly "try again".
+7. **What can change.** Only GoalWeeks that haven't started, plus this week if nothing in it is checked off yet. Past check-ins, completed tasks, group tasks and personal tasks are never touched, so scores for finished weeks can't change. New tasks are worth 1 point.
+8. **Edit by hand.** Reword or remove tasks, reorder them, move the coach's tasks between upcoming GoalWeeks, and edit an upcoming GoalWeek's focus and milestone, all within the same rules.
+9. **Plan history.** Every built plan, refinement, restore and edit is saved with a snapshot and a short summary (edits within 30 minutes share one entry). An earlier version can be restored for the upcoming GoalWeeks, after the same preview.
+10. Habits ("Stretch 10 minutes", daily or X times a week, on chosen days) count in scoring.
 
 ## Scoring
 
@@ -134,6 +138,8 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | roadmap_tasks | Tasks: day, points, bonus, personal, group task link, number range and result, proof photo, check-off time |
 | habits / habit_logs | Recurring habits (times a week, days) and the days they were logged |
 | plan_materials | Uploaded plan files and the coach's digest of each |
+| plan_versions | Plan history: a snapshot of the roadmap at each build, refinement, restore and edit |
+| plan_refinements | Proposed plan changes from the coach or a restore, waiting for the member's preview |
 | goal_intakes | The intake questions for a goal (coach-written or built-in) and the member's answers |
 | week_reviews | End-of-week reflections and the coach's tip |
 | leagues | GoalLeagues: name, category, season dates, invite code, owner |

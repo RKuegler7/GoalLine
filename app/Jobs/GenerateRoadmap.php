@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Clock;
 use App\Models\Goal;
+use App\Models\PlanVersion;
 use App\Models\RoadmapWeek;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
@@ -116,6 +117,8 @@ class GenerateRoadmap implements ShouldQueue
                 'plan_dismissed_at' => null,
                 'plan_checked_at' => null,
             ])->save();
+
+            PlanVersion::record($this->goal, PlanVersion::BUILT, $this->fromPosition > 1 ? "Re-planned from GoalWeek {$this->fromPosition} on" : 'The coach built the plan');
         });
     }
 

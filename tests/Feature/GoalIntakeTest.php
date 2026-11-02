@@ -104,7 +104,7 @@ class GoalIntakeTest extends TestCase
 
     public function test_when_the_coach_fails_the_built_in_questions_take_over(): void
     {
-        $intake = GoalIntake::factory()->generating()->for(Goal::factory()->state(['category' => GoalCategory::Academic]))->create();
+        $intake = GoalIntake::factory()->generating()->for(Goal::factory()->state(['category' => GoalCategory::Academic, 'title' => 'Pass the CPA exam']))->create();
         $this->mock(RoadmapPlanner::class, fn (MockInterface $mock) => $mock->shouldReceive('intakeQuestions')->andThrow(new RoadmapPlanningException('Timed out.')));
 
         (new GenerateIntakeQuestions($intake))->handle(app(RoadmapPlanner::class));

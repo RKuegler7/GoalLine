@@ -50,7 +50,7 @@ class GoalController extends Controller
      */
     public function show(Goal $goal): View
     {
-        return view('goals.show', ['goal' => $goal->load('weeks.tasks', 'weeks.review', 'materials', 'habits.logs', 'intake')]);
+        return view('goals.show', ['goal' => $goal->load('weeks.tasks', 'weeks.review', 'materials', 'habits.logs', 'intake', 'refinements')]);
     }
 
     /**

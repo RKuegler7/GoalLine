@@ -246,6 +246,26 @@ class Goal extends Model
     }
 
     /**
+     * Saved versions of the roadmap, newest last.
+     *
+     * @return HasMany<PlanVersion, $this>
+     */
+    public function planVersions(): HasMany
+    {
+        return $this->hasMany(PlanVersion::class);
+    }
+
+    /**
+     * Proposed changes from "Refine your plan" and restores, waiting for a preview.
+     *
+     * @return HasMany<PlanRefinement, $this>
+     */
+    public function refinements(): HasMany
+    {
+        return $this->hasMany(PlanRefinement::class);
+    }
+
+    /**
      * The coach's intake questions and the person's answers.
      *
      * @return HasOne<GoalIntake, $this>
@@ -269,6 +289,8 @@ class Goal extends Model
      */
     public function recordRoadmapChange(string $description): void
     {
+        PlanVersion::recordEdit($this, $description);
+
         $this->forceFill([
             'pending_changes' => [...($this->pending_changes ?? []), $description],
             'plan_check_status' => RoadmapStatus::Pending,

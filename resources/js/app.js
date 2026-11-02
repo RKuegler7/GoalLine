@@ -872,3 +872,15 @@ document.querySelectorAll('[data-reveal]').forEach((select) => {
     select.addEventListener('change', sync);
     sync();
 });
+
+/**
+ * "Refine your plan" idea chips fill the box, so a change is one tap plus any specifics.
+ */
+document.querySelectorAll('[data-refine]').forEach((form) => {
+    const box = form.querySelector('textarea');
+
+    form.querySelectorAll('[data-refine-idea]').forEach((chip) => chip.addEventListener('click', () => {
+        box.value = box.value.trim() ? `${box.value.trim()} ${chip.dataset.refineIdea}.` : `${chip.dataset.refineIdea}.`;
+        box.focus();
+    }));
+});
