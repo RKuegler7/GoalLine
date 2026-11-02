@@ -41,6 +41,11 @@ class DemoWorld
     public const VISITOR_NAME = 'John Cardinal';
 
     /**
+     * The sandbox of the demo world made by the database seeder, so re-running the seeder replaces it.
+     */
+    public const SEEDED_SANDBOX = 'seeded';
+
+    /**
      * Weeks of the season already played before this one.
      */
     private const WEEKS_PLAYED = 3;
@@ -83,9 +88,9 @@ class DemoWorld
     /**
      * Build a fresh demo world and return the visitor.
      */
-    public function create(): User
+    public function create(?string $sandbox = null): User
     {
-        $this->sandbox = (string) Str::uuid();
+        $this->sandbox = $sandbox ?? (string) Str::uuid();
         $this->today = CarbonImmutable::instance(Clock::today());
         $this->monday = $this->today->startOfWeek(CarbonImmutable::MONDAY);
         $seasonStart = $this->monday->subWeeks(self::WEEKS_PLAYED);
@@ -108,9 +113,10 @@ class DemoWorld
             $finals = $seasonStart->addWeeks(10)->subDay();
 
             // How each person's weeks went: [tasks done, milestone hit, bonus tasks], for the weeks already played.
+            // Last week Red and Kate both reached Smashed (150%+): Red with proof, Kate without, so Kate's counts as Past.
             $runners = [
                 [$you, 'Run the DC Marathon by March', [[6, true, 0], [7, true, 1], [7, true, 0]], 1],
-                [$red, 'Run a marathon under 3:45 by March', [[7, true, 2], [7, true, 1], [7, true, 3]], 0],
+                [$red, 'Run a marathon under 3:45 by March', [[7, true, 2], [7, true, 1], [7, true, 5]], 0],
                 [$tim, 'Finish my first marathon in March', [[5, false, 0], [6, true, 0], [7, true, 1]], 1],
                 [$steph, 'Run the Shamrock Marathon this spring', [[6, true, 0], [4, false, 0], [6, true, 0]], 0],
             ];
@@ -118,7 +124,7 @@ class DemoWorld
                 [$you, 'Get a 4.0 GPA this fall', [[7, true, 0], [6, true, 0], [7, true, 1]], 1],
                 [$mary, 'Ace Organic Chem and keep a 4.0', [[7, true, 1], [7, true, 0], [6, true, 0]], 0],
                 [$pat, 'Get straight A\'s this semester', [[5, true, 0], [6, true, 0], [5, false, 0]], 1],
-                [$kate, 'Make the Dean\'s List this fall', [[6, true, 0], [7, true, 2], [7, true, 0]], 0],
+                [$kate, 'Make the Dean\'s List this fall', [[6, true, 0], [7, true, 2], [7, true, 6]], 0],
             ];
 
             $goals = [];
@@ -135,6 +141,7 @@ class DemoWorld
             $this->habit($goals['run'][$you->id], 'Stretch 10 minutes', 5);
             $this->personalTask($goals['run'][$you->id], 'Ice bath after the long run', 1);
             $this->personalTask($goals['run'][$tim->id], 'Walk 20 minutes on rest days', 1);
+            $this->proofLastWeek($goals['run'][$red->id], 'Extra miles', '6.2 mi · Sunday shakeout');
             (new LeagueTable($running->fresh()))->settle();
             (new LeagueTable($study->fresh()))->settle();
 
@@ -326,6 +333,19 @@ class DemoWorld
     }
 
     /**
+     * A drawn proof photo on one of last week's extra sessions, so that week's Smashed result counts in full.
+     */
+    private function proofLastWeek(Goal $goal, string $title, string $subtitle): void
+    {
+        $task = RoadmapTask::whereIn('roadmap_week_id', $goal->weeks()->whereDate('starts_on', $this->monday->subWeek())->select('id'))
+            ->where('is_bonus', true)->whereNotNull('completed_at')->firstOrFail();
+        $path = "proofs/{$goal->id}/{$task->id}-demo.svg";
+
+        Storage::disk(RoadmapTask::proofDisk())->put($path, $this->drawing($title, $subtitle, '#1E2922', '#D4AC58'));
+        $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $task->completed_at])->saveQuietly();
+    }
+
+    /**
      * @param  list<User>  $others
      */
     private function friends(User $person, array $others): void
@@ -398,11 +418,23 @@ class DemoWorld
     }
 
     /**
-     * A simple drawn picture, so a demo never needs real photos.
+     * A post's photo, drawn.
      */
     private function photo(Highlight $highlight, string $title, string $subtitle, string $from, string $to): string
     {
         $path = "highlights/{$highlight->id}/demo.svg";
+
+        Storage::disk(Highlight::PHOTO_DISK)->put($path, $this->drawing($title, $subtitle, $from, $to));
+        $highlight->forceFill(['photo_path' => $path])->saveQuietly();
+
+        return $path;
+    }
+
+    /**
+     * A simple drawn picture, so a demo never needs real photos.
+     */
+    private function drawing(string $title, string $subtitle, string $from, string $to): string
+    {
         $title = e($title);
         $subtitle = e($subtitle);
         $svg = <<<SVG
@@ -419,10 +451,7 @@ class DemoWorld
             </svg>
             SVG;
 
-        Storage::disk(Highlight::PHOTO_DISK)->put($path, $svg);
-        $highlight->forceFill(['photo_path' => $path])->saveQuietly();
-
-        return $path;
+        return $svg;
     }
 
     /**

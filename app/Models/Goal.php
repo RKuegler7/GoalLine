@@ -49,12 +49,16 @@ class Goal extends Model
     ];
 
     /**
-     * Remove uploaded plans and the completion photo along with the goal.
+     * Remove uploaded plans, proof photos, and the completion photo along with the goal. The weeks and tasks go with
+     * the database's cascade, so their proof photos are deleted here.
      */
     protected static function booted(): void
     {
         static::deleting(function (Goal $goal) {
             $goal->materials()->get()->each->delete();
+
+            $proofs = RoadmapTask::whereIn('roadmap_week_id', $goal->weeks()->select('id'))->whereNotNull('proof_path')->pluck('proof_path');
+            Storage::disk(RoadmapTask::proofDisk())->delete($proofs->all());
 
             if ($goal->completion_photo_path) {
                 Storage::disk(self::PHOTO_DISK)->delete($goal->completion_photo_path);

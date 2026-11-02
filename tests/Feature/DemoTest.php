@@ -2,14 +2,17 @@
 
 namespace Tests\Feature;
 
+use App\GoalWeekResult;
 use App\Models\Challenge;
 use App\Models\GroupTask;
 use App\Models\Highlight;
 use App\Models\League;
+use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\Nudged;
 use App\Services\AiBudget;
 use App\Services\DemoWorld;
+use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
@@ -79,6 +82,34 @@ class DemoTest extends TestCase
         $this->assertSame(4, $groupTask->tasks()->count());
     }
 
+    public function test_last_week_shows_a_smashed_week_with_proof_and_one_that_needs_proof(): void
+    {
+        $this->get(route('demo'));
+        $lastWeek = fn (string $name) => RoadmapWeek::whereHas('goal.user', fn ($users) => $users->where('name', $name))
+            ->whereDate('starts_on', '2026-10-19')->sole();
+
+        $red = $lastWeek('Red Dufour');
+        $this->assertSame(GoalWeekResult::Smashed, $red->result());
+        $this->assertTrue($red->tasks->contains(fn ($task) => $task->is_bonus && $task->isVerified()));
+
+        $kate = $lastWeek('Kate Gibbons');
+        $this->assertTrue($kate->needsProofForSmashed());
+        $this->assertSame(GoalWeekResult::Past, $kate->result());
+    }
+
+    public function test_the_seeder_builds_one_demo_world_with_a_known_sign_in_and_can_run_again(): void
+    {
+        $this->seed();
+        $this->seed();
+
+        $this->assertSame(8, User::where('demo_sandbox', DemoWorld::SEEDED_SANDBOX)->count());
+        $this->assertSame(1, User::where('email', 'test@example.com')->count());
+        $this->assertSame(2, League::count());
+
+        $this->post('/login', ['email' => DemoSeeder::EMAIL, 'password' => DemoSeeder::PASSWORD])->assertRedirect();
+        $this->assertSame(DemoWorld::VISITOR_NAME, auth()->user()->name);
+    }
+
     public function test_demo_worlds_never_reach_real_members(): void
     {
         $real = User::factory()->create(['name' => 'Real Person', 'username' => 'real.person', 'email' => 'real@example.com']);
@@ -128,6 +159,7 @@ class DemoTest extends TestCase
         $this->assertSame(0, User::whereNotNull('demo_sandbox')->count());
         $this->assertSame(0, League::count());
         $this->assertSame([], Storage::disk('uploads')->allFiles('highlights'));
+        $this->assertSame([], Storage::disk('uploads')->allFiles('proofs'));
     }
 
     public function test_demo_visitors_get_a_small_ai_allowance(): void

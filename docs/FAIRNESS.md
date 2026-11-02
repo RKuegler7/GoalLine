@@ -46,3 +46,4 @@ The better band wins the weekly matchup (2 points), the same band is a draw (1 e
 No app can prove someone really studied for an hour or ran those miles. GoalLine's approach is to make honest play the easy default. Plans are fixed up front, the past can't be edited, big claims need evidence, and everything is visible to the people you're playing with. Faking a week means padding a plan the whole league can see, posting under your own name, and still only gaining about a point. The real reward is reaching the goal itself, and nobody gets there by faking check-ins.
 
 **Get in line with your goals. We get more done together.**
+
