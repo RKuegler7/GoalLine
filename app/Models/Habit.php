@@ -13,14 +13,68 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A recurring action that drives a goal, like "Run" four times a week.
- * Its weekly target counts toward the GoalWeek result alongside planned tasks.
+ * A recurring action that drives a goal, with an objective rule for what counts: "Run 2+ miles" on Mon, Wed, Fri,
+ * or "Study 45+ minutes" 4 times a week. Its weekly target counts toward the GoalWeek result alongside planned tasks.
  */
-#[Fillable(['title', 'times_per_week', 'days'])]
+#[Fillable(['title', 'times_per_week', 'cadence', 'days', 'rule', 'threshold', 'unit'])]
 class Habit extends Model
 {
     /** @use HasFactory<HabitFactory> */
     use HasFactory;
+
+    /**
+     * Every day.
+     */
+    public const DAILY = 'daily';
+
+    /**
+     * Specific days of the week.
+     */
+    public const DAYS = 'days';
+
+    /**
+     * Any X days a week; progress counts toward the target, and a day off isn't a miss.
+     */
+    public const WEEKLY = 'weekly';
+
+    /**
+     * Did it or not.
+     */
+    public const CHECK = 'check';
+
+    /**
+     * A number with a threshold, like 2+ miles or 25+ questions.
+     */
+    public const NUMBER = 'number';
+
+    /**
+     * Minutes with a threshold, like 20+ minutes.
+     */
+    public const MINUTES = 'minutes';
+
+    public const DAY_NAMES = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
+
+    /**
+     * Default values for new habits.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'cadence' => self::WEEKLY,
+        'rule' => self::CHECK,
+    ];
+
+    /**
+     * Seven times a week is every day, whoever set it.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (Habit $habit) {
+            if ($habit->times_per_week >= 7) {
+                $habit->cadence = self::DAILY;
+            }
+        });
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -32,6 +86,7 @@ class Habit extends Model
         return [
             'times_per_week' => 'integer',
             'days' => 'array',
+            'threshold' => 'float',
             'archived_at' => 'datetime',
         ];
     }
@@ -47,7 +102,7 @@ class Habit extends Model
     }
 
     /**
-     * Each day the habit was done.
+     * Each day the habit was logged.
      *
      * @return HasMany<HabitLog, $this>
      */
@@ -88,53 +143,132 @@ class Habit extends Model
     }
 
     /**
-     * How many days the habit was done within a GoalWeek.
+     * How many days within a GoalWeek met the habit's rule.
      */
     public function doneIn(RoadmapWeek $week): int
     {
-        return $this->logs->filter(fn (HabitLog $log) => $log->logged_on->between($week->starts_on, $week->ends_on))->count();
+        return $this->logs->filter(fn (HabitLog $log) => $log->met && $log->logged_on->between($week->starts_on, $week->ends_on))->count();
     }
 
     /**
-     * Whether the habit was done on a given day.
+     * The day's log, met or not.
+     */
+    public function logOn(CarbonInterface $day): ?HabitLog
+    {
+        return $this->logs->first(fn (HabitLog $log) => $log->logged_on->isSameDay($day));
+    }
+
+    /**
+     * Whether the habit was done on a given day, meeting its rule.
      */
     public function isDoneOn(CarbonInterface $day): bool
     {
-        return $this->logs->contains(fn (HabitLog $log) => $log->logged_on->isSameDay($day));
+        return (bool) $this->logOn($day)?->met;
     }
 
     /**
-     * Whether the habit belongs on today's gameplan: one of its preferred days, or any day while
-     * this week's target isn't met yet (or it's already been done today).
+     * Whether a number was logged that didn't reach the threshold yet.
+     */
+    public function isPartialOn(CarbonInterface $day): bool
+    {
+        $log = $this->logOn($day);
+
+        return $log !== null && ! $log->met;
+    }
+
+    /**
+     * Whether a day is a rest day: a specific-days habit on a day it isn't scheduled.
+     */
+    public function isRestDay(CarbonInterface $day): bool
+    {
+        return $this->cadence === self::DAYS && $this->days && ! in_array($day->dayOfWeekIso, $this->days, true);
+    }
+
+    /**
+     * Whether the habit belongs on today's list: every day, its scheduled days, or any day while this week's target
+     * isn't met yet. A habit already logged today stays on the list.
      */
     public function isDueToday(RoadmapWeek $week): bool
     {
         $today = Clock::today();
 
-        if ($this->isDoneOn($today)) {
+        if ($this->logOn($today)) {
             return true;
         }
 
-        if ($this->days) {
-            return in_array($today->dayOfWeekIso, $this->days, true);
-        }
-
-        return $this->doneIn($week) < $this->targetFor($week);
+        return match ($this->cadence) {
+            self::DAILY => true,
+            self::DAYS => ! $this->isRestDay($today),
+            default => $this->days
+                ? in_array($today->dayOfWeekIso, $this->days, true)
+                : $this->doneIn($week) < $this->targetFor($week),
+        };
     }
 
     /**
-     * "4× a week" or "Daily", with preferred days when set: "3× a week · Mon, Wed, Fri".
+     * Whether a logged number meets the rule. A plain check-off always does.
+     */
+    public function meets(?float $value): bool
+    {
+        return $this->rule === self::CHECK || ($value !== null && $value >= (float) $this->threshold);
+    }
+
+    /**
+     * Whether logging takes a number.
+     */
+    public function takesNumber(): bool
+    {
+        return $this->rule !== self::CHECK;
+    }
+
+    /**
+     * The number's unit: "miles", or "minutes" for a minutes habit.
+     */
+    public function unitLabel(): string
+    {
+        return $this->rule === self::MINUTES ? 'minutes' : (string) $this->unit;
+    }
+
+    /**
+     * What counts, in a few words: "2+ miles", "20+ minutes", or null for a plain check-off.
+     */
+    public function ruleLabel(): ?string
+    {
+        if (! $this->takesNumber()) {
+            return null;
+        }
+
+        return trim($this->formatNumber((float) $this->threshold).'+ '.$this->unitLabel());
+    }
+
+    /**
+     * The habit with its rule: "Run · 2+ miles".
+     */
+    public function label(): string
+    {
+        return $this->ruleLabel() ? $this->title.' · '.$this->ruleLabel() : $this->title;
+    }
+
+    /**
+     * "2" rather than "2.00", "2.5" rather than "2.50".
+     */
+    public function formatNumber(float $value): string
+    {
+        return rtrim(rtrim(number_format($value, 2, '.', ''), '0'), '.');
+    }
+
+    /**
+     * "Every day", "Mon, Wed, Fri", or "4× a week" (with preferred days, if any, from before cadences were explicit).
      */
     public function cadence(): string
     {
-        $base = $this->times_per_week >= 7 ? 'Daily' : $this->times_per_week.'× a week';
+        $names = fn (array $days) => collect($days)->sort()->map(fn (int $day) => self::DAY_NAMES[$day])->implode(', ');
 
-        if (! $this->days || $this->times_per_week >= 7) {
-            return $base;
-        }
-
-        $names = [1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat', 7 => 'Sun'];
-
-        return $base.' · '.collect($this->days)->sort()->map(fn (int $day) => $names[$day])->implode(', ');
+        return match (true) {
+            $this->cadence === self::DAILY || $this->times_per_week >= 7 => 'Every day',
+            $this->cadence === self::DAYS && (bool) $this->days => $names($this->days),
+            (bool) $this->days => $this->times_per_week.'× a week · '.$names($this->days),
+            default => $this->times_per_week.'× a week',
+        };
     }
 }

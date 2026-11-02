@@ -7,6 +7,7 @@ use App\Models\ChallengeCheckIn;
 use App\Models\HabitLog;
 use App\Models\RoadmapTask;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
 /**
@@ -40,6 +41,7 @@ class DailyStreak
             ->map(fn ($moment) => Clock::local($moment)->toDateString());
 
         $habitDays = HabitLog::query()
+            ->where('met', true)
             ->whereDate('logged_on', '>=', $since->toDateString())
             ->whereHas('habit.goal', fn ($goals) => $goals->where('user_id', $user->id))
             ->get()
@@ -81,6 +83,32 @@ class DailyStreak
     public function checkedInToday(): bool
     {
         return $this->activeDays->has(Clock::today()->toDateString());
+    }
+
+    /**
+     * This calendar week, Monday to Sunday, day by day: whether each day so far had a check-in. Days still ahead
+     * are null.
+     *
+     * @return array<string, bool|null> Keyed by local date.
+     */
+    public function thisWeek(): array
+    {
+        $today = Clock::today();
+        $days = [];
+
+        for ($day = $today->copy()->startOfWeek(CarbonInterface::MONDAY); $days === [] || count($days) < 7; $day = $day->copy()->addDay()) {
+            $days[$day->toDateString()] = $day->gt($today) ? null : $this->activeDays->has($day->toDateString());
+        }
+
+        return $days;
+    }
+
+    /**
+     * Days on the line this week: days so far with at least one check-in.
+     */
+    public function daysOnTheLineThisWeek(): int
+    {
+        return count(array_filter($this->thisWeek()));
     }
 
     /**

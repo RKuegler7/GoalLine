@@ -121,6 +121,7 @@ class ChallengeController extends Controller
 
         return match ($request->input('return')) {
             'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'today' => redirect()->route('today'),
             'list' => redirect()->route('leagues.index'),
             default => redirect()->route('challenges.show', $challenge),
         };

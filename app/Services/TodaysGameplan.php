@@ -113,6 +113,30 @@ class TodaysGameplan
     }
 
     /**
+     * What "Mark all done" covers: open tasks on today's list that don't track a number, and check-off habits not
+     * done today. Anything with a number needs its number.
+     *
+     * @return array{tasks: Collection<int, RoadmapTask>, habits: Collection<int, Habit>}
+     */
+    public function simpleOpen(): array
+    {
+        return [
+            'tasks' => $this->entries->flatMap(fn (array $entry) => $entry['tasks']->filter(fn (RoadmapTask $task) => ! $task->completed_at && ! $task->result_required))->values(),
+            'habits' => $this->entries->flatMap(fn (array $entry) => $entry['habits']->filter(fn (Habit $habit) => ! $habit->takesNumber() && ! $habit->isDoneOn($this->today)))->values(),
+        ];
+    }
+
+    /**
+     * How many things "Mark all done" would check off.
+     */
+    public function simpleOpenCount(): int
+    {
+        $open = $this->simpleOpen();
+
+        return $open['tasks']->count() + $open['habits']->count();
+    }
+
+    /**
      * Tasks this GoalWeek that aren't on a day yet.
      */
     public function unplanned(): int

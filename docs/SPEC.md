@@ -35,7 +35,10 @@ Weeks follow each member's own time zone (default America/New_York).
 7. **What can change.** Only GoalWeeks that haven't started, plus this week if nothing in it is checked off yet. Past check-ins, completed tasks, group tasks and personal tasks are never touched, so scores for finished weeks can't change. New tasks are worth 1 point.
 8. **Edit by hand.** Reword or remove tasks, reorder them, move the coach's tasks between upcoming GoalWeeks, and edit an upcoming GoalWeek's focus and milestone, all within the same rules.
 9. **Plan history.** Every built plan, refinement, restore and edit is saved with a snapshot and a short summary (edits within 30 minutes share one entry). An earlier version can be restored for the upcoming GoalWeeks, after the same preview.
-10. Habits ("Stretch 10 minutes", daily or X times a week, on chosen days) count in scoring.
+10. **Habits** are objective recurring tasks that count in scoring.
+    - **Cadence:** every day, specific days (like Mon, Wed, Fri, with the other days shown as rest days), or X times a week (any days, shown as progress like "3 of 4 this week", where a day off isn't a miss). The weekly target sets the planned points.
+    - **What counts:** "Did it or not", a number with a threshold (like "Run · 2+ miles"), or minutes with a threshold ("Study · 45+ minutes"). The rule shows on the habit. A number under the threshold is saved but doesn't count, and it says so calmly. Going over still counts as one day. Whether a day counted is stored when it's logged, so changing the rule later never rewrites past days. Existing habits are check-offs and score exactly as before.
+11. **Today** (`/today`) shows how many days you've been on the line this week, everything due today with one-tap check-offs and quick number entry, and "Mark all done" for simple check-offs (anything with a number needs its number). It also has a week grid: days across, habits down, with today and yesterday tappable, and states for done, under the rule, due, rest day and upcoming. Missed days stay neutral, never red. Tap targets are large on phones. Daily reminders at a time each member picks (with an opt-out) come from the existing reminder settings.
 
 ## Scoring
 
@@ -136,7 +139,7 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | goals | Goals: title, category, target date, why, status, roadmap and coach check state, completion |
 | roadmap_weeks | GoalWeeks: dates, focus, milestone, milestone hit, Smashed confirmation |
 | roadmap_tasks | Tasks: day, points, bonus, personal, group task link, number range and result, proof photo, check-off time |
-| habits / habit_logs | Recurring habits (times a week, days) and the days they were logged |
+| habits / habit_logs | Recurring habits (cadence, days, rule, threshold, unit) and each day logged (the number, and whether it met the rule) |
 | plan_materials | Uploaded plan files and the coach's digest of each |
 | plan_versions | Plan history: a snapshot of the roadmap at each build, refinement, restore and edit |
 | plan_refinements | Proposed plan changes from the coach or a restore, waiting for the member's preview |

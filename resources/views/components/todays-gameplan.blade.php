@@ -1,10 +1,11 @@
 {{-- Today's Gameplan: what's on for today across every goal, tasks and habits, with one-tap check-offs. --}}
-@props(['gameplan'])
+@props(['gameplan', 'return' => 'gameplan'])
 
 @php
     $total = $gameplan->total();
     $done = $gameplan->done();
     $unplanned = $gameplan->unplanned();
+    $simpleOpen = $gameplan->simpleOpenCount();
     $check = '<svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>';
 @endphp
 
@@ -22,9 +23,21 @@
                 @endif
             </p>
         </div>
-        <a href="{{ route('planner.show') }}" class="inline-flex items-center gap-1.5 rounded-full border border-club/30 bg-white px-4 py-1.5 text-sm font-semibold text-club transition hover:border-club">
-            <x-icon name="calendar" class="size-4" /> Plan my week
-        </a>
+        <div class="flex flex-wrap items-center gap-2">
+            @if ($simpleOpen > 1)
+                <form method="POST" action="{{ route('today.done') }}">
+                    @csrf
+                    <input type="hidden" name="return" value="{{ $return }}">
+                    <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory transition hover:bg-club-dark">Mark all {{ $simpleOpen }} done</button>
+                </form>
+            @endif
+            <a href="{{ route('today') }}#week-grid" class="inline-flex items-center gap-1.5 rounded-full border border-club/30 bg-white px-4 py-1.5 text-sm font-semibold text-club transition hover:border-club">
+                <x-icon name="repeat" class="size-4" /> Week grid
+            </a>
+            <a href="{{ route('planner.show') }}" class="inline-flex items-center gap-1.5 rounded-full border border-club/30 bg-white px-4 py-1.5 text-sm font-semibold text-club transition hover:border-club">
+                <x-icon name="calendar" class="size-4" /> Plan my week
+            </a>
+        </div>
     </header>
 
     @if ($total > 0)
@@ -37,10 +50,10 @@
         @foreach ($gameplan->entries as $entry)
             @foreach ($entry['tasks'] as $task)
                 <li class="flex items-start gap-3 py-3">
-                    <x-task-check :task="$task" return="gameplan" size="size-6" />
+                    <x-task-check :task="$task" return="{{ $return }}" size="size-9 sm:size-7" />
                     <div class="min-w-0 flex-1">
                         <p @class(['text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink' => ! $task->completed_at])>{{ $task->description }}</p>
-                        <x-task-details :task="$task" return="gameplan" context="gameplan" />
+                        <x-task-details :task="$task" return="{{ $return }}" context="gameplan" />
                         <p class="mt-0.5 flex flex-wrap gap-x-2 text-xs text-ink/50">
                             <a href="{{ route('goals.show', $entry['goal']) }}" class="hover:text-club hover:underline">{{ $entry['goal']->title }}</a>
                             @if ($gameplan->isCarriedOver($task))
@@ -63,29 +76,20 @@
             @foreach ($entry['habits'] as $habit)
                 @php
                     $doneToday = $habit->isDoneOn($gameplan->today);
+                    $partial = $habit->isPartialOn($gameplan->today);
                 @endphp
-                <li class="flex items-start gap-3 py-3">
-                    <form method="POST" action="{{ route('habits.log', $habit) }}">
-                        @csrf
-                        <input type="hidden" name="return" value="gameplan">
-                        <button type="submit" title="{{ $doneToday ? 'Undo' : 'Log it for today' }}" @class([
-                            'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border-2 transition',
-                            'border-grass bg-grass text-white' => $doneToday,
-                            'border-club/40 hover:border-club hover:bg-mint' => ! $doneToday,
-                        ])>
-                            @if ($doneToday)
-                                {!! $check !!}
-                            @endif
-                            <span class="sr-only">{{ $doneToday ? 'Done today: ' : 'Log for today: ' }}{{ $habit->title }}</span>
-                        </button>
-                    </form>
+                <li class="flex items-center gap-3 py-3">
+                    <x-habit-log :habit="$habit" :day="$gameplan->today" return="{{ $return }}" />
                     <div class="min-w-0 flex-1">
                         <p @class(['flex items-center gap-1.5', 'text-ink/50 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
-                            <x-icon name="repeat" class="size-3.5 text-club/60" />
-                            {{ $habit->title }}
+                            <x-icon name="repeat" class="size-3.5 shrink-0 text-club/60" />
+                            {{ $habit->label() }}
                         </p>
                         <p class="mt-0.5 text-xs text-ink/50">
                             {{ $entry['goal']->title }} &middot; {{ $habit->doneIn($entry['week']) }} of {{ $habit->targetFor($entry['week']) }} this GoalWeek
+                            @if ($partial)
+                                &middot; <span class="font-semibold text-ink/70">Logged {{ $habit->formatNumber($habit->logOn($gameplan->today)->value ?? 0) }}, counts at {{ $habit->ruleLabel() }}</span>
+                            @endif
                         </p>
                     </div>
                 </li>
@@ -99,7 +103,7 @@
             <li class="flex items-start gap-3 py-3">
                 <form method="POST" action="{{ route('challenges.check-in', $challenge) }}">
                     @csrf
-                    <input type="hidden" name="return" value="gameplan">
+                    <input type="hidden" name="return" value="{{ $return }}">
                     <button type="submit" title="{{ $doneToday ? 'Undo' : 'Check in for today' }}" @class([
                         'mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border-2 transition',
                         'border-gold bg-gold text-ink' => $doneToday,

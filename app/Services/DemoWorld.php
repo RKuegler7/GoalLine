@@ -9,6 +9,7 @@ use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Goal;
 use App\Models\GroupTask;
+use App\Models\Habit;
 use App\Models\Highlight;
 use App\Models\League;
 use App\Models\RoadmapTask;
@@ -138,7 +139,7 @@ class DemoWorld
             }
 
             // A daily habit, a personal task the league can see, and last week's results scored.
-            $this->habit($goals['run'][$you->id], 'Stretch 10 minutes', 5);
+            $this->habit($goals['run'][$you->id], 'Stretch', 5, 10);
             $this->personalTask($goals['run'][$you->id], 'Ice bath after the long run', 1);
             $this->personalTask($goals['run'][$tim->id], 'Walk 20 minutes on rest days', 1);
             $this->proofLastWeek($goals['run'][$red->id], 'Extra miles', '6.2 mi · Sunday shakeout');
@@ -313,14 +314,17 @@ class DemoWorld
         ])->saveQuietly();
     }
 
-    private function habit(Goal $goal, string $title, int $timesPerWeek): void
+    /**
+     * A minutes habit ("Stretch · 10+ minutes"), logged on weekdays so far.
+     */
+    private function habit(Goal $goal, string $title, int $timesPerWeek, int $minutes): void
     {
-        $habit = $goal->habits()->create(['title' => $title, 'times_per_week' => $timesPerWeek]);
+        $habit = $goal->habits()->create(['title' => $title, 'times_per_week' => $timesPerWeek, 'rule' => Habit::MINUTES, 'threshold' => $minutes]);
         $habit->forceFill(['created_at' => $goal->created_at])->saveQuietly();
 
         for ($day = $this->monday->subWeeks(self::WEEKS_PLAYED); $day->lt($this->today); $day = $day->addDay()) {
             if ($day->dayOfWeekIso <= 5) {
-                $habit->logs()->create(['logged_on' => $day]);
+                $habit->logs()->create(['logged_on' => $day, 'value' => $minutes + ($day->day % 3) * 5, 'met' => true]);
             }
         }
     }

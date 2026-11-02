@@ -122,6 +122,7 @@ class CheckInController extends Controller
         return match (request()->input('return')) {
             'clubhouse' => redirect()->to(route('dashboard').'#goal-'.$week->goal_id),
             'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'today' => redirect()->route('today'),
             'planner' => redirect()->route('planner.show'),
             default => redirect()->to(route('goals.show', $week->goal).'#goalweek-'.$week->position),
         };

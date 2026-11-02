@@ -74,7 +74,7 @@
                 @foreach ($habits as $habit)
                     <li @class(['flex items-start gap-3', 'border-t border-line pt-2' => $loop->first])>
                         <x-habit-toggle :habit="$habit" :day="$today" :disabled="! $checkable" return="clubhouse" />
-                        <span class="min-w-0 flex-1 text-sm text-ink/85">{{ $habit->title }} <span class="text-ink/45">&middot; {{ $habit->cadence() }}</span></span>
+                        <span class="min-w-0 flex-1 text-sm text-ink/85">{{ $habit->label() }} <span class="text-ink/45">&middot; {{ $habit->cadence() }}</span></span>
                         <x-habit-week :habit="$habit" :week="$week" />
                     </li>
                 @endforeach

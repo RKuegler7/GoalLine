@@ -25,7 +25,7 @@ The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md). The e
 ## What's in it
 
 - **Goals and AI roadmaps:** set a goal, answer a few questions written for that goal, upload a study or training plan if you have one, and get weekly GoalWeeks with a focus, a milestone and daily tasks. Refine the plan in your own words with a preview before anything changes, edit it by hand, and restore earlier versions from plan history. You get a 7-day trial before a goal locks in, plus end-of-week reviews with a coach's tip.
-- **Clubhouse:** Today's Gameplan, Plan my week, habits, the daily check-in streak, the Kickoff checklist and the Friends feed.
+- **Clubhouse and Today:** Today's Gameplan with "Mark all done", a Today page with a habit week grid and "days on the line this week", Plan my week, habits with clear rules ("Run · 2+ miles", Mon, Wed, Fri), the daily check-in streak, the Kickoff checklist and the Friends feed.
 - **GoalLeagues:** a swipeable GoalWeek Matchup page (who leads, bands, points to the next band), round-robin weekly matchups, standings, league chat, recaps, season awards, group tasks with a league vote, personal tasks, and invites by link, code, email or username.
 - **Fair play:** range checks, the today-or-yesterday rule, proof photos with a Verified check, the Smashed confirmation, "Show your work" requests and an open matchup timeline.
 - **Highlights:** Instagram-style check-in posts with Proof only, League, or League + friends visibility; cheers, comments and @mentions; finished-goal posts, share cards and reports.
@@ -46,9 +46,9 @@ The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md). The e
 | E | Goal-to-league flow, league invites, people search | Done |
 | F | Goal-specific intake questions feeding the plan | Done |
 | G | Refine the plan with prompts, preview, manual edits, plan history | Done |
-| H | Objective recurring tasks, Today view, week grid | Next |
+| H | Objective recurring tasks, Today view, week grid | Done |
 
-The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D) and [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H).
+The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D) and [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H). Next up: [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md).
 
 ## Run it on your computer
 
@@ -102,7 +102,7 @@ Already set by `.ebextensions/01-laravel.config`: production mode, MySQL, databa
 
 Optional, with sensible defaults: `ANTHROPIC_MODEL`, `PROOF_DISK` (default `uploads`, the same S3 bucket), `CAPTION_SUGGESTIONS`, `DEMO_ENABLED`, `DEMO_TTL_HOURS`, the AI caps (`AI_DAILY_REQUESTS_PER_MEMBER`, `AI_DAILY_BUDGET_USD`, `AI_MONTHLY_BUDGET_USD`) and the demo AI allowance (`DEMO_AI_REQUESTS_PER_VISITOR`, `DEMO_AI_REQUESTS_PER_DAY`).
 
-Migrations added since Phase A run on the next deploy: `add_fair_play`, `add_friends_posts_and_reports`, `add_group_and_personal_tasks`, `add_league_invites_and_discoverable`, `add_demo_sandbox_to_users`, `create_goal_intakes_table` and `create_plan_versions_and_refinements_tables`.
+Migrations added since Phase A run on the next deploy: `add_fair_play`, `add_friends_posts_and_reports`, `add_group_and_personal_tasks`, `add_league_invites_and_discoverable`, `add_demo_sandbox_to_users`, `create_goal_intakes_table`, `create_plan_versions_and_refinements_tables` and `add_completion_rules_to_habits`.
 
 ### Setting up S3 for photos (one time)
 

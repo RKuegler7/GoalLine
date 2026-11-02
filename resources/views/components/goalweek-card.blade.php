@@ -250,7 +250,7 @@
                 <li class="flex items-center gap-3 text-ink/85">
                     <x-habit-toggle :habit="$habit" :day="App\Clock::today()" :disabled="! $checkable || ! $current || $habit->archived_at" />
                     <span class="min-w-0 flex-1">
-                        <x-icon name="repeat" class="inline size-3.5 text-club/60" /> {{ $habit->title }}
+                        <x-icon name="repeat" class="inline size-3.5 text-club/60" /> {{ $habit->label() }}
                     </span>
                     @if ($current)
                         <x-habit-week :habit="$habit" :week="$week" />

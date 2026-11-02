@@ -135,7 +135,7 @@
                             <ul class="mt-2 space-y-2">
                                 @foreach ($habits as $habit)
                                     <li class="flex flex-wrap items-center justify-between gap-2">
-                                        <span class="text-sm text-ink">{{ $habit->title }} <span class="text-ink/50">&middot; {{ $habit->cadence() }} &middot; {{ $habit->doneIn($week) }} of {{ $habit->targetFor($week) }} done</span></span>
+                                        <span class="text-sm text-ink">{{ $habit->label() }} <span class="text-ink/50">&middot; {{ $habit->cadence() }} &middot; {{ $habit->doneIn($week) }} of {{ $habit->targetFor($week) }} done</span></span>
                                         {{-- Forgot to log yesterday? Catch up here. --}}
                                         <span class="flex items-center gap-1.5">
                                             @for ($day = $logFrom->copy(); $day->lte($today); $day = $day->copy()->addDay())

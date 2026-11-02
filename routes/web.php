@@ -44,6 +44,7 @@ use App\Http\Controllers\RoadmapTaskController;
 use App\Http\Controllers\RoadmapWeekController;
 use App\Http\Controllers\SmashedConfirmationController;
 use App\Http\Controllers\TaskProofController;
+use App\Http\Controllers\TodayController;
 use App\Http\Controllers\WeeklyRecapController;
 use App\Http\Controllers\WeekReviewController;
 use App\Http\Controllers\WelcomeController;
@@ -176,6 +177,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
+    Route::get('/today', [TodayController::class, 'show'])->name('today');
+    Route::post('/today/done', [TodayController::class, 'markAllDone'])->name('today.done');
     Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');
     Route::post('/plan/auto', [GameplanController::class, 'autoPlan'])->name('planner.auto');
     Route::post('/roadmap-tasks/{task}/tomorrow', [GameplanController::class, 'moveToTomorrow'])->name('roadmap.tasks.tomorrow');

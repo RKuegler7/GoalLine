@@ -884,3 +884,18 @@ document.querySelectorAll('[data-refine]').forEach((form) => {
         box.focus();
     }));
 });
+
+/**
+ * Show fields only for the matching choice, such as the day chips for "Specific days" or the unit for "A number".
+ * data-show-for="name:value1,value2". Without this script every field shows.
+ */
+document.querySelectorAll('[data-habit-fields]').forEach((fields) => {
+    const sync = () => fields.querySelectorAll('[data-show-for]').forEach((element) => {
+        const [name, values] = element.dataset.showFor.split(':');
+        const checked = fields.querySelector(`input[name="${name}"]:checked`)?.value;
+        element.hidden = !values.split(',').includes(checked);
+    });
+
+    fields.addEventListener('change', sync);
+    sync();
+});

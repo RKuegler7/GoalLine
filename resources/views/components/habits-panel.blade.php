@@ -5,7 +5,7 @@
     $habits = $goal->habits->whereNull('archived_at');
     $canEdit = $goal->isActive();
     $week = $goal->currentWeek();
-    $habitErrors = $errors->hasAny(['title', 'times_per_week', 'days', 'days.*']);
+    $habitErrors = $errors->hasAny(['title', 'times_per_week', 'days', 'days.*', 'threshold', 'unit', 'cadence', 'rule']);
 @endphp
 
 @if ($habits->isNotEmpty() || $canEdit)
@@ -26,7 +26,7 @@
                         <details>
                             <summary class="flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
                                 <span class="min-w-0 flex-1">
-                                    <span class="block font-medium text-ink">{{ $habit->title }}</span>
+                                    <span class="block font-medium text-ink">{{ $habit->label() }}</span>
                                     <span class="block text-sm text-ink/55">{{ $habit->cadence() }}</span>
                                 </span>
                                 @if ($week?->isStarted())
@@ -76,7 +76,7 @@
                     @endif
                     <x-habit-fields :prefix="'new-habit-'.$goal->id" />
                     @if ($habitErrors)
-                        <p class="mt-2 text-sm text-red-700">{{ $errors->first('title') ?: $errors->first('times_per_week') ?: 'Pick days from Monday to Sunday.' }}</p>
+                        <p class="mt-2 text-sm text-red-700">{{ $errors->first('title') ?: $errors->first('times_per_week') ?: $errors->first('days') ?: $errors->first('threshold') ?: $errors->first('unit') ?: 'Pick days from Monday to Sunday.' }}</p>
                     @endif
                     <button type="submit" class="mt-4 rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Add habit</button>
                 </form>

@@ -9,6 +9,7 @@ use App\Models\RoadmapWeek;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class HabitController extends Controller
 {
@@ -23,7 +24,7 @@ class HabitController extends Controller
     public function store(Request $request, Goal $goal): RedirectResponse
     {
         $habit = $goal->habits()->create($this->validated($request));
-        $goal->recordRoadmapChange("Added the habit \"{$habit->title}\" ({$habit->cadence()})");
+        $goal->recordRoadmapChange("Added the habit \"{$habit->label()}\" ({$habit->cadence()})");
 
         return $this->back($request, $goal, 'Habit added.');
     }
@@ -34,10 +35,10 @@ class HabitController extends Controller
     public function update(Request $request, Habit $habit): RedirectResponse
     {
         Gate::authorize('update', $habit->goal);
-        $before = "{$habit->title} ({$habit->cadence()})";
+        $before = "{$habit->label()} ({$habit->cadence()})";
 
         $habit->update($this->validated($request));
-        $habit->goal->recordRoadmapChange("Changed the habit \"{$before}\" to \"{$habit->title}\" ({$habit->cadence()})");
+        $habit->goal->recordRoadmapChange("Changed the habit \"{$before}\" to \"{$habit->label()}\" ({$habit->cadence()})");
 
         return $this->back($request, $habit->goal, 'Habit updated.');
     }
@@ -75,33 +76,75 @@ class HabitController extends Controller
         abort_unless($week?->isCheckable(), 403, 'Check-ins for that day are closed.');
 
         $existing = $habit->logs()->whereDate('logged_on', $day)->first();
-        $existing ? $existing->delete() : $habit->logs()->create(['logged_on' => $day]);
 
-        return $this->back($request, $habit->goal);
+        // A check-off toggles. A number habit logs (or updates) the number, and an empty number undoes the day.
+        if (! $habit->takesNumber() || ! $request->filled('value')) {
+            if (! $existing && $habit->takesNumber()) {
+                return $this->back($request, $habit->goal, "Log a number for \"{$habit->title}\": it counts at {$habit->ruleLabel()}.");
+            }
+
+            $existing ? $existing->delete() : $habit->logs()->create(['logged_on' => $day]);
+
+            return $this->back($request, $habit->goal);
+        }
+
+        $value = (float) $request->validate(['value' => ['numeric', 'min:0', 'max:100000']], [
+            'value.numeric' => 'Enter a number, like 2.5.',
+        ])['value'];
+        $met = $habit->meets($value);
+        $existing
+            ? $existing->update(['value' => $value, 'met' => $met])
+            : $habit->logs()->create(['logged_on' => $day, 'value' => $value, 'met' => $met]);
+
+        $logged = $habit->formatNumber($value).' '.$habit->unitLabel();
+
+        return $this->back($request, $habit->goal, $met
+            ? "Logged {$logged}. It counts: one more day on the line."
+            : "Logged {$logged}. Your rule is {$habit->ruleLabel()}, so it doesn't count yet. Update it if you do more today.");
     }
 
     /**
-     * Validate a habit's fields.
+     * Validate a habit's fields: its cadence (every day, specific days, or X times a week) and its rule for what
+     * counts (a check-off, or a number or minutes with a threshold).
      *
-     * @return array{title: string, times_per_week: int, days: list<int>|null}
+     * @return array{title: string, cadence: string, times_per_week: int, days: list<int>|null, rule: string, threshold: float|null, unit: string|null}
      */
     private function validated(Request $request): array
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:80'],
-            'times_per_week' => ['required', 'integer', 'between:1,7'],
-            'days' => ['nullable', 'array'],
+            'cadence' => ['nullable', Rule::in([Habit::DAILY, Habit::DAYS, Habit::WEEKLY])],
+            'times_per_week' => ['required_unless:cadence,'.Habit::DAILY.','.Habit::DAYS, 'nullable', 'integer', 'between:1,7'],
+            'days' => ['required_if:cadence,'.Habit::DAYS, 'nullable', 'array'],
             'days.*' => ['integer', 'between:1,7'],
+            'rule' => ['nullable', Rule::in([Habit::CHECK, Habit::NUMBER, Habit::MINUTES])],
+            'threshold' => ['required_if:rule,'.Habit::NUMBER.','.Habit::MINUTES, 'nullable', 'numeric', 'gt:0', 'max:100000'],
+            'unit' => ['required_if:rule,'.Habit::NUMBER, 'nullable', 'string', 'max:20'],
         ], [
             'title.required' => 'Name the habit, like "Run" or "Study for 2 hours".',
+            'days.required_if' => 'Pick the days it happens.',
+            'threshold.required_if' => 'Set what counts, like 2 for "2+ miles".',
+            'threshold.gt' => 'What counts has to be more than zero.',
+            'unit.required_if' => 'Add a unit, like "miles" or "questions".',
         ]);
 
         $days = collect($validated['days'] ?? [])->map(fn ($day) => (int) $day)->unique()->sort()->values()->all();
+        $rule = $validated['rule'] ?? Habit::CHECK;
+        $cadence = $validated['cadence'] ?? ((int) ($validated['times_per_week'] ?? 0) >= 7 ? Habit::DAILY : Habit::WEEKLY);
 
         return [
             'title' => trim($validated['title']),
-            'times_per_week' => (int) $validated['times_per_week'],
-            'days' => $days ?: null,
+            'cadence' => $cadence,
+            // The weekly target: 7 every day, one per chosen day, or the number picked.
+            'times_per_week' => match ($cadence) {
+                Habit::DAILY => 7,
+                Habit::DAYS => count($days),
+                default => (int) $validated['times_per_week'],
+            },
+            'days' => $cadence === Habit::DAILY ? null : ($days ?: null),
+            'rule' => $rule,
+            'threshold' => $rule === Habit::CHECK ? null : (float) $validated['threshold'],
+            'unit' => $rule === Habit::NUMBER ? trim((string) $validated['unit']) : null,
         ];
     }
 
@@ -113,6 +156,7 @@ class HabitController extends Controller
         $redirect = match ($request->input('return')) {
             'clubhouse' => redirect()->to(route('dashboard').'#goal-'.$goal->id),
             'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'today' => redirect()->route('today'),
             'planner' => redirect()->route('planner.show'),
             default => redirect()->to(route('goals.show', $goal).'#habits'),
         };

@@ -5,7 +5,10 @@
     $done = $habit->isDoneOn($day);
 @endphp
 
-@if ($disabled)
+@if (! $disabled && $habit->takesNumber())
+    {{-- Number and minutes habits log a number, not a bare check. --}}
+    <x-habit-log :habit="$habit" :day="$day" :return="$return" compact />
+@elseif ($disabled)
     <span @class([
         'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2',
         'border-grass bg-grass text-white' => $done,

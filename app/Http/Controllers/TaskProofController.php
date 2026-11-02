@@ -175,6 +175,7 @@ class TaskProofController extends Controller
         return match ($request->input('return')) {
             'clubhouse' => redirect()->to(route('dashboard').'#goal-'.$task->week->goal_id),
             'gameplan' => redirect()->to(route('dashboard').'#gameplan'),
+            'today' => redirect()->route('today'),
             default => redirect()->to(route('goals.show', $task->week->goal).'#goalweek-'.$task->week->position),
         };
     }

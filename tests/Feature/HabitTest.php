@@ -122,7 +122,7 @@ class HabitTest extends TestCase
         Queue::assertPushed(ReviewRoadmapChanges::class);
 
         $this->actingAs($goal->user)->put(route('habits.update', $habit), ['title' => 'Run 3 miles', 'times_per_week' => 7]);
-        $this->assertSame('Daily', $habit->fresh()->cadence());
+        $this->assertSame('Every day', $habit->fresh()->cadence());
 
         $this->actingAs($goal->user)->delete(route('habits.destroy', $habit));
         $this->assertNotNull($habit->fresh()->archived_at);
