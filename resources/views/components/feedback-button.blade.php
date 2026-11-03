@@ -8,7 +8,7 @@
     <form method="POST" action="{{ route('feedback.store') }}" class="absolute right-0 bottom-12 w-[min(22rem,calc(100vw-2rem))] rounded-2xl border border-line bg-white p-4 shadow-xl">
         @csrf
         <input type="hidden" name="page" value="{{ request()->path() === '/' ? '/' : '/'.request()->path() }}">
-        <label for="feedback-body" class="font-serif text-lg font-medium text-club">Tell us anything</label>
+        <label for="feedback-body" class="font-serif text-lg font-bold text-club tracking-tight">Tell us anything</label>
         <p class="text-xs text-ink/55">Something broken, confusing, or great? You&rsquo;re shaping GoalLine.</p>
         <textarea id="feedback-body" name="body" rows="4" maxlength="2000" required placeholder="The planner was confusing when..."
             class="mt-2 block w-full rounded-xl border border-line bg-ivory/60 px-3 py-2 text-sm text-ink outline-none placeholder:text-ink/35 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10"></textarea>

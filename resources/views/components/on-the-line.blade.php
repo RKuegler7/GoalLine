@@ -9,7 +9,7 @@
 <section {{ $attributes->class('rounded-2xl border border-line bg-white px-5 py-4') }}>
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <p class="font-serif text-lg font-medium text-club">{{ $count }} {{ Str::plural('day', $count) }} on the line this week</p>
+            <p class="font-serif text-lg font-bold text-club tracking-tight">{{ $count }} {{ Str::plural('day', $count) }} on the line this week</p>
             <p class="text-sm text-ink/60">
                 {{ $streak->checkedInToday() ? 'Today is on the line. Trust the process.' : 'One more day on the line: one check-in today does it.' }}
             </p>

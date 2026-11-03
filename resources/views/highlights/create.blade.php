@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">{{ $draft['kind']->label() }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Share to Highlights</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Share to Highlights</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Your followers and GoalLeague mates will see it in their feed.</p>
         </div>
     </x-slot:hero>
@@ -27,7 +27,7 @@
                     'bg-grass text-white' => $draft['kind'] === App\HighlightKind::GreatWeek,
                     'bg-mint text-club' => $draft['kind'] === App\HighlightKind::MilestoneHit,
                 ])>{{ $draft['kind']->label() }}</span>
-                <p class="mt-3 font-serif text-3xl font-medium text-balance text-ivory">{{ $draft['headline'] }}</p>
+                <p class="mt-3 font-serif text-3xl font-bold text-balance text-ivory tracking-tight">{{ $draft['headline'] }}</p>
                 <p class="mt-1 text-ivory/80">{{ $draft['detail'] }}</p>
             </div>
         </div>

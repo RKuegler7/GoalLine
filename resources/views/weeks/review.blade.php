@@ -17,7 +17,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('goals.show', $goal) }}#goalweek-{{ $week->position }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $goal->title }}</a>
             <p class="eyebrow mt-6 text-mint">{{ $week->label() }} review &middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">How did it go?</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">How did it go?</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Two minutes to look back, and your coach turns it into a tip for the week ahead.</p>
         </div>
     </x-slot:hero>
@@ -26,7 +26,7 @@
         {{-- The week in numbers. --}}
         <section class="rounded-2xl border border-line bg-white px-6 py-5">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <h2 class="font-serif text-xl font-medium text-club">{{ $week->focus }}</h2>
+                <h2 class="font-serif text-xl font-bold text-club tracking-tight">{{ $week->focus }}</h2>
                 @if ($result)
                     <x-goalweek-result :result="$result" :close-call="$week->isCloseCall()" />
                 @endif
@@ -34,15 +34,15 @@
             <dl class="mt-4 grid grid-cols-3 gap-3 text-center">
                 <div class="rounded-xl bg-ivory px-3 py-3">
                     <dt class="text-xs text-ink/55">Tasks</dt>
-                    <dd class="font-serif text-2xl text-ink tabular-nums">{{ $planned->filter->completed_at->count() }}/{{ $planned->count() }}</dd>
+                    <dd class="font-serif text-2xl text-ink tabular-nums tracking-tight">{{ $planned->filter->completed_at->count() }}/{{ $planned->count() }}</dd>
                 </div>
                 <div class="rounded-xl bg-ivory px-3 py-3">
                     <dt class="text-xs text-ink/55">Habit check-ins</dt>
-                    <dd class="font-serif text-2xl text-ink tabular-nums">{{ $habits->sum(fn ($habit) => $habit->doneIn($week)) }}/{{ $habits->sum(fn ($habit) => $habit->targetFor($week)) }}</dd>
+                    <dd class="font-serif text-2xl text-ink tabular-nums tracking-tight">{{ $habits->sum(fn ($habit) => $habit->doneIn($week)) }}/{{ $habits->sum(fn ($habit) => $habit->targetFor($week)) }}</dd>
                 </div>
                 <div class="rounded-xl bg-ivory px-3 py-3">
                     <dt class="text-xs text-ink/55">Milestone</dt>
-                    <dd class="font-serif text-2xl text-ink">{{ $week->milestone_hit_at ? 'Hit' : 'Not yet' }}</dd>
+                    <dd class="font-serif text-2xl text-ink tracking-tight">{{ $week->milestone_hit_at ? 'Hit' : 'Not yet' }}</dd>
                 </div>
             </dl>
             @if ($week->isCheckable())
@@ -57,7 +57,7 @@
                     <x-field-backdrop class="absolute inset-0 size-full opacity-70" />
                     <p class="eyebrow relative text-mint">Coach&rsquo;s tip for the week ahead</p>
                     @if ($review->coach_tip)
-                        <p class="relative mt-2 font-serif text-xl leading-relaxed text-ivory">{{ $review->coach_tip }}</p>
+                        <p class="relative mt-2 font-serif text-xl leading-relaxed text-ivory tracking-tight">{{ $review->coach_tip }}</p>
                     @elseif ($writing)
                         <p class="relative mt-2 text-ivory/85">Your coach is reading your week and writing your tip&hellip;</p>
                     @else

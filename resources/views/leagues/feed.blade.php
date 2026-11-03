@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $league->name }}</a>
             <p class="eyebrow mt-6 text-mint">League feed</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">The work behind the wins</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">The work behind the wins</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Every photo here is a check-in someone showed. Cheer the process, not just the result.</p>
         </div>
     </x-slot:hero>
@@ -39,7 +39,7 @@
                 </div>
                 <x-goal-line />
                 <div class="px-8 py-8 text-center">
-                    <h2 class="font-serif text-2xl font-medium text-club">No posts yet. Be the first.</h2>
+                    <h2 class="font-serif text-2xl font-bold text-club tracking-tight">No posts yet. Be the first.</h2>
                     <p class="mx-auto mt-2 max-w-md text-ink/70">
                         Check off a task, then tap &ldquo;Show your work&rdquo; to add a photo. It earns a Verified check, shows your league the process, and gets you cheers.
                     </p>

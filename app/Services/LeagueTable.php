@@ -143,7 +143,7 @@ class LeagueTable
     }
 
     /**
-     * Store results for every finished league week that hasn't been stored yet. Stored results never change.
+     * Store results for every finished league week that hasn't been stored yet. Stored results change only when a dispute on one of their check-ins is settled (see rescore()).
      * Then send the latest week's recap, and the season awards once the last week is in.
      */
     public function settle(): void
@@ -187,6 +187,29 @@ class LeagueTable
         }
 
         $recap->finalize();
+    }
+
+    /**
+     * Recompute a week that was already final, after a dispute on one of its check-ins was settled. Held points come
+     * back (or, if the league owner ruled a check-in out, stay out), and matchup outcomes follow.
+     */
+    public function rescore(?int $week): void
+    {
+        if ($week === null || ! $this->league->results()->where('week', $week)->exists()) {
+            return;
+        }
+
+        DB::transaction(function () use ($week) {
+            foreach ($this->matchups($week) as $matchup) {
+                $this->store($week, $matchup['home'], $matchup['homeResult'], $matchup['away'], $matchup['homeOutcome'], $matchup['away'] === null, overwrite: true);
+
+                if ($matchup['away']) {
+                    $this->store($week, $matchup['away'], $matchup['awayResult'], $matchup['home'], $matchup['awayOutcome'], false, overwrite: true);
+                }
+            }
+        });
+
+        $this->league->load('results');
     }
 
     /**
@@ -261,9 +284,9 @@ class LeagueTable
      *
      * @param  array{result: GoalWeekResult|null, points: int}  $result
      */
-    private function store(int $week, LeagueMember $member, array $result, ?LeagueMember $opponent, MatchupOutcome $outcome, bool $vsMedian): void
+    private function store(int $week, LeagueMember $member, array $result, ?LeagueMember $opponent, MatchupOutcome $outcome, bool $vsMedian, bool $overwrite = false): void
     {
-        $this->league->results()->firstOrCreate(
+        $this->league->results()->{$overwrite ? 'updateOrCreate' : 'firstOrCreate'}(
             ['user_id' => $member->user_id, 'week' => $week],
             [
                 'result' => $result['result'] ?? GoalWeekResult::Short,

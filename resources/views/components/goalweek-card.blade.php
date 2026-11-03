@@ -61,6 +61,50 @@
     </div>
 
     <h3 @class(['mt-3 font-serif text-xl font-medium', 'text-club' => ! $past, 'text-club/70' => $past])>{{ $week->focus }}</h3>
+    @if ($week->effectiveFloor() !== null && ! $past)
+        <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink/60">
+            <span class="tabular-nums">Planned {{ $week->plannedPoints() }} &middot; minimum pace {{ $week->effectiveFloor() }}</span>
+            <x-plan-status :week="$week" />
+            @if ($week->isLighter())
+                <span>&ldquo;{{ $week->lighter_reason }}&rdquo;</span>
+            @endif
+        </div>
+        @if ($week->floor_note)
+            <p class="mt-1 text-xs text-club">{{ $week->floor_note }}</p>
+        @endif
+    @endif
+
+    @if ($planEditable && $week->floor_points !== null)
+        @php
+            $lighterErrors = $errors->getBag("lighter{$week->id}");
+            $lighterLeft = App\Models\RoadmapWeek::LIGHTER_WEEKS_PER_SEASON - $week->goal->weeks->whereNotNull('lighter_at')->count();
+        @endphp
+        @if ($week->isLighter())
+            <form method="POST" action="{{ route('goalweeks.steady', $week) }}" class="mt-1">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="text-xs font-semibold text-club hover:underline">Back to the full pace</button>
+            </form>
+        @elseif ($lighterLeft > 0)
+            <details class="mt-1" @if ($lighterErrors->any()) open @endif>
+                <summary class="cursor-pointer list-none text-xs font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">Declare a lighter week</summary>
+                <form method="POST" action="{{ route('goalweeks.lighter', $week) }}" class="mt-2 rounded-xl bg-ivory p-3">
+                    @csrf
+                    <label for="lighter-{{ $week->id }}" class="block text-xs font-semibold text-ink/70">Why? Your league sees this.</label>
+                    <div class="mt-1 flex gap-2">
+                        <input id="lighter-{{ $week->id }}" name="reason" maxlength="120" required placeholder="Finals week"
+                            class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                        <button type="submit" class="rounded-lg bg-club px-3 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Declare</button>
+                    </div>
+                    <p class="mt-1 text-xs text-ink/55">Its minimum drops to {{ (int) ceil($week->floor_points * App\Models\RoadmapWeek::LIGHTER_SHARE) }} points (70%). {{ $lighterLeft }} of {{ App\Models\RoadmapWeek::LIGHTER_WEEKS_PER_SEASON }} lighter weeks left this season.</p>
+                    @if ($lighterErrors->any())
+                        <p class="mt-1 text-xs text-red-700">{{ $lighterErrors->first() }}</p>
+                    @endif
+                </form>
+            </details>
+        @endif
+    @endif
+
     @if ($planEditable)
         @php
             $weekErrors = $errors->getBag("weekPlan{$week->id}");
@@ -222,12 +266,14 @@
                                         </form>
                                     @endif
                                 </div>
+                                @unless ($week->isStarted())
                                 <form method="POST" action="{{ route('roadmap.tasks.destroy', $task) }}"
                                     onsubmit="return confirm('Remove this task? Your coach will check you\'re still in line.')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50">Remove</button>
                                 </form>
+                                @endunless
                             </div>
                         </details>
                     @else

@@ -46,7 +46,7 @@
         @else
             <div class="relative overflow-hidden bg-club px-5 py-8">
                 <x-field-backdrop class="absolute inset-0 size-full" />
-                <p class="relative font-serif text-2xl font-medium text-balance text-ivory sm:text-3xl">{{ $highlight->headline }}</p>
+                <p class="relative font-serif text-2xl font-bold text-balance text-ivory sm:text-3xl tracking-tight">{{ $highlight->headline }}</p>
             </div>
             <x-goal-line />
         @endif
@@ -54,7 +54,7 @@
 
     <div class="px-5 py-4">
         @if ($highlight->photoUrl())
-            <h3 class="font-serif text-xl font-medium text-club">{{ $highlight->headline }}</h3>
+            <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $highlight->headline }}</h3>
         @endif
         @if ($highlight->detail)
             <p class="text-sm text-ink/60">{{ $highlight->detail }}</p>

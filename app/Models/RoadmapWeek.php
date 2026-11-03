@@ -46,6 +46,22 @@ class RoadmapWeek extends Model
     public const PERSONAL_SHARE_PERCENT = 15;
 
     /**
+     * A declared lighter week keeps at least this share of the plan floor.
+     */
+    public const LIGHTER_SHARE = 0.7;
+
+    /**
+     * Lighter weeks a goal can declare in its season.
+     */
+    public const LIGHTER_WEEKS_PER_SEASON = 2;
+
+    public const AT_MINIMUM = 'at_minimum';
+
+    public const ABOVE_MINIMUM = 'above_minimum';
+
+    public const LIGHTER = 'lighter';
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -57,7 +73,70 @@ class RoadmapWeek extends Model
             'ends_on' => 'date',
             'milestone_hit_at' => 'datetime',
             'smashed_confirmed_at' => 'datetime',
+            'floor_points' => 'integer',
+            'lighter_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The minimum planned points this GoalWeek needs: the plan floor, or 70% of it in a declared lighter week.
+     * Null for plans from before plan floors.
+     */
+    public function effectiveFloor(): ?int
+    {
+        if ($this->floor_points === null) {
+            return null;
+        }
+
+        return $this->isLighter() ? (int) ceil($this->floor_points * self::LIGHTER_SHARE) : $this->floor_points;
+    }
+
+    /**
+     * Whether the person declared this a lighter week.
+     */
+    public function isLighter(): bool
+    {
+        return $this->lighter_at !== null;
+    }
+
+    /**
+     * The plan's honesty label for the league: a lighter week, at the minimum pace, or above it. Null without a floor.
+     */
+    public function planStatus(): ?string
+    {
+        return match (true) {
+            $this->isLighter() => self::LIGHTER,
+            $this->floor_points === null => null,
+            $this->plannedPoints() > $this->floor_points => self::ABOVE_MINIMUM,
+            default => self::AT_MINIMUM,
+        };
+    }
+
+    /**
+     * "At minimum pace", "Above minimum pace", or "Lighter week".
+     */
+    public static function planStatusLabel(?string $status): ?string
+    {
+        return match ($status) {
+            self::AT_MINIMUM => 'At minimum pace',
+            self::ABOVE_MINIMUM => 'Above minimum pace',
+            self::LIGHTER => 'Lighter week',
+            default => null,
+        };
+    }
+
+    /**
+     * Points held out of the score while check-ins are disputed after the week closed.
+     */
+    public function heldPoints(): float
+    {
+        if (! $this->isLocked()) {
+            return 0.0;
+        }
+
+        return $this->tasks
+            ->filter(fn (RoadmapTask $task) => $task->completed_at && $task->dispute_status === RoadmapTask::DISPUTE_OPEN)
+            ->sum(fn (RoadmapTask $task) => $task->earnedPoints(ignoreDisputes: true));
     }
 
     /**

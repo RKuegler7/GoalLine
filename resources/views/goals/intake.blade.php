@@ -14,7 +14,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">{{ $editing ? 'Your answers' : 'Goal set' }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $editing ? 'Update your answers' : 'A few questions first' }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $editing ? 'Update your answers' : 'A few questions first' }}</h1>
             <p class="mt-3 max-w-xl text-ivory/85">
                 @if ($editing)
                     Change anything that's different now. Your GoalWeeks that haven't started will be re-planned around your answers.
@@ -28,7 +28,7 @@
     <div class="mx-auto max-w-2xl">
         @if ($intake->status === App\Models\GoalIntake::GENERATING)
             <section class="rounded-2xl border border-line bg-white px-8 py-10 text-center">
-                <h2 class="font-serif text-2xl font-medium text-club">Writing your questions&hellip;</h2>
+                <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Writing your questions&hellip;</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">GoalLine is thinking about what a coach for this goal would ask. This takes a few seconds, and the page will update on its own.</p>
                 <div class="mx-auto mt-6 h-1.5 w-40 overflow-hidden rounded-full bg-mint" aria-hidden="true">
                     <div class="h-full w-1/3 animate-pulse rounded-full bg-grass"></div>
@@ -61,7 +61,7 @@
                     @endphp
                     <fieldset class="rounded-2xl border border-line bg-white p-6" data-intake-question>
                         <legend class="sr-only">Question {{ $index + 1 }}</legend>
-                        <p class="font-serif text-xl font-medium text-club">
+                        <p class="font-serif text-xl font-bold text-club tracking-tight">
                             @if (in_array($question['type'], [App\Services\IntakeQuestions::NUMBER, App\Services\IntakeQuestions::SHORT_TEXT], true))
                                 <label for="{{ $fieldId }}">{{ $question['text'] }}</label>
                             @else

@@ -7,7 +7,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
             <p class="eyebrow text-mint">{{ $inviteOnly ? 'Private beta' : 'Open signup' }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Admin</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Admin</h1>
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([
                     ['Members', $members['total'], '+'.$members['lastWeek'].' this week'],
@@ -17,7 +17,7 @@
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
-                        <dd class="mt-1 font-serif text-3xl font-medium text-ivory tabular-nums">{{ $value }}</dd>
+                        <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory/65">{{ $note }}</dd>
                     </div>
                 @endforeach

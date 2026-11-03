@@ -13,7 +13,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('highlights.index') }}#highlight-{{ $highlight->id }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Highlights</a>
-            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Your share card</h1>
+            <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Your share card</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Post it on Instagram, your story, or anywhere you celebrate.</p>
         </div>
     </x-slot:hero>
@@ -42,15 +42,15 @@
             <rect x="0" y="770" width="1080" height="12" fill="#ffffff" />
             <rect x="0" y="782" width="1080" height="3" fill="#43b96a" />
 
-            <text x="80" y="865" fill="{{ $kindColor }}" font-family="Instrument Sans, sans-serif" font-weight="600" font-size="30" letter-spacing="7">{{ Str::upper($highlight->kind->label()) }}</text>
+            <text x="80" y="865" fill="{{ $kindColor }}" font-family="Plus Jakarta Sans, sans-serif" font-weight="600" font-size="30" letter-spacing="7">{{ Str::upper($highlight->kind->label()) }}</text>
 
             @foreach ($titleLines as $index => $line)
-                <text x="80" y="{{ $titleTop + $index * $lineHeight }}" fill="#fafaf5" font-family="Fraunces, Georgia, serif" font-weight="500" font-size="78">{{ $line }}</text>
+                <text x="80" y="{{ $titleTop + $index * $lineHeight }}" fill="#fafaf5" font-family="Plus Jakarta Sans, sans-serif" font-weight="800" font-size="78">{{ $line }}</text>
             @endforeach
 
-            <text x="80" y="{{ $afterTitle + 70 }}" fill="#e5f3e8" fill-opacity="0.85" font-family="Instrument Sans, sans-serif" font-size="34">{{ $highlight->user->name }} &#183; {{ App\Clock::local($highlight->created_at)->format('F j, Y') }}</text>
+            <text x="80" y="{{ $afterTitle + 70 }}" fill="#e5f3e8" fill-opacity="0.85" font-family="Plus Jakarta Sans, sans-serif" font-size="34">{{ $highlight->user->name }} &#183; {{ App\Clock::local($highlight->created_at)->format('F j, Y') }}</text>
             @if ($highlight->detail)
-                <text x="80" y="{{ $afterTitle + 122 }}" fill="#e5f3e8" fill-opacity="0.65" font-family="Instrument Sans, sans-serif" font-size="28">{{ Str::limit($highlight->detail, 58) }}</text>
+                <text x="80" y="{{ $afterTitle + 122 }}" fill="#e5f3e8" fill-opacity="0.65" font-family="Plus Jakarta Sans, sans-serif" font-size="28">{{ Str::limit($highlight->detail, 58) }}</text>
             @endif
 
             {{-- The GoalLine lockup, bottom left. --}}
@@ -63,7 +63,7 @@
                 </g>
                 <circle cx="468" cy="73" r="10" fill="#43b96a" />
             </g>
-            <text x="1000" y="1268" text-anchor="end" fill="#e5f3e8" fill-opacity="0.7" font-family="Instrument Sans, sans-serif" font-weight="600" font-size="22" letter-spacing="5">GET IN LINE.</text>
+            <text x="1000" y="1268" text-anchor="end" fill="#e5f3e8" fill-opacity="0.7" font-family="Plus Jakarta Sans, sans-serif" font-weight="600" font-size="22" letter-spacing="5">GET IN LINE.</text>
         </svg>
 
         <button type="button" data-download-card data-filename="goalline-{{ Str::slug($highlight->headline) }}.png"

@@ -13,6 +13,7 @@ use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoController;
+use App\Http\Controllers\DisputeController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
@@ -31,6 +32,7 @@ use App\Http\Controllers\LeagueInviteController;
 use App\Http\Controllers\LeagueMatchupController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
+use App\Http\Controllers\LeaguePlanController;
 use App\Http\Controllers\LeagueRecapController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
@@ -136,6 +138,7 @@ Route::middleware('auth')->group(function () {
         ->name('goals.roadmap.store')
         ->can('update', 'goal')
         ->middleware('throttle:5,10');
+    Route::post('/goals/{goal}/plan/accept', [RoadmapController::class, 'accept'])->name('goals.plan.accept')->can('update', 'goal');
 
     Route::post('/goals/{goal}/coach-check/fix', [CoachCheckController::class, 'applyFix'])->name('goals.coach.fix')->can('update', 'goal');
     Route::post('/goals/{goal}/coach-check/dismiss', [CoachCheckController::class, 'dismiss'])->name('goals.coach.dismiss')->can('update', 'goal');
@@ -152,6 +155,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/roadmap-tasks/{task}/caption', [TaskProofController::class, 'caption'])->name('roadmap.tasks.caption')->middleware(['verified', 'throttle:10,1']);
     Route::get('/roadmap-tasks/{task}/proof', [TaskProofController::class, 'show'])->name('roadmap.tasks.proof');
     Route::post('/roadmap-tasks/{task}/proof-request', [TaskProofController::class, 'request'])->name('roadmap.tasks.proof.request')->middleware(['verified', 'throttle:30,1']);
+    Route::post('/roadmap-tasks/{task}/disputes', [DisputeController::class, 'store'])->name('disputes.store')->middleware(['verified', 'throttle:20,60']);
+    Route::post('/disputes/{dispute}/explain', [DisputeController::class, 'explain'])->name('disputes.explain');
+    Route::post('/disputes/{dispute}/withdraw', [DisputeController::class, 'withdraw'])->name('disputes.withdraw');
+    Route::post('/disputes/{dispute}/rule', [DisputeController::class, 'rule'])->name('disputes.rule');
     Route::post('/goalweeks/{week}/confirm-smashed', [SmashedConfirmationController::class, 'store'])->name('goalweeks.confirm-smashed')->middleware('verified');
     Route::get('/goalweeks/{week}/review', [WeekReviewController::class, 'show'])->name('goalweeks.review');
     Route::post('/goalweeks/{week}/review', [WeekReviewController::class, 'store'])->name('goalweeks.review.store')->middleware('throttle:10,1');
@@ -193,6 +200,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/roadmap-tasks/{task}', [RoadmapTaskController::class, 'destroy'])->name('roadmap.tasks.destroy');
     Route::post('/roadmap-tasks/{task}/move', [RoadmapTaskController::class, 'move'])->name('roadmap.tasks.move');
     Route::put('/goalweeks/{week}', [RoadmapWeekController::class, 'update'])->name('goalweeks.update');
+    Route::post('/goalweeks/{week}/lighter', [RoadmapWeekController::class, 'lighter'])->name('goalweeks.lighter');
+    Route::delete('/goalweeks/{week}/lighter', [RoadmapWeekController::class, 'steady'])->name('goalweeks.steady');
     Route::post('/goals/{goal}/refinements', [PlanRefinementController::class, 'store'])->name('goals.refinements.store')->can('update', 'goal')->middleware(['verified', 'throttle:10,60']);
     Route::get('/goals/{goal}/refinements/{refinement}', [PlanRefinementController::class, 'show'])->name('goals.refinements.show')->can('update', 'goal');
     Route::post('/goals/{goal}/refinements/{refinement}/accept', [PlanRefinementController::class, 'accept'])->name('goals.refinements.accept')->can('update', 'goal');
@@ -215,6 +224,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
     Route::post('/leagues/{league}/group-tasks', [GroupTaskController::class, 'store'])->name('leagues.group-tasks.store')->can('view', 'league')->middleware(['verified', 'throttle:10,1']);
     Route::post('/group-tasks/{groupTask}/vote', [GroupTaskController::class, 'vote'])->name('group-tasks.vote')->middleware(['verified', 'throttle:30,1']);
+    Route::get('/leagues/{league}/members/{member}/plan', [LeaguePlanController::class, 'show'])->name('leagues.members.plan')->can('view', 'league');
     Route::get('/leagues/{league}/matchups/{week?}', [LeagueMatchupController::class, 'show'])->name('leagues.matchups')->can('view', 'league')->whereNumber('week');
     Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');

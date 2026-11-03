@@ -11,7 +11,7 @@
             <p class="eyebrow mt-6 {{ $complete ? 'text-gold' : 'text-mint' }}">
                 {{ $complete ? 'Season recap' : 'Weekly recaps' }} &middot; {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }}
             </p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
 
             @if ($complete && $podium->isNotEmpty())
                 {{-- The podium: second, first, third. --}}
@@ -55,7 +55,7 @@
                             <x-badge :badge="$award->badge" class="size-16" />
                             <div class="min-w-0">
                                 <p class="eyebrow text-[0.62rem] text-ink/55">{{ $award->badge->label() }}</p>
-                                <p class="mt-0.5 truncate font-serif text-xl font-medium text-ink">{{ $award->user->name }}</p>
+                                <p class="mt-0.5 truncate font-serif text-xl font-bold text-ink tracking-tight">{{ $award->user->name }}</p>
                                 <p class="text-sm text-ink/60">{{ $award->detail }}</p>
                             </div>
                         </li>
@@ -104,7 +104,7 @@
                 @foreach ($weeks as $recapWeek)
                     <article class="overflow-hidden rounded-2xl border border-line bg-white">
                         <header class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-ivory/60 px-5 py-3">
-                            <h3 class="font-serif text-lg font-medium text-club">
+                            <h3 class="font-serif text-lg font-bold text-club tracking-tight">
                                 Week {{ $recapWeek['week'] }}
                                 <span class="font-sans text-sm font-normal text-ink/50">&middot; {{ $league->weekStartsOn($recapWeek['week'])->format('M j') }}&ndash;{{ $league->weekEndsOn($recapWeek['week'])->format('M j') }}</span>
                             </h3>
@@ -128,7 +128,7 @@
                                         <span @class(['block truncate', 'font-semibold text-ink' => $home->outcome === App\MatchupOutcome::Win, 'text-ink/75' => $home->outcome !== App\MatchupOutcome::Win])>{{ $nameOf($home->user_id) }}</span>
                                         <x-goalweek-result :result="$home->result" class="mt-1" />
                                     </span>
-                                    <span class="text-center font-serif text-lg tabular-nums text-ink">
+                                    <span class="text-center font-serif text-lg tabular-nums text-ink tracking-tight">
                                         {{ $home->result_points }}<span class="mx-1 text-ink/30">&ndash;</span>{{ $away ? $away->result_points : '' }}
                                         @if (! $away)
                                             <span class="block text-xs font-sans text-ink/50">vs median</span>

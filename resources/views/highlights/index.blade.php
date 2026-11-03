@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">Highlights</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Around the League</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Around the League</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Celebrate the wins and the work behind them: check-ins, finished goals, great GoalWeeks, and milestones from your friends and GoalLeague mates.</p>
         </div>
     </x-slot:hero>
@@ -16,7 +16,7 @@
                     </div>
                     <x-goal-line />
                     <div class="px-8 py-8 text-center">
-                        <h2 class="font-serif text-2xl font-medium text-club">Nothing here yet</h2>
+                        <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Nothing here yet</h2>
                         <p class="mx-auto mt-2 max-w-md text-ink/70">
                             Add friends or join a GoalLeague to see their posts. Show your work on a checked-off task, or share a finished goal, a great GoalWeek, or a milestone, and it shows up here.
                         </p>

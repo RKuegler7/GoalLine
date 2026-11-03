@@ -36,8 +36,14 @@ class HabitController extends Controller
     {
         Gate::authorize('update', $habit->goal);
         $before = "{$habit->label()} ({$habit->cadence()})";
+        $validated = $this->validated($request);
 
-        $habit->update($this->validated($request));
+        // Plan lock: a lower target would make this week's plan lighter after it locked.
+        if ($validated['times_per_week'] < $habit->times_per_week && ($habit->logs()->exists() || $habit->created_at->lt(Clock::today()->startOfWeek()))) {
+            return $this->back($request, $habit->goal, "This week's plan is locked, so a habit's target can't go down. Retire it and add the lighter version: this week keeps its plan, and the new one sets the pace from here.");
+        }
+
+        $habit->update($validated);
         $habit->goal->recordRoadmapChange("Changed the habit \"{$before}\" to \"{$habit->label()}\" ({$habit->cadence()})");
 
         return $this->back($request, $habit->goal, 'Habit updated.');

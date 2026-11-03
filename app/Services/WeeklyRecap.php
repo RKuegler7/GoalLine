@@ -6,6 +6,7 @@ use App\Clock;
 use App\GoalWeekResult;
 use App\Models\ChallengeCheckIn;
 use App\Models\Cheer;
+use App\Models\Dispute;
 use App\Models\Goal;
 use App\Models\HabitLog;
 use App\Models\RoadmapTask;
@@ -107,6 +108,26 @@ class WeeklyRecap
             })
             ->filter()
             ->values();
+    }
+
+    /**
+     * Fair play this week, in plain numbers: disputes you opened and the ones about your check-ins (opened and
+     * settled), and points held while a dispute is open after a GoalWeek closed.
+     *
+     * @return array{opened: int, aboutYou: int, settled: int, held: float}
+     */
+    public function fairPlay(): array
+    {
+        $from = $this->monday->startOfDay();
+        $to = $this->sunday->endOfDay();
+        $aboutYou = Dispute::query()->whereHas('task.week.goal', fn ($goals) => $goals->where('user_id', $this->user->id));
+
+        return [
+            'opened' => Dispute::query()->where('disputer_id', $this->user->id)->whereBetween('created_at', [$from, $to])->count(),
+            'aboutYou' => (clone $aboutYou)->whereBetween('created_at', [$from, $to])->count(),
+            'settled' => (clone $aboutYou)->whereNotNull('resolved_at')->whereBetween('resolved_at', [$from, $to])->count(),
+            'held' => round($this->goalWeeks()->sum(fn (array $row) => $row['week']->heldPoints()), 1),
+        ];
     }
 
     /**

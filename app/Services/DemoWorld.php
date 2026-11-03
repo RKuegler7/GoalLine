@@ -219,6 +219,8 @@ class DemoWorld
         $goal = $owner->goals()->create(['title' => $title, 'category' => $category, 'target_date' => $target, 'why' => 'Because doing it with friends makes it stick.']);
         $goal->forceFill([
             'roadmap_status' => RoadmapStatus::Ready,
+            'plan_source' => 'coach',
+            'plan_accepted_at' => now(),
             'roadmap_summary' => 'Build steadily week by week, with the hardest work in the middle and a lighter final week.',
             'created_at' => $this->monday->subWeeks(self::WEEKS_PLAYED)->subDays(3),
         ])->saveQuietly();

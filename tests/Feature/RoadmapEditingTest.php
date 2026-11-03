@@ -69,12 +69,17 @@ class RoadmapEditingTest extends TestCase
         $this->actingAs($this->goal->user)->put(route('roadmap.tasks.update', $task), ['description' => 'Do the hard part']);
         $this->assertSame('Do the hard part', $task->fresh()->description);
 
-        $this->actingAs($this->goal->user)->delete(route('roadmap.tasks.destroy', $task));
-        $this->assertModelMissing($task);
+        // Plan lock: this GoalWeek started, so its planned work stays.
+        $this->actingAs($this->goal->user)->delete(route('roadmap.tasks.destroy', $task))->assertSessionHas('status', fn ($status) => str_contains($status, 'locked'));
+        $this->assertModelExists($task);
+
+        $upcoming = $this->nextWeek->tasks()->first();
+        $this->actingAs($this->goal->user)->delete(route('roadmap.tasks.destroy', $upcoming));
+        $this->assertModelMissing($upcoming);
 
         $this->assertSame([
             'Changed a task in GoalWeek 2 from "Do the work" to "Do the hard part"',
-            'Removed a task from GoalWeek 2: "Do the hard part"',
+            'Removed a task from GoalWeek 3: "'.$upcoming->description.'"',
         ], $this->goal->fresh()->pending_changes);
     }
 
@@ -140,15 +145,16 @@ class RoadmapEditingTest extends TestCase
         $this->assertSame(RoadmapStatus::None, $this->goal->fresh()->plan_check_status);
     }
 
-    public function test_replanning_starts_from_the_current_goalweek(): void
+    public function test_replanning_starts_from_the_next_goalweek_because_this_one_is_locked(): void
     {
         Queue::fake();
+        $this->goal->forceFill(['plan_accepted_at' => now()])->save();
 
         $this->actingAs($this->goal->user)
             ->post(route('goals.roadmap.store', $this->goal))
             ->assertRedirect(route('goals.show', $this->goal));
 
-        Queue::assertPushed(GenerateRoadmap::class, fn (GenerateRoadmap $job) => $job->fromPosition === 2);
+        Queue::assertPushed(GenerateRoadmap::class, fn (GenerateRoadmap $job) => $job->fromPosition === 3);
     }
 
     public function test_replanning_keeps_past_goalweeks_and_rebuilds_the_rest(): void

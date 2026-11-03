@@ -3,7 +3,7 @@
         @if ($pendingInvite = App\Models\LeagueInvite::findUsable(session('league_invite')))
             <a href="{{ $pendingInvite->url() }}" class="block rounded-2xl border-2 border-club bg-mint px-6 py-5">
                 <span class="eyebrow text-club">You're invited</span>
-                <span class="mt-1 block font-serif text-xl text-club">Join {{ $pendingInvite->league->name }} &rarr;</span>
+                <span class="mt-1 block font-serif text-xl text-club tracking-tight">Join {{ $pendingInvite->league->name }} &rarr;</span>
             </a>
         @endif
 

@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">Edit goal</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $goal->title }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $goal->title }}</h1>
         </div>
     </x-slot:hero>
 

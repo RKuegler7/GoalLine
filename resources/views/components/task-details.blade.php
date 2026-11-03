@@ -10,10 +10,21 @@
     $hasError = $errors->has('result') && (int) old('task_id') === $task->id;
     $justChecked = (int) session('proof_prompt') === $task->id;
     $proofError = $errors->hasAny(['proof', 'visibility', 'caption', 'location']) && (int) old('proof_task_id') === $task->id;
+    // A disputed check-in can get proof even after its GoalWeek closes.
+    $disputed = $task->dispute_status === App\Models\RoadmapTask::DISPUTE_OPEN;
+    $canProve = $checkable || $disputed;
 @endphp
 
 <div class="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink/55">
     <x-task-tags :task="$task" />
+    @if ($task->is_floor)
+        <span class="rounded-full bg-ivory px-2 py-0.5 font-semibold text-ink/60 ring-1 ring-inset ring-line" title="Added so this week meets the minimum pace your deadline needs">Minimum pace</span>
+    @endif
+    @if ($disputed)
+        <span class="rounded-full bg-gold/20 px-2 py-0.5 font-semibold text-ink">Disputed: add a photo or explain it in your matchup</span>
+    @elseif ($task->dispute_status === App\Models\RoadmapTask::DISPUTE_UPHELD)
+        <span class="rounded-full bg-ink/10 px-2 py-0.5 font-semibold text-ink/70">Ruled out by the league owner</span>
+    @endif
     @if ($task->result_required)
         <span class="tabular-nums">
             @if ($done && $task->result_value !== null)
@@ -29,7 +40,7 @@
             <svg viewBox="0 0 16 16" class="size-3" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
             Verified
         </a>
-    @elseif ($done && $mine && $checkable && ! $justChecked)
+    @elseif ($done && $mine && $canProve && ! $justChecked)
         <a href="#proof-{{ $context }}-{{ $task->id }}" data-open-proof="proof-{{ $context }}-{{ $task->id }}" class="font-semibold text-club hover:underline">Show your work (optional)</a>
     @endif
 </div>
@@ -75,7 +86,7 @@
 @endif
 
 {{-- Show your work: opens right after checking off, or from the link above. --}}
-@if ($done && $mine && $checkable && ! $task->isVerified())
+@if ($done && $mine && $canProve && ! $task->isVerified())
     <div id="proof-{{ $context }}-{{ $task->id }}" data-proof-panel @if (! $justChecked && ! $proofError) hidden @endif
         class="mt-2 rounded-xl border border-club/25 bg-mint/50 px-3 py-2.5 text-sm">
         <p class="font-semibold text-club">Show your work (optional)</p>

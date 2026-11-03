@@ -4,7 +4,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-md px-4 pt-8 pb-24 text-center">
             <p class="eyebrow text-mint">{{ $eyebrow }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory">{{ $title }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory">{{ $title }}</h1>
             <p class="mt-3 text-ivory/85">{{ $intro }}</p>
         </div>
     </x-slot:hero>

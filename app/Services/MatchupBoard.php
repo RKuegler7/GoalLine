@@ -68,6 +68,7 @@ class MatchupBoard
             'next' => $goalWeek ? self::nextBand($goalWeek) : null,
             'notStarted' => $goalWeek?->isNotStarted() ?? false,
             'needsProof' => $goalWeek?->needsProofForSmashed() ?? false,
+            'held' => $goalWeek ? round($goalWeek->heldPoints(), 1) : 0,
             'linePoints' => $result['points'],
             'outcome' => $outcome,
             'matchPoints' => $outcome->points(),

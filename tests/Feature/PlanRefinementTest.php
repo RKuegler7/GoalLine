@@ -54,14 +54,15 @@ class PlanRefinementTest extends TestCase
         $this->weeks[3]->tasks()->create(['position' => 4, 'description' => 'Stretch 10 minutes'])->forceFill(['is_personal' => true, 'points' => 1])->save();
     }
 
-    public function test_only_goalweeks_that_havent_started_can_change_plus_this_week_before_any_check_in(): void
+    public function test_only_goalweeks_that_havent_started_can_change(): void
     {
         $editor = app(PlanEditor::class);
 
         $this->assertSame([3, 4], $editor->editableWeeks($this->goal->fresh('weeks.tasks', 'habits.logs'))->pluck('position')->all());
 
+        // Plan lock: this week stays locked even with nothing checked off.
         $this->weeks[2]->tasks()->update(['completed_at' => null]);
-        $this->assertSame([2, 3, 4], $editor->editableWeeks($this->goal->fresh('weeks.tasks', 'habits.logs'))->pluck('position')->all());
+        $this->assertSame([3, 4], $editor->editableWeeks($this->goal->fresh('weeks.tasks', 'habits.logs'))->pluck('position')->all());
     }
 
     public function test_a_request_goes_to_the_coach_and_nothing_changes_until_the_preview(): void

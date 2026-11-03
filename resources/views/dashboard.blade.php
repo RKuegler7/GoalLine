@@ -11,11 +11,11 @@
                 {{ now(App\Clock::timezone())->format('l, F j') }} &middot;
                 {{ $daysLeftInWeek === 0 ? 'GoalWeek ends tonight' : 'GoalWeek ends Sunday, '.$daysLeftInWeek.' '.Str::plural('day', $daysLeftInWeek).' left' }}
             </p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">
                 {{ $greeting }}, {{ Str::before(auth()->user()->name, ' ') }}.
             </h1>
 
-            <p class="mt-2 font-serif text-lg text-mint">Trust the process. Show up today.</p>
+            <p class="mt-2 font-serif text-lg text-mint tracking-tight">Trust the process. Show up today.</p>
 
             <x-daily-streak :streak="$streak" class="mt-4" />
 
@@ -29,7 +29,7 @@
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
-                        <dd class="mt-1 font-serif text-3xl font-medium text-ivory tabular-nums">{{ $value }}</dd>
+                        <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory/65">{{ $note }}</dd>
                     </div>
                 @endforeach
@@ -65,7 +65,7 @@
                     <x-goal-line />
                     <div class="px-8 py-10 text-center">
                         <p class="eyebrow text-club">Your goal</p>
-                        <h2 class="mt-3 font-serif text-2xl font-medium text-club">What do you want to accomplish?</h2>
+                        <h2 class="mt-3 font-serif text-2xl font-bold text-club tracking-tight">What do you want to accomplish?</h2>
                         <p class="mx-auto mt-2 max-w-md text-ink/70">Name a goal and its date, and GoalLine will build your personal roadmap.</p>
                         <a href="{{ route('goals.create') }}" class="mt-6 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory transition hover:bg-club-dark">
                             Set your first goal

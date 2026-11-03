@@ -32,7 +32,7 @@
     <div class="mt-4 grid grid-cols-[1fr_auto_1fr] items-start gap-3">
         @foreach ([$card['home'], $card['away']] as $index => $side)
             @if ($index === 1)
-                <p class="mt-6 font-serif text-sm text-ink/40">vs</p>
+                <p class="mt-6 font-serif text-sm text-ink/40 tracking-tight">vs</p>
             @endif
             <div @class(['min-w-0', 'text-right' => $index === 1])>
                 @if ($side)
@@ -49,8 +49,14 @@
                     </div>
                     <p class="mt-2 truncate font-semibold text-ink">{{ $side['member']->user->name }}</p>
                     <p class="truncate text-xs text-ink/55">{{ $side['member']->goal?->title ?? 'No goal selected' }}</p>
-                    <p class="mt-3 font-serif text-4xl font-medium text-club tabular-nums">{{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}</p>
+                    <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">{{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}</p>
                     <p class="text-xs text-ink/55">{{ $side['earned'] }} of {{ $side['planned'] }} planned points</p>
+                    <div @class(['mt-1 flex', 'justify-end' => $index === 1])>
+                        <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
+                    </div>
+                    @if ($side['held'] > 0)
+                        <p class="mt-1 text-xs text-ink/60">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
+                    @endif
                     <div @class(['mt-2 flex', 'justify-end' => $index === 1])>
                         @if ($side['result'])
                             <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" :needs-proof="$side['needsProof']" />
@@ -62,7 +68,7 @@
                     <div class="flex justify-end"><span class="grid size-10 place-items-center rounded-full bg-ivory text-xs font-semibold text-ink/50 ring-1 ring-line">M</span></div>
                     <p class="mt-2 font-semibold text-ink">League median</p>
                     <p class="text-xs text-ink/55">Odd number of members: one plays the middle score</p>
-                    <p class="mt-3 font-serif text-4xl font-medium text-ink/60 tabular-nums">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
+                    <p class="mt-3 font-serif text-4xl font-bold text-ink/60 tabular-nums tracking-tight">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
                     <p class="text-xs text-ink/55">line points</p>
                 @endif
             </div>

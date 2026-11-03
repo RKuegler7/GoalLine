@@ -12,7 +12,7 @@
             <p class="eyebrow mt-6 text-mint">{{ $monday->format('M j') }}&ndash;{{ $monday->copy()->addDays(6)->format($monday->month === $monday->copy()->addDays(6)->month ? 'j' : 'M j') }}</p>
             <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Plan my week</h1>
+                    <h1 class="font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Plan my week</h1>
                     <p class="mt-2 max-w-xl text-ivory/85">Put each task on a day. It shows up on Today&rsquo;s Gameplan that morning, and anything you miss carries over.</p>
                     <a href="{{ route('settings.notifications') }}#calendar" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-mint hover:text-ivory"><x-icon name="calendar" class="size-4" /> Sync with your calendar</a>
                 </div>
@@ -30,7 +30,7 @@
 
     @if ($goals->isEmpty())
         <section class="rounded-2xl border border-line bg-white px-6 py-8 text-center">
-            <h2 class="font-serif text-2xl font-medium text-club">Nothing to plan yet</h2>
+            <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Nothing to plan yet</h2>
             <p class="mx-auto mt-2 max-w-md text-ink/70">Once a goal has a roadmap, this GoalWeek&rsquo;s tasks and habits show up here.</p>
             <a href="{{ route('dashboard') }}" class="mt-5 inline-block rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Back to the Clubhouse</a>
         </section>
@@ -51,7 +51,7 @@
                         'opacity-60' => $day->lt($today),
                     ])>
                         <p @class(['text-xs font-semibold uppercase tracking-wide', 'text-club' => $isToday, 'text-ink/50' => ! $isToday])>{{ $isToday ? 'Today' : $day->format('D') }}</p>
-                        <p class="font-serif text-lg text-ink">{{ $day->format('j') }}</p>
+                        <p class="font-serif text-lg text-ink tracking-tight">{{ $day->format('j') }}</p>
                         <ul class="mt-2 space-y-1">
                             @foreach ($tasks as $task)
                                 <li @class(['rounded-md px-1.5 py-1 text-xs leading-snug', 'bg-mint/70 text-ink/45 line-through' => $task->completed_at, 'bg-ivory text-ink/80' => ! $task->completed_at]) title="{{ $task->description }}">{{ Str::limit($task->description, 48) }}</li>
@@ -83,7 +83,7 @@
                     <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
                         <div class="min-w-0">
                             <p class="eyebrow text-[0.62rem] text-ink/50">{{ $week->label() }} &middot; ends {{ $week->ends_on->format('D, M j') }}</p>
-                            <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-medium text-club hover:underline">{{ $goal->title }}</a>
+                            <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
                             <p class="mt-0.5 text-sm text-ink/65">{{ $week->focus }}</p>
                         </div>
                         @if ($week->result())

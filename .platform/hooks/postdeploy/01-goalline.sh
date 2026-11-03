@@ -51,6 +51,7 @@ echo "GoalLine check: the database answered on port ${DB_PORT:-3306}."
 # 4. Database and caches.
 chown -R webapp:webapp "$APP/storage" "$APP/bootstrap/cache"
 run migrate --force --no-interaction
+run goalline:plan-floors --no-interaction
 run config:cache
 run route:cache
 run view:cache

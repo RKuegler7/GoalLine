@@ -6,6 +6,7 @@ use App\Clock;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use App\Services\PlanEditor;
+use App\Services\PlanFloor;
 use App\Services\WeekPlanner;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -110,6 +111,15 @@ class RoadmapTaskController extends Controller
         $this->authorizeEditing($week);
         abort_if($task->isGroupTask(), 403, 'Group tasks are set by a league vote.');
 
+        // Plan lock: once a GoalWeek starts, planned work can be added to but not taken away.
+        if ($week->isStarted()) {
+            return $this->backTo($week)->with('status', "{$week->label()}'s plan locked when it started. You can add a personal task, but planned work stays.");
+        }
+
+        if (PlanFloor::wouldDropBelow($week->load('tasks', 'goal.habits.logs'), $task->points)) {
+            return $this->backTo($week)->with('status', $this->belowFloorMessage($week));
+        }
+
         $task->delete();
         $week->goal->recordRoadmapChange("Removed a task from {$this->label($week)}: \"{$task->description}\"");
 
@@ -151,11 +161,23 @@ class RoadmapTaskController extends Controller
         abort_unless($target && $target->id !== $week->id && $editable->contains('id', $week->id) && PlanEditor::isPlanTask($task) && ! $task->completed_at, 403,
             'Tasks can move only between GoalWeeks that haven\'t started.');
 
+        if (PlanFloor::wouldDropBelow($week->load('tasks', 'goal.habits.logs'), $task->points)) {
+            return $this->backTo($week)->with('status', $this->belowFloorMessage($week));
+        }
+
         $task->forceFill(['roadmap_week_id' => $target->id, 'position' => ($target->tasks->max('position') ?? 0) + 1, 'planned_on' => null])->save();
         app(WeekPlanner::class)->autoPlan($target->load('tasks'));
         $goal->recordRoadmapChange("Moved \"{$task->description}\" from {$this->label($week)} to {$this->label($target)}");
 
         return $this->backTo($target);
+    }
+
+    /**
+     * Why a change was turned down: it would take the GoalWeek below its plan floor.
+     */
+    private function belowFloorMessage(RoadmapWeek $week): string
+    {
+        return "That would put {$week->label()} below the minimum pace your deadline needs ({$week->effectiveFloor()} points). Swap it for another task, or declare a lighter week.";
     }
 
     /**

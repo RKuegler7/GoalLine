@@ -4,7 +4,10 @@
     $status = $goal->roadmap_status;
     $weeksPerStretch = $goal->weeksPerStretch();
     $canEdit = $goal->isActive();
-    $replanFrom = $goal->replanFromPosition();
+    // Until a plan is accepted (and nothing is checked off), it can be rebuilt whole; after that, only weeks that
+    // haven't started can be re-planned, because a week's plan locks when it starts.
+    $untouched = $goal->plan_accepted_at === null && ! $goal->weeks->contains(fn ($week) => App\Services\PlanEditor::hasCheckIns($week));
+    $replanFrom = $untouched ? 1 : $goal->upcomingPosition();
     $aiPaused = $status === App\RoadmapStatus::Failed ? app(App\Services\AiBudget::class)->blockedReason($goal->user) : null;
     $editableWeeks = $canEdit && $status === App\RoadmapStatus::Ready ? app(App\Services\PlanEditor::class)->editableWeeks($goal) : collect();
 @endphp
@@ -15,17 +18,31 @@
             <h2 class="eyebrow text-club">Your roadmap</h2>
             @if ($canEdit && $replanFrom)
                 <form method="POST" action="{{ route('goals.roadmap.store', $goal) }}"
-                    onsubmit="return confirm('{{ $replanFrom > 1 ? 'Re-plan from this GoalWeek on? Earlier GoalWeeks stay as they are; the rest, including your task edits, are rebuilt.' : 'Build a fresh roadmap? This replaces the current one, including your task edits.' }}')">
+                    onsubmit="return confirm('{{ $replanFrom > 1 ? 'Re-plan the GoalWeeks still ahead? This week stays as it is.' : 'Build a fresh roadmap? This replaces the current one, including your task edits.' }}')">
                     @csrf
                     <button type="submit" class="text-sm font-semibold text-club hover:underline">
-                        {{ $replanFrom > 1 ? 'Re-plan from here' : 'Rebuild roadmap' }}
+                        {{ $replanFrom > 1 ? 'Re-plan upcoming weeks' : ($goal->plan_source === 'fallback' ? 'Try the coach again' : 'Rebuild roadmap') }}
                     </button>
                 </form>
             @endif
         </div>
 
+        @if ($canEdit && $goal->plan_accepted_at === null)
+            {{-- A new plan is a draft until the person has looked it over and accepted it. --}}
+            <div class="mt-3 flex flex-col gap-3 rounded-2xl border-2 border-club bg-white px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p class="font-semibold text-club">Draft plan: look it over</p>
+                    <p class="text-sm text-ink/70">{{ $goal->plan_source === 'fallback' ? 'The coach was unavailable, so this is a starter plan built from your goal type and the minimum pace your deadline needs.' : 'Change anything you like below. Every week meets the minimum pace your deadline needs, checked by code, not the AI.' }}</p>
+                </div>
+                <form method="POST" action="{{ route('goals.plan.accept', $goal) }}">
+                    @csrf
+                    <button type="submit" class="w-full rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark sm:w-auto">Accept this plan</button>
+                </form>
+            </div>
+        @endif
+
         <div class="mt-3 rounded-2xl border border-line bg-white px-6 py-5">
-            <p class="font-serif text-xl leading-relaxed text-ink">{{ $goal->roadmap_summary }}</p>
+            <p class="font-serif text-xl leading-relaxed text-ink tracking-tight">{{ $goal->roadmap_summary }}</p>
             <p class="mt-3 border-t border-line pt-3 text-sm text-ink/60">
                 @if ($weeksPerStretch > 1)
                     This is a longer goal, so each step of your plan spans <span class="font-semibold text-club">{{ $weeksPerStretch }} GoalWeeks</span>, with one milestone to hit before the next begins.
@@ -51,7 +68,7 @@
             <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-line bg-white px-6 py-4">
                 <div>
                     <p class="eyebrow text-club">GoalWeek points</p>
-                    <p class="font-serif text-3xl font-medium text-club tabular-nums">{{ $goal->points() }}</p>
+                    <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $goal->points() }}</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     @foreach (App\GoalWeekResult::cases() as $tier)
@@ -90,7 +107,7 @@
             <p class="eyebrow text-club">Your roadmap</p>
 
             @if ($status === App\RoadmapStatus::Pending)
-                <h2 class="mt-3 font-serif text-2xl font-medium text-club">Building your game plan&hellip;</h2>
+                <h2 class="mt-3 font-serif text-2xl font-bold text-club tracking-tight">Building your game plan&hellip;</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">
                     GoalLine is mapping out your plan from today to {{ $goal->target_date->format('F j') }}. This usually takes under a minute, and this page will update on its own.
                 </p>
@@ -98,10 +115,10 @@
                     <div class="h-full w-1/3 animate-pulse rounded-full bg-grass"></div>
                 </div>
             @elseif ($status === App\RoadmapStatus::Failed)
-                <h2 class="mt-3 font-serif text-2xl font-medium text-club">We couldn't build your roadmap just now</h2>
+                <h2 class="mt-3 font-serif text-2xl font-bold text-club tracking-tight">We couldn't build your roadmap just now</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">{{ $aiPaused ?? "Nothing's lost. Give it another try." }}</p>
             @else
-                <h2 class="mt-3 font-serif text-2xl font-medium text-club">Get your game plan</h2>
+                <h2 class="mt-3 font-serif text-2xl font-bold text-club tracking-tight">Get your game plan</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">
                     Turn this goal into a dated, GoalWeek-by-GoalWeek roadmap built for {{ Str::lower($goal->category->label()) }} goals.
                 </p>

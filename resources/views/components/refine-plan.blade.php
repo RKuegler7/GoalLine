@@ -22,7 +22,7 @@
             <span>Open &rarr;</span>
         </a>
     @elseif ($editableWeeks->isEmpty())
-        <p class="mt-2 text-sm text-ink/65">Every GoalWeek left is underway, so there's nothing left to refine. Past check-ins never change.</p>
+        <p class="mt-2 text-sm text-ink/65">Every GoalWeek left is underway, and a week's plan locks when it starts, so there's nothing left to refine. Past check-ins never change.</p>
     @else
         <p class="mt-1 text-sm text-ink/65">Tell GoalLine what to change: your schedule, what to focus on, ideas and specifics. You'll see every change before anything is saved.</p>
         <form method="POST" action="{{ route('goals.refinements.store', $goal) }}" class="mt-3" data-refine>
@@ -41,7 +41,7 @@
             @endif
             <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
                 <p class="text-xs text-ink/50">
-                    Changes {{ $editableWeeks->count() }} upcoming {{ Str::plural('GoalWeek', $editableWeeks->count()) }} at most{{ $editableWeeks->first()?->isCurrent() ? ', including this one since nothing is checked off yet' : '' }}. Past check-ins never change.
+                    Changes {{ $editableWeeks->count() }} upcoming {{ Str::plural('GoalWeek', $editableWeeks->count()) }} at most. Past check-ins never change.
                 </p>
                 <button type="submit" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Preview the change</button>
             </div>

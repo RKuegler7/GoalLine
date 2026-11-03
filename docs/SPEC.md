@@ -32,7 +32,7 @@ Weeks follow each member's own time zone (default America/New_York).
 4. For the first 7 days a goal can be removed outright. After that it's locked in and can be retired, never silently deleted.
 5. Every edit to a roadmap is logged and sent back to the coach for a check. The member can take the coach's fix or keep their plan.
 6. **Refine your plan.** On the goal page, the member tells the coach what to change in their own words (with idea chips like "Make weeks lighter, I have finals"). The coach rewrites only the GoalWeeks that can change and explains why. A preview shows every change week by week (tasks added, removed and moved, focus and milestone, planned points before and after), and nothing is saved until they tap Accept. Discard leaves the plan as it was. Malformed coach output is rejected and shown as a friendly "try again".
-7. **What can change.** Only GoalWeeks that haven't started, plus this week if nothing in it is checked off yet. Past check-ins, completed tasks, group tasks and personal tasks are never touched, so scores for finished weeks can't change. New tasks are worth 1 point.
+7. **What can change.** Only GoalWeeks that haven't started: a week's plan locks when it starts (see Plan honesty). Past check-ins, completed tasks, group tasks and personal tasks are never touched, so scores for finished weeks can't change. New tasks are worth 1 point.
 8. **Edit by hand.** Reword or remove tasks, reorder them, move the coach's tasks between upcoming GoalWeeks, and edit an upcoming GoalWeek's focus and milestone, all within the same rules.
 9. **Plan history.** Every built plan, refinement, restore and edit is saved with a snapshot and a short summary (edits within 30 minutes share one entry). An earlier version can be restored for the upcoming GoalWeeks, after the same preview.
 10. **Habits** are objective recurring tasks that count in scoring.
@@ -79,6 +79,31 @@ All math is plain, tested PHP (`GoalWeekResult`, `MatchupOutcome`, `RoadmapWeek`
 | Open matchups | The weekly matchup shows both sides' check-ins as a timeline with times, numbers and Verified checks. |
 
 The plain-English version for readers outside the code is [docs/FAIRNESS.md](FAIRNESS.md).
+
+## Plan honesty
+
+The question this answers: "If a player asks the AI for an easy plan, what stops them Smashing every week?"
+
+- **Plan floor.** Code, never the AI, sets each GoalWeek's minimum planned points from the goal's category, the deadline and the intake answers (`App\Services\PlanFloor`). A point is about one focused session: a task is 1, each habit day 1, the milestone 2. Per full week:
+  - base: Academic 6, Career 5, Fitness 5, Creative 5, Personal 4, Other 4;
+  - × deadline pressure: a plan of 4 weeks or less ×1.25, up to 12 weeks ×1.0, longer ×0.9;
+  - × progression for physical goals, from ×0.8 to ×1.1 across the plan, and a ×0.8 taper in the last week of a fitness or academic goal;
+  - × starting point (fitness: brand new ×0.8, competitive ×1.15), and ×0.85 for a reported injury or health condition;
+  - capped at 80% of the hours a week the person said they have, scaled by the stretch's length, and never below 3 (2 for a short week).
+- **Raised by code.** Every plan the coach builds or refreshes is checked. A week below its floor gets "minimum-pace sessions" worth the missing points and the note "We raised this week to the minimum pace your deadline needs." The coach is told each week's minimum when it plans.
+- **Nothing goes below it.** "Refine your plan", restores, removing or moving tasks, and the coach's one-click fix can't take a week below its floor.
+- **Lighter weeks.** Up to 2 per season, declared before the week starts with a one-line reason the league sees. The minimum drops to 70% of the floor. They can be undone before the week starts.
+- **Plan lock.** A GoalWeek's plan locks when it starts (Monday 12:00 a.m. on the member's clock). After that, personal tasks can still be added within their limits, but planned work can't be removed or re-planned, and a habit's target can't be lowered. Every change to future weeks is in plan history, which league mates can see.
+- **Transparency.** The league and matchup views show each member's plan status: "At minimum pace", "Above minimum pace" or "Lighter week". Any league member can open a mate's plan summary (planned workload against the minimum for each week, and plan history), never their private notes, intake answers or reflections.
+- **When the AI fails.** If the coach errors, times out, returns invalid output or hits an AI cap, a starter plan from the goal's category is saved instead, raised to the floor, and the person is told plainly. A new plan is a draft until the person taps "Accept this plan", and it can be rebuilt from scratch until then. Nothing from the AI is saved without validation.
+
+## Disputes
+
+- The matchup opponent and the league owner can tap "Dispute" on any check-in (including ones that only reach Past the Line), with an optional reason. It's labeled "Disputed" and the owner is notified (in-app, plus email if mail is set up). League owners always see disputes.
+- **Settling:** the owner adds proof (allowed even after the week closes) or a short explanation, the disputer withdraws it, or the league owner rules "It counts" or "It doesn't count". The league owner can't rule on their own check-in. The AI never decides a dispute.
+- **Held points:** if a dispute is still open when the GoalWeek closes, that check-in's points are held out of the score. Once it's settled, the week re-scores on its own, stored league results included. A check-in ruled out earns nothing.
+- **Limits:** at most 3 open disputes per player per matchup per GoalWeek, and one per check-in per person.
+- **Recap:** "Your process this week" lists plan status, disputes opened and settled, and any held points, in calm, non-accusatory words.
 
 ## Posts, feeds and friends
 
@@ -137,11 +162,12 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 |---|---|
 | users | Accounts: profile, username, time zone, visibility, discoverable, notification settings, demo sandbox |
 | goals | Goals: title, category, target date, why, status, roadmap and coach check state, completion |
-| roadmap_weeks | GoalWeeks: dates, focus, milestone, milestone hit, Smashed confirmation |
+| roadmap_weeks | GoalWeeks: dates, focus, milestone, milestone hit, Smashed confirmation, plan floor and note, lighter week and reason |
 | roadmap_tasks | Tasks: day, points, bonus, personal, group task link, number range and result, proof photo, check-off time |
 | habits / habit_logs | Recurring habits (cadence, days, rule, threshold, unit) and each day logged (the number, and whether it met the rule) |
 | plan_materials | Uploaded plan files and the coach's digest of each |
 | plan_versions | Plan history: a snapshot of the roadmap at each build, refinement, restore and edit |
+| disputes | Disputes on check-ins: who, why, status, and how each was settled |
 | plan_refinements | Proposed plan changes from the coach or a restore, waiting for the member's preview |
 | goal_intakes | The intake questions for a goal (coach-written or built-in) and the member's answers |
 | week_reviews | End-of-week reflections and the coach's tip |

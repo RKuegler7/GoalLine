@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Changes to a roadmap that keep scoring fair: only GoalWeeks that haven't started can change, plus this week if
- * nothing has been checked off yet. Past check-ins, completed tasks, group tasks, and personal tasks are never
+ * Changes to a roadmap that keep scoring fair: only GoalWeeks that haven't started can change. A GoalWeek's plan locks
+ * when it starts (Monday 12:00 a.m. on the member's clock), and no change can take a week below its plan floor. Past check-ins, completed tasks, group tasks, and personal tasks are never
  * touched. A proposal lists, for each GoalWeek it changes, the focus, milestone, and the coach's tasks in order.
  */
 class PlanEditor
@@ -22,7 +22,7 @@ class PlanEditor
     public function __construct(private WeekPlanner $weekPlanner) {}
 
     /**
-     * GoalWeeks that can change: those that haven't started, and this one if nothing in it is checked off yet.
+     * GoalWeeks that can change: those that haven't started. A week's plan locks when it starts.
      *
      * @return Collection<int, RoadmapWeek>
      */
@@ -33,7 +33,7 @@ class PlanEditor
         }
 
         return $goal->weeks
-            ->filter(fn (RoadmapWeek $week) => $week->starts_on->gt(Clock::today()) || ($week->isCurrent() && ! self::hasCheckIns($week)))
+            ->filter(fn (RoadmapWeek $week) => $week->starts_on->gt(Clock::today()))
             ->values();
     }
 
@@ -142,8 +142,10 @@ class PlanEditor
                 'moved' => [],
                 'reordered' => $kept->all() !== $currentKeys->filter(fn (string $key) => $kept->contains($key))->values()->all(),
                 'pointsBefore' => $week->plannedPoints(),
-                // New tasks are worth 1 point, like any regular task.
-                'pointsAfter' => $week->plannedPoints() - (int) $removed->sum('points') + $added->count(),
+                // New tasks are worth 1 point, like any regular task. A week that would fall below its floor is raised.
+                'pointsAfter' => max($week->effectiveFloor() ?? 0, $week->plannedPoints() - (int) $removed->sum('points') + $added->count()),
+                'raised' => $week->effectiveFloor() !== null && $week->plannedPoints() - (int) $removed->sum('points') + $added->count() < $week->effectiveFloor(),
+                'floor' => $week->effectiveFloor(),
             ];
         }
 
@@ -166,7 +168,7 @@ class PlanEditor
             $weeks[$from]['removed'] = array_values($weeks[$from]['removed']);
         }
 
-        $changed = array_values(array_filter($weeks, fn (array $week) => $week['focus'] || $week['milestone'] || $week['added'] || $week['removed'] || $week['moved'] || $week['reordered']));
+        $changed = array_values(array_filter($weeks, fn (array $week) => $week['focus'] || $week['milestone'] || $week['added'] || $week['removed'] || $week['moved'] || $week['reordered'] || $week['raised']));
 
         return ['weeks' => $changed, 'skipped' => $skipped];
     }
@@ -211,6 +213,7 @@ class PlanEditor
                     ->each(fn (RoadmapTask $task, int $index) => $task->forceFill(['position' => count($proposed['tasks']) + $index + 1])->save());
 
                 $this->weekPlanner->autoPlan($week->load('tasks'));
+                app(PlanFloor::class)->raise($week);
                 $changed++;
             }
         });

@@ -45,7 +45,7 @@
             </ol>
             <p class="eyebrow mt-3 text-mint">Step {{ $step }} of {{ count($steps) }} &middot; {{ $steps[$step - 1] }}</p>
 
-            <h1 class="mt-4 font-serif text-4xl font-medium tracking-tight text-ivory">{{ $title }}</h1>
+            <h1 class="mt-4 font-serif text-4xl font-bold tracking-tight text-ivory">{{ $title }}</h1>
             @if ($intro)
                 <p class="mt-2 text-ivory/85">{{ $intro }}</p>
             @endif

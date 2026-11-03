@@ -10,7 +10,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
             <p class="eyebrow text-mint">{{ $recap->monday->format('M j') }}&ndash;{{ $recap->sunday->format('M j') }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $isThisWeek ? 'Your process this week' : 'Your process that week' }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $isThisWeek ? 'Your process this week' : 'Your process that week' }}</h1>
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([
                     ['Check-ins', $recap->checkIns(), 'tasks, habits, and challenges'],
@@ -20,7 +20,7 @@
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
-                        <dd class="mt-1 font-serif text-3xl font-medium text-ivory tabular-nums">{{ $value }}</dd>
+                        <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory/65">{{ $note }}</dd>
                     </div>
                 @endforeach
@@ -63,11 +63,37 @@
                                 <span class="block truncate font-medium text-club hover:underline">{{ $row['goal']->title }}</span>
                                 <span class="text-sm text-ink/55">{{ $row['week']->label() }}: {{ $row['week']->focus }}</span>
                             </a>
-                            @if ($row['result'])
-                                <x-goalweek-result :result="$row['result']" :close-call="$row['week']->isCloseCall()" />
-                            @endif
+                            <span class="flex flex-wrap items-center gap-2">
+                                <x-plan-status :week="$row['week']" />
+                                @if ($row['result'])
+                                    <x-goalweek-result :result="$row['result']" :close-call="$row['week']->isCloseCall()" />
+                                @endif
+                            </span>
                         </li>
                     @endforeach
+                </ul>
+            </section>
+        @endif
+
+        {{-- Fair play, in calm words: questions are part of the process, not accusations. --}}
+        @php
+            $fair = $recap->fairPlay();
+        @endphp
+        @if ($fair['opened'] + $fair['aboutYou'] + $fair['settled'] > 0 || $fair['held'] > 0)
+            <section class="rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/75">
+                <h2 class="eyebrow text-club">Fair play</h2>
+                <ul class="mt-2 space-y-1">
+                    @if ($fair['aboutYou'] > 0)
+                        <li>League mates asked about {{ $fair['aboutYou'] }} of your check-ins{{ $fair['settled'] > 0 ? ', and '.$fair['settled'].' '.Str::plural('was', $fair['settled']).' settled' : '' }}. A photo or a quick note is all it takes.</li>
+                    @elseif ($fair['settled'] > 0)
+                        <li>{{ $fair['settled'] }} {{ Str::plural('question', $fair['settled']) }} about your check-ins {{ $fair['settled'] === 1 ? 'was' : 'were' }} settled.</li>
+                    @endif
+                    @if ($fair['opened'] > 0)
+                        <li>You asked about {{ $fair['opened'] }} {{ Str::plural('check-in', $fair['opened']) }}. Thanks for keeping the league honest.</li>
+                    @endif
+                    @if ($fair['held'] > 0)
+                        <li>{{ $fair['held'] }} {{ Str::plural('point', $fair['held']) }} {{ $fair['held'] == 1 ? 'is' : 'are' }} waiting on a dispute. Settle it and your week re-scores on its own.</li>
+                    @endif
                 </ul>
             </section>
         @endif

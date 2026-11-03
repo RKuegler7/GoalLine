@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Goal;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
+use App\Services\PlanFloor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 
@@ -58,7 +59,13 @@ class CoachCheckController extends Controller
 
     private function removeTask(RoadmapWeek $week, string $text, string $label): ?string
     {
-        $task = $this->findTask($week, $text);
+        // Plan lock and plan floor: the fix can't take planned work out of a week that started, or below its minimum.
+        $task = $week->isStarted() ? null : $this->findTask($week, $text);
+
+        if ($task && PlanFloor::wouldDropBelow($week->load('tasks', 'goal.habits.logs'), $task->points)) {
+            return null;
+        }
+
         $task?->delete();
 
         return $task ? "removed \"{$task->description}\" from {$label}" : null;

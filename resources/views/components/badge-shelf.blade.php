@@ -21,7 +21,7 @@
                     <a href="{{ route('leagues.recap', $award->league) }}" class="flex items-center gap-4 rounded-2xl border border-gold/60 bg-gold/10 px-4 py-3 transition hover:bg-gold/20">
                         <x-badge :badge="$award->badge" class="size-14" />
                         <span class="min-w-0">
-                            <span class="block font-serif text-lg font-medium text-ink">{{ $award->badge->label() }}</span>
+                            <span class="block font-serif text-lg font-bold text-ink tracking-tight">{{ $award->badge->label() }}</span>
                             <span class="block truncate text-sm text-ink/65">{{ $award->league->name }} &middot; {{ $award->earned_at->format('M Y') }}</span>
                             @if ($award->detail)
                                 <span class="block truncate text-xs text-ink/50">{{ $award->detail }}</span>

@@ -10,10 +10,10 @@
     <x-slot:hero>
         <div class="mx-auto max-w-3xl px-4 pt-14 pb-24 text-center sm:pt-20 sm:pb-32">
             <p class="eyebrow text-mint">Get in line.</p>
-            <h1 class="mt-5 font-serif text-5xl font-medium tracking-tight text-balance text-ivory sm:text-7xl">
+            <h1 class="mt-5 font-serif text-5xl font-bold tracking-tight text-balance text-ivory sm:text-7xl">
                 Get in line with your goals.
             </h1>
-            <p class="mt-5 font-serif text-xl text-ivory/90 sm:text-2xl">Stay on track for the life you want.</p>
+            <p class="mt-5 font-serif text-xl text-ivory/90 sm:text-2xl tracking-tight">Stay on track for the life you want.</p>
             <p class="mx-auto mt-6 max-w-xl text-ivory/85">
                 GoalLine turns what matters to you into a dated, personal plan, shows you today's next step, and keeps the people around you in your corner.
             </p>
@@ -45,7 +45,7 @@
     <section class="mx-auto max-w-5xl px-4 py-16 sm:py-20">
         <div class="text-center">
             <p class="eyebrow text-club">How it works</p>
-            <h2 class="mt-3 font-serif text-3xl font-medium tracking-tight text-club sm:text-4xl">From ambition to achievement</h2>
+            <h2 class="mt-3 font-serif text-3xl font-bold tracking-tight text-club sm:text-4xl">From ambition to achievement</h2>
         </div>
 
         <ol class="mt-12 grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-2 lg:grid-cols-4">
@@ -56,7 +56,7 @@
                 ['Stay accountable', 'Check in with friends or teammates in a friendly league. Optional, encouraging, and fun.'],
             ] as [$heading, $body])
                 <li class="border-line p-7 max-sm:not-last:border-b sm:max-lg:odd:border-r sm:max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
-                    <span class="font-serif text-3xl font-medium text-grass tabular-nums">0{{ $loop->iteration }}</span>
+                    <span class="font-serif text-3xl font-bold text-grass tabular-nums tracking-tight">0{{ $loop->iteration }}</span>
                     <h3 class="mt-4 font-semibold text-ink">{{ $heading }}</h3>
                     <p class="mt-2 text-[0.95rem] leading-relaxed text-ink/70">{{ $body }}</p>
                 </li>
@@ -70,7 +70,7 @@
             <x-field-backdrop class="absolute inset-0 size-full" />
             <div class="relative">
                 <p class="eyebrow text-mint">Our philosophy</p>
-                <h2 class="mx-auto mt-4 max-w-2xl font-serif text-3xl font-medium tracking-tight text-balance text-ivory sm:text-4xl">
+                <h2 class="mx-auto mt-4 max-w-2xl font-serif text-3xl font-bold tracking-tight text-balance text-ivory sm:text-4xl">
                     The league is the mechanism, not the point.
                 </h2>
                 <p class="mx-auto mt-4 max-w-xl text-ivory/85">

@@ -4,7 +4,7 @@
     <div class="relative flex items-start gap-4">
         <img src="/icons/app-icon.svg" alt="" class="size-12 shrink-0 rounded-xl ring-2 ring-ivory/30">
         <div class="min-w-0 flex-1">
-            <h2 class="font-serif text-lg font-medium">Put GoalLine on your home screen</h2>
+            <h2 class="font-serif text-lg font-bold tracking-tight">Put GoalLine on your home screen</h2>
             <p data-install-variant="prompt" class="mt-1 text-sm text-ivory/85">One tap to today&rsquo;s gameplan, full screen, like any app.</p>
             <p data-install-variant="ios" hidden class="mt-1 text-sm text-ivory/85">
                 In Safari, tap <span class="font-semibold text-ivory">Share</span>

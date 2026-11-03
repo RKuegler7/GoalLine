@@ -20,7 +20,7 @@
     <a href="{{ route('leagues.show', $league) }}" class="block px-5 pt-4 hover:bg-mint/30">
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-                <p class="truncate font-serif text-lg font-medium text-club">{{ $league->name }}</p>
+                <p class="truncate font-serif text-lg font-bold text-club tracking-tight">{{ $league->name }}</p>
                 <p class="text-xs text-ink/55">
                     @if ($league->status() === App\LeagueStatus::Forming)
                         Kicks off {{ $league->starts_on->format('M j') }} &middot; {{ $size }} {{ Str::plural('member', $size) }}
@@ -33,7 +33,7 @@
             </div>
             @if ($league->status() !== App\LeagueStatus::Forming)
                 <div class="shrink-0 text-right">
-                    <p class="font-serif text-2xl font-medium text-club">{{ $ordinal }}</p>
+                    <p class="font-serif text-2xl font-bold text-club tracking-tight">{{ $ordinal }}</p>
                     <p class="text-xs text-ink/55">of {{ $size }} &middot; {{ $snapshot->points() }} pts</p>
                 </div>
             @endif

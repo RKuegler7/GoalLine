@@ -10,7 +10,7 @@
                 @endif
                 <div class="min-w-0 text-center">
                     <p class="eyebrow text-mint">{{ $league->weekStartsOn($week)->format('M j') }}&ndash;{{ $league->weekEndsOn($week)->format('M j') }} &middot; {{ $final ? 'Final' : 'Live' }}</p>
-                    <h1 class="mt-2 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">GoalWeek {{ $week }} Matchup</h1>
+                    <h1 class="mt-2 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">GoalWeek {{ $week }} Matchup</h1>
                     <p class="mt-2 text-sm text-ivory/75">{{ count($cards) }} {{ Str::plural('matchup', count($cards)) }} &middot; swipe to see them all</p>
                 </div>
                 @if ($week < $latest)
@@ -21,6 +21,10 @@
             </div>
         </div>
     </x-slot:hero>
+
+    @if ($errors->getBag('dispute')->any())
+        <p class="mb-4 rounded-xl bg-gold/15 px-4 py-3 text-sm text-ink">{{ $errors->getBag('dispute')->first() }}</p>
+    @endif
 
     @if ($cards === [])
         <p class="rounded-2xl border border-line bg-white px-6 py-8 text-center text-ink/65">Matchups need at least two members. Invite your people from the league page.</p>

@@ -9,7 +9,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">You're invited</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
             @endif
@@ -25,10 +25,10 @@
 
     <div @class(['mx-auto max-w-2xl rounded-2xl border border-line bg-white p-6 sm:p-10', 'my-10 mx-4 sm:mx-auto' => ! $viewer])>
         @if ($expired)
-            <p class="font-serif text-xl text-club">This invite has expired or was turned off.</p>
+            <p class="font-serif text-xl text-club tracking-tight">This invite has expired or was turned off.</p>
             <p class="mt-2 text-ink/70">Ask {{ $league->commissioner->name }} for a fresh link.</p>
         @elseif (! $league->isJoinable())
-            <p class="font-serif text-xl text-club">This GoalLeague can't take new members.</p>
+            <p class="font-serif text-xl text-club tracking-tight">This GoalLeague can't take new members.</p>
             <p class="mt-2 text-ink/70">
                 {{ $league->status() === App\LeagueStatus::Forming ? 'It is full.' : 'It has already kicked off, so the schedule is locked.' }}
                 Ask the commissioner about the next season, or start your own.
@@ -37,14 +37,14 @@
                 <a href="{{ route('leagues.create') }}" class="mt-5 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Start a GoalLeague</a>
             @endauth
         @elseif (! $viewer)
-            <p class="font-serif text-xl text-club">Sign in to join.</p>
+            <p class="font-serif text-xl text-club tracking-tight">Sign in to join.</p>
             <p class="mt-2 text-ink/70">Each member brings one goal, and every GoalWeek your progress goes head-to-head with a league mate's. New to GoalLine? This invite gets you into the private beta.</p>
             <div class="mt-5 flex flex-wrap gap-3">
                 <a href="{{ route('register') }}" class="rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Create an account</a>
                 <a href="{{ route('login') }}" class="rounded-full border border-club/40 px-6 py-2.5 font-semibold text-club hover:border-club">Sign in</a>
             </div>
         @elseif ($goals->isEmpty())
-            <p class="font-serif text-xl text-club">Set the goal you'll play.</p>
+            <p class="font-serif text-xl text-club tracking-tight">Set the goal you'll play.</p>
             <p class="mt-2 text-ink/70">Each member brings one goal into the league. Set yours here, then join with it.</p>
             @include('leagues.partials.new-goal-form')
         @else

@@ -21,7 +21,7 @@
             <p class="eyebrow text-[0.62rem] text-ink/50">
                 {{ $goal->category->label() }} &middot; <x-days-left :days="$goal->daysRemaining()" />
             </p>
-            <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-medium text-club hover:underline">{{ $goal->title }}</a>
+            <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
         </div>
         @if ($result)
             <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" :needs-proof="$week?->needsProofForSmashed() ?? false" />

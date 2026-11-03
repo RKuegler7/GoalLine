@@ -10,7 +10,7 @@
     @if ($goal->isActive() && $intake?->isOpen())
         <section class="mt-6 flex flex-col gap-4 rounded-2xl border-2 border-club bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="font-serif text-xl font-medium text-club">A few questions first</h2>
+                <h2 class="font-serif text-xl font-bold text-club tracking-tight">A few questions first</h2>
                 <p class="mt-1 text-sm text-ink/70">Tell GoalLine where you're starting from, and your plan will fit you instead of everyone.</p>
             </div>
             <a href="{{ route('goals.intake', $goal) }}" class="shrink-0 rounded-full bg-club px-5 py-2.5 text-center text-sm font-semibold text-ivory hover:bg-club-dark">Answer the questions</a>

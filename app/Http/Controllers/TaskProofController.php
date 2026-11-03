@@ -9,6 +9,7 @@ use App\Models\RoadmapTask;
 use App\Notifications\ProofRequested;
 use App\PostVisibility;
 use App\Services\CaptionWriter;
+use App\Services\Disputes;
 use App\Services\FairPlay;
 use App\Services\ProofImage;
 use Illuminate\Http\JsonResponse;
@@ -30,7 +31,8 @@ class TaskProofController extends Controller
     {
         $week = $task->week;
         Gate::authorize('update', $week->goal);
-        abort_unless($task->completed_at && $week->isCheckable(), 403, 'Proof can be added to a checked-off task while its GoalWeek is open.');
+        // A disputed check-in can get proof even after its GoalWeek closes: proof is how a dispute gets settled.
+        abort_unless($task->completed_at && ($week->isCheckable() || $task->dispute_status === RoadmapTask::DISPUTE_OPEN), 403, 'Proof can be added to a checked-off task while its GoalWeek is open.');
 
         $validated = $request->validate([
             'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
@@ -62,6 +64,7 @@ class TaskProofController extends Controller
         }
 
         $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => now()])->save();
+        app(Disputes::class)->settleWithProof($task);
 
         $post = $this->share($task, $clean, $validated);
 

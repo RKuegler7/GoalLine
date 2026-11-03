@@ -56,9 +56,20 @@ class CoachCheckTest extends TestCase
             ->assertSee('Keep my plan');
     }
 
+    public function test_a_remove_fix_cant_take_work_out_of_a_week_underway(): void
+    {
+        Queue::fake();
+        $this->withFix(['action' => 'remove_task', 'stretch' => 1, 'task' => 'file for trademark.', 'new_text' => '']);
+
+        $this->actingAs($this->goal->user)->post(route('goals.coach.fix', $this->goal))->assertSessionHas('status', fn ($status) => str_contains($status, 'no longer matches'));
+
+        $this->assertSame(1, $this->week->tasks()->count());
+    }
+
     public function test_applying_a_remove_fix_edits_the_roadmap_and_rechecks(): void
     {
         Queue::fake();
+        $this->week->update(['starts_on' => today()->addDay(), 'ends_on' => today()->addDays(7)]); // Not started yet.
         $this->withFix(['action' => 'remove_task', 'stretch' => 1, 'task' => 'file for trademark.', 'new_text' => '']);
 
         $this->actingAs($this->goal->user)->post(route('goals.coach.fix', $this->goal));

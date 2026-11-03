@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('highlights.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Around the League</a>
-            <h1 class="mt-6 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Friends</h1>
+            <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Friends</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Doing it with friends makes it stick. Friends cheer each other on, nudge each other, and see the posts you share with friends.</p>
         </div>
     </x-slot:hero>
@@ -13,7 +13,7 @@
         {{-- Add a friend: exact username or email only. No directory. --}}
         <form method="POST" action="{{ route('friends.store') }}" class="rounded-2xl border border-line bg-white p-5">
             @csrf
-            <label for="who" class="font-serif text-lg font-medium text-club">Add a friend</label>
+            <label for="who" class="font-serif text-lg font-bold text-club tracking-tight">Add a friend</label>
             <p class="text-sm text-ink/60">Enter their exact username or email. Their username is on their locker, like @jordan.rivera.</p>
             <div class="mt-3 flex gap-2">
                 <input id="who" name="who" value="{{ old('who') }}" required autocomplete="off" autocapitalize="none" placeholder="@username or email"

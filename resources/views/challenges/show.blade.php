@@ -24,7 +24,7 @@
                     day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}
                 @endif
             </p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-balance text-ivory sm:text-5xl">{{ $challenge->title }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-balance text-ivory sm:text-5xl">{{ $challenge->title }}</h1>
             @if ($challenge->description)
                 <p class="mt-3 max-w-xl whitespace-pre-line text-ivory/85">{{ $challenge->description }}</p>
             @endif
@@ -61,7 +61,7 @@
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="eyebrow text-club">Your progress</p>
-                        <p class="mt-1 font-serif text-3xl text-ink tabular-nums">{{ $mine['days'] ?? 0 }}<span class="text-lg text-ink/45">/{{ $challenge->target_days }} days</span></p>
+                        <p class="mt-1 font-serif text-3xl text-ink tabular-nums tracking-tight">{{ $mine['days'] ?? 0 }}<span class="text-lg text-ink/45">/{{ $challenge->target_days }} days</span></p>
                         <p class="text-sm text-ink/60">
                             @if ($mine['finished'] ?? false)
                                 Finished! Every extra day is a bonus.
@@ -119,7 +119,7 @@
                             @if ($row['finished'])
                                 <x-badge :badge="App\Badge::ChallengeFinisher" class="size-7" />
                             @endif
-                            <span class="font-serif text-xl text-ink tabular-nums">{{ $row['days'] }}<span class="text-sm text-ink/45">/{{ $challenge->target_days }}</span></span>
+                            <span class="font-serif text-xl text-ink tabular-nums tracking-tight">{{ $row['days'] }}<span class="text-sm text-ink/45">/{{ $challenge->target_days }}</span></span>
                         </li>
                     @endforeach
                 </ol>

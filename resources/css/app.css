@@ -4,9 +4,11 @@
 @source '../../storage/framework/views/*.php';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
+    /* Display type for headings and big numbers: the wordmark's Plus Jakarta Sans, set bold and tight. The token keeps
+       its old name so every heading picks it up. */
+    --font-serif: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 
     /* GoalLine brand palette. */
     --color-club: #176b45;

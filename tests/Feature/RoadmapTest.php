@@ -99,7 +99,9 @@ class RoadmapTest extends TestCase
         $this->assertCount(2, $goal->weeks);
         $this->assertSame('Learn the material', $goal->weeks[0]->focus);
         $this->assertTrue($goal->weeks[1]->ends_on->isSameDay(today()->addDays(13)));
-        $this->assertSame(['Read chapter one', 'Read chapter two'], $goal->weeks[0]->tasks->pluck('description')->all());
+        $this->assertSame(['Read chapter one', 'Read chapter two'], $goal->weeks[0]->tasks->where('is_floor', false)->pluck('description')->values()->all());
+        $this->assertSame('coach', $goal->plan_source);
+        $this->assertNull($goal->plan_accepted_at, 'A new plan is a draft until it is accepted.');
     }
 
     public function test_rebuilding_replaces_the_previous_roadmap(): void
@@ -116,12 +118,11 @@ class RoadmapTest extends TestCase
         $this->assertSame(['Second plan'], $goal->weeks()->pluck('focus')->all());
     }
 
-    public function test_a_failed_roadmap_is_marked_failed(): void
+    public function test_a_roadmap_that_cant_even_be_dated_is_marked_failed(): void
     {
         $goal = Goal::factory()->create();
         $this->mock(RoadmapPlanner::class, function (MockInterface $mock) {
-            $mock->shouldReceive('periods')->andReturn([]);
-            $mock->shouldReceive('plan')->andThrow(new RoadmapPlanningException('Nope.'));
+            $mock->shouldReceive('periods')->andThrow(new RoadmapPlanningException('The target date has already passed.'));
         });
 
         try {

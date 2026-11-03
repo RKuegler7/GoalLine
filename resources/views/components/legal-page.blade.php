@@ -8,12 +8,12 @@
 
     <x-slot:hero>
         <div class="mx-auto max-w-3xl px-4 pt-8 pb-14">
-            <h1 class="font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $title }}</h1>
+            <h1 class="font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $title }}</h1>
             <p class="mt-3 text-ivory/80">Last updated {{ $updated }}</p>
         </div>
     </x-slot:hero>
 
-    <article class="mx-auto max-w-3xl space-y-6 px-4 py-10 leading-relaxed text-ink/85 [&_h2]:mt-10 [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-medium [&_h2]:text-club [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1.5">
+    <article class="mx-auto max-w-3xl space-y-6 px-4 py-10 leading-relaxed text-ink/85 [&_h2]:mt-10 [&_h2]:font-serif [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-club [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1.5 tracking-tight">
         {{ $slot }}
     </article>
 </x-layouts.field>

@@ -27,7 +27,7 @@
                         @if ($isOwn)
                             <p class="eyebrow text-mint">My Locker</p>
                         @endif
-                        <h1 class="font-serif text-3xl font-medium tracking-tight text-ivory sm:text-4xl">{{ $user->name }}</h1>
+                        <h1 class="font-serif text-3xl font-bold tracking-tight text-ivory sm:text-4xl">{{ $user->name }}</h1>
                         <p class="mt-1 text-ivory/80">{{ '@'.$user->username }}</p>
                         @if ($user->bio)
                             <p class="mt-2 max-w-md text-ivory/95">{{ $user->bio }}</p>
@@ -68,7 +68,7 @@
         ] as [$label, $value, $note])
             <div class="border-line px-6 py-5 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
-                <dd class="mt-2 font-serif text-3xl font-medium text-club tabular-nums">{{ $value }}</dd>
+                <dd class="mt-2 font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $value }}</dd>
                 <dd class="mt-1 text-sm text-ink/60">{{ $note }}</dd>
             </div>
         @endforeach
@@ -78,7 +78,7 @@
         <section class="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
             <div class="min-w-0">
                 <p class="eyebrow text-club">Featured goal</p>
-                <p class="mt-2 font-serif text-2xl font-medium text-club">
+                <p class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">
                     @if ($isOwn)
                         <a href="{{ route('goals.show', $featured) }}" class="hover:underline">{{ $featured->title }}</a>
                     @else
@@ -98,7 +98,7 @@
                 @if ($featured->isCompleted())
                     <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[0.65rem] text-ink">Completed</span>
                 @else
-                    <p class="font-serif text-3xl font-medium text-club tabular-nums">{{ $featured->points() }}</p>
+                    <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $featured->points() }}</p>
                     <p class="text-sm text-ink/55">GoalWeek points</p>
                 @endif
             </div>
@@ -182,7 +182,7 @@
                                 <span class="eyebrow absolute top-3 left-3 rounded-full bg-gold px-2.5 py-1 text-[0.65rem] text-ink">Completed</span>
                             </div>
                             <div class="px-5 py-4">
-                                <h3 class="font-serif text-xl font-medium text-club">{{ $goal->title }}</h3>
+                                <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $goal->title }}</h3>
                                 <p class="mt-0.5 text-sm text-ink/55">
                                     {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }}
                                 </p>
@@ -214,7 +214,7 @@
                         <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif @class(['flex items-center justify-between gap-4 px-6 py-4', 'hover:bg-mint/50' => $isOwn])>
                             <div class="min-w-0">
                                 <p class="eyebrow text-[0.65rem] text-ink/50">{{ $goal->category->label() }}</p>
-                                <p class="mt-0.5 font-serif text-lg font-medium text-club">{{ $goal->title }}</p>
+                                <p class="mt-0.5 font-serif text-lg font-bold text-club tracking-tight">{{ $goal->title }}</p>
                             </div>
                             <div class="shrink-0 text-right text-sm">
                                 <p class="font-semibold text-ink tabular-nums">{{ $goal->points() }} {{ Str::plural('pt', $goal->points()) }}</p>

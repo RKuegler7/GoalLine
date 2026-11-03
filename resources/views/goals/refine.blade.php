@@ -9,7 +9,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('goals.show', $goal) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $goal->title }}</a>
             <p class="eyebrow mt-6 text-mint">{{ $refinement->kind === App\Models\PlanRefinement::RESTORE ? 'Plan history' : 'Refine your plan' }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">
                 {{ $refinement->status === App\Models\PlanRefinement::PENDING ? 'Working on it…' : 'Preview the change' }}
             </h1>
             @if ($refinement->instruction)
@@ -21,7 +21,7 @@
     <div class="mx-auto max-w-3xl">
         @if ($refinement->status === App\Models\PlanRefinement::PENDING)
             <section class="rounded-2xl border border-line bg-white px-8 py-10 text-center">
-                <h2 class="font-serif text-2xl font-medium text-club">Your coach is reworking the plan&hellip;</h2>
+                <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Your coach is reworking the plan&hellip;</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">This usually takes under a minute. Nothing changes until you've seen it and said yes.</p>
                 <div class="mx-auto mt-6 h-1.5 w-40 overflow-hidden rounded-full bg-mint" aria-hidden="true">
                     <div class="h-full w-1/3 animate-pulse rounded-full bg-grass"></div>
@@ -33,7 +33,7 @@
             </section>
         @elseif ($refinement->status === App\Models\PlanRefinement::FAILED)
             <section class="rounded-2xl border border-line bg-white px-8 py-10 text-center">
-                <h2 class="font-serif text-2xl font-medium text-club">That change didn't come through</h2>
+                <h2 class="font-serif text-2xl font-bold text-club tracking-tight">That change didn't come through</h2>
                 <p class="mx-auto mt-2 max-w-md text-ink/70">Nothing in your plan changed. Try again, maybe with a little more detail, or edit the tasks yourself.</p>
                 <a href="{{ route('goals.show', $goal) }}#refine" class="mt-6 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Back to your plan</a>
             </section>
@@ -60,6 +60,9 @@
                                 @endif
                             </p>
                         </div>
+                        @if ($change['raised'])
+                            <p class="mt-1 text-xs text-club">That would be below the minimum pace your deadline needs, so GoalLine raises it to {{ $change['floor'] }} points with minimum-pace sessions.</p>
+                        @endif
                         @if ($change['focus'])
                             <p class="mt-2 text-sm"><span class="text-ink/55">Focus:</span> <span class="text-ink/50 line-through">{{ $change['focus'][0] }}</span> &rarr; <span class="font-medium text-ink">{{ $change['focus'][1] }}</span></p>
                         @endif
@@ -88,7 +91,7 @@
                 <p class="mt-3 text-sm text-ink/60">{{ count($diff['skipped']) }} {{ Str::plural('GoalWeek', count($diff['skipped'])) }} in this change started since it was made, so {{ count($diff['skipped']) === 1 ? 'it stays' : 'they stay' }} as is.</p>
             @endif
 
-            <p class="mt-4 text-xs text-ink/55">Only GoalWeeks that haven't started change (plus this week if nothing's checked off yet). Past check-ins, group tasks, and your personal tasks stay as they are. New tasks are worth 1 point each.</p>
+            <p class="mt-4 text-xs text-ink/55">Only GoalWeeks that haven't started change, and none goes below the minimum pace its deadline needs. Past check-ins, group tasks, and your personal tasks stay as they are. New tasks are worth 1 point each.</p>
 
             <div class="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}">

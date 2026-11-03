@@ -28,6 +28,16 @@ class RoadmapTask extends Model
     public const DEFAULT_MAX_MULTIPLE = 3;
 
     /**
+     * A check-in with a dispute waiting to be resolved.
+     */
+    public const DISPUTE_OPEN = 'open';
+
+    /**
+     * A check-in the league owner ruled doesn't count.
+     */
+    public const DISPUTE_UPHELD = 'upheld';
+
+    /**
      * Remove the proof photo along with the task.
      */
     protected static function booted(): void
@@ -50,6 +60,7 @@ class RoadmapTask extends Model
             'completed_at' => 'datetime',
             'is_bonus' => 'boolean',
             'is_personal' => 'boolean',
+            'is_floor' => 'boolean',
             'planned_on' => 'date',
             'points' => 'integer',
             'result_required' => 'boolean',
@@ -79,6 +90,16 @@ class RoadmapTask extends Model
     public function proofRequests(): HasMany
     {
         return $this->hasMany(ProofRequest::class);
+    }
+
+    /**
+     * Disputes raised about this check-in by the matchup opponent or the league owner.
+     *
+     * @return HasMany<Dispute, $this>
+     */
+    public function disputes(): HasMany
+    {
+        return $this->hasMany(Dispute::class);
     }
 
     /**
@@ -119,11 +140,17 @@ class RoadmapTask extends Model
 
     /**
      * Points this task has earned: its points once checked off, scaled by the result for a numeric task,
-     * so running 7 of a planned 5 miles earns 1.4 times the points.
+     * so running 7 of a planned 5 miles earns 1.4 times the points. A check-in the league owner ruled doesn't count
+     * earns nothing, and one still disputed when its GoalWeek closes is held out until the dispute is resolved.
      */
-    public function earnedPoints(): float
+    public function earnedPoints(bool $ignoreDisputes = false): float
     {
         if (! $this->completed_at) {
+            return 0.0;
+        }
+
+        if (! $ignoreDisputes && ($this->dispute_status === self::DISPUTE_UPHELD
+            || ($this->dispute_status === self::DISPUTE_OPEN && $this->week->isLocked()))) {
             return 0.0;
         }
 

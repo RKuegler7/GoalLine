@@ -12,7 +12,7 @@
 <section id="gameplan" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-5 py-4">
         <div>
-            <h2 class="font-serif text-xl font-medium text-club">Today&rsquo;s Gameplan</h2>
+            <h2 class="font-serif text-xl font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>
             <p class="text-sm text-ink/60">
                 @if ($total === 0)
                     Nothing on for today.

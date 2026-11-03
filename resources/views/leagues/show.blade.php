@@ -18,7 +18,7 @@
                     Season over
                 @endif
             </p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
             @endif
@@ -37,18 +37,18 @@
         {{-- This GoalWeek's matchup: yours at a glance, and the way into every matchup. --}}
         <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-6 block overflow-hidden rounded-2xl border-2 border-club bg-white transition hover:shadow-md">
             <div class="flex items-center justify-between gap-3 bg-club px-5 py-3">
-                <h2 class="font-serif text-xl font-medium text-ivory">GoalWeek {{ $matchupWeek }} Matchup</h2>
+                <h2 class="font-serif text-xl font-bold text-ivory tracking-tight">GoalWeek {{ $matchupWeek }} Matchup</h2>
                 <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[0.6rem] text-mint">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
             </div>
             @if ($myCard)
                 <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-4">
                     @foreach ([$myCard['home'], $myCard['away']] as $index => $side)
                         @if ($index === 1)
-                            <span class="font-serif text-sm text-ink/40">vs</span>
+                            <span class="font-serif text-sm text-ink/40 tracking-tight">vs</span>
                         @endif
                         <div @class(['min-w-0', 'text-right' => $index === 1])>
                             <p class="truncate font-semibold text-ink">{{ $side ? $side['member']->user->name : 'League median' }}</p>
-                            <p class="font-serif text-3xl font-medium text-club tabular-nums">
+                            <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">
                                 @if ($side)
                                     {{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}
                                 @else
@@ -75,7 +75,7 @@
             <div class="min-w-0">
                 <h2 class="eyebrow text-club">Your goal in this league</h2>
                 @if ($me->goal)
-                    <a href="{{ route('goals.show', $me->goal) }}" class="mt-1 block font-serif text-lg font-medium text-club hover:underline">{{ $me->goal->title }}</a>
+                    <a href="{{ route('goals.show', $me->goal) }}" class="mt-1 block font-serif text-lg font-bold text-club hover:underline tracking-tight">{{ $me->goal->title }}</a>
                     <p class="text-xs text-ink/55">By {{ $me->goal->target_date->format('M j, Y') }} &middot; {{ $me->goal->isActive() ? 'in progress' : $me->goal->status->value }}</p>
                 @else
                     <p class="mt-1 text-sm text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as short of the line.</p>
@@ -114,7 +114,7 @@
         <span class="flex items-center gap-3">
             <span class="grid size-10 place-items-center rounded-full bg-mint text-club"><x-icon name="highlights" class="size-5" /></span>
             <span>
-                <span class="block font-serif text-lg font-medium text-ink">League feed</span>
+                <span class="block font-serif text-lg font-bold text-ink tracking-tight">League feed</span>
                 <span class="block text-sm text-ink/65">The work behind everyone's check-ins. Cheer the process.</span>
             </span>
         </span>
@@ -130,7 +130,7 @@
             <span class="flex items-center gap-3">
                 <x-badge :badge="App\Badge::Champion" class="size-10" />
                 <span>
-                    <span class="block font-serif text-lg font-medium text-ink">The season recap is in</span>
+                    <span class="block font-serif text-lg font-bold text-ink tracking-tight">The season recap is in</span>
                     <span class="block text-sm text-ink/65">Final table, Champion, MVP, Comeback Player, and more.</span>
                 </span>
             </span>
@@ -170,7 +170,7 @@
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
                             <p class="eyebrow text-[0.6rem] text-ink/50">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
-                            <h3 class="mt-1 font-serif text-lg font-medium text-ink">{{ $groupTask->title }}</h3>
+                            <h3 class="mt-1 font-serif text-lg font-bold text-ink tracking-tight">{{ $groupTask->title }}</h3>
                             @if ($groupTask->description)
                                 <p class="text-sm text-ink/65">{{ $groupTask->description }}</p>
                             @endif
@@ -315,7 +315,7 @@
                             <td class="px-2 py-3 text-center tabular-nums">{{ $row['losses'] }}</td>
                             <td class="hidden px-2 py-3 text-center tabular-nums sm:table-cell">{{ $row['resultPoints'] }}</td>
                             <td class="hidden px-2 py-3 text-center tabular-nums sm:table-cell">{{ $row['matchupPoints'] }}</td>
-                            <td class="px-4 py-3 text-right font-serif text-lg font-medium text-club tabular-nums">{{ $row['total'] }}</td>
+                            <td class="px-4 py-3 text-right font-serif text-lg font-bold text-club tabular-nums tracking-tight">{{ $row['total'] }}</td>
                         </tr>
                     @endforeach
                 </tbody>

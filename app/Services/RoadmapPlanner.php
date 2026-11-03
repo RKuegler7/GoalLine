@@ -35,6 +35,7 @@ class RoadmapPlanner
         - If the timeline is tight, prioritize the highest-impact work and say so plainly in the summary.
         - If this is a re-plan, you will also see the stretches already behind them. Pick up from where they are now and fold in anything earlier work set up for.
         - If the person is following materials they uploaded (a course, study plan, training program, or meal plan), make those materials the backbone of the roadmap: follow their order and pacing, map their units or sessions onto the stretches, use their checkpoints as milestones, and name them specifically. Fill only the gaps they leave. If the materials' pace can't fit the time available, say so in the summary and prioritize.
+        - Each stretch may list a minimum ("at least N planned points"), set by GoalLine from the deadline. A task is worth 1 point, each habit day 1, and the milestone 2. Plan enough real work to reach it; if a stretch falls short, GoalLine adds generic sessions to make up the difference, so it's better to plan the real work yourself.
         - If the person answered intake questions, build the plan around their answers: start from their current level, fit the days and hours they have, work on the areas they named as weakest, and plan around the obstacles they expect. Questions they skipped or weren't sure about get sensible, middle-of-the-road assumptions.
 
         Physical goals (running, lifting, sports, fitness challenges, weight or health goals):
@@ -326,9 +327,9 @@ class RoadmapPlanner
      * @param  iterable<RoadmapWeek>  $pastWeeks
      * @return array{summary: string, habits: list<array{title: string, times_per_week: int}>, periods: list<array{focus: string, milestone: string, tasks: list<string>}>}
      */
-    public function plan(Goal $goal, array $periods, iterable $pastWeeks = []): array
+    public function plan(Goal $goal, array $periods, iterable $pastWeeks = [], array $floors = []): array
     {
-        return $this->validatedPlan($this->ask('roadmap', $goal->user, self::PLAN_PROMPT, $this->planBrief($goal, $periods, $pastWeeks), self::planSchema()), count($periods));
+        return $this->validatedPlan($this->ask('roadmap', $goal->user, self::PLAN_PROMPT, $this->planBrief($goal, $periods, $pastWeeks, $floors), self::planSchema()), count($periods));
     }
 
     /**
@@ -337,7 +338,7 @@ class RoadmapPlanner
      * @param  list<array{starts_on: CarbonImmutable, ends_on: CarbonImmutable}>  $periods
      * @param  iterable<RoadmapWeek>  $pastWeeks
      */
-    public function planBrief(Goal $goal, array $periods, iterable $pastWeeks = []): string
+    public function planBrief(Goal $goal, array $periods, iterable $pastWeeks = [], array $floors = []): string
     {
         $pastWeeks = collect($pastWeeks);
 
@@ -346,10 +347,11 @@ class RoadmapPlanner
             $pastWeeks->isEmpty() ? null : "Already behind them (re-plan from here):\n".$this->describeWeeks($pastWeeks),
             'Stretches to plan ('.count($periods).'):',
             collect($periods)->map(fn (array $period, int $index) => sprintf(
-                '%d. %s to %s',
+                '%d. %s to %s%s',
                 $index + 1,
                 $period['starts_on']->format('D M j, Y'),
                 $period['ends_on']->format('D M j, Y'),
+                isset($floors[$index]) ? ' (at least '.$floors[$index].' planned points)' : '',
             ))->implode("\n"),
             $this->stretchNote($periods),
         ], fn (?string $part) => $part !== null));

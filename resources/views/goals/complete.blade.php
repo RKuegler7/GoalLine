@@ -3,7 +3,7 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('goals.show', $goal) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Back to goal</a>
             <p class="eyebrow mt-6 text-mint">{{ $goal->title }}</p>
-            <h1 class="mt-3 font-serif text-4xl font-medium tracking-tight text-ivory sm:text-5xl">Did you cross the line?</h1>
+            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Did you cross the line?</h1>
         </div>
     </x-slot:hero>
 

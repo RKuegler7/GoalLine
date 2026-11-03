@@ -14,7 +14,7 @@
             ->filter(fn ($task) => $task->completed_at && App\Clock::local($task->completed_at)->between($from, $to))
             ->sortByDesc('completed_at')
             ->values();
-        $tasks->load('proofRequests');
+        $tasks->load('proofRequests', 'disputes.disputer');
 
         $personal = ($result['goalWeek']?->tasks ?? collect())->where('is_personal', true)->values();
 
@@ -33,6 +33,8 @@
                 $owner = $row['member']->user;
                 $isOpponent = $row['other']?->user_id === $viewer->id;
                 $canSeeProof = $owner->is($viewer) || $isOpponent || $league->commissioner_id === $viewer->id;
+                // The matchup opponent and the league owner can dispute a check-in; never your own.
+                $canDispute = ! $owner->is($viewer) && ($isOpponent || $league->commissioner_id === $viewer->id);
             @endphp
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-ink">{{ $owner->name }}</p>
@@ -87,6 +89,7 @@
                                         </form>
                                     @endif
                                 @endif
+                                <x-dispute-controls :task="$task" :league="$league" :owner="$owner" :can-dispute="$canDispute" />
                             </li>
                         @endforeach
                     </ol>
