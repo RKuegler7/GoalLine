@@ -8,6 +8,7 @@ use App\HighlightKind;
 use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Goal;
+use App\Models\GoalIntake;
 use App\Models\GroupTask;
 use App\Models\Habit;
 use App\Models\Highlight;
@@ -49,7 +50,7 @@ class DemoWorld
     /**
      * Weeks of the season already played before this one.
      */
-    private const WEEKS_PLAYED = 3;
+    private const WEEKS_PLAYED = 5;
 
     /**
      * A week of marathon training, Monday to Sunday: [task, points, tracked number, unit].
@@ -108,24 +109,24 @@ class DemoWorld
 
             // Two GoalLeagues, three weeks played, this week's matchup live.
             $running = $this->league('Marathon by March', 'Everyone training for a spring marathon. Long runs on Saturdays.', GoalCategory::Fitness, $red, $seasonStart, $seasonStart->addWeeks(20)->subDay());
-            $study = $this->league('4.0 This Fall', 'Straight A\'s this semester. Show the work, not just the grade.', GoalCategory::Academic, $you, $seasonStart, $seasonStart->addWeeks(10)->subDay());
+            $study = $this->league('4.0 This Fall', 'Straight A\'s this semester. Show the work, not just the grade.', GoalCategory::Academic, $you, $seasonStart, $seasonStart->addWeeks(14)->subDay());
 
             $marathonTarget = $this->today->setMonth(3)->setDay(15)->addYears($this->today->month >= 3 ? 1 : 0);
-            $finals = $seasonStart->addWeeks(10)->subDay();
+            $finals = $seasonStart->addWeeks(14)->subDay();
 
             // How each person's weeks went: [tasks done, milestone hit, bonus tasks], for the weeks already played.
             // Last week Red and Kate both reached Smashed (150%+): Red with proof, Kate without, so Kate's counts as Past.
             $runners = [
-                [$you, 'Run the DC Marathon by March', [[6, true, 0], [7, true, 1], [7, true, 0]], 1],
-                [$red, 'Run a marathon under 3:45 by March', [[7, true, 2], [7, true, 1], [7, true, 5]], 0],
-                [$tim, 'Finish my first marathon in March', [[5, false, 0], [6, true, 0], [7, true, 1]], 1],
-                [$steph, 'Run the Shamrock Marathon this spring', [[6, true, 0], [4, false, 0], [6, true, 0]], 0],
+                [$you, 'Run the DC Marathon by March', [[5, true, 0], [6, true, 0], [6, true, 0], [7, true, 1], [7, true, 0]], 1],
+                [$red, 'Run a marathon under 3:45 by March', [[6, true, 1], [7, true, 0], [7, true, 2], [7, true, 1], [7, true, 5]], 0],
+                [$tim, 'Finish my first marathon in March', [[4, false, 0], [5, true, 0], [5, false, 0], [6, true, 0], [7, true, 1]], 1],
+                [$steph, 'Run the Shamrock Marathon this spring', [[6, true, 0], [6, true, 1], [6, true, 0], [4, false, 0], [6, true, 0]], 0],
             ];
             $students = [
-                [$you, 'Get a 4.0 GPA this fall', [[7, true, 0], [6, true, 0], [7, true, 1]], 1],
-                [$mary, 'Ace Organic Chem and keep a 4.0', [[7, true, 1], [7, true, 0], [6, true, 0]], 0],
-                [$pat, 'Get straight A\'s this semester', [[5, true, 0], [6, true, 0], [5, false, 0]], 1],
-                [$kate, 'Make the Dean\'s List this fall', [[6, true, 0], [7, true, 2], [7, true, 6]], 0],
+                [$you, 'Get a 4.0 GPA this fall', [[6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 1]], 1],
+                [$mary, 'Ace Organic Chem and keep a 4.0', [[7, true, 0], [6, true, 0], [7, true, 1], [7, true, 0], [6, true, 0]], 0],
+                [$pat, 'Get straight A\'s this semester', [[6, true, 0], [5, true, 0], [5, true, 0], [6, true, 0], [5, false, 0]], 1],
+                [$kate, 'Make the Dean\'s List this fall', [[5, true, 0], [6, true, 1], [6, true, 0], [7, true, 2], [7, true, 6]], 0],
             ];
 
             $goals = [];
@@ -151,6 +152,7 @@ class DemoWorld
             Friendship::create(['requester_id' => $steph->id, 'addressee_id' => $you->id]);
 
             $this->posts($you, $red, $tim, $steph, $mary, $pat, $fran, $running, $study, $goals);
+            $this->planHonesty($goals, $you, $pat, $running);
             $groupTask = $this->groupTask($running, $red, [$red, $tim]);
             $this->challenge($tim, [$you, $tim, $red, $mary]);
             $this->chat($running, [[$red, 'Week '.(self::WEEKS_PLAYED + 1).', let\'s go. Who\'s in for the river trail on Saturday?', 26], [$tim, 'In. Bringing gels for everyone.', 25], [$steph, 'Count me in. Slow pace please, my calves remember last week.', 20], [$red, 'Proposed a group task for next week. Vote in the Group tasks section.', 3]]);
@@ -336,6 +338,48 @@ class DemoWorld
         $week = $goal->weeks()->whereDate('starts_on', $this->monday)->sole();
         $week->tasks()->create(['position' => 30, 'description' => $description, 'planned_on' => $this->monday->addDays(5)])
             ->forceFill(['is_personal' => true, 'points' => $points])->save();
+    }
+
+    /**
+     * Plan honesty, so it can be seen: intake answers behind the visitor's plans, every plan's minimum pace, the
+     * visitor's next study week raised to its floor (with the note), Pat's lighter week for midterms, and a friendly
+     * dispute from the visitor's opponent on one of their check-ins.
+     *
+     * @param  array<string, array<int, Goal>>  $goals
+     */
+    private function planHonesty(array $goals, User $you, User $pat, League $running): void
+    {
+        foreach (['run' => GoalCategory::Fitness, 'study' => GoalCategory::Academic] as $key => $category) {
+            $intake = $goals[$key][$you->id]->intake()->create();
+            $intake->useQuestions(IntakeQuestions::fallback($category, $category === GoalCategory::Fitness), GoalIntake::SOURCE_FALLBACK);
+            $intake->answer(IntakeQuestions::answers($intake->questions, $category === GoalCategory::Fitness
+                ? ['experience' => ['value' => 'Some experience'], 'starting_point' => ['value' => '18 miles a week, longest run 10'], 'days' => ['value' => '5'], 'health' => ['value' => 'None']]
+                : ['hours' => ['value' => 15], 'weakest' => ['value' => 'Organic Chem mechanisms'], 'best_time' => ['value' => 'Evenings']]));
+        }
+
+        $planFloor = app(PlanFloor::class);
+        collect($goals)->flatten()->each(fn (Goal $goal) => $planFloor->setFloors($goal->fresh()));
+
+        // Next week's study plan came back thin, so code raised it to the minimum pace.
+        $nextStudy = $goals['study'][$you->id]->weeks()->whereDate('starts_on', $this->monday->addWeek())->sole();
+        $nextStudy->tasks()->where('position', '>', 1)->get()->each->delete();
+        $planFloor->raise($nextStudy);
+
+        $patWeek = $goals['study'][$pat->id]->weeks()->whereDate('starts_on', $this->monday)->sole();
+        $patWeek->forceFill(['lighter_at' => $this->monday->subDays(2), 'lighter_reason' => 'Midterms week'])->save();
+
+        // The visitor's opponent asks about a check-in that has no photo yet. The visitor can settle it.
+        $runWeeks = $goals['run'][$you->id]->weeks()->with('tasks')->get();
+        $task = $runWeeks->flatMap->tasks
+            ->filter(fn (RoadmapTask $task) => $task->completed_at && ! $task->proof_path)
+            ->sortByDesc('completed_at')
+            ->first();
+        $opponent = app(FairPlay::class)->opponentsOf($runWeeks->first(fn (RoadmapWeek $week) => $week->starts_on->isSameDay($this->monday)))->first();
+
+        if ($task && $opponent) {
+            $task->disputes()->create(['disputer_id' => $opponent->id, 'league_id' => $running->id, 'reason' => 'Strong week! Mind adding the route or your watch screen?']);
+            $task->forceFill(['dispute_status' => RoadmapTask::DISPUTE_OPEN])->saveQuietly();
+        }
     }
 
     /**

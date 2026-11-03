@@ -141,7 +141,19 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 
 ## Demo
 
-`/demo` ("Try the demo") signs a visitor into a private pretend world as John Cardinal: 7 friends, two GoalLeagues mid-season (Marathon by March and 4.0 This Fall), a live matchup, posts with cheers, a group task waiting on the visitor's vote, personal tasks, a challenge, league chat and an inbox. Last week includes a Smashed week with proof (Red) and one credited as Past for lack of proof (Kate). Demo worlds can't email anyone or reach real members, get a small AI allowance, and are deleted after `DEMO_TTL_HOURS`. `php artisan db:seed` builds the same world locally (see the README).
+Judges never type a username or password.
+
+- **One click:** "Try the demo" on the landing page and the login page signs the visitor into a fresh, isolated copy of the same demo world. Every judge sees the same starting point, and nobody can affect anyone else's copy.
+- **The world:** John Cardinal (with DC and Catholic University touches) and 7 friends, in two GoalLeagues in GoalWeek 6 (Marathon by March, of 20, and 4.0 This Fall, of 14), with a live matchup. It includes:
+  - intake answers behind John's plans, every plan at or above its minimum pace, and a plan-floor note on next week's study plan;
+  - check-ins with and without proof (drawn placeholder images, no downloads) and posts with cheers;
+  - a friend outside the leagues, a friend request, a group task waiting on John's vote, and a challenge;
+  - a Smashed week with proof that counts in full (Red), and one without proof credited as Past with "Needs proof" (Kate);
+  - a disputed check-in for John to settle, and a lighter week ("Midterms week").
+- **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips and captions), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. Demo starts and resets are limited to 10 an hour.
+- **Demo mode banner** with "Reset demo", which rebuilds that visitor's copy.
+- **Cleanup:** demo worlds are deleted after `DEMO_TTL_HOURS` (24). Cleanup runs whenever a new demo starts or resets, so it never depends on the scheduler (an hourly scheduled cleanup also runs).
+- `php artisan db:seed` builds the same world locally (see the README).
 
 ## AI limits
 

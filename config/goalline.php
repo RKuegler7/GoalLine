@@ -77,7 +77,10 @@ return [
 
     'demo' => [
         'enabled' => (bool) env('DEMO_ENABLED', true),
-        'ttl_hours' => (int) env('DEMO_TTL_HOURS', 48),
+        'ttl_hours' => (int) env('DEMO_TTL_HOURS', 24),
+        // Demo visitors get the coach's saved sample answers, so the demo never fails or spends money. True uses the
+        // real coach within the allowance below.
+        'live_ai' => (bool) env('DEMO_LIVE_AI', false),
         'ai_requests_per_visitor' => (int) env('DEMO_AI_REQUESTS_PER_VISITOR', 3),
         'ai_requests_per_day' => (int) env('DEMO_AI_REQUESTS_PER_DAY', 40),
     ],

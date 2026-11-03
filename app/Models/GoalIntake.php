@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Jobs\GenerateIntakeQuestions;
 use App\Services\AiBudget;
+use App\Services\DemoCoach;
 use App\Services\IntakeQuestions;
 use Database\Factories\GoalIntakeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -86,7 +87,7 @@ class GoalIntake extends Model
         $intake = $goal->intake()->create();
         $goal->setRelation('intake', $intake);
 
-        if (blank(config('services.anthropic.key')) || app(AiBudget::class)->blockedReason($goal->user) !== null) {
+        if (blank(config('services.anthropic.key')) || DemoCoach::applies($goal->user) || app(AiBudget::class)->blockedReason($goal->user) !== null) {
             $intake->useFallback();
         } else {
             GenerateIntakeQuestions::dispatch($intake);

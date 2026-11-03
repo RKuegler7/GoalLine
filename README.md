@@ -33,7 +33,7 @@ The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md). The e
 - **My Locker:** profile photo and cover, stats, form guide, activity heatmap, badges and trophy case.
 - **Staying on track:** Inbox, email and phone push notifications, morning and evening reminders, a calendar feed, and an installable app.
 - **Private beta:** invite codes, AI spend caps, an admin page (usage, AI spend, invites, photo storage check) and in-app feedback.
-- **One-click demo:** "Try the demo" opens a private pretend world with friends, two leagues mid-season and a live matchup.
+- **One-click demo:** "Try the demo" on the landing and login pages opens a private, resettable pretend world with friends, two leagues in GoalWeek 6, a live matchup, a dispute, a lighter week and plans at the minimum pace. The coach uses saved sample answers, so it never fails or costs money.
 
 ## Build status
 
@@ -48,8 +48,8 @@ The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md). The e
 | G | Refine the plan with prompts, preview, manual edits, plan history | Done |
 | H | Objective recurring tasks, Today view, week grid | Done |
 | I | Plan floor, plan lock, plan transparency, disputes | Done |
-| J | One-click Try the demo with isolated, resettable accounts | Next |
-| K | README, final checks and freeze readiness | To do |
+| J | One-click Try the demo with isolated, resettable accounts | Done |
+| K | README, final checks and freeze readiness | Next |
 
 The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D) and [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H). Next up: [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md).
 
@@ -68,7 +68,7 @@ composer run dev
 
 Then open http://localhost:8000.
 
-- `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 48 hours, so re-seed if it's gone.
+- `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 24 hours, so re-seed if it's gone.
 - Without an `ANTHROPIC_API_KEY`, everything works except the AI coach features.
 - Emails are written to `storage/logs/laravel.log` (`MAIL_MAILER=log`).
 - Run the tests with `php artisan test --compact`.

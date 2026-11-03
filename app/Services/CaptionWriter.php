@@ -33,6 +33,10 @@ class CaptionWriter
      */
     public function suggest(User $user, RoadmapTask $task): ?string
     {
+        if (DemoCoach::applies($user)) {
+            return DemoCoach::caption($task);
+        }
+
         $this->budget->ensureAvailable($user);
 
         $week = $task->week;

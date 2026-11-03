@@ -2,21 +2,31 @@
 
 namespace Tests\Feature;
 
+use Anthropic\Client;
 use App\GoalWeekResult;
+use App\Jobs\GenerateRoadmap;
+use App\Jobs\RefinePlan;
 use App\Models\Challenge;
+use App\Models\Dispute;
+use App\Models\GoalIntake;
 use App\Models\GroupTask;
 use App\Models\Highlight;
 use App\Models\League;
+use App\Models\PlanRefinement;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\Nudged;
 use App\Services\AiBudget;
+use App\Services\DemoCoach;
 use App\Services\DemoWorld;
+use App\Services\PlanEditor;
+use App\Services\RoadmapPlanner;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Mockery;
 use Tests\TestCase;
 
 class DemoTest extends TestCase
@@ -48,7 +58,7 @@ class DemoTest extends TestCase
         $this->assertCount(4, $visitor->friends());
         $this->assertSame(4, $visitor->notifications()->count());
 
-        $this->get(route('dashboard'))->assertOk()->assertSee("You're in the GoalLine demo", false)->assertSee('Run the DC Marathon by March')->assertSee('Get a 4.0 GPA this fall');
+        $this->get(route('dashboard'))->assertOk()->assertSee('Demo mode')->assertSee('Reset demo')->assertSee('Run the DC Marathon by March')->assertSee('Get a 4.0 GPA this fall');
     }
 
     public function test_every_main_page_works_in_the_demo_with_live_matchups(): void
@@ -58,9 +68,9 @@ class DemoTest extends TestCase
         $running = League::where('name', 'Marathon by March')->whereHas('members', fn ($members) => $members->where('user_id', $visitor->id))->sole();
         $study = League::where('name', '4.0 This Fall')->whereHas('members', fn ($members) => $members->where('user_id', $visitor->id))->sole();
 
-        $this->get(route('leagues.show', $running))->assertOk()->assertSee('GoalWeek 4 of 20')->assertSee('GoalWeek 4 Matchup')->assertSee('Group tasks')->assertSee('10-minute foam roll after the long run');
+        $this->get(route('leagues.show', $running))->assertOk()->assertSee('GoalWeek 6 of 20')->assertSee('GoalWeek 6 Matchup')->assertSee('Group tasks')->assertSee('10-minute foam roll after the long run');
         $this->get(route('leagues.show', $study))->assertOk()->assertSee('Manage invites and members'); // The visitor runs this one.
-        $this->assertSame(3, $running->fresh()->results->pluck('week')->unique()->count()); // Weeks 1 to 3 scored.
+        $this->assertSame(5, $running->fresh()->results->pluck('week')->unique()->count()); // Weeks 1 to 5 scored.
 
         foreach ([route('leagues.index'), route('leagues.feed', $running), route('highlights.index'), route('friends.index'), route('inbox'),
             route('profile.show'), route('challenges.show', Challenge::sole()), route('goals.show', $visitor->goals()->first())] as $page) {
@@ -111,6 +121,85 @@ class DemoTest extends TestCase
         $this->assertSame(DemoWorld::VISITOR_NAME, auth()->user()->name);
     }
 
+    public function test_judges_find_the_demo_on_the_login_page_and_never_type_a_password(): void
+    {
+        $this->get(route('login'))->assertOk()->assertSee('Try the demo')->assertSee(route('demo'));
+        $this->get(route('demo'))->assertRedirect(route('dashboard'));
+        $this->assertTrue(auth()->user()->isDemo());
+    }
+
+    public function test_the_demo_shows_plan_honesty_and_a_dispute(): void
+    {
+        $this->get(route('demo'));
+        $visitor = auth()->user();
+        $sandbox = $visitor->demo_sandbox;
+
+        $this->assertSame(2, GoalIntake::whereHas('goal', fn ($goals) => $goals->where('user_id', $visitor->id))->where('status', GoalIntake::ANSWERED)->count());
+        $this->assertTrue(RoadmapWeek::whereHas('goal.user', fn ($users) => $users->where('demo_sandbox', $sandbox))->whereNull('floor_points')->doesntExist(), 'Every demo plan has its minimum pace.');
+        $this->assertTrue(RoadmapWeek::whereHas('goal', fn ($goals) => $goals->where('user_id', $visitor->id))->whereNotNull('floor_note')->exists(), 'A plan-floor note.');
+        $this->assertTrue(RoadmapWeek::whereHas('goal.user', fn ($users) => $users->where('demo_sandbox', $sandbox))->where('lighter_reason', 'Midterms week')->exists(), 'A lighter week.');
+        $this->assertSame(1, Dispute::whereHas('task.week.goal', fn ($goals) => $goals->where('user_id', $visitor->id))->where('status', Dispute::OPEN)->count(), 'A disputed check-in.');
+
+        $study = $visitor->leagues()->where('name', '4.0 This Fall')->sole();
+        $this->get(route('leagues.matchups', $study))->assertOk()->assertSee('Lighter week');
+        $this->get(route('goals.show', $visitor->goals()->where('title', 'Get a 4.0 GPA this fall')->sole()))
+            ->assertSee('We raised this week to the minimum pace your deadline needs')->assertSee('Your plan is built from');
+    }
+
+    public function test_the_demo_coach_uses_saved_samples_and_never_calls_the_api(): void
+    {
+        // A stand-in client with no expectations: any real Claude call would fail this test.
+        config(['services.anthropic.key' => 'test-key']);
+        $this->app->bind(Client::class, fn () => Mockery::mock(Client::class));
+        $this->get(route('demo'));
+        $goal = auth()->user()->goals()->where('title', 'Run the DC Marathon by March')->sole();
+
+        $this->post(route('goals.refinements.store', $goal), ['instruction' => 'Make next week lighter, I have finals.']);
+        $refinement = PlanRefinement::sole();
+        (new RefinePlan($refinement))->handle(app(RoadmapPlanner::class), app(PlanEditor::class));
+        $this->assertSame(PlanRefinement::READY, $refinement->fresh()->status);
+        $this->get(route('goals.refinements.show', [$goal, $refinement]))->assertSee('saved sample: GoalWeek')->assertSee('Accept and update my plan');
+
+        $this->post(route('goals.store'), ['title' => 'Learn to juggle', 'category' => 'personal', 'target_date' => today()->addWeeks(6)->toDateString()]);
+        $new = auth()->user()->goals()->where('title', 'Learn to juggle')->sole();
+        $this->assertSame(GoalIntake::SOURCE_FALLBACK, $new->intake->source, 'Built-in questions right away, no waiting.');
+
+        (new GenerateRoadmap($new))->handle(app(RoadmapPlanner::class));
+        $this->assertSame(DemoCoach::PLAN_SUMMARY, $new->fresh()->roadmap_summary);
+    }
+
+    public function test_reset_rebuilds_this_visitors_world_and_leaves_others_alone(): void
+    {
+        $this->get(route('demo'));
+        $other = auth()->user()->demo_sandbox;
+        $this->post(route('logout'));
+
+        $this->get(route('demo'));
+        $first = auth()->user()->demo_sandbox;
+
+        $this->post(route('demo.reset'))->assertRedirect(route('dashboard'))->assertSessionHas('status', 'Your demo is reset: a fresh copy of the same world.');
+
+        $this->assertNotSame($first, auth()->user()->demo_sandbox);
+        $this->assertSame(0, User::where('demo_sandbox', $first)->count());
+        $this->assertSame(8, User::where('demo_sandbox', $other)->count());
+
+        $real = User::factory()->create();
+        $this->actingAs($real)->post(route('demo.reset'))->assertNotFound();
+    }
+
+    public function test_expired_demos_are_cleaned_up_when_the_next_one_starts_without_cron(): void
+    {
+        $this->get(route('demo'));
+        $old = auth()->user()->demo_sandbox;
+        $this->post(route('logout'));
+
+        $this->travel(25)->hours();
+        $this->get(route('demo'));
+
+        $this->assertSame(0, User::where('demo_sandbox', $old)->count());
+        $this->assertSame(8, User::whereNotNull('demo_sandbox')->count());
+    }
+
     public function test_demo_worlds_never_reach_real_members(): void
     {
         $real = User::factory()->create(['name' => 'Real Person', 'username' => 'real.person', 'email' => 'real@example.com']);
@@ -155,7 +244,7 @@ class DemoTest extends TestCase
         $this->assertNotSame($first, auth()->user()->demo_sandbox);
         $this->assertSame(16, User::whereNotNull('demo_sandbox')->count());
 
-        $this->travel(49)->hours();
+        $this->travel(25)->hours();
         $this->assertSame(16, DemoWorld::pruneExpired());
         $this->assertSame(0, User::whereNotNull('demo_sandbox')->count());
         $this->assertSame(0, League::count());

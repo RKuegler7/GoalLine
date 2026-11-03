@@ -154,6 +154,12 @@ class RoadmapPlanner
      */
     public function refine(Goal $goal, string $instruction, Collection $editable): array
     {
+        if (DemoCoach::applies($goal->user)) {
+            $sample = DemoCoach::refine($editable);
+
+            return self::validatedRefinement(['explanation' => $sample['explanation'], 'weeks' => array_map(fn (array $week) => ['stretch' => $week['position'], ...$week], $sample['weeks'])], $editable->pluck('position')->all());
+        }
+
         $answer = $this->ask('refine', $goal->user, self::REFINE_PROMPT, $this->refineBrief($goal, $instruction, $editable), self::refineSchema());
 
         return self::validatedRefinement($answer, $editable->pluck('position')->all());
@@ -275,6 +281,10 @@ class RoadmapPlanner
      */
     public function intakeQuestions(Goal $goal): array
     {
+        if (DemoCoach::applies($goal->user)) {
+            return IntakeQuestions::fallback($goal->category, $goal->isPhysical());
+        }
+
         $answer = $this->ask('intake', $goal->user, self::INTAKE_PROMPT, $this->goalDetails($goal, withMaterials: false), IntakeQuestions::schema(), effort: 'low');
 
         return IntakeQuestions::validated($answer, $goal->isPhysical());
@@ -329,6 +339,10 @@ class RoadmapPlanner
      */
     public function plan(Goal $goal, array $periods, iterable $pastWeeks = [], array $floors = []): array
     {
+        if (DemoCoach::applies($goal->user)) {
+            return $this->validatedPlan(DemoCoach::plan($goal, $periods), count($periods));
+        }
+
         return $this->validatedPlan($this->ask('roadmap', $goal->user, self::PLAN_PROMPT, $this->planBrief($goal, $periods, $pastWeeks, $floors), self::planSchema()), count($periods));
     }
 
@@ -365,6 +379,10 @@ class RoadmapPlanner
      */
     public function review(Goal $goal, array $changes): array
     {
+        if (DemoCoach::applies($goal->user)) {
+            return DemoCoach::review();
+        }
+
         $brief = implode("\n\n", [
             $this->goalDetails($goal),
             "Current roadmap:\n".$this->describeWeeks($goal->weeks, withTasks: true),
@@ -391,6 +409,10 @@ class RoadmapPlanner
      */
     public function coachTip(WeekReview $review): string
     {
+        if (DemoCoach::applies($review->week->goal->user)) {
+            return DemoCoach::tip();
+        }
+
         $answer = $this->ask('weekly-tip', $review->week->goal->user, self::COACH_PROMPT, $this->coachBrief($review), [
             'type' => 'object',
             'properties' => ['tip' => ['type' => 'string']],
@@ -448,6 +470,10 @@ class RoadmapPlanner
      */
     public function readMaterial(PlanMaterial $material): array
     {
+        if (DemoCoach::applies($material->goal->user)) {
+            throw new RoadmapPlanningException('The demo coach doesn\'t read uploaded files.');
+        }
+
         $source = ['type' => 'base64', 'mediaType' => $material->mime_type, 'data' => $material->base64Contents()];
 
         $content = [
