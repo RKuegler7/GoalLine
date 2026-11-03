@@ -1,57 +1,81 @@
 # GoalLine
 
-**Get in line with your goals. We get more done together.**
+**A fantasy-sports-style accountability app: friends play their real goals head to head, one GoalWeek at a time.**
 
-**Live site:** http://goalline.us-east-1.elasticbeanstalk.com
+> **The 20-second pitch:** Every player is scored against their own plan by plain code, not AI. Big claims need proof or your opponent's sign-off, and plans can't drop below the minimum pace the deadline requires.
 
-GoalLine is a fantasy-sports-style accountability app. It turns real, deadline-driven goals (an exam, a thesis, a marathon) into a friendly league among friends, teammates or classmates. An AI coach builds a weekly roadmap for each goal. Daily check-ins feed a head-to-head matchup each week, and a plain, tested score shows whether you're actually in line to hit your real deadline.
+- **Live app:** https://YOUR-CLOUDFRONT-DOMAIN *(set this to the live HTTPS address before the freeze)*
+- **Try the demo:** open the live app and tap **Try the demo** on the home page or the login page. One click, no username or password. You get your own private copy of a demo world (John Cardinal and friends, two GoalLeagues in GoalWeek 6, a live matchup). Tap **Reset demo** in the banner any time to start fresh.
+- **Demo video:** *(link coming)*
 
-GoalLine is about the process, not just the end result. The goal is what the daily work builds, and doing it with friends makes it stick. **Trust the process. Show up today.**
+**Get in line with your goals. We get more done together.** GoalLine is about the process, not just the end result: the goal is what the daily work builds, and doing it with friends makes it stick. Trust the process. Show up today.
 
 *Kuegs: CUA Busch School AI Vibe Coding Contest, Fall 2026*
 
+## What the app does
+
+1. **Set a goal** with a deadline (an exam, a race, a thesis, a job search). GoalLine asks 5 to 8 questions written for that goal, then the AI coach drafts a dated roadmap of GoalWeeks: a focus, a milestone and daily tasks, plus habits with clear rules like "Run · 2+ miles" on Mon, Wed, Fri.
+2. **Check in every day** from Today's Gameplan or the Today page's week grid. Add a photo to show your work.
+3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the swipeable **GoalWeek Matchup**: who's ahead, both bands, and how many points each needs for the next band.
+4. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
+
+## Who it's for
+
+Students and friend groups working toward real goals with real deadlines: classmates studying for the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts. Small leagues of people who know each other (12 or fewer works best).
+
+## The AI: what it does and what it never does
+
+GoalLine uses **Anthropic's Claude API**. The AI:
+
+- writes goal-specific **intake questions** (what a coach would ask before planning);
+- **drafts the roadmap** from the goal, the answers and any uploaded study or training plan;
+- **refines the plan** when you ask in your own words ("Make weeks lighter, I have finals"), as a preview you accept or discard;
+- checks your edits and gives an end-of-week **coach's tip**;
+- optionally **suggests a caption** for a post, which you edit.
+
+The AI **never scores** a week, **never decides a dispute**, **never sets the minimum pace**, and **never gives medical advice**. Scoring and fairness are plain, tested PHP.
+
+## How the scoring works
+
+Each GoalWeek, your share of your own planned points sets your band. A regular task is 1 point, each habit day 1, the milestone 2.
+
+| Band | Share of your plan | Line points |
+|---|---|---|
+| Short of the Line | under 90% | 0 |
+| In Line | 90% to 100% | 1 |
+| Past the Line | over 100%, under 150% | 2 |
+| Smashed the Line | 150% and up (needs proof or the opponent's OK) | 3 |
+
+In a matchup the **better band wins 2** match points, the **same band draws 1** each, the worse band gets 0. A week is worth 0 to 5 points (line points + match points). With an odd number of members, one person plays the league median.
+
 ## How fairness works
 
-GoalLine doesn't police anyone. It makes cheating visible, hard to do quietly, and not worth much:
+GoalLine doesn't police anyone. It makes cheating visible, hard to do quietly, and not worth much. The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md), and the exact rules are in [docs/SPEC.md](docs/SPEC.md).
 
-- **You play against your own plan.** Each week is scored on the share of your planned points you earned: Short of the Line (under 90%), In Line (90–100%), Past the Line (over 100%), Smashed the Line (150%+). The AI never decides a score.
-- **You can't pad the plan.** Every roadmap edit is logged and checked by the coach. Personal tasks are capped and labeled "Added by [name]". Group tasks need two thirds of the league to vote yes.
-- **You can't rewrite the past.** Check-ins are for today or yesterday only, timestamped, and shown to the league. Numbers have to fall in a sensible range.
-- **Big claims need proof.** A Smashed week counts only with a photo ("Show your work") or the opponent's OK. Photos have location data stripped.
-- **The league keeps it honest.** Matchups are open, anyone can ask to see the work, and posts can be reported.
+- **Minimum pace (plan floor):** code sets each week's minimum planned points from the goal type, deadline and intake answers. Plans can be harder, never easier, so asking the AI for an easy plan doesn't work. Two lighter weeks a season are allowed, at 70%, with a reason the league sees.
+- **Plan lock:** a week's plan locks when it starts. No removing work after seeing how the week is going.
+- **Range checks:** numbers must be sensible, and unusually high ones get an "Are you sure?".
+- **No backfill:** check-ins are for today or yesterday only.
+- **Opponent visibility:** both sides' check-ins, times and plan status are open to the league.
+- **Proof for Smashed:** a 150%+ week counts as Smashed only with a photo or the opponent's confirmation.
+- **Disputes:** the opponent or league owner can dispute any check-in. Its points are held when the week closes until it's settled by proof, an explanation, a withdrawal or the league owner's ruling, and then the week re-scores on its own.
 
-The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md). The exact rules are in [docs/SPEC.md](docs/SPEC.md).
+## What happens when the AI gets it wrong
 
-## What's in it
+- **Everything it returns is validated.** Malformed or incomplete answers are rejected, text is cleaned and capped, and only weeks that are allowed to change can be touched.
+- **Nothing changes without you.** Refinements show a week-by-week preview with Accept and Discard, and a new plan is a draft until you accept it.
+- **Fallbacks, not dead ends.** If the coach fails, times out or hits a spending cap, GoalLine uses built-in intake questions or a starter plan for the goal type, at the minimum pace, and says so plainly.
+- **Plans stay yours.** You can edit, reorder and move tasks, edit focus and milestones, and restore any earlier version from plan history.
+- **Code has the last word on workload.** If the AI plans below the minimum pace, code raises the week and tells you why.
 
-- **Goals and AI roadmaps:** set a goal, answer a few questions written for that goal, upload a study or training plan if you have one, and get weekly GoalWeeks with a focus, a milestone and daily tasks. Refine the plan in your own words with a preview before anything changes, edit it by hand, and restore earlier versions from plan history. You get a 7-day trial before a goal locks in, plus end-of-week reviews with a coach's tip.
-- **Clubhouse and Today:** Today's Gameplan with "Mark all done", a Today page with a habit week grid and "days on the line this week", Plan my week, habits with clear rules ("Run · 2+ miles", Mon, Wed, Fri), the daily check-in streak, the Kickoff checklist and the Friends feed.
-- **GoalLeagues:** a swipeable GoalWeek Matchup page (who leads, bands, points to the next band), round-robin weekly matchups, standings, league chat, recaps, season awards, group tasks with a league vote, personal tasks, and invites by link, code, email or username.
-- **Fair play:** a minimum weekly pace set by code (plans can be harder, never easier), plan lock at the start of each week, lighter weeks with a reason, plan status labels and plan summaries for the league, range checks, the today-or-yesterday rule, proof photos with a Verified check, the Smashed confirmation, "Show your work" requests, disputes with held points, and an open matchup timeline.
-- **Highlights:** Instagram-style check-in posts with Proof only, League, or League + friends visibility; cheers, comments and @mentions; finished-goal posts, share cards and reports.
-- **People:** friends, people search (with a "Let people find me by name" setting), nudges and challenges.
-- **My Locker:** profile photo and cover, stats, form guide, activity heatmap, badges and trophy case.
-- **Staying on track:** Inbox, email and phone push notifications, morning and evening reminders, a calendar feed, and an installable app.
-- **Private beta:** invite codes, AI spend caps, an admin page (usage, AI spend, invites, photo storage check) and in-app feedback.
-- **One-click demo:** "Try the demo" on the landing and login pages opens a private, resettable pretend world with friends, two leagues in GoalWeek 6, a live matchup, a dispute, a lighter week and plans at the minimum pace. The coach uses saved sample answers, so it never fails or costs money.
+## Safety and privacy
 
-## Build status
-
-| Phase | What | Status |
-|---|---|---|
-| A | Fair play, proof and Smashed confirmation | Done |
-| B | Media posts, feeds, friends and cheers | Done |
-| C | Group tasks with a league vote, personal tasks | Done |
-| D | Demo seed, fairness docs, deploy checklist | Done |
-| E | Goal-to-league flow, league invites, people search | Done |
-| F | Goal-specific intake questions feeding the plan | Done |
-| G | Refine the plan with prompts, preview, manual edits, plan history | Done |
-| H | Objective recurring tasks, Today view, week grid | Done |
-| I | Plan floor, plan lock, plan transparency, disputes | Done |
-| J | One-click Try the demo with isolated, resettable accounts | Done |
-| K | README, final checks and freeze readiness | Next |
-
-The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D) and [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H). Next up: [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md).
+- Proof photos are re-encoded on the server, which strips location and camera data. They're served only to people allowed to see them (the owner, the opponent and the league owner, or wider if the member posts them).
+- No GPS or maps. "Where?" is free text, with a reminder to crop out maps that show your home.
+- People search shows only name, username and photo, never emails. A setting hides you from name search.
+- Leagues are invite-only, posts can be reported, and plan summaries never show private notes, intake answers or reflections.
+- AI spending is capped per member, per day and per month. The demo uses saved sample answers.
+- **Disclaimer:** GoalLine plans are general guidance, not medical advice. Check with a doctor if you have health concerns. Physical goals always get an injury question, conservative progression and rest days.
 
 ## Run it on your computer
 
@@ -68,10 +92,45 @@ composer run dev
 
 Then open http://localhost:8000.
 
-- `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 24 hours, so re-seed if it's gone.
-- Without an `ANTHROPIC_API_KEY`, everything works except the AI coach features.
+- `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**, or tap **Try the demo**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 24 hours, so re-seed if it's gone.
+- Without an `ANTHROPIC_API_KEY`, everything works and the coach uses its built-in fallbacks.
 - Emails are written to `storage/logs/laravel.log` (`MAIL_MAILER=log`).
 - Run the tests with `php artisan test --compact`.
+
+## What we chose not to build
+
+- **No AI judging.** The AI never scores, never rules on disputes and never sets the minimum pace.
+- **No GPS, maps or wearable syncing** (Strava, Apple Health). That's more privacy risk than a friendly league needs.
+- **No money, stakes or betting**, and no public leaderboards or follower counts.
+- **No public user directory.** People find each other by name, username or exact email, inside a private beta.
+- **No medical advice**, and no diagnosing from intake answers.
+- **No native apps.** GoalLine is an installable web app with push notifications.
+
+## Known limitations
+
+- Check-ins are self-reported. GoalLine makes faking visible and not worth much, but it can't prove someone studied for an hour.
+- The minimum-pace formulas are deliberate, documented rules of thumb, not a model of every goal.
+- Weeks follow each member's own time zone, so a league spread across time zones can see weeks close a few hours apart.
+- When the coach rewords a task it moved between weeks, the refinement preview shows it as removed and added rather than moved. Its explanation says where the work went.
+- One Elastic Beanstalk server, with a single queue worker and scheduler, sized for a private beta.
+
+## Build status
+
+| Phase | What | Status |
+|---|---|---|
+| A | Fair play, proof and Smashed confirmation | Done |
+| B | Media posts, feeds, friends and cheers | Done |
+| C | Group tasks with a league vote, personal tasks | Done |
+| D | Demo seed, fairness docs, deploy checklist | Done |
+| E | Goal-to-league flow, league invites, people search | Done |
+| F | Goal-specific intake questions feeding the plan | Done |
+| G | Refine the plan with prompts, preview, manual edits, plan history | Done |
+| H | Objective recurring tasks, Today view, week grid | Done |
+| I | Plan floor, plan lock, plan transparency, disputes | Done |
+| J | One-click Try the demo with isolated, resettable accounts | Done |
+| K | README, final checks and freeze readiness | Done |
+
+The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H) and [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K).
 
 ## Deploying to Elastic Beanstalk
 
@@ -80,9 +139,9 @@ GoalLine runs on one Elastic Beanstalk server (PHP 8.4, Amazon Linux 2023). It u
 ### Each deploy
 
 1. Commit everything. If you changed any front-end files, run `npm run build` first and commit `public/build`.
-2. Build the zip from the last commit: `git archive --format=zip -o deploy.zip HEAD`. Don't zip with Windows, which writes paths Linux can't read.
+2. Build the zip from the commit: `git archive --format=zip -o deploy.zip HEAD` (or `final-submission` for the judged version). Don't zip with Windows, which writes paths Linux can't read.
 3. Elastic Beanstalk console → your environment → **Upload and deploy** → choose `deploy.zip`.
-4. The server then does the rest on its own (`.platform/hooks/postdeploy/01-goalline.sh`). It checks the database connection, runs the migrations, caches the config, and restarts the queue worker and the scheduler. There's no separate migrate step.
+4. The server then does the rest on its own (`.platform/hooks/postdeploy/01-goalline.sh`). It checks the database connection, runs the migrations, gives existing plans their minimum pace (`goalline:plan-floors`), caches the config, and restarts the queue worker and the scheduler. There's no separate migrate step, and no seeders run on the server.
 
 > **Photos need S3.** The server's own disk is wiped on every deploy. Until S3 is set up, uploaded photos (proof, posts, profile pictures, plan files) vanish on each deploy. The admin page's **Photo storage** card says whether S3 is working.
 
@@ -101,11 +160,9 @@ Set these in Elastic Beanstalk → **Configuration** → **Updates, monitoring a
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | For phone push notifications |
 | `ADMIN_EMAILS` | Who can open `/admin` |
 
-Already set by `.ebextensions/01-laravel.config`: production mode, MySQL, database sessions, cache and queue, `UPLOADS_DISK=s3`, Brevo's port, `BETA_INVITE_ONLY=true` and `BEHIND_CLOUDFRONT=true`.
+Already set by `.ebextensions/01-laravel.config`: `APP_ENV=production`, `APP_DEBUG=false`, MySQL, database sessions, cache and queue, secure session cookies, `UPLOADS_DISK=s3`, Brevo's port, `BETA_INVITE_ONLY=true` and `BEHIND_CLOUDFRONT=true`.
 
-Optional, with sensible defaults: `ANTHROPIC_MODEL`, `PROOF_DISK` (default `uploads`, the same S3 bucket), `CAPTION_SUGGESTIONS`, `DEMO_ENABLED`, `DEMO_TTL_HOURS`, the AI caps (`AI_DAILY_REQUESTS_PER_MEMBER`, `AI_DAILY_BUDGET_USD`, `AI_MONTHLY_BUDGET_USD`) and the demo AI allowance (`DEMO_AI_REQUESTS_PER_VISITOR`, `DEMO_AI_REQUESTS_PER_DAY`).
-
-Migrations added since Phase A run on the next deploy: `add_fair_play`, `add_friends_posts_and_reports`, `add_group_and_personal_tasks`, `add_league_invites_and_discoverable`, `add_demo_sandbox_to_users`, `create_goal_intakes_table`, `create_plan_versions_and_refinements_tables`, `add_completion_rules_to_habits` and `add_plan_honesty_and_disputes`. After migrating, the deploy runs `goalline:plan-floors` to give existing plans their minimum pace (safe to re-run).
+Optional, with sensible defaults: `ANTHROPIC_MODEL`, `PROOF_DISK` (default `uploads`, the same S3 bucket), `CAPTION_SUGGESTIONS`, `DEMO_ENABLED`, `DEMO_TTL_HOURS` (24), `DEMO_LIVE_AI` (off: the demo uses saved sample answers), the AI caps (`AI_DAILY_REQUESTS_PER_MEMBER`, `AI_DAILY_BUDGET_USD`, `AI_MONTHLY_BUDGET_USD`) and the demo AI allowance (`DEMO_AI_REQUESTS_PER_VISITOR`, `DEMO_AI_REQUESTS_PER_DAY`).
 
 ### Setting up S3 for photos (one time)
 
