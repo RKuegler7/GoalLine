@@ -4,7 +4,7 @@
 
 > **The 20-second pitch:** Every player is scored against their own plan by plain code, not AI. Big claims need proof or your opponent's sign-off, and plans can't drop below the minimum pace the deadline requires.
 
-- **Live app:** https://YOUR-CLOUDFRONT-DOMAIN *(set this to the live HTTPS address before the freeze)*
+- **Live app:** https://ddhxw7holo4vs.cloudfront.net
 - **Try the demo:** open the live app and tap **Try the demo** on the home page or the login page. One click, no username or password. You get your own private copy of a demo world (John Cardinal and friends, two GoalLeagues in GoalWeek 6, a live matchup). Tap **Reset demo** in the banner any time to start fresh.
 - **Demo video:** *(link coming)*
 

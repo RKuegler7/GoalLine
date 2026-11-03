@@ -8,6 +8,7 @@ use App\Usage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class DemoController extends Controller
 {
@@ -31,7 +32,7 @@ class DemoController extends Controller
 
         DemoWorld::pruneExpired();
 
-        return $this->signIn($request, $world->create(), 'Welcome to the GoalLine demo. Look around: check off a task, cheer a post, or vote on the group task.');
+        return $this->build($request, $world, 'Welcome to the GoalLine demo. Look around: check off a task, cheer a post, or vote on the group task.');
     }
 
     /**
@@ -46,7 +47,24 @@ class DemoController extends Controller
         User::where('demo_sandbox', $sandbox)->get()->each->delete();
         DemoWorld::pruneExpired();
 
-        return $this->signIn($request, $world->create(), 'Your demo is reset: a fresh copy of the same world.');
+        return $this->build($request, $world, 'Your demo is reset: a fresh copy of the same world.');
+    }
+
+    /**
+     * Build a demo world and sign the visitor in. If building fails, the error is logged for the admins and the
+     * visitor gets a friendly note instead of an error page.
+     */
+    private function build(Request $request, DemoWorld $world, string $status): RedirectResponse
+    {
+        try {
+            $visitor = $world->create();
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect()->route('login')->with('status', 'The demo couldn\'t start just now. Please try again in a minute.');
+        }
+
+        return $this->signIn($request, $visitor, $status);
     }
 
     private function signIn(Request $request, User $visitor, string $status): RedirectResponse

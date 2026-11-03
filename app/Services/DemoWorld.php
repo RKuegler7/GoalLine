@@ -28,6 +28,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Throwable;
 
 /**
  * Builds a one-click demo: a visitor account in its own private world, with pretend friends, two GoalLeagues partway
@@ -391,8 +392,24 @@ class DemoWorld
             ->where('is_bonus', true)->whereNotNull('completed_at')->firstOrFail();
         $path = "proofs/{$goal->id}/{$task->id}-demo.svg";
 
-        Storage::disk(RoadmapTask::proofDisk())->put($path, $this->drawing($title, $subtitle, '#1E2922', '#D4AC58'));
-        $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $task->completed_at])->saveQuietly();
+        if ($this->store(RoadmapTask::proofDisk(), $path, $this->drawing($title, $subtitle, '#1E2922', '#D4AC58'))) {
+            $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $task->completed_at])->saveQuietly();
+        }
+    }
+
+    /**
+     * Save a drawn picture. If photo storage is down (S3 not set up yet, say), the demo still opens without it, and
+     * the error is logged for the admins.
+     */
+    private function store(string $disk, string $path, string $contents): bool
+    {
+        try {
+            return (bool) Storage::disk($disk)->put($path, $contents);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return false;
+        }
     }
 
     /**
@@ -462,7 +479,9 @@ class DemoWorld
         $post->forceFill(['created_at' => now()->subDays($daysAgo)->subHours(rand(1, 6))])->saveQuietly();
 
         // The photo doubles as the task's proof, so the post shows Verified.
-        $task?->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $post->created_at])->saveQuietly();
+        if ($path) {
+            $task?->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $post->created_at])->saveQuietly();
+        }
 
         return $post;
     }
@@ -470,11 +489,14 @@ class DemoWorld
     /**
      * A post's photo, drawn.
      */
-    private function photo(Highlight $highlight, string $title, string $subtitle, string $from, string $to): string
+    private function photo(Highlight $highlight, string $title, string $subtitle, string $from, string $to): ?string
     {
         $path = "highlights/{$highlight->id}/demo.svg";
 
-        Storage::disk(Highlight::PHOTO_DISK)->put($path, $this->drawing($title, $subtitle, $from, $to));
+        if (! $this->store(Highlight::PHOTO_DISK, $path, $this->drawing($title, $subtitle, $from, $to))) {
+            return null;
+        }
+
         $highlight->forceFill(['photo_path' => $path])->saveQuietly();
 
         return $path;

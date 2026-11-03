@@ -27,6 +27,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
+use Mockery\MockInterface;
+use RuntimeException;
 use Tests\TestCase;
 
 class DemoTest extends TestCase
@@ -119,6 +121,28 @@ class DemoTest extends TestCase
 
         $this->post('/login', ['email' => DemoSeeder::EMAIL, 'password' => DemoSeeder::PASSWORD])->assertRedirect();
         $this->assertSame(DemoWorld::VISITOR_NAME, auth()->user()->name);
+    }
+
+    public function test_the_demo_still_opens_when_photo_storage_is_down(): void
+    {
+        // A disk whose root is a file, set to throw: every write fails, like S3 before it's set up.
+        $root = tempnam(sys_get_temp_dir(), 'not-a-folder');
+        config(['filesystems.disks.uploads' => ['driver' => 'local', 'root' => $root, 'throw' => true]]);
+        Storage::forgetDisk('uploads');
+
+        $this->get(route('demo'))->assertRedirect(route('dashboard'));
+        $this->assertTrue(auth()->user()->isDemo());
+        $this->get(route('dashboard'))->assertOk();
+
+        @unlink($root);
+    }
+
+    public function test_a_demo_that_cant_be_built_shows_a_friendly_note_not_an_error(): void
+    {
+        $this->mock(DemoWorld::class, fn (MockInterface $mock) => $mock->shouldReceive('create')->andThrow(new RuntimeException('Database is down.')));
+
+        $this->get(route('demo'))->assertRedirect(route('login'))->assertSessionHas('status', 'The demo couldn\'t start just now. Please try again in a minute.');
+        $this->assertGuest();
     }
 
     public function test_judges_find_the_demo_on_the_login_page_and_never_type_a_password(): void
