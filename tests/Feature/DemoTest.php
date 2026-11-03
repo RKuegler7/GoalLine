@@ -137,6 +137,23 @@ class DemoTest extends TestCase
         @unlink($root);
     }
 
+    public function test_cleaning_up_old_demos_never_blocks_a_new_one_when_photo_storage_is_down(): void
+    {
+        $this->get(route('demo'));
+        $old = auth()->user()->demo_sandbox;
+        $this->post(route('logout'));
+
+        $root = tempnam(sys_get_temp_dir(), 'not-a-folder');
+        config(['filesystems.disks.uploads' => ['driver' => 'local', 'root' => $root, 'throw' => true]]);
+        Storage::forgetDisk('uploads');
+        $this->travel(25)->hours();
+
+        $this->get(route('demo'))->assertRedirect(route('dashboard'));
+        $this->assertSame(0, User::where('demo_sandbox', $old)->count());
+
+        @unlink($root);
+    }
+
     public function test_a_demo_that_cant_be_built_shows_a_friendly_note_not_an_error(): void
     {
         $this->mock(DemoWorld::class, fn (MockInterface $mock) => $mock->shouldReceive('create')->andThrow(new RuntimeException('Database is down.')));

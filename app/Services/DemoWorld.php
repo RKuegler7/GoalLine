@@ -177,9 +177,23 @@ class DemoWorld
             ->where('created_at', '<', now()->subHours(config('goalline.demo.ttl_hours')))
             ->get();
 
-        $expired->each->delete();
+        $expired->each(fn (User $user) => self::remove($user));
 
         return $expired->count();
+    }
+
+    /**
+     * Delete one demo account and its world. Cleanup never blocks a demo: if its photo files can't be removed (photo
+     * storage down, say), that's logged and the database rows go anyway.
+     */
+    public static function remove(User $user): void
+    {
+        try {
+            $user->delete();
+        } catch (Throwable $exception) {
+            report($exception);
+            User::withoutEvents(fn () => $user->delete());
+        }
     }
 
     private function person(string $name, string $bio): User

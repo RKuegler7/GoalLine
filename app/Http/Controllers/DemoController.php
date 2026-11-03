@@ -44,7 +44,7 @@ class DemoController extends Controller
         $sandbox = $request->user()->demo_sandbox;
 
         Auth::logout();
-        User::where('demo_sandbox', $sandbox)->get()->each->delete();
+        User::where('demo_sandbox', $sandbox)->get()->each(fn (User $user) => DemoWorld::remove($user));
         DemoWorld::pruneExpired();
 
         return $this->build($request, $world, 'Your demo is reset: a fresh copy of the same world.');
