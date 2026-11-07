@@ -36,7 +36,7 @@ class GameplanTest extends TestCase
         $gameplan = Str::betweenFirst($page, 'id="gameplan"', '</section>');
 
         $this->assertSame(1, preg_match('/Book three customer calls.*Carried over from Tuesday.*Build the first prototype.*Cold outreach/s', $gameplan));
-        $this->assertStringContainsString('0 of 3 done', $gameplan);
+        $this->assertStringContainsString('0 of 3 done', preg_replace('/\s+/', ' ', strip_tags($gameplan)));
         $this->assertStringContainsString('Plan my week', $gameplan);
         $this->assertStringNotContainsString('Write the pitch', $gameplan);
         $this->assertStringNotContainsString('Weekend review', $gameplan);

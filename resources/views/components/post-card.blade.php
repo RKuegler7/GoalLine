@@ -8,7 +8,7 @@
     $cheered = $post->isCheeredBy($viewer);
 @endphp
 
-<article id="highlight-{{ $post->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
+<article id="highlight-{{ $post->id }}" data-region="post-{{ $post->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex items-center gap-3 px-4 py-3">
         <a href="{{ $post->user->profileUrl() }}" class="shrink-0 rounded-full p-0.5 ring-2 ring-grass/60">
             <x-avatar :user="$post->user" class="size-9 text-[0.65rem]" />
@@ -35,8 +35,9 @@
 
     <div class="px-4 pt-3 pb-4 text-sm">
         <div class="flex items-center gap-2">
-            <form method="POST" action="{{ route('highlights.cheer', $post) }}">
+            <form method="POST" action="{{ route('highlights.cheer', $post) }}" data-live data-optimistic="cheer" data-live-key="cheer-{{ $post->id }}">
                 @csrf
+                <input type="hidden" name="intent" value="{{ $cheered ? 'remove' : 'add' }}">
                 <button type="submit" aria-pressed="{{ $cheered ? 'true' : 'false' }}" @class([
                     'flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold transition',
                     'bg-grass text-white' => $cheered,

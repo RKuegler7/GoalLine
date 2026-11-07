@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('leagues.invites.store', $league) }}" class="mt-5">
+        <form method="POST" action="{{ route('leagues.invites.store', $league) }}" data-live class="mt-5">
             @csrf
             <label for="invite-who" class="text-sm font-semibold text-ink/80">Invite by email or username</label>
             <div class="mt-1 flex gap-2">

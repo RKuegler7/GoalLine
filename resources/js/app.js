@@ -1,3 +1,5 @@
+import './live';
+
 /**
  * League chat: send without a page reload and pick up new messages every few seconds.
  * The chat still works as plain forms if this script doesn't run.
@@ -678,50 +680,54 @@ document.querySelectorAll('[data-account-menu]').forEach((menu) => {
 /**
  * "Show your work (optional)": open the proof panel under a checked-off task.
  */
-document.querySelectorAll('[data-open-proof]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-        const panel = document.getElementById(link.dataset.openProof);
+// Delegated, so it keeps working on parts of the page that update in place.
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('[data-open-proof]');
+    const panel = link && document.getElementById(link.dataset.openProof);
 
-        if (panel) {
-            event.preventDefault();
-            panel.hidden = false;
-            panel.querySelector('input[type="file"]')?.focus();
-            link.hidden = true;
-        }
-    });
+    if (panel) {
+        event.preventDefault();
+        panel.hidden = false;
+        panel.querySelector('input[type="file"]')?.focus();
+        link.hidden = true;
+    }
 });
 
 /**
  * "Suggest a caption": ask Claude for one and drop it in the box to edit. It never posts anything.
  */
-document.querySelectorAll('[data-suggest-caption]').forEach((button) => {
+document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-suggest-caption]');
+
+    if (!button) {
+        return;
+    }
+
     const status = button.parentElement.querySelector('[data-suggest-status]');
     const box = document.getElementById(button.dataset.target);
 
-    button.addEventListener('click', async () => {
-        button.disabled = true;
-        status.textContent = 'Thinking…';
+    button.disabled = true;
+    status.textContent = 'Thinking…';
 
-        try {
-            const response = await fetch(button.dataset.suggestCaption, {
-                method: 'POST',
-                headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
-            });
-            const data = await response.json();
+    try {
+        const response = await fetch(button.dataset.suggestCaption, {
+            method: 'POST',
+            headers: { Accept: 'application/json', 'X-CSRF-TOKEN': csrfToken, 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        const data = await response.json();
 
-            if (data.caption && box) {
-                box.value = data.caption;
-                box.focus();
-                status.textContent = 'Edit it however you like.';
-            } else {
-                status.textContent = data.message || "Couldn't suggest one right now. Write your own!";
-            }
-        } catch {
-            status.textContent = "Couldn't suggest one right now. Write your own!";
-        } finally {
-            button.disabled = false;
+        if (data.caption && box) {
+            box.value = data.caption;
+            box.focus();
+            status.textContent = 'Edit it however you like.';
+        } else {
+            status.textContent = data.message || "Couldn't suggest one right now. Write your own!";
         }
-    });
+    } catch {
+        status.textContent = "Couldn't suggest one right now. Write your own!";
+    } finally {
+        button.disabled = false;
+    }
 });
 
 /**

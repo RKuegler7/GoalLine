@@ -81,7 +81,7 @@
                             </div>
                         </a>
                         @if ($active)
-                            <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" class="border-t border-line">
+                            <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live class="border-t border-line">
                                 @csrf
                                 <input type="hidden" name="return" value="list">
                                 <button type="submit" @class([

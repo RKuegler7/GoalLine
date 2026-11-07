@@ -49,7 +49,7 @@
                     <div class="mt-1.5 rounded-lg bg-sky-50 px-2.5 py-2 text-xs text-sky-900 ring-1 ring-sky-200 ring-inset">
                         Reached Smashed. Needs proof or an opponent's OK to count in full.
                         @if ($isOpponent && ! $row['goalWeek']->isLocked())
-                            <form method="POST" action="{{ route('goalweeks.confirm-smashed', $row['goalWeek']) }}" class="mt-1.5">
+                            <form method="POST" action="{{ route('goalweeks.confirm-smashed', $row['goalWeek']) }}" data-live class="mt-1.5">
                                 @csrf
                                 <button type="submit" class="rounded-full bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-700">Confirm their Smashed week</button>
                             </form>
@@ -83,7 +83,7 @@
                                     @if ($task->proofRequests->contains('requester_id', $viewer->id))
                                         <span class="ml-1 text-ink/45">Asked to see it</span>
                                     @else
-                                        <form method="POST" action="{{ route('roadmap.tasks.proof.request', $task) }}" class="inline">
+                                        <form method="POST" action="{{ route('roadmap.tasks.proof.request', $task) }}" data-live class="inline">
                                             @csrf
                                             <button type="submit" class="ml-1 font-semibold text-club hover:underline">Show your work?</button>
                                         </form>

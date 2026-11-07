@@ -7,13 +7,13 @@
     $next = collect($steps)->firstWhere('done', false);
 @endphp
 
-<section {{ $attributes->class('overflow-hidden rounded-2xl border border-club/30 bg-white') }} aria-label="Kickoff checklist">
+<section data-region="kickoff" {{ $attributes->class('overflow-hidden rounded-2xl border border-club/30 bg-white') }} aria-label="Kickoff checklist">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-5 py-4">
         <div>
             <h2 class="font-serif text-xl font-bold text-club tracking-tight">Your kickoff</h2>
             <p class="text-sm text-ink/60">{{ $done }} of {{ count($steps) }} done. Finish these and GoalLine works for you every day.</p>
         </div>
-        <form method="POST" action="{{ route('kickoff.dismiss') }}">
+        <form method="POST" action="{{ route('kickoff.dismiss') }}" data-live>
             @csrf
             <button type="submit" class="text-sm font-medium text-ink/50 hover:text-ink">Hide</button>
         </form>

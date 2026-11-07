@@ -19,13 +19,14 @@
         @endif
     </span>
 @else
-    <form method="POST" action="{{ route('habits.log', $habit) }}">
+    <form method="POST" action="{{ route('habits.log', $habit) }}" data-live data-optimistic="check" data-celebrate="check" data-live-key="habit-{{ $habit->id }}-{{ $day->toDateString() }}">
         @csrf
         <input type="hidden" name="date" value="{{ $day->toDateString() }}">
+        <input type="hidden" name="intent" value="{{ $done ? 'open' : 'done' }}">
         @if ($return)
             <input type="hidden" name="return" value="{{ $return }}">
         @endif
-        <button type="submit" title="{{ $done ? 'Undo' : 'Log it for '.($day->isSameDay(App\Clock::today()) ? 'today' : $day->format('l')) }}" @class([
+        <button type="submit" data-check="{{ $done ? 'done' : 'open' }}" data-focus-key="habit-{{ $habit->id }}-{{ $day->toDateString() }}" title="{{ $done ? 'Undo' : 'Log it for '.($day->isSameDay(App\Clock::today()) ? 'today' : $day->format('l')) }}" @class([
             'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition',
             'border-grass bg-grass text-white' => $done,
             'border-club/40 hover:border-club hover:bg-mint' => ! $done,

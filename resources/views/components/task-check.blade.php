@@ -8,12 +8,14 @@
 @endphp
 
 @if ($checkable && ($done || ! $task->result_required))
-    <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}">
+    <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" data-live data-optimistic="check" data-celebrate="check" data-live-key="task-{{ $task->id }}">
         @csrf
+        {{-- The state this tap asks for, so a double tap can't undo itself. --}}
+        <input type="hidden" name="intent" value="{{ $done ? 'open' : 'done' }}">
         @if ($return)
             <input type="hidden" name="return" value="{{ $return }}">
         @endif
-        <button type="submit" title="{{ $done ? 'Mark as not done' : 'Check off' }}" @class([
+        <button type="submit" data-check="{{ $done ? 'done' : 'open' }}" data-focus-key="task-{{ $task->id }}" title="{{ $done ? 'Mark as not done' : 'Check off' }}" @class([
             "mt-0.5 flex {$size} shrink-0 items-center justify-center rounded-full border-2 transition",
             'border-grass bg-grass text-white' => $done,
             'border-grass/60 hover:border-grass hover:bg-mint' => ! $done,

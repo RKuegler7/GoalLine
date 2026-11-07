@@ -10,13 +10,14 @@
 @endphp
 
 @if (! $habit->takesNumber())
-    <form method="POST" action="{{ route('habits.log', $habit) }}">
+    <form method="POST" action="{{ route('habits.log', $habit) }}" data-live data-optimistic="check" data-celebrate="check" data-live-key="habit-{{ $habit->id }}-{{ $day->toDateString() }}">
         @csrf
         <input type="hidden" name="date" value="{{ $day->toDateString() }}">
+        <input type="hidden" name="intent" value="{{ $done ? 'open' : 'done' }}">
         @if ($return)
             <input type="hidden" name="return" value="{{ $return }}">
         @endif
-        <button type="submit" title="{{ $done ? 'Undo' : 'Done '.$dayName }}" @class([
+        <button type="submit" data-check="{{ $done ? 'done' : 'open' }}" data-focus-key="habit-{{ $habit->id }}-{{ $day->toDateString() }}" title="{{ $done ? 'Undo' : 'Done '.$dayName }}" @class([
             'flex shrink-0 items-center justify-center rounded-lg border-2 transition',
             'size-9 sm:size-7' => ! $compact,
             'size-9' => $compact,
@@ -49,7 +50,7 @@
             <span class="sr-only">{{ $habit->title }}, {{ $dayName }}: {{ $log ? 'logged' : 'log a number' }}</span>
         </summary>
         <div class="absolute right-0 z-20 mt-1 w-60 rounded-xl border border-line bg-white p-3 shadow-lg">
-            <form method="POST" action="{{ route('habits.log', $habit) }}" class="flex items-center gap-1.5">
+            <form method="POST" action="{{ route('habits.log', $habit) }}" data-live class="flex items-center gap-1.5">
                 @csrf
                 <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                 @if ($return)
@@ -64,7 +65,7 @@
             </form>
             <p class="mt-1.5 text-xs text-ink/55">Counts at {{ $habit->ruleLabel() }}.</p>
             @if ($log)
-                <form method="POST" action="{{ route('habits.log', $habit) }}" class="mt-1">
+                <form method="POST" action="{{ route('habits.log', $habit) }}" data-live class="mt-1">
                     @csrf
                     <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                     @if ($return)

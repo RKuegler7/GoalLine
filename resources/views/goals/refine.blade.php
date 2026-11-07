@@ -26,7 +26,7 @@
                 <div class="mx-auto mt-6 h-1.5 w-40 overflow-hidden rounded-full bg-mint" aria-hidden="true">
                     <div class="h-full w-1/3 animate-pulse rounded-full bg-grass"></div>
                 </div>
-                <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}" class="mt-6">
+                <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}" data-live class="mt-6">
                     @csrf
                     <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-ink">Cancel</button>
                 </form>
@@ -94,12 +94,12 @@
             <p class="mt-4 text-xs text-ink/55">Only GoalWeeks that haven't started change, and none goes below the minimum pace its deadline needs. Past check-ins, group tasks, and your personal tasks stay as they are. New tasks are worth 1 point each.</p>
 
             <div class="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}">
+                <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}" data-live>
                     @csrf
                     <button type="submit" class="w-full rounded-full px-6 py-2.5 font-semibold text-ink/70 hover:text-ink sm:w-auto">Discard</button>
                 </form>
                 @if ($diff['weeks'] !== [])
-                    <form method="POST" action="{{ route('goals.refinements.accept', [$goal, $refinement]) }}">
+                    <form method="POST" action="{{ route('goals.refinements.accept', [$goal, $refinement]) }}" data-live>
                         @csrf
                         <button type="submit" class="w-full rounded-full bg-club px-8 py-2.5 font-semibold text-ivory hover:bg-club-dark sm:w-auto">Accept and update my plan</button>
                     </form>

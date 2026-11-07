@@ -13,7 +13,7 @@
         ->map(fn ($habit) => ['habit' => $habit, 'week' => $entry['week'], 'goal' => $entry['goal']]));
 @endphp
 
-<section id="week-grid" {{ $attributes->class('scroll-mt-24 rounded-2xl border border-line bg-white') }}>
+<section id="week-grid" data-region="week-grid" {{ $attributes->class('scroll-mt-24 rounded-2xl border border-line bg-white') }}>
     <header class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
         <h2 class="font-serif text-xl font-bold text-club tracking-tight">This week&rsquo;s habits</h2>
         <p class="text-xs text-ink/55">Tap today or yesterday to log. Earlier days stay as they are.</p>

@@ -26,7 +26,7 @@
             @enderror
         </form>
 
-        <form method="POST" action="{{ route('friends.store') }}" class="rounded-2xl border border-line bg-white px-6 py-5">
+        <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-6 py-5">
             @csrf
             <label for="who" class="eyebrow text-club">Add a friend</label>
             <div class="mt-3 flex gap-2">

@@ -29,7 +29,7 @@
     };
 @endphp
 
-<li id="goalweek-{{ $week->position }}" @class([
+<li id="goalweek-{{ $week->position }}" data-region="goalweek-{{ $week->id }}" @class([
     'scroll-mt-6 rounded-2xl border bg-white px-6 py-5',
     'border-club ring-4 ring-mint' => $current,
     'border-line' => ! $current,
@@ -130,7 +130,7 @@
 
     <div class="mt-1 flex items-start gap-3">
         @if ($checkable)
-            <form method="POST" action="{{ route('goalweeks.milestone', $week) }}">
+            <form method="POST" action="{{ route('goalweeks.milestone', $week) }}" data-live>
                 @csrf
                 <button type="submit" title="{{ $week->milestone_hit_at ? 'Mark milestone as not hit' : 'Mark milestone as hit' }}" @class([
                     'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition',
@@ -185,7 +185,7 @@
                 <span class="text-sm font-semibold text-ink">This GoalWeek so far</span>
                 <x-goalweek-result :result="$result" :close-call="$closeCall" :not-started="$notStarted" :needs-proof="$needsProof" />
             </div>
-            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" />
+            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" :name="'week-'.$week->id" />
             @if ($nudge)
                 <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
                     {{ $nudge }}

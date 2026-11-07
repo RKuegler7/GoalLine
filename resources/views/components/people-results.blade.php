@@ -5,6 +5,7 @@
     $leagues = $league ? collect([$league]) : App\Http\Controllers\PeopleSearchController::invitableLeagues(auth()->user());
 @endphp
 
+<div data-region="people-results">
 @if (mb_strlen($query) >= 2)
     @if ($results->isEmpty())
         <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">No one found for &ldquo;{{ $query }}&rdquo;. Try their exact username or email, or send an invite by email.</p>
@@ -23,7 +24,7 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <x-friend-button :user="$person" />
                         @if ($openLeagues->isNotEmpty())
-                            <form method="POST" action="{{ route('leagues.invites.store', $openLeagues->first()) }}" class="flex items-center gap-1" data-invite-form>
+                            <form method="POST" action="{{ route('leagues.invites.store', $openLeagues->first()) }}" data-live class="flex items-center gap-1" data-invite-form>
                                 @csrf
                                 <input type="hidden" name="who" value="{{ '@'.$person->username }}">
                                 @if ($openLeagues->count() > 1)
@@ -45,3 +46,4 @@
         </ul>
     @endif
 @endif
+</div>

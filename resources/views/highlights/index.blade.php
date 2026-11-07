@@ -39,7 +39,7 @@
         <aside class="space-y-6 lg:sticky lg:top-6 lg:self-start">
             <x-people-search-form label="Find people" />
 
-            <form method="POST" action="{{ route('friends.store') }}" class="rounded-2xl border border-line bg-white px-5 py-4">
+            <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-5 py-4">
                 @csrf
                 <label for="friend-who" class="eyebrow text-club">Add a friend</label>
                 <div class="mt-2 flex gap-2">

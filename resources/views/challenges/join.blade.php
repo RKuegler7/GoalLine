@@ -19,7 +19,7 @@
         @if ($challenge->isOver())
             <p class="mt-5 font-semibold text-ink/60">This challenge is over.</p>
         @else
-            <form method="POST" action="{{ route('challenges.join.store', $challenge->invite_code) }}" class="mt-6">
+            <form method="POST" action="{{ route('challenges.join.store', $challenge->invite_code) }}" data-live class="mt-6">
                 @csrf
                 <button type="submit" class="rounded-full bg-club px-8 py-3 font-semibold text-ivory hover:bg-club-dark">I&rsquo;m in</button>
             </form>

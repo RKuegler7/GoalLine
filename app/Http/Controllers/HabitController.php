@@ -84,6 +84,11 @@ class HabitController extends Controller
         $existing = $habit->logs()->whereDate('logged_on', $day)->first();
 
         // A check-off toggles. A number habit logs (or updates) the number, and an empty number undoes the day.
+        // A tap says which state it wants; a double tap (or a second tab) changes nothing.
+        if (! $habit->takesNumber() && (($request->input('intent') === 'done' && $existing) || ($request->input('intent') === 'open' && ! $existing))) {
+            return $this->back($request, $habit->goal);
+        }
+
         if (! $habit->takesNumber() || ! $request->filled('value')) {
             if (! $existing && $habit->takesNumber()) {
                 return $this->back($request, $habit->goal, "Log a number for \"{$habit->title}\": it counts at {$habit->ruleLabel()}.");
@@ -91,7 +96,7 @@ class HabitController extends Controller
 
             $existing ? $existing->delete() : $habit->logs()->create(['logged_on' => $day]);
 
-            return $this->back($request, $habit->goal);
+            return $this->back($request, $habit->goal, $existing ? 'Check-in undone.' : CheckInController::CHECKED_IN);
         }
 
         $value = (float) $request->validate(['value' => ['numeric', 'min:0', 'max:100000']], [

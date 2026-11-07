@@ -9,7 +9,7 @@
     $check = '<svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>';
 @endphp
 
-<section id="gameplan" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
+<section id="gameplan" data-region="gameplan" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-5 py-4">
         <div>
             <h2 class="font-serif text-xl font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>
@@ -19,13 +19,13 @@
                 @elseif ($done === $total)
                     All {{ $total }} done. Day won.
                 @else
-                    {{ $done }} of {{ $total }} done &middot; {{ $total - $done }} to go
+                    <span data-countup="{{ $done }}" data-key="gameplan-done">{{ $done }}</span> of {{ $total }} done &middot; {{ $total - $done }} to go
                 @endif
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
             @if ($simpleOpen > 1)
-                <form method="POST" action="{{ route('today.done') }}">
+                <form method="POST" action="{{ route('today.done') }}" data-live>
                     @csrf
                     <input type="hidden" name="return" value="{{ $return }}">
                     <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory transition hover:bg-club-dark">Mark all {{ $simpleOpen }} done</button>
@@ -101,7 +101,7 @@
                 $doneToday = $gameplan->isChallengeDone($challenge);
             @endphp
             <li class="flex items-start gap-3 py-3">
-                <form method="POST" action="{{ route('challenges.check-in', $challenge) }}">
+                <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                     @csrf
                     <input type="hidden" name="return" value="{{ $return }}">
                     <button type="submit" title="{{ $doneToday ? 'Undo' : 'Check in for today' }}" @class([

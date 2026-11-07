@@ -34,7 +34,7 @@
                     <p class="font-semibold text-club">Draft plan: look it over</p>
                     <p class="text-sm text-ink/70">{{ $goal->plan_source === 'fallback' ? 'The coach was unavailable, so this is a starter plan built from your goal type and the minimum pace your deadline needs.' : 'Change anything you like below. Every week meets the minimum pace your deadline needs, checked by code, not the AI.' }}</p>
                 </div>
-                <form method="POST" action="{{ route('goals.plan.accept', $goal) }}">
+                <form method="POST" action="{{ route('goals.plan.accept', $goal) }}" data-live>
                     @csrf
                     <button type="submit" class="w-full rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark sm:w-auto">Accept this plan</button>
                 </form>

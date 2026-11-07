@@ -13,7 +13,7 @@
             'bg-mint text-club/70' => $tone !== 'light',
         ]) }}>Nudged today</span>
     @else
-        <form method="POST" action="{{ route('nudges.store', $user) }}" {{ $attributes }}>
+        <form method="POST" action="{{ route('nudges.store', $user) }}" data-live {{ $attributes }}>
             @csrf
             <button type="submit" @class([
                 'inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition',

@@ -110,7 +110,7 @@
         @endunless
 
         @if (session('status'))
-            <p role="status" class="mb-6 flex items-center gap-3 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">
+            <p role="status" data-flash class="mb-6 flex items-center gap-3 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">
                 <span class="size-2 rounded-full bg-grass" aria-hidden="true"></span>
                 {{ session('status') }}
             </p>

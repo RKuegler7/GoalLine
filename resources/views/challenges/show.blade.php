@@ -71,7 +71,7 @@
                         </p>
                     </div>
                     @if ($challenge->isCheckableOn($today))
-                        <form method="POST" action="{{ route('challenges.check-in', $challenge) }}">
+                        <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                             @csrf
                             <button type="submit" @class([
                                 'flex items-center gap-2 rounded-full px-6 py-3 font-semibold transition',
@@ -90,7 +90,7 @@
                 </div>
                 <x-goal-progress class="mt-4" :percent="$percent" label="Challenge progress" />
                 @if ($canCatchUp)
-                    <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" class="mt-3 text-sm text-ink/65">
+                    <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live class="mt-3 text-sm text-ink/65">
                         @csrf
                         <input type="hidden" name="date" value="{{ $yesterday->toDateString() }}">
                         Did it yesterday but forgot to check in? <button type="submit" class="font-semibold text-club hover:underline">Check in for {{ $yesterday->format('l') }}</button>

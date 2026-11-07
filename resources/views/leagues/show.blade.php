@@ -144,7 +144,7 @@
 
 
     {{-- Group tasks: proposed by anyone, in everyone's GoalWeek if two thirds vote yes within 24 hours. --}}
-    <section id="group-tasks" class="mt-8 scroll-mt-6">
+    <section id="group-tasks" data-region="group-tasks" class="mt-8 scroll-mt-6">
         <div class="flex items-end justify-between gap-4">
             <h2 class="eyebrow text-club">Group tasks</h2>
             @if ($groupTasksEnabled)
@@ -180,7 +180,7 @@
                     </div>
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                         @foreach ([1 => 'Yes', 0 => 'No'] as $value => $label)
-                            <form method="POST" action="{{ route('group-tasks.vote', $groupTask) }}">
+                            <form method="POST" action="{{ route('group-tasks.vote', $groupTask) }}" data-live>
                                 @csrf
                                 <input type="hidden" name="approve" value="{{ $value }}">
                                 <button type="submit" aria-pressed="{{ $myVote === (bool) $value ? 'true' : 'false' }}" @class([
@@ -198,7 +198,7 @@
             @if ($openWeeks->isNotEmpty())
                 <details class="mt-3 rounded-2xl border border-line bg-white px-5 py-4" @if ($groupErrors->any()) open @endif>
                     <summary class="cursor-pointer list-none font-semibold text-club [&::-webkit-details-marker]:hidden">+ Propose a group task</summary>
-                    <form method="POST" action="{{ route('leagues.group-tasks.store', $league) }}" class="mt-3 space-y-3">
+                    <form method="POST" action="{{ route('leagues.group-tasks.store', $league) }}" data-live class="mt-3 space-y-3">
                         @csrf
                         <div>
                             <label for="group-title" class="text-sm font-semibold text-ink/80">Task</label>

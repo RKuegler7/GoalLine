@@ -16,7 +16,7 @@
     };
 @endphp
 
-<article {{ $attributes->class('overflow-hidden rounded-2xl border border-line bg-white') }}>
+<article data-region="league-{{ $league->id }}" {{ $attributes->class('overflow-hidden rounded-2xl border border-line bg-white') }}>
     <a href="{{ route('leagues.show', $league) }}" class="block px-5 pt-4 hover:bg-mint/30">
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -34,7 +34,7 @@
             @if ($league->status() !== App\LeagueStatus::Forming)
                 <div class="shrink-0 text-right">
                     <p class="font-serif text-2xl font-bold text-club tracking-tight">{{ $ordinal }}</p>
-                    <p class="text-xs text-ink/55">of {{ $size }} &middot; {{ $snapshot->points() }} pts</p>
+                    <p class="text-xs text-ink/55">of {{ $size }} &middot; <span data-countup="{{ $snapshot->points() }}" data-key="league-points-{{ $league->id }}">{{ $snapshot->points() }}</span> pts</p>
                 </div>
             @endif
         </div>

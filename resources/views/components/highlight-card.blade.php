@@ -22,7 +22,7 @@
 @if ($highlight->isPost())
     <x-post-card :post="$highlight" />
 @else
-<article id="highlight-{{ $highlight->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
+<article id="highlight-{{ $highlight->id }}" data-region="post-{{ $highlight->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex items-center gap-3 px-5 pt-4">
         <a href="{{ $highlight->user->profileUrl() }}" class="shrink-0"><x-avatar :user="$highlight->user" class="size-10 text-xs" /></a>
         <div class="min-w-0 flex-1">
@@ -64,8 +64,9 @@
         @endif
 
         <div class="mt-4 flex items-center gap-3 border-t border-line pt-3">
-            <form method="POST" action="{{ route('highlights.cheer', $highlight) }}">
+            <form method="POST" action="{{ route('highlights.cheer', $highlight) }}" data-live data-optimistic="cheer" data-live-key="cheer-{{ $highlight->id }}">
                 @csrf
+                <input type="hidden" name="intent" value="{{ $cheered ? 'remove' : 'add' }}">
                 <button type="submit" aria-pressed="{{ $cheered ? 'true' : 'false' }}" @class([
                     'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition',
                     'bg-grass text-white' => $cheered,

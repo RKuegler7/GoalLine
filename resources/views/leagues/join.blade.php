@@ -48,7 +48,7 @@
             <p class="mt-2 text-ink/70">Each member brings one goal into the league. Set yours here, then join with it.</p>
             @include('leagues.partials.new-goal-form')
         @else
-            <form method="POST" action="{{ $joinAction }}" class="space-y-6">
+            <form method="POST" action="{{ $joinAction }}" data-live class="space-y-6">
                 @csrf
                 <div>
                     <label for="goal_id" class="mb-1.5 block text-sm font-medium text-ink/80">Which goal will you play?</label>

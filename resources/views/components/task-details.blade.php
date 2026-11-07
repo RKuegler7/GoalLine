@@ -52,7 +52,7 @@
             <div class="rounded-xl border border-gold/60 bg-gold/15 px-3 py-2 text-sm">
                 <p class="font-semibold text-ink">Are you sure?</p>
                 <p class="text-ink/75">{{ $confirm['reason'] }} Big days happen. Just making sure it's not a typo.</p>
-                <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" class="mt-2">
+                <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" data-live class="mt-2">
                     @csrf
                     <input type="hidden" name="task_id" value="{{ $task->id }}">
                     <input type="hidden" name="result" value="{{ $confirm['value'] }}">
@@ -65,7 +65,7 @@
                 </form>
             </div>
         @endif
-        <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" class="mt-1.5 flex flex-wrap items-center gap-2">
+        <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" data-live class="mt-1.5 flex flex-wrap items-center gap-2">
             @csrf
             <input type="hidden" name="task_id" value="{{ $task->id }}">
             @if ($return)
@@ -99,7 +99,7 @@
             $chosen ??= ($inLeague ? App\PostVisibility::League : App\PostVisibility::Proof)->value;
             $fieldId = "{$context}-{$task->id}";
         @endphp
-        <form method="POST" action="{{ route('roadmap.tasks.proof.store', $task) }}" enctype="multipart/form-data" class="mt-2 space-y-2.5">
+        <form method="POST" action="{{ route('roadmap.tasks.proof.store', $task) }}" data-live enctype="multipart/form-data" class="mt-2 space-y-2.5">
             @csrf
             <input type="hidden" name="proof_task_id" value="{{ $task->id }}">
             @if ($return)

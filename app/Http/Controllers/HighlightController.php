@@ -161,6 +161,13 @@ class HighlightController extends Controller
     {
         $existing = $highlight->cheers()->where('user_id', $request->user()->id)->first();
 
+        // A tap says which state it wants; a double tap changes nothing.
+        $intent = $request->input('intent');
+
+        if (($intent === 'add' && $existing) || ($intent === 'remove' && ! $existing)) {
+            return redirect()->to(url()->previous(route('highlights.index')).'#highlight-'.$highlight->id);
+        }
+
         $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $request->user()->id]);
 
         // One notification per fan per highlight, even if they toggle the cheer.

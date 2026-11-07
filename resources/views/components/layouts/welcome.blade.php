@@ -55,7 +55,7 @@
 
     <main class="mx-auto max-w-2xl px-4 py-8">
         @if (session('status'))
-            <p role="status" class="mb-6 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">{{ session('status') }}</p>
+            <p role="status" data-flash class="mb-6 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">{{ session('status') }}</p>
         @endif
 
         {{ $slot }}

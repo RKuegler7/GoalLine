@@ -9,7 +9,7 @@
 @endphp
 
 @if ($habits->isNotEmpty() || $canEdit)
-    <section id="habits" {{ $attributes->class('mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5') }}>
+    <section id="habits" data-region="habits-{{ $goal->id }}" {{ $attributes->class('mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5') }}>
         <div class="flex items-center justify-between gap-4">
             <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="repeat" class="size-4" /> Habits</h2>
             <span class="text-sm text-ink/50">Count toward every GoalWeek</span>

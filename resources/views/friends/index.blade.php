@@ -10,8 +10,10 @@
     <div class="mx-auto max-w-2xl space-y-8">
         <x-people-search-form label="Find people" />
 
+        <div data-region="friends" class="space-y-8">
+
         {{-- Add a friend: exact username or email only. No directory. --}}
-        <form method="POST" action="{{ route('friends.store') }}" class="rounded-2xl border border-line bg-white p-5">
+        <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white p-5">
             @csrf
             <label for="who" class="font-serif text-lg font-bold text-club tracking-tight">Add a friend</label>
             <p class="text-sm text-ink/60">Enter their exact username or email. Their username is on their locker, like @jordan.rivera.</p>
@@ -36,11 +38,11 @@
                                 <span class="block truncate font-medium text-ink">{{ $request->requester->name }}</span>
                                 <span class="block truncate text-sm text-ink/55">{{ '@'.$request->requester->username }}</span>
                             </span>
-                            <form method="POST" action="{{ route('friends.accept', $request) }}">
+                            <form method="POST" action="{{ route('friends.accept', $request) }}" data-live>
                                 @csrf
                                 <button type="submit" class="rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Accept</button>
                             </form>
-                            <form method="POST" action="{{ route('friends.destroy', $request) }}">
+                            <form method="POST" action="{{ route('friends.destroy', $request) }}" data-live>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="rounded-full px-3 py-1.5 text-sm font-semibold text-ink/60 hover:text-ink">Decline</button>
@@ -66,7 +68,7 @@
                                     <span class="block truncate text-sm text-ink/55">{{ '@'.$friend->username }}</span>
                                 </span>
                             </a>
-                            <form method="POST" action="{{ route('friends.destroy', $friendships[$friend->id]) }}" onsubmit="return confirm('Remove {{ addslashes($friend->name) }} from your friends?')">
+                            <form method="POST" action="{{ route('friends.destroy', $friendships[$friend->id]) }}" data-live onsubmit="return confirm('Remove {{ addslashes($friend->name) }} from your friends?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-xs font-semibold text-ink/45 hover:text-red-700">Remove</button>
@@ -105,7 +107,7 @@
                         <li class="flex items-center gap-3 px-5 py-3">
                             <x-avatar :user="$request->addressee" class="size-9 text-xs" />
                             <span class="min-w-0 flex-1 truncate text-ink/75">{{ $request->addressee->name }} <span class="text-ink/45">&middot; waiting</span></span>
-                            <form method="POST" action="{{ route('friends.destroy', $request) }}">
+                            <form method="POST" action="{{ route('friends.destroy', $request) }}" data-live>
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-ink">Cancel</button>
@@ -115,5 +117,6 @@
                 </ul>
             </section>
         @endif
+        </div>
     </div>
 </x-layouts.app>

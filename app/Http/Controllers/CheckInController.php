@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Storage;
 class CheckInController extends Controller
 {
     /**
+     * What a check-in says, as a toast or a banner.
+     */
+    public const CHECKED_IN = 'Checked in. One more day on the line.';
+
+    /**
      * Check a task off, or un-check it. A task that tracks a number asks for the result: out-of-range numbers are
      * rejected, and an unusually high one (over 1.5 times the plan, or a new personal best) gets one "Are you sure?".
      * Un-checking clears the result and any proof photo.
@@ -21,6 +26,11 @@ class CheckInController extends Controller
         $week = $task->week;
         $this->authorizeCheckIn($week);
 
+        // A tap says which state it wants. If the task is already there (a double tap, or a second tab), nothing changes.
+        if ($this->alreadyThere($request, (bool) $task->completed_at)) {
+            return $this->backTo($week);
+        }
+
         if ($task->completed_at) {
             if ($task->proof_path) {
                 Storage::disk(RoadmapTask::proofDisk())->delete($task->proof_path);
@@ -28,7 +38,7 @@ class CheckInController extends Controller
 
             $task->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_uploaded_at' => null])->save();
 
-            return $this->backTo($week);
+            return $this->backTo($week)->with('status', 'Check-in undone.');
         }
 
         if ($task->result_required) {
@@ -46,7 +56,7 @@ class CheckInController extends Controller
         $task->forceFill(['completed_at' => now()])->save();
 
         // Offer "Show your work" right where they checked it off.
-        return $this->backTo($week)->with('proof_prompt', $task->id);
+        return $this->backTo($week)->with('proof_prompt', $task->id)->with('status', self::CHECKED_IN);
     }
 
     /**
@@ -99,9 +109,25 @@ class CheckInController extends Controller
     {
         $this->authorizeCheckIn($week);
 
+        if ($this->alreadyThere(request(), $week->milestone_hit_at !== null)) {
+            return $this->backTo($week);
+        }
+
         $week->forceFill(['milestone_hit_at' => $week->milestone_hit_at ? null : now()])->save();
 
-        return $this->backTo($week);
+        return $this->backTo($week)->with('status', $week->milestone_hit_at ? 'Milestone hit. That\'s the process paying off.' : 'Milestone unmarked.');
+    }
+
+    /**
+     * Whether the tap asked for the state the item is already in ("done" when done, "open" when open).
+     */
+    private function alreadyThere(Request $request, bool $done): bool
+    {
+        return match ($request->input('intent')) {
+            'done' => $done,
+            'open' => ! $done,
+            default => false,
+        };
     }
 
     /**

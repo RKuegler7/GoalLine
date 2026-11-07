@@ -158,8 +158,8 @@ class LeagueScoringTest extends TestCase
             ->assertSee('Your matchup')
             ->assertSee('Live')
             ->assertSee("{$first->user->name} leads: Past the line beats In line.")
-            ->assertSee('125%')
-            ->assertSee('if it ended now, +4 pts', false)
+            ->assertSeeText('125%')
+            ->assertSeeText('if it ended now, +4 pts')
             ->assertSee('1 more point to Past the line')
             ->assertSee('Scoreboard')
             ->assertSee('data-carousel-slide', false);
@@ -184,7 +184,7 @@ class LeagueScoringTest extends TestCase
         $this->actingAs($home->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
             ->assertSee('Final')
             ->assertSee("{$home->user->name} won: Smashed the line beats Short of the line.")
-            ->assertSee('+5 pts', false);
+            ->assertSeeText('+5 pts');
     }
 
     public function test_a_forming_league_has_no_matchups_yet(): void

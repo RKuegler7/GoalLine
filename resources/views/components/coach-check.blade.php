@@ -39,7 +39,7 @@
                 <p class="mt-2 text-ink/75"><span class="font-semibold text-ink">Coach's recommendation:</span> {{ $goal->plan_suggestion }}</p>
             @endif
             @if ($canAct && $fixPreview)
-                <form method="POST" action="{{ route('goals.coach.fix', $goal) }}" class="mt-3">
+                <form method="POST" action="{{ route('goals.coach.fix', $goal) }}" data-live class="mt-3">
                     @csrf
                     <button type="submit" class="rounded-lg bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Apply fix: {{ $fixPreview }}</button>
                 </form>
@@ -74,7 +74,7 @@
         @if ($needsAttention && $canAct)
             <div class="mt-4 flex flex-col gap-2 border-t border-ink/10 pt-4 sm:flex-row sm:items-center">
                 @if ($fixPreview)
-                    <form method="POST" action="{{ route('goals.coach.fix', $goal) }}">
+                    <form method="POST" action="{{ route('goals.coach.fix', $goal) }}" data-live>
                         @csrf
                         <button type="submit" class="w-full rounded-lg bg-club px-4 py-2.5 text-left text-sm font-semibold text-ivory hover:bg-club-dark sm:w-auto">
                             Apply fix <span class="font-normal text-ivory/80">&middot; {{ $fixPreview }}</span>
@@ -85,7 +85,7 @@
                         Adjust my tasks
                     </a>
                 @endif
-                <form method="POST" action="{{ route('goals.coach.dismiss', $goal) }}">
+                <form method="POST" action="{{ route('goals.coach.dismiss', $goal) }}" data-live>
                     @csrf
                     <button type="submit" class="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-ink/70 hover:bg-white/60 hover:text-ink sm:w-auto">
                         Keep my plan

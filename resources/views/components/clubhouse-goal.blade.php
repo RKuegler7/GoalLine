@@ -15,7 +15,7 @@
     $coachTip = $week ? $goal->weeks->filter(fn ($candidate) => $candidate->position < $week->position && $candidate->review?->coach_tip)->last()?->review->coach_tip : null;
 @endphp
 
-<section id="goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
+<section id="goal-{{ $goal->id }}" data-region="clubhouse-goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex flex-wrap items-start justify-between gap-3 px-5 pt-5">
         <div class="min-w-0">
             <p class="eyebrow text-[0.62rem] text-ink/50">
@@ -43,7 +43,7 @@
             <p class="text-sm text-ink/70">
                 <span class="font-semibold text-ink">{{ $week->label() }}:</span> {{ $week->focus }}
             </p>
-            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" />
+            <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" :name="'goal-'.$goal->id" />
             <p class="mt-1 text-xs text-ink/55">
                 {{ collect([App\Points::format($week->earnedPoints()).' of '.$week->plannedPoints().' points ('.round($week->completionShare() * 100).'%)', "{$done} of {$planned->count()} ".Str::plural('task', $planned->count()), ...$habits->map(fn ($habit) => $habit->title.' '.$habit->doneIn($week).'/'.$habit->targetFor($week)), $week->milestone_hit_at ? 'milestone hit' : null])->filter()->implode(' · ') }}
             </p>
@@ -79,7 +79,7 @@
                     </li>
                 @endforeach
                 <li class="flex items-start gap-3 border-t border-line pt-2">
-                    <form method="POST" action="{{ route('goalweeks.milestone', $week) }}">
+                    <form method="POST" action="{{ route('goalweeks.milestone', $week) }}" data-live>
                         @csrf
                         <input type="hidden" name="return" value="clubhouse">
                         <button type="submit" title="{{ $week->milestone_hit_at ? 'Mark milestone as not hit' : 'Mark milestone as hit' }}" @class([

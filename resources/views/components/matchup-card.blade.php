@@ -22,7 +22,7 @@
         : null;
 @endphp
 
-<article {{ $attributes->class(['flex flex-col rounded-2xl border bg-white p-5', 'border-club ring-4 ring-mint' => $card['mine'], 'border-line' => ! $card['mine']]) }}>
+<article data-region="matchup-{{ $card['home']['member']->id }}" {{ $attributes->class(['flex flex-col rounded-2xl border bg-white p-5', 'border-club ring-4 ring-mint' => $card['mine'], 'border-line' => ! $card['mine']]) }}>
     <div class="flex items-center justify-between gap-2">
         <p class="eyebrow text-[0.62rem] text-ink/50">{{ $card['mine'] ? 'Your matchup' : 'Matchup' }}</p>
         <p @class(['eyebrow rounded-full px-2 py-0.5 text-[0.6rem]', 'bg-ink/5 text-ink/60' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</p>
@@ -49,7 +49,7 @@
                     </div>
                     <p class="mt-2 truncate font-semibold text-ink">{{ $side['member']->user->name }}</p>
                     <p class="truncate text-xs text-ink/55">{{ $side['member']->goal?->title ?? 'No goal selected' }}</p>
-                    <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">{{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}</p>
+                    <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">@if ($side['share'] === null)–@else<span data-countup="{{ round($side['share'] * 100) }}" data-key="share-{{ $side['member']->id }}">{{ round($side['share'] * 100) }}</span>%@endif</p>
                     <p class="text-xs text-ink/55">{{ $side['earned'] }} of {{ $side['planned'] }} planned points</p>
                     <div @class(['mt-1 flex', 'justify-end' => $index === 1])>
                         <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
@@ -104,7 +104,7 @@
     <div class="mt-3 grid gap-2 text-xs text-ink/65 sm:grid-cols-2">
         @foreach ($sides as $side)
             <div @class(['rounded-lg border border-line px-3 py-2', 'sm:text-right' => $loop->index === 1])>
-                <p class="font-semibold text-ink">{{ Str::before($side['member']->user->name, ' ') }}: {{ $final ? '' : 'if it ended now, ' }}+{{ $side['total'] }} {{ Str::plural('pt', $side['total']) }}</p>
+                <p class="font-semibold text-ink">{{ Str::before($side['member']->user->name, ' ') }}: {{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('pt', $side['total']) }}</p>
                 <p>{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match</p>
                 @if (! $final && $side['next'])
                     <p class="mt-0.5 text-club">{{ $side['next']['points'] }} more {{ Str::plural('point', $side['next']['points']) }} to {{ $side['next']['band']->label() }}</p>
