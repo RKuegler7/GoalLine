@@ -57,7 +57,7 @@ class MobileReadinessTest extends TestCase
         }
 
         $this->actingAs(User::factory()->create())->get(route('dashboard'))
-            ->assertSee('pb-[calc(6rem+env(safe-area-inset-bottom))]', false);
+            ->assertSee('pb-[calc(8.5rem+env(safe-area-inset-bottom))]', false); // Clears the tab bar and the Check in button.
     }
 
     public function test_every_photo_picker_asks_for_formats_ios_converts_to(): void

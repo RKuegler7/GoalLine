@@ -43,7 +43,7 @@ class ShareLinksTest extends TestCase
         $url = $invite->url();
 
         $this->assertSame(self::PUBLIC_URL.'/invite/'.$invite->token, $url);
-        $this->assertStringNotContainsString('/'.$invite->id, parse_url($url, PHP_URL_PATH));
+        $this->assertDoesNotMatchRegularExpression('#^/invite/\d+$#', parse_url($url, PHP_URL_PATH), 'Never a sequential id.');
 
         // The page copies from a field holding that full link, and the share sheet message carries it too.
         $this->actingAs($this->owner)->get(route('leagues.show', $this->league))
