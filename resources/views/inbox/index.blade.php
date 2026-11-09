@@ -1,14 +1,8 @@
 <x-layouts.app title="Inbox · GoalLine">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <div class="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                    <h1 class="font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Inbox</h1>
-                    <p class="mt-3 max-w-xl text-ivory/85">Cheers, friend requests, your friends&rsquo; highlights, GoalLeague news, and your results.</p>
-                </div>
-                <a href="{{ route('settings.notifications') }}" class="rounded-full border border-ivory/60 px-4 py-1.5 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">Settings</a>
-            </div>
-        </div>
+        <x-page-header title="Inbox" subtitle="Cheers, friend requests, league news and your results.">
+            <a href="{{ route('settings.notifications') }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory hover:bg-ivory/25">Settings</a>
+        </x-page-header>
     </x-slot:hero>
 
     <div class="mx-auto max-w-2xl">

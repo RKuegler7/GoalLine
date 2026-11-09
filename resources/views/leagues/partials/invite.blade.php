@@ -5,7 +5,7 @@
     $joinable = $league->isJoinable();
     $inviteErrors = $errors->getBag('invite');
 @endphp
-<section id="invite" class="mb-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
+<section id="invite" class="mb-3 scroll-mt-20 rounded-xl border border-line bg-white px-3 py-2.5">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <h2 class="eyebrow text-club">Invite your people</h2>
         <span class="text-sm text-ink/70">{{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }}</span>

@@ -1316,3 +1316,20 @@ document.addEventListener('click', (event) => {
         }
     }, { passive: true });
 })();
+
+/**
+ * Folded GoalWeeks open on their own when a link points into them (#goalweek-4, a proof panel, an error), in every
+ * browser. Also after a live update brings the page back.
+ */
+function openFoldedTarget() {
+    const target = window.location.hash ? document.getElementById(decodeURIComponent(window.location.hash.slice(1))) : null;
+    const fold = target?.closest('details[data-week-fold]');
+
+    if (fold && !fold.open) {
+        fold.open = true;
+        target.scrollIntoView({ block: 'start' });
+    }
+}
+
+openFoldedTarget();
+window.addEventListener('hashchange', openFoldedTarget);

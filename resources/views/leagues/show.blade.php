@@ -7,41 +7,34 @@
 
 <x-layouts.app :title="$league->name.' · GoalLine'">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; GoalLeagues</a>
-            <p class="eyebrow mt-6 text-mint">
-                @if ($status === App\LeagueStatus::Forming)
-                    Forming &middot; kicks off {{ $league->starts_on->format('l, M j') }}
-                @elseif ($status === App\LeagueStatus::Active)
-                    In season &middot; GoalWeek {{ $week }} of {{ $league->weeksCount() }}
-                @else
-                    Season over
-                @endif
-            </p>
-            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
-            @if ($league->description)
-                <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
+        @php
+            $statusLine = match ($status) {
+                App\LeagueStatus::Forming => 'Kicks off '.$league->starts_on->format('D, M j'),
+                App\LeagueStatus::Active => 'GoalWeek '.$week.' of '.$league->weeksCount(),
+                default => 'Season over',
+            };
+        @endphp
+        <x-page-header :title="$league->name" :back="route('leagues.index')" back-label="GoalLeagues"
+            :subtitle="$statusLine.' · '.$league->members->count().' '.Str::plural('member', $league->members->count()).' · '.$league->commissioner->name.' runs it'">
+            @if ($league->isJoinable())
+                <a href="#invite" class="gl-tap relative inline-flex min-h-9 items-center gap-1 rounded-full bg-gold px-3 text-[13px] font-semibold text-ink hover:brightness-105"><x-icon name="plus" class="size-4" /> {{ $league->members->count() < App\Models\League::INVITE_PROMPT_BELOW ? 'Invite friends' : 'Invite' }}</a>
             @endif
-            <p class="mt-3 text-sm text-ivory/85">
-                {{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }} &middot;
-                {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }} &middot;
-                Commissioner: {{ $league->commissioner->name }}
-            </p>
-            @if ($league->members->count() < App\Models\League::INVITE_PROMPT_BELOW && $league->isJoinable())
-                <a href="#invite" class="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 font-semibold text-ink hover:brightness-105"><x-icon name="plus" class="size-4" /> Invite friends</a>
-            @endif
-        </div>
+            <a href="#chat" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory hover:bg-ivory/25">Chat</a>
+        </x-page-header>
+        @if ($league->description)
+            <p class="mx-auto -mt-2 max-w-5xl truncate px-4 pb-3 text-[13px] text-ivory/85">{{ $league->description }}</p>
+        @endif
     </x-slot:hero>
 
     @if ($matchupWeek)
         {{-- This GoalWeek's matchup: yours at a glance, and the way into every matchup. --}}
-        <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-6 block overflow-hidden rounded-2xl border-2 border-club bg-white transition hover:shadow-md">
-            <div class="flex items-center justify-between gap-3 bg-club px-5 py-3">
-                <h2 class="font-serif text-xl font-bold text-ivory tracking-tight">GoalWeek {{ $matchupWeek }} Matchup</h2>
+        <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-3 block overflow-hidden rounded-xl border border-club/50 bg-white transition hover:border-club">
+            <div class="flex items-center justify-between gap-3 bg-club px-3 py-1.5">
+                <h2 class="text-[15px] font-bold text-ivory">GoalWeek {{ $matchupWeek }} Matchup</h2>
                 <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[11px] text-ivory">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
             </div>
             @if ($myCard)
-                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-2">
                     @foreach ([$myCard['home'], $myCard['away']] as $index => $side)
                         @if ($index === 1)
                             <span class="font-serif text-sm text-ink/70 tracking-tight">vs</span>
@@ -61,16 +54,64 @@
                         </div>
                     @endforeach
                 </div>
-                <p class="border-t border-line px-5 py-2.5 text-sm text-ink/75">{{ $myCard['verdict'] }}</p>
+                <p class="border-t border-line px-3 py-1.5 text-[13px] text-ink/75">{{ $myCard['verdict'] }}</p>
             @endif
-            <p class="flex items-center justify-between border-t border-line bg-mint/40 px-5 py-2.5 text-sm font-semibold text-club">
+            <p class="flex items-center justify-between border-t border-line bg-mint/40 px-3 py-1.5 text-[13px] font-semibold text-club">
                 <span>See all {{ $matchupCount }} {{ Str::plural('matchup', $matchupCount) }} &middot; swipe through them</span><span>&rarr;</span>
             </p>
         </a>
     @endif
 
+    {{-- Standings. --}}
+    <section class="mt-4">
+        <h2 class="eyebrow text-club">Standings</h2>
+        <div class="relative mt-1.5 overflow-x-auto rounded-xl border border-line bg-white">
+            <table class="w-full text-left text-sm">
+                <thead class="border-b border-line text-xs tracking-wide text-ink/70 uppercase">
+                    <tr>
+                        <th class="px-3 py-2 font-semibold">#</th>
+                        <th class="px-1.5 py-2 font-semibold">Member</th>
+                        <th class="px-1.5 py-2 text-center font-semibold" title="GoalWeeks played">P</th>
+                        <th class="px-1.5 py-2 text-center font-semibold">W</th>
+                        <th class="px-1.5 py-2 text-center font-semibold">T</th>
+                        <th class="px-1.5 py-2 text-center font-semibold">L</th>
+                        <th class="hidden px-1.5 py-2 text-center font-semibold sm:table-cell" title="GoalWeek result points">Result</th>
+                        <th class="hidden px-1.5 py-2 text-center font-semibold sm:table-cell" title="Matchup points">Match</th>
+                        <th class="px-3 py-2 text-right font-semibold">Pts</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-line">
+                    @foreach ($standings as $index => $row)
+                        <tr @class(['bg-mint/40' => $row['member']->is($me)])>
+                            <td class="px-3 py-1.5 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
+                            <td class="px-2 py-3">
+                                <div class="flex items-center gap-2.5">
+                                    <x-avatar :user="$row['member']->user" class="size-7 text-[11px]" />
+                                    <div class="min-w-0">
+                                        <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
+                                        <p class="truncate text-xs text-ink/70">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['played'] }}</td>
+                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['wins'] }}</td>
+                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['ties'] }}</td>
+                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['losses'] }}</td>
+                            <td class="hidden px-1.5 py-1.5 text-center tabular-nums sm:table-cell">{{ $row['resultPoints'] }}</td>
+                            <td class="hidden px-1.5 py-1.5 text-center tabular-nums sm:table-cell">{{ $row['matchupPoints'] }}</td>
+                            <td class="px-3 py-1.5 text-right font-serif text-lg font-bold text-club tabular-nums tracking-tight">{{ $row['total'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <p class="mt-2 text-xs text-ink/70">
+            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to result points, then wins.
+        </p>
+    </section>
+
     {{-- Your goal in this league: edit it, switch to another, or set a new one for this league. --}}
-    <section class="mb-6 rounded-2xl border border-line bg-white px-4 py-3">
+    <section class="mb-3 rounded-xl border border-line bg-white px-3 py-2">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <h2 class="eyebrow text-club">Your goal in this league</h2>
@@ -110,7 +151,7 @@
         </details>
     </section>
 
-    <a href="{{ route('leagues.feed', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white px-4 py-3 transition hover:border-club/40">
+    <a href="{{ route('leagues.feed', $league) }}" class="mb-3 flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2 transition hover:border-club/40">
         <span class="flex items-center gap-3">
             <span class="grid size-10 place-items-center rounded-full bg-mint text-club"><x-icon name="highlights" class="size-5" /></span>
             <span>
@@ -144,7 +185,7 @@
 
 
     {{-- Group tasks: proposed by anyone, in everyone's GoalWeek if two thirds vote yes within 24 hours. --}}
-    <section id="group-tasks" data-region="group-tasks" class="mt-8 scroll-mt-6">
+    <section id="group-tasks" data-region="group-tasks" class="mt-4 scroll-mt-20">
         <div class="flex items-end justify-between gap-4">
             <h2 class="eyebrow text-club">Group tasks</h2>
             @if ($groupTasksEnabled)
@@ -278,57 +319,9 @@
         @endif
     </section>
 
-    {{-- Standings. --}}
-    <section class="mt-8">
-        <h2 class="eyebrow text-club">Standings</h2>
-        <div class="mt-3 overflow-x-auto rounded-2xl border border-line bg-white">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b border-line text-xs tracking-wide text-ink/70 uppercase">
-                    <tr>
-                        <th class="px-4 py-3 font-semibold">#</th>
-                        <th class="px-2 py-3 font-semibold">Member</th>
-                        <th class="px-2 py-3 text-center font-semibold" title="GoalWeeks played">P</th>
-                        <th class="px-2 py-3 text-center font-semibold">W</th>
-                        <th class="px-2 py-3 text-center font-semibold">T</th>
-                        <th class="px-2 py-3 text-center font-semibold">L</th>
-                        <th class="hidden px-2 py-3 text-center font-semibold sm:table-cell" title="GoalWeek result points">Result</th>
-                        <th class="hidden px-2 py-3 text-center font-semibold sm:table-cell" title="Matchup points">Match</th>
-                        <th class="px-4 py-3 text-right font-semibold">Pts</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @foreach ($standings as $index => $row)
-                        <tr @class(['bg-mint/40' => $row['member']->is($me)])>
-                            <td class="px-4 py-3 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
-                            <td class="px-2 py-3">
-                                <div class="flex items-center gap-2.5">
-                                    <x-avatar :user="$row['member']->user" class="size-7 text-[11px]" />
-                                    <div class="min-w-0">
-                                        <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
-                                        <p class="truncate text-xs text-ink/70">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-2 py-3 text-center tabular-nums">{{ $row['played'] }}</td>
-                            <td class="px-2 py-3 text-center tabular-nums">{{ $row['wins'] }}</td>
-                            <td class="px-2 py-3 text-center tabular-nums">{{ $row['ties'] }}</td>
-                            <td class="px-2 py-3 text-center tabular-nums">{{ $row['losses'] }}</td>
-                            <td class="hidden px-2 py-3 text-center tabular-nums sm:table-cell">{{ $row['resultPoints'] }}</td>
-                            <td class="hidden px-2 py-3 text-center tabular-nums sm:table-cell">{{ $row['matchupPoints'] }}</td>
-                            <td class="px-4 py-3 text-right font-serif text-lg font-bold text-club tabular-nums tracking-tight">{{ $row['total'] }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        <p class="mt-2 text-xs text-ink/70">
-            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to result points, then wins.
-        </p>
-    </section>
-
     {{-- Past weeks. --}}
     @if ($settledWeeks->isNotEmpty())
-        <section class="mt-8">
+        <section class="mt-4">
             <div class="flex items-end justify-between gap-4">
                 <h2 class="eyebrow text-club">Results</h2>
                 <a href="{{ route('leagues.recap', $league) }}" class="text-sm font-semibold text-club hover:underline">Weekly recaps</a>
@@ -338,8 +331,8 @@
                     @php
                         $rows = $league->results->where('week', $pastWeek)->sortByDesc(fn ($r) => $r->result_points + $r->matchup_points);
                     @endphp
-                    <details class="rounded-2xl border border-line bg-white px-5 py-3" @if ($loop->first) open @endif>
-                        <summary class="cursor-pointer font-medium text-club">
+                    <details class="rounded-xl border border-line bg-white px-3 py-2">
+                        <summary class="flex min-h-9 cursor-pointer items-center text-[13px] font-semibold text-club">
                             GoalWeek {{ $pastWeek }} <span class="font-normal text-ink/70">&middot; {{ $league->weekStartsOn($pastWeek)->format('M j') }}&ndash;{{ $league->weekEndsOn($pastWeek)->format('M j') }}</span>
                         </summary>
                         <ul class="mt-2 divide-y divide-line">
@@ -367,13 +360,13 @@
 
 
     @unless ($status === App\LeagueStatus::Forming)
-        <div class="mt-8">
+        <div class="mt-4">
             @include('leagues.partials.invite')
         </div>
     @endunless
 
     {{-- League chat. Works as plain forms; app.js adds live updates and sending without a page reload. --}}
-    <section id="chat" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white"
+    <section id="chat" class="mt-4 scroll-mt-20 rounded-2xl border border-line bg-white"
         data-league-chat
         data-poll-url="{{ route('leagues.messages.index', $league) }}"
         data-last-id="{{ $messages->last()?->id ?? 0 }}">

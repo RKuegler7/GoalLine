@@ -16,9 +16,13 @@
             <a href="{{ route('goals.intake', $goal) }}" class="shrink-0 rounded-full bg-club px-5 py-2.5 text-center text-sm font-semibold text-ivory hover:bg-club-dark">Answer the questions</a>
         </section>
     @elseif ($given)
-        <section class="mt-6 rounded-2xl border border-line bg-white px-4 py-3">
-            <div class="flex items-start justify-between gap-4">
+        <details class="group mt-2 rounded-xl border border-line bg-white">
+            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 [&::-webkit-details-marker]:hidden">
                 <h2 class="eyebrow text-club">Your plan is built from</h2>
+                <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+            </summary>
+            <div class="border-t border-line px-3 py-2">
+            <div class="flex items-start justify-end gap-4">
                 @if ($goal->isActive())
                     <a href="{{ route('goals.intake', $goal) }}" class="shrink-0 text-sm font-semibold text-club hover:underline">Edit answers</a>
                 @endif
@@ -31,7 +35,8 @@
                     </div>
                 @endforeach
             </dl>
-        </section>
+            </div>
+        </details>
     @elseif ($goal->isActive() && $goal->roadmap_status === App\RoadmapStatus::Ready)
         <p class="mt-6 text-sm text-ink/65">
             Want a plan that fits you better?

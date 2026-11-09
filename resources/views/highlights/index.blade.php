@@ -1,10 +1,8 @@
 <x-layouts.app title="Around the League · GoalLine">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <p class="eyebrow text-mint">Highlights</p>
-            <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Around the League</h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Celebrate the wins and the work behind them: check-ins, finished goals, great GoalWeeks, and milestones from your friends and GoalLeague mates.</p>
-        </div>
+        <x-page-header title="Around the League" eyebrow="Highlights" subtitle="Check-ins, finished goals and great GoalWeeks from your people.">
+            <a href="{{ route('friends.index') }}" class="gl-tap relative inline-flex min-h-9 items-center gap-1 rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory hover:bg-ivory/25"><x-icon name="users" class="size-4" /> Friends</a>
+        </x-page-header>
     </x-slot:hero>
 
     <div class="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
@@ -36,7 +34,7 @@
             @endif
         </div>
 
-        <aside class="space-y-6 lg:sticky lg:top-6 lg:self-start">
+        <aside class="hidden space-y-4 lg:sticky lg:top-20 lg:block lg:self-start">
             <x-people-search-form label="Find people" />
 
             <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-4 py-3">

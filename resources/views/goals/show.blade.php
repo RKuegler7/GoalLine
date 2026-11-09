@@ -1,26 +1,15 @@
 <x-layouts.app :title="$goal->title.' · GoalLine'">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Clubhouse</a>
-            <p class="eyebrow mt-6 text-mint">{{ $goal->category->label() }}</p>
-            <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-                <h1 class="font-serif text-4xl font-bold tracking-tight text-balance text-ivory sm:text-5xl">{{ $goal->title }}</h1>
-                @if ($goal->isActive())
-                    <div class="flex shrink-0 gap-2 self-start sm:self-auto">
-                        <a href="{{ route('goals.complete', $goal) }}" class="rounded-full bg-ivory px-5 py-2 text-sm font-semibold text-club transition hover:bg-white">
-                            I did it
-                        </a>
-                        <a href="{{ route('goals.edit', $goal) }}" class="rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory transition hover:border-ivory hover:bg-ivory hover:text-club">
-                            Edit goal
-                        </a>
-                    </div>
-                @elseif ($goal->isCompleted())
-                    <span class="eyebrow shrink-0 self-start rounded-full bg-gold px-4 py-2 text-[11px] text-ink sm:self-auto">Completed</span>
-                @else
-                    <span class="eyebrow shrink-0 self-start rounded-full bg-ivory/15 px-4 py-2 text-[11px] text-ivory sm:self-auto">Retired</span>
-                @endif
-            </div>
-        </div>
+        <x-page-header :title="$goal->title" :back="route('dashboard')" back-label="Clubhouse" :eyebrow="$goal->category->label()">
+            @if ($goal->isActive())
+                <a href="{{ route('goals.complete', $goal) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white">I did it</a>
+                <a href="{{ route('goals.edit', $goal) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory transition hover:bg-ivory/25">Edit goal</a>
+            @elseif ($goal->isCompleted())
+                <span class="eyebrow rounded-full bg-gold px-2.5 py-1 text-[11px] text-ink">Completed</span>
+            @else
+                <span class="eyebrow rounded-full bg-ivory/15 px-2.5 py-1 text-[11px] text-ivory">Retired</span>
+            @endif
+        </x-page-header>
     </x-slot:hero>
 
     @if ($goal->isCompleted())
@@ -55,24 +44,26 @@
         </p>
     @endif
 
-    <dl class="grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-2">
-        <div class="border-line px-4 py-3 max-sm:border-b sm:border-r">
-            <dt class="eyebrow text-club">Target date</dt>
-            <dd class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">{{ $goal->target_date->format('F j, Y') }}</dd>
+    <dl class="grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-white" data-first-content>
+        <div class="border-r border-line px-3 py-2">
+            <dt class="text-[11px] font-semibold text-ink/70">Target date</dt>
+            <dd class="text-[15px] font-bold text-club">{{ $goal->target_date->format('M j, Y') }}</dd>
         </div>
-        <div class="px-4 py-3">
-            <dt class="eyebrow text-club">Time left</dt>
-            <dd class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">
-                <x-days-left :days="$goal->daysRemaining()" />
-            </dd>
+        <div class="px-3 py-2">
+            <dt class="text-[11px] font-semibold text-ink/70">Time left</dt>
+            <dd class="text-[15px] font-bold text-club"><x-days-left :days="$goal->daysRemaining()" /></dd>
         </div>
     </dl>
 
     @if ($goal->why)
-        <section class="mt-6 rounded-2xl border border-line bg-white px-4 py-3">
-            <h2 class="eyebrow text-club">Why it matters</h2>
-            <p class="mt-2 font-serif text-xl leading-relaxed text-ink tracking-tight">&ldquo;{{ $goal->why }}&rdquo;</p>
-        </section>
+        <details class="group mt-2 rounded-xl border border-line bg-white">
+            <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 py-1.5 [&::-webkit-details-marker]:hidden">
+                <span class="eyebrow shrink-0 text-[11px] text-club">Why it matters</span>
+                <span class="min-w-0 flex-1 truncate text-[13px] text-ink/80 group-open:hidden">&ldquo;{{ $goal->why }}&rdquo;</span>
+                <x-icon name="chevron-down" class="ml-auto size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+            </summary>
+            <p class="border-t border-line px-3 py-2 text-[15px] leading-relaxed text-ink">&ldquo;{{ $goal->why }}&rdquo;</p>
+        </details>
     @endif
 
     <x-intake-summary :goal="$goal" />

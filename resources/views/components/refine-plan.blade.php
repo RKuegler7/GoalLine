@@ -13,8 +13,13 @@
     $refineErrors = $errors->getBag('refine');
 @endphp
 
-<section id="refine" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
-    <h2 class="eyebrow text-club">Refine your plan</h2>
+{{-- Folded to one line until you want it; open while a refinement is in progress or a field needs fixing. --}}
+<details id="refine" class="group mt-2 scroll-mt-20 rounded-xl border border-line bg-white" @if ($open || $errors->any()) open @endif>
+    <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 [&::-webkit-details-marker]:hidden">
+        <h2 class="eyebrow text-club">Refine your plan</h2>
+        <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+    </summary>
+    <div class="border-t border-line px-3 py-2">
 
     @if ($open)
         <a href="{{ route('goals.refinements.show', [$goal, $open]) }}" class="mt-3 flex items-center justify-between gap-3 rounded-xl bg-mint px-4 py-3 text-sm font-semibold text-club hover:bg-mint/70">
@@ -47,4 +52,5 @@
             </div>
         </form>
     @endif
-</section>
+    </div>
+</details>

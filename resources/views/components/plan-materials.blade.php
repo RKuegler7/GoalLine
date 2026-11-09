@@ -16,13 +16,13 @@
 @endif
 
 @if ($materials->isNotEmpty() || $canEdit)
-    <section id="materials" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
-        <div class="flex items-center justify-between gap-4">
+    <details id="materials" class="group mt-2 scroll-mt-20 rounded-xl border border-line bg-white" @if ($errors->has('material') || $errors->has('material_note')) open @endif>
+        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 [&::-webkit-details-marker]:hidden">
             <h2 class="eyebrow text-club">Your plan materials</h2>
-            @if ($materials->isEmpty())
-                <span class="text-sm text-ink/70">Optional</span>
-            @endif
-        </div>
+            <span class="ml-auto text-[11px] text-ink/70">{{ $materials->isEmpty() ? 'Optional' : $materials->count().' '.Str::plural('file', $materials->count()) }}</span>
+            <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+        </summary>
+        <div class="border-t border-line px-3 py-2">
 
         @if ($materials->isEmpty())
             <p class="mt-2 text-ink/70">
@@ -100,5 +100,6 @@
                 </form>
             </details>
         @endif
-    </section>
+        </div>
+    </details>
 @endif

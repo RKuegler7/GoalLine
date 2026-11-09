@@ -8,11 +8,14 @@
     $shown = $isOwn ? collect(App\Badge::personal()) : collect(App\Badge::personal())->filter(fn ($badge) => $personal->has($badge->value));
 @endphp
 
-<section id="badges" {{ $attributes->class('scroll-mt-6') }}>
-    <div class="flex items-end justify-between gap-4">
+{{-- Folded to its count until opened, so a locker stays short. --}}
+<details id="badges" {{ $attributes->class('group scroll-mt-20 rounded-xl border border-line bg-white') }}>
+    <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 [&::-webkit-details-marker]:hidden">
         <h2 class="eyebrow text-club">Badges &amp; awards</h2>
-        <span class="text-sm text-ink/70">{{ $personal->count() }} of {{ count(App\Badge::personal()) }} badges{{ $awards->isNotEmpty() ? ' · '.$awards->count().' '.Str::plural('award', $awards->count()) : '' }}</span>
-    </div>
+        <span class="ml-auto text-[13px] text-ink/70">{{ $personal->count() }} of {{ count(App\Badge::personal()) }} badges{{ $awards->isNotEmpty() ? ' · '.$awards->count().' '.Str::plural('award', $awards->count()) : '' }}</span>
+        <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+    </summary>
+    <div class="border-t border-line px-3 pb-3">
 
     @if ($awards->isNotEmpty())
         <ul class="mt-3 grid gap-3 sm:grid-cols-2">
@@ -49,4 +52,5 @@
             @endforeach
         </ul>
     @endif
-</section>
+    </div>
+</details>

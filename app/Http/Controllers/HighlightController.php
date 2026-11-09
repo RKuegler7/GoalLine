@@ -29,12 +29,12 @@ class HighlightController extends Controller
     /**
      * How many highlights load at a time.
      */
-    private const PAGE_SIZE = 20;
+    private const PAGE_SIZE = 4;
 
     /**
      * How many posts a GoalLeague feed page shows.
      */
-    private const LEAGUE_PAGE_SIZE = 10;
+    private const LEAGUE_PAGE_SIZE = 8;
 
     /**
      * The feed: highlights and posts from your friends, your GoalLeague mates, and you.

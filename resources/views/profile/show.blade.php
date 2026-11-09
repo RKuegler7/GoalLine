@@ -15,41 +15,35 @@
         <div class="relative overflow-hidden">
             @if ($user->coverUrl())
                 <img src="{{ $user->coverUrl() }}" alt="" class="absolute inset-0 size-full object-cover">
-                <div class="absolute inset-0 bg-linear-to-t from-club via-club/70 to-club/20" aria-hidden="true"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-club via-club/75 to-club/30" aria-hidden="true"></div>
             @else
                 <x-field-backdrop class="absolute inset-0 size-full" />
             @endif
 
-            <div class="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 pt-16 pb-10 sm:flex-row sm:items-end sm:justify-between sm:pt-24">
-                <div class="flex items-center gap-5">
-                    <x-avatar :user="$user" tone="light" class="size-20 text-2xl ring-4 ring-ivory/40 sm:size-24 sm:text-3xl" />
+            <div class="relative mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 pt-3 pb-3">
+                <div class="flex min-w-0 items-center gap-3">
+                    <x-avatar :user="$user" tone="light" class="size-14 shrink-0 text-lg ring-2 ring-ivory/40" />
                     <div class="min-w-0">
                         @if ($isOwn)
-                            <p class="eyebrow text-mint">My Locker</p>
+                            <p class="eyebrow text-[11px] text-mint">My Locker</p>
                         @endif
-                        <h1 class="font-serif text-3xl font-bold tracking-tight text-ivory sm:text-4xl">{{ $user->name }}</h1>
-                        <p class="mt-1 text-ivory/80">{{ '@'.$user->username }}</p>
+                        <h1 class="truncate text-[20px] leading-tight font-bold tracking-tight text-ivory md:text-[24px]">{{ $user->name }}</h1>
+                        <p class="truncate text-[13px] text-ivory/85">{{ '@'.$user->username }}@if ($user->location) &middot; {{ $user->location }}@endif &middot; Member since {{ $user->created_at->format('F Y') }}</p>
                         @if ($user->bio)
-                            <p class="mt-2 max-w-md text-ivory/95">{{ $user->bio }}</p>
+                            <p class="line-clamp-2 text-[13px] text-ivory/95">{{ $user->bio }}</p>
                         @endif
-                        <p class="mt-2 text-sm text-ivory/85">
-                            @if ($user->location)
-                                {{ $user->location }} &middot;
-                            @endif
-                            Member since {{ $user->created_at->format('F Y') }}
-                        </p>
                     </div>
                 </div>
                 @if ($isOwn)
-                    <div class="flex shrink-0 gap-2 self-start sm:self-auto">
-                        <a href="{{ route('profile.edit') }}" class="rounded-full bg-ivory px-5 py-2 text-sm font-semibold text-club transition hover:bg-white">Edit profile</a>
+                    <div class="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row">
+                        <a href="{{ route('profile.edit') }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white">Edit profile</a>
                         <form method="POST" action="{{ route('logout') }}" class="md:hidden">
                             @csrf
-                            <button type="submit" class="rounded-full border border-ivory/60 px-5 py-2 text-sm font-semibold text-ivory">Log out</button>
+                            <button type="submit" class="gl-tap relative min-h-8 rounded-full px-2 text-[13px] font-semibold text-ivory/85 hover:text-ivory">Log out</button>
                         </form>
                     </div>
                 @else
-                    <div class="flex shrink-0 items-center gap-3 self-start sm:self-auto">
+                    <div class="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row sm:items-center">
                         <x-nudge-button :user="$user" tone="light" />
                         <x-friend-button :user="$user" tone="light" />
                     </div>

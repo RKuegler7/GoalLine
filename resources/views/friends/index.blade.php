@@ -1,10 +1,8 @@
 <x-layouts.app title="Friends · GoalLine">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('highlights.index') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Around the League</a>
-            <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Friends</h1>
-            <p class="mt-3 max-w-xl text-ivory/85">Doing it with friends makes it stick. Friends cheer each other on, nudge each other, and see the posts you share with friends.</p>
-        </div>
+        <x-page-header title="Friends" :back="route('highlights.index')" back-label="Around the League" subtitle="Friends cheer, nudge and see the posts you share with friends.">
+            <a href="{{ route('people.search') }}" class="gl-tap relative inline-flex min-h-9 items-center gap-1 rounded-full bg-ivory px-3 text-[13px] font-semibold text-club hover:bg-white"><x-icon name="search" class="size-4" /> Find people</a>
+        </x-page-header>
     </x-slot:hero>
 
     <div class="mx-auto max-w-2xl space-y-5">

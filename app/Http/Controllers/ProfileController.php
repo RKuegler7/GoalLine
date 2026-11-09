@@ -45,7 +45,7 @@ class ProfileController extends Controller
             'heatmap' => Clock::for($user, fn () => new ActivityHeatmap($user)),
             'isOwn' => $viewer->is($user),
             'friends' => $user->friends(),
-            'highlights' => $user->highlights()->visibleTo($viewer)->with(['user', 'cheers.user', 'comments.user', 'task', 'league'])->limit(4)->get(),
+            'highlights' => $user->highlights()->visibleTo($viewer)->with(['user', 'cheers.user', 'comments.user', 'task', 'league'])->limit(2)->get(),
         ]);
     }
 

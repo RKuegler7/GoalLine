@@ -7,25 +7,19 @@
 
 <x-layouts.app title="Plan my week · GoalLine">
     <x-slot:hero>
-        <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
-            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Clubhouse</a>
-            <p class="eyebrow mt-6 text-mint">{{ $monday->format('M j') }}&ndash;{{ $monday->copy()->addDays(6)->format($monday->month === $monday->copy()->addDays(6)->month ? 'j' : 'M j') }}</p>
-            <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <h1 class="font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Plan my week</h1>
-                    <p class="mt-2 max-w-xl text-ivory/85">Put each task on a day. It shows up on Today&rsquo;s Gameplan that morning, and anything you miss carries over.</p>
-                    <a href="{{ route('settings.notifications') }}#calendar" class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-mint hover:text-ivory"><x-icon name="calendar" class="size-4" /> Sync with your calendar</a>
-                </div>
-                @if ($goals->isNotEmpty())
-                    <form method="POST" action="{{ route('planner.auto') }}" class="shrink-0">
-                        @csrf
-                        <button type="submit" class="rounded-full bg-ivory px-5 py-2 text-sm font-semibold text-club transition hover:bg-white">
-                            {{ $unplanned > 0 ? 'Plan the rest for me' : 'Auto-plan' }}
-                        </button>
-                    </form>
-                @endif
-            </div>
-        </div>
+        <x-page-header title="Plan my week" :back="route('dashboard')" back-label="Clubhouse"
+            :eyebrow="$monday->format('M j').'–'.$monday->copy()->addDays(6)->format($monday->month === $monday->copy()->addDays(6)->month ? 'j' : 'M j')"
+            subtitle="Put each task on a day; anything you miss carries over.">
+            @if ($goals->isNotEmpty())
+                <form method="POST" action="{{ route('planner.auto') }}">
+                    @csrf
+                    <button type="submit" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white">
+                        {{ $unplanned > 0 ? 'Plan the rest for me' : 'Auto-plan' }}
+                    </button>
+                </form>
+            @endif
+        </x-page-header>
+        <p class="mx-auto -mt-2 max-w-5xl px-4 pb-3"><a href="{{ route('settings.notifications') }}#calendar" class="inline-flex min-h-8 items-center gap-1.5 text-[13px] font-semibold text-mint hover:text-ivory"><x-icon name="calendar" class="size-4" /> Sync with your calendar</a></p>
     </x-slot:hero>
 
     @if ($goals->isEmpty())

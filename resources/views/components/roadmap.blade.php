@@ -83,9 +83,37 @@
             </div>
         @endif
 
-        <ol class="mt-4 space-y-3">
+        {{-- This GoalWeek (and every week of a draft you're reviewing) is open. Other weeks fold to one line: tap to
+             open, or follow a link to #goalweek-N and it opens on its own. --}}
+        <ol class="mt-3 space-y-2">
             @foreach ($goal->weeks as $week)
-                <x-goalweek-card :week="$week" :weeks-per-stretch="$weeksPerStretch" :can-edit="$canEdit" :editable-weeks="$editableWeeks" />
+                @if ($week->isCurrent() || $goal->plan_accepted_at === null || $goal->weeks->count() <= 2)
+                    <x-goalweek-card :week="$week" :weeks-per-stretch="$weeksPerStretch" :can-edit="$canEdit" :editable-weeks="$editableWeeks" />
+                @else
+                    @php
+                        $weekResult = $week->isStarted() ? $week->result() : null;
+                    @endphp
+                    <li>
+                        <details class="group rounded-xl border border-line bg-white" data-week-fold @if ($errors->any() && $week->isEditable()) open @endif>
+                            <summary class="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 py-1.5 [&::-webkit-details-marker]:hidden">
+                                <span class="min-w-0 flex-1">
+                                    <span class="block truncate text-[13px] font-semibold text-ink">GoalWeek {{ $week->position }} <span class="font-normal text-ink/70">&middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</span></span>
+                                    <span class="block truncate text-[11px] text-ink/70">{{ $week->focus }}</span>
+                                </span>
+                                @if ($weekResult)
+                                    <x-goalweek-result :result="$weekResult" :close-call="$week->isCloseCall()" compact />
+                                    <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $week->creditedPercent() }}%</span>
+                                @else
+                                    <span class="shrink-0 text-[11px] text-ink/70">Upcoming</span>
+                                @endif
+                                <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
+                            </summary>
+                            <ol class="border-t border-line">
+                                <x-goalweek-card :week="$week" :weeks-per-stretch="$weeksPerStretch" :can-edit="$canEdit" :editable-weeks="$editableWeeks" />
+                            </ol>
+                        </details>
+                    </li>
+                @endif
             @endforeach
         </ol>
 
