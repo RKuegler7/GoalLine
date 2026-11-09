@@ -212,7 +212,7 @@
                                         <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink no-underline">Bonus</span>
                                     @endif
                                 </span>
-                                <span class="shrink-0 text-xs font-semibold text-club opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">Edit</span>
+                                <span class="shrink-0 text-xs font-semibold text-club opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100">Edit</span>
                             </summary>
                             <div class="mt-2 space-y-2">
                                 <form method="POST" action="{{ route('roadmap.tasks.update', $task) }}" class="space-y-2">

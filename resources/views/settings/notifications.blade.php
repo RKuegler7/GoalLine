@@ -49,7 +49,7 @@
             <p data-push-state="blocked" hidden class="mt-2 text-sm text-amber-800">Notifications are blocked for GoalLine in this browser. Allow them in your browser or phone settings, then come back.</p>
             <p data-push-state="unsupported" hidden class="mt-2 text-sm text-ink/65">This browser can&rsquo;t receive notifications. On iPhone, add GoalLine to your home screen first, then open it from there.</p>
             <div class="mt-3 flex gap-2">
-                <button type="button" data-push-enable hidden class="rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Turn on notifications</button>
+                <button type="button" data-push-enable hidden class="min-h-11 rounded-full bg-club px-4 text-sm font-semibold text-ivory hover:bg-club-dark">Turn on notifications</button>
                 <button type="button" data-push-disable hidden class="rounded-full border border-line px-4 py-2 text-sm font-semibold text-ink/70 hover:border-club/40">Turn off for this device</button>
             </div>
         </section>

@@ -259,6 +259,75 @@ function celebrate(form, regions) {
     }
 }
 
+/**
+ * A progress bar under a form that's uploading a photo, filled as the bytes go up.
+ */
+function uploadProgress(form) {
+    let bar = form.querySelector('[data-upload-progress]');
+
+    if (!bar) {
+        bar = document.createElement('div');
+        bar.dataset.uploadProgress = '';
+        bar.className = 'gl-upload';
+        bar.setAttribute('role', 'progressbar');
+        bar.setAttribute('aria-label', 'Uploading your photo');
+        bar.setAttribute('aria-valuemin', '0');
+        bar.setAttribute('aria-valuemax', '100');
+        bar.innerHTML = '<span class="gl-upload__fill"></span>';
+        form.appendChild(bar);
+    }
+
+    return {
+        set(percent) {
+            bar.hidden = false;
+            bar.setAttribute('aria-valuenow', String(percent));
+            bar.firstElementChild.style.width = `${percent}%`;
+        },
+        done() {
+            bar.hidden = true;
+        },
+    };
+}
+
+/**
+ * Send a live form. Photo uploads go by XMLHttpRequest so the progress bar can follow them; everything else uses
+ * fetch. Either way the answer looks the same: its status, where it landed, and the page.
+ */
+function send(form, data) {
+    const method = (form.getAttribute('method') || 'POST').toUpperCase();
+    const hasFile = [...data.values()].some((value) => value instanceof File && value.size > 0);
+
+    if (!hasFile) {
+        return fetch(form.action, {
+            method,
+            body: data,
+            headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
+            credentials: 'same-origin',
+        }).then(async (response) => ({ ok: response.ok, status: response.status, url: response.url, text: () => response.text() }));
+    }
+
+    const progress = uploadProgress(form);
+    progress.set(0);
+
+    return new Promise((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open(method, form.action);
+        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        request.setRequestHeader('Accept', 'text/html');
+        request.withCredentials = true;
+        request.upload.addEventListener('progress', (event) => event.lengthComputable && progress.set(Math.round((event.loaded / event.total) * 100)));
+        request.addEventListener('load', () => {
+            progress.done();
+            resolve({ ok: request.status >= 200 && request.status < 300, status: request.status, url: request.responseURL, text: async () => request.responseText });
+        });
+        request.addEventListener('error', () => {
+            progress.done();
+            reject(new Error('network'));
+        });
+        request.send(data);
+    });
+}
+
 async function submit(form, submitter) {
     if (form.hasAttribute('data-live-pending')) {
         return; // Double-submit protection: one at a time.
@@ -270,12 +339,7 @@ async function submit(form, submitter) {
     optimistic(form, true);
 
     try {
-        const response = await fetch(form.action, {
-            method: (form.getAttribute('method') || 'POST').toUpperCase(),
-            body: data,
-            headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' },
-            credentials: 'same-origin',
-        });
+        const response = await send(form, data);
 
         if (response.status === 419 || response.status === 401) {
             window.location.reload(); // Signed out or the session expired: a fresh page signs in or gets a fresh token.

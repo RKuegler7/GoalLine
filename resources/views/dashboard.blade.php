@@ -54,7 +54,7 @@
         <x-kickoff-checklist :kickoff="$kickoff" class="mb-6" />
     @endif
 
-    <div class="grid gap-8 lg:grid-cols-[1fr_20rem]">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {{-- This GoalWeek, goal by goal. --}}
         <div class="min-w-0 space-y-6">
             @if ($goals->isEmpty())

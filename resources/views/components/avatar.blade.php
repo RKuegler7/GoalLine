@@ -2,7 +2,7 @@
 @props(['user', 'tone' => 'dark'])
 
 @if ($user->avatarUrl())
-    <img src="{{ $user->avatarUrl() }}" alt="" {{ $attributes->class('shrink-0 rounded-full object-cover') }}>
+    <img src="{{ $user->avatarUrl() }}" alt="" loading="lazy" decoding="async" {{ $attributes->class('shrink-0 rounded-full object-cover') }}>
 @else
     <span {{ $attributes->class([
         'flex shrink-0 items-center justify-center rounded-full font-semibold',

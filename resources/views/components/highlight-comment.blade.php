@@ -11,7 +11,7 @@
         <p class="break-words whitespace-pre-line text-sm text-ink/85">{{ App\Mentions::render($comment->body) }}</p>
     </div>
     @if (in_array(auth()->id(), [$comment->user_id, $highlight->user_id], true))
-        <form method="POST" action="{{ route('highlights.comments.destroy', $comment) }}" class="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100"
+        <form method="POST" action="{{ route('highlights.comments.destroy', $comment) }}" class="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100"
             onsubmit="return confirm('Delete this comment?')">
             @csrf
             @method('DELETE')

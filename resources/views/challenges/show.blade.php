@@ -54,7 +54,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="grid gap-6 lg:grid-cols-[1fr_20rem]">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="space-y-6">
             {{-- Today. --}}
             <section class="rounded-2xl border border-club/30 bg-white px-6 py-5">

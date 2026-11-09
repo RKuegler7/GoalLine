@@ -175,7 +175,7 @@
                         <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif class="block">
                             <div class="relative h-36 overflow-hidden bg-club">
                                 @if ($goal->completionPhotoUrl())
-                                    <img src="{{ $goal->completionPhotoUrl() }}" alt="" class="size-full object-cover">
+                                    <img src="{{ $goal->completionPhotoUrl() }}" alt="" loading="lazy" decoding="async" class="size-full object-cover">
                                 @else
                                     <x-field-backdrop class="absolute inset-0 size-full" />
                                 @endif

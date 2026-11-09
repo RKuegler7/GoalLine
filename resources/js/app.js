@@ -966,6 +966,7 @@ document.querySelectorAll('[data-task-sheet]').forEach((sheet) => {
             body.innerHTML = await response.text();
             sheet.showModal();
             body.scrollTop = 0;
+            body.dispatchEvent(new CustomEvent('goalline:updated', { bubbles: true }));
         } catch {
             window.location.assign(link.href);
         }
@@ -979,6 +980,114 @@ document.querySelectorAll('[data-task-sheet]').forEach((sheet) => {
     });
 
     sheet.addEventListener('close', () => opener?.focus({ preventScroll: true }));
+});
+
+/**
+ * Touch screens: any link, button or menu toggle smaller than 44 × 44 gets an invisible tap area of that size
+ * (.gl-tap in app.css), so small text links and chips are easy to hit without changing how they look. Controls
+ * with their own positioned parts or ::after are left alone. Runs again when a menu opens or part of the page updates.
+ */
+const coarsePointer = window.matchMedia('(pointer: coarse)');
+
+function growTapTargets(root = document) {
+    if (!coarsePointer.matches) {
+        return;
+    }
+
+    root.querySelectorAll('a[href], button, summary, [role="button"], [role="tab"]').forEach((control) => {
+        if (control.classList.contains('gl-tap')) {
+            return;
+        }
+
+        const box = control.getBoundingClientRect();
+
+        if (box.width === 0 || (box.width >= 44 && box.height >= 44) || getComputedStyle(control, '::after').content !== 'none') {
+            return;
+        }
+
+        if (getComputedStyle(control).position === 'static') {
+            // Screen-reader-only text is positioned but takes no space, so it doesn't count.
+            const hasPositionedParts = [...control.querySelectorAll('*')].some((part) => !part.classList.contains('sr-only') && getComputedStyle(part).position !== 'static');
+
+            if (hasPositionedParts) {
+                return;
+            }
+
+            control.style.position = 'relative';
+        }
+
+        control.classList.add('gl-tap');
+    });
+}
+
+growTapTargets();
+document.addEventListener('goalline:updated', (event) => growTapTargets(event.target));
+document.addEventListener('toggle', (event) => growTapTargets(event.target), true);
+coarsePointer.addEventListener('change', () => growTapTargets());
+
+/**
+ * Photo pickers: check the photo before it uploads and show it. iPhone converts photos to JPEG for a picker that
+ * asks for JPEG, PNG or WebP; anything else (a HEIC file from a computer, say) or a file over the size limit gets a
+ * friendly note instead of a failed upload. Pickers with a cropper (data-crop) show their own preview.
+ */
+function photoNote(input, message) {
+    let note = input.parentElement.querySelector('[data-photo-note]');
+
+    if (!note) {
+        note = document.createElement('p');
+        note.dataset.photoNote = '';
+        note.setAttribute('role', 'alert');
+        note.className = 'mt-1 text-xs text-red-700';
+        input.insertAdjacentElement('afterend', note);
+    }
+
+    note.textContent = message;
+    note.hidden = !message;
+}
+
+document.addEventListener('change', (event) => {
+    const input = event.target;
+
+    if (!(input instanceof HTMLInputElement) || input.type !== 'file' || !input.accept.includes('image/')) {
+        return;
+    }
+
+    const file = input.files?.[0];
+    const allowed = input.accept.split(',').map((type) => type.trim()).filter((type) => type.includes('/'));
+    const maxBytes = Number(input.dataset.maxBytes || 5 * 1024 * 1024);
+    input.parentElement.querySelector('[data-photo-preview]')?.remove();
+
+    if (!file) {
+        photoNote(input, '');
+
+        return;
+    }
+
+    if (allowed.length && !allowed.includes(file.type)) {
+        input.value = '';
+        photoNote(input, 'That photo is in a format GoalLine can\'t open yet (like HEIC). Pick it from your Photos on iPhone, take a screenshot, or save it as a JPG or PNG.');
+
+        return;
+    }
+
+    if (file.size > maxBytes) {
+        input.value = '';
+        photoNote(input, `That photo is ${(file.size / 1048576).toFixed(1)} MB. Pick one under ${Math.round(maxBytes / 1048576)} MB, or take a screenshot of it.`);
+
+        return;
+    }
+
+    photoNote(input, '');
+
+    if (!input.hasAttribute('data-crop')) {
+        const preview = document.createElement('img');
+        preview.dataset.photoPreview = '';
+        preview.alt = 'Preview of the photo you picked';
+        preview.className = 'mt-2 max-h-40 rounded-xl object-cover ring-1 ring-line';
+        preview.src = URL.createObjectURL(file);
+        preview.addEventListener('load', () => URL.revokeObjectURL(preview.src), { once: true });
+        input.insertAdjacentElement('afterend', preview);
+    }
 });
 
 /**

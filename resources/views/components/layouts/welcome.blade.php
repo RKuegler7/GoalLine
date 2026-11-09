@@ -10,7 +10,7 @@
 <head>
     @include('partials.head', ['title' => $title.' · Welcome to GoalLine'])
 </head>
-<body class="min-h-screen bg-ivory font-sans text-ink antialiased">
+<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased">
     <section class="relative overflow-hidden bg-club pt-[env(safe-area-inset-top)]">
         <x-field-backdrop class="absolute inset-0 size-full" />
         <div class="relative mx-auto max-w-2xl px-4 pt-6 pb-10">

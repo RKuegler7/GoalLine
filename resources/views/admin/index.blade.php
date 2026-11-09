@@ -25,7 +25,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="grid gap-6 lg:grid-cols-2">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
         {{-- Daily active members. --}}
         <section class="rounded-2xl border border-line bg-white px-5 py-4">
             <h2 class="eyebrow text-club">Active members, last 14 days</h2>

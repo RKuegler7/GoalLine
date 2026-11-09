@@ -7,7 +7,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="grid gap-8 lg:grid-cols-[1fr_18rem]">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div class="min-w-0">
             @if ($highlights->isEmpty())
                 <section class="overflow-hidden rounded-2xl border border-line bg-white">

@@ -24,6 +24,77 @@
     --color-line: #e3e6dc;
 }
 
+/* Phones and iPhone. */
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    /* A soft brand tint on tap instead of the grey flash, and no double-tap zoom delay on controls. */
+    a,
+    button,
+    summary,
+    label,
+    select,
+    input,
+    textarea,
+    [role='button'],
+    [role='tab'] {
+        -webkit-tap-highlight-color: color-mix(in srgb, #176b45 14%, transparent);
+        touch-action: manipulation;
+    }
+
+}
+
+/* iOS zooms into any field under 16px. On phones fields stay at 16px whatever size the design gives them. This sits
+   outside the layers on purpose, so it wins over text-size utilities. */
+@media (max-width: 767px) {
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='hidden']),
+    select,
+    textarea {
+        font-size: 16px;
+    }
+}
+
+/* On touch screens, text fields and pickers are at least 44px tall: easy to tap, never fiddly. */
+@media (pointer: coarse) {
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'], [type='hidden']),
+    select,
+    textarea {
+        min-height: 44px;
+    }
+}
+
+/* Small controls get an invisible 44 × 44 tap area on touch screens (added by app.js), with no change to the look. */
+.gl-tap::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+}
+
+/* Photo upload progress: the GoalLine line filling across. */
+.gl-upload {
+    margin-top: 0.5rem;
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: #e5f3e8;
+}
+
+.gl-upload__fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: #43b96a;
+    transition: width 120ms linear;
+}
+
 /* Small capitals label, like a scoreboard caption. */
 @utility eyebrow {
     font-size: 0.75rem;

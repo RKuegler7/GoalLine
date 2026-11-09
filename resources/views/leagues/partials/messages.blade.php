@@ -27,7 +27,7 @@
                 <p class="break-words whitespace-pre-line text-ink/85">{{ App\Mentions::render($message->body) }}</p>
             </div>
             @if (auth()->id() === $message->user_id || auth()->id() === $league->commissioner_id)
-                <form method="POST" action="{{ route('leagues.messages.destroy', $message) }}" data-chat-delete class="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+                <form method="POST" action="{{ route('leagues.messages.destroy', $message) }}" data-chat-delete class="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="rounded px-1.5 text-sm text-ink/40 hover:text-red-700" title="Delete message">&times;<span class="sr-only">Delete message</span></button>

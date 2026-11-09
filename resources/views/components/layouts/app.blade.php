@@ -17,18 +17,18 @@
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-screen bg-ivory pb-24 font-sans text-ink antialiased md:pb-0" data-signed-in>
+<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(6rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-0" data-signed-in>
     <section class="bg-club pt-[env(safe-area-inset-top)]">
-        <header class="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
+        <header class="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-4 lg:gap-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
-                <x-brand.logo class="h-7 sm:h-8" />
+                <x-brand.logo class="h-7 lg:h-8" />
             </a>
 
             {{-- Desktop tabs. --}}
-            <nav class="hidden items-center gap-1 md:flex" aria-label="Main">
+            <nav class="hidden items-center md:flex lg:gap-1" aria-label="Main">
                 @foreach ($tabs as $tab)
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
-                        'relative rounded-full px-3 py-2 text-sm font-semibold whitespace-nowrap transition lg:px-4',
+                        'relative flex min-h-11 items-center rounded-full px-2 text-sm font-semibold whitespace-nowrap transition lg:px-4',
                         'bg-ivory/15 text-ivory' => $tab['active'],
                         'text-ivory/70 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
                     ])>
@@ -40,22 +40,22 @@
                 @endforeach
             </nav>
 
-            <div class="flex shrink-0 items-center gap-2 sm:gap-3">
-                <a href="{{ route('goals.create') }}" class="hidden items-center gap-1.5 rounded-full bg-ivory px-4 py-2 text-sm font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="New goal">
+            <div class="flex shrink-0 items-center gap-1 lg:gap-3">
+                <a href="{{ route('goals.create') }}" class="hidden min-h-11 items-center gap-1.5 rounded-full bg-ivory px-3 text-sm lg:px-4 font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="New goal">
                     <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
-                <a href="{{ route('inbox') }}" @class(['relative rounded-full p-1.5 transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
+                <a href="{{ route('inbox') }}" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
                     aria-label="Inbox{{ $inboxCount ? ', '.$inboxCount.' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
                     @if ($inboxCount)
-                        <span class="absolute -top-0.5 -right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
+                        <span class="absolute top-0.5 right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
                     @endif
                 </a>
 
                 {{-- Account menu: your locker, settings, admin, and log out, under your photo. --}}
                 <details class="relative" data-account-menu>
-                    <summary class="flex cursor-pointer list-none rounded-full ring-2 ring-ivory/25 transition hover:ring-ivory/60 [&::-webkit-details-marker]:hidden" aria-label="Account menu">
-                        <x-avatar :user="$viewer" tone="light" class="size-9 text-xs" />
+                    <summary class="grid size-11 cursor-pointer list-none place-items-center rounded-full [&::-webkit-details-marker]:hidden" aria-label="Account menu">
+                        <x-avatar :user="$viewer" tone="light" class="size-9 text-xs ring-2 ring-ivory/25 transition hover:ring-ivory/60" />
                     </summary>
                     <div class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-1.5 text-sm shadow-xl">
                         <p class="truncate border-b border-line px-4 pt-1.5 pb-2.5">
