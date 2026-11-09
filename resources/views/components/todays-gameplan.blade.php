@@ -10,9 +10,9 @@
 @endphp
 
 <section id="{{ $anchor }}" data-region="{{ $region }}" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
-    <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-4 py-3">
+    <header class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-mint/50 px-3 py-2">
         <div>
-            <h2 class="font-serif text-xl font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>
+            <h2 class="font-serif text-[17px] leading-tight font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>
             <p class="text-sm text-ink/70">
                 @if ($total === 0)
                     Nothing on for today.
@@ -23,34 +23,34 @@
                 @endif
             </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
             @if ($simpleOpen > 1)
                 <form method="POST" action="{{ route('today.done') }}" data-live>
                     @csrf
                     <input type="hidden" name="return" value="{{ $return }}">
-                    <button type="submit" class="inline-flex items-center gap-1.5 rounded-full bg-club px-4 py-1.5 text-sm font-semibold text-ivory transition hover:bg-club-dark">Mark all {{ $simpleOpen }} done</button>
+                    <button type="submit" class="inline-flex min-h-8 items-center gap-1 rounded-full bg-club px-3 text-xs font-semibold text-ivory transition hover:bg-club-dark">Mark all {{ $simpleOpen }} done</button>
                 </form>
             @endif
-            <a href="{{ route('today') }}#week-grid" class="inline-flex items-center gap-1.5 rounded-full border border-club/30 bg-white px-4 py-1.5 text-sm font-semibold text-club transition hover:border-club">
+            <a href="{{ route('today') }}#week-grid" class="gl-tap relative inline-flex min-h-8 items-center gap-1 rounded-full border border-club/30 bg-white px-2.5 text-xs font-semibold text-club transition hover:border-club">
                 <x-icon name="repeat" class="size-4" /> Week grid
             </a>
-            <a href="{{ route('planner.show') }}" class="inline-flex items-center gap-1.5 rounded-full border border-club/30 bg-white px-4 py-1.5 text-sm font-semibold text-club transition hover:border-club">
+            <a href="{{ route('planner.show') }}" class="gl-tap relative inline-flex min-h-8 items-center gap-1 rounded-full border border-club/30 bg-white px-2.5 text-xs font-semibold text-club transition hover:border-club">
                 <x-icon name="calendar" class="size-4" /> Plan my week
             </a>
         </div>
     </header>
 
     @if ($total > 0)
-        <div class="px-5 pt-3">
+        <div class="px-3 pt-2">
             <x-goal-progress :percent="$done / $total * 100" label="Today's gameplan done" />
         </div>
     @endif
 
-    <ul class="divide-y divide-line px-5 pb-2">
+    <ul class="divide-y divide-line px-3 pb-1">
         @foreach ($gameplan->entries as $entry)
             @foreach ($entry['tasks'] as $task)
-                <li class="flex items-start gap-3 py-3">
-                    <x-task-check :task="$task" return="{{ $return }}" size="size-9 sm:size-7" />
+                <li class="flex items-start gap-2.5 py-2">
+                    <x-task-check :task="$task" return="{{ $return }}" size="size-7" />
                     <div class="min-w-0 flex-1">
                         <p @class(['text-ink/70 line-through decoration-ink/30' => $task->completed_at, 'text-ink' => ! $task->completed_at])>{{ $task->description }}</p>
                         <x-task-details :task="$task" return="{{ $return }}" context="gameplan" />
@@ -67,7 +67,7 @@
                     @if ($gameplan->canMoveToTomorrow($task, $entry['week']))
                         <form method="POST" action="{{ route('roadmap.tasks.tomorrow', $task) }}">
                             @csrf
-                            <button type="submit" title="Move to tomorrow" class="rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:border-club/40 hover:bg-ivory hover:text-club"><span class="sr-only">Move to </span>Tomorrow &rarr;</button>
+                            <button type="submit" title="Move to tomorrow" class="gl-tap relative rounded-full border border-line px-2 py-0.5 text-[11px] font-semibold text-ink/70 transition hover:border-club/40 hover:bg-ivory hover:text-club"><span class="sr-only">Move to </span>Tomorrow &rarr;</button>
                         </form>
                     @endif
                 </li>
@@ -78,7 +78,7 @@
                     $doneToday = $habit->isDoneOn($gameplan->today);
                     $partial = $habit->isPartialOn($gameplan->today);
                 @endphp
-                <li class="flex items-center gap-3 py-3">
+                <li class="flex items-center gap-2.5 py-2">
                     <x-habit-log :habit="$habit" :day="$gameplan->today" return="{{ $return }}" />
                     <div class="min-w-0 flex-1">
                         <p @class(['flex items-center gap-1.5', 'text-ink/70 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
@@ -100,7 +100,7 @@
             @php
                 $doneToday = $gameplan->isChallengeDone($challenge);
             @endphp
-            <li class="flex items-start gap-3 py-3">
+            <li class="flex items-start gap-2.5 py-2">
                 <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                     @csrf
                     <input type="hidden" name="return" value="{{ $return }}">
@@ -129,7 +129,7 @@
     </ul>
 
     @if ($total === 0 || $unplanned > 0)
-        <p class="border-t border-line px-5 py-3 text-sm text-ink/65">
+        <p class="border-t border-line px-3 py-2 text-[13px] text-ink/70">
             @if ($unplanned > 0)
                 {{ $unplanned }} {{ Str::plural('task', $unplanned) }} this GoalWeek {{ $unplanned === 1 ? "isn't" : "aren't" }} on a day yet.
             @else

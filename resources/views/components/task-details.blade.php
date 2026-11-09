@@ -65,7 +65,7 @@
                 </form>
             </div>
         @endif
-        <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" data-live class="mt-1.5 flex flex-wrap items-center gap-2">
+        <form method="POST" action="{{ route('roadmap.tasks.check', $task) }}" data-live class="mt-1 flex items-center gap-1.5">
             @csrf
             <input type="hidden" name="task_id" value="{{ $task->id }}">
             @if ($return)
@@ -75,9 +75,9 @@
             <input id="result-{{ $context }}-{{ $task->id }}" name="result" type="number" inputmode="decimal" step="any" min="{{ $task->result_min }}" max="{{ $task->result_max }}" required
                 value="{{ $confirming ? $confirm['value'] : ((int) old('task_id') === $task->id ? old('result') : '') }}"
                 placeholder="{{ rtrim(rtrim(number_format($task->result_target, 2, '.', ''), '0'), '.') }}"
-                class="w-24 rounded-lg border border-line bg-white px-2.5 py-1 text-sm tabular-nums outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                class="w-20 rounded-lg border border-line bg-white px-2 py-1 text-sm tabular-nums outline-none focus:border-club focus:ring-4 focus:ring-club/10">
             <span class="text-xs text-ink/70">{{ $task->result_unit }}</span>
-            <button type="submit" class="rounded-full bg-club px-3 py-1 text-xs font-semibold text-ivory hover:bg-club-dark">Log it</button>
+            <button type="submit" class="min-h-9 shrink-0 rounded-full bg-club px-3 text-xs font-semibold text-ivory hover:bg-club-dark">Log it</button>
         </form>
         @if ($hasError)
             <p class="mt-1 text-xs text-red-700">{{ $errors->first('result') }}</p>

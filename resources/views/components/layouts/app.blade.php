@@ -21,7 +21,7 @@
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(6rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-0" data-signed-in data-density="compact">
+<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(8.5rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-16" data-signed-in data-density="compact">
     {{-- Slim top bar: stays put while the page scrolls, so you're never stuck on a screen. --}}
     <div class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)]">
         <header class="mx-auto flex h-13 max-w-5xl items-center justify-between gap-2 px-4 lg:gap-4">

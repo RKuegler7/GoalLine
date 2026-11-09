@@ -52,6 +52,8 @@
         @else
             <span class="font-semibold text-ink">{{ $status === App\LeagueStatus::Active ? 'Week '.$league->currentWeek().' of '.$league->weeksCount() : 'Season over' }}</span>
             <span aria-hidden="true">&middot;</span>
+            <span class="tabular-nums"><span class="font-semibold text-ink">{{ $snapshot->ordinal() }}</span> of {{ $size }}</span>
+            <span aria-hidden="true">&middot;</span>
             <span class="tabular-nums">{{ $record['wins'] }}&ndash;{{ $record['ties'] }}&ndash;{{ $record['losses'] }}</span>
             @if ($mine)
                 <span aria-hidden="true">&middot;</span>
@@ -61,7 +63,7 @@
     </p>
     @if ($matchup)
         {{-- Encouraging, never alarming: leading shows green, everything else stays neutral. --}}
-        <p class="mt-0.5 truncate text-xs text-ink/70">vs {{ $matchup['opponent'] ? Str::before($matchup['opponent']->user->name, ' ') : 'league median' }}:
+        <p class="mt-0.5 truncate text-xs text-ink/70"><span class="sr-only">GoalWeek {{ $league->currentWeek() }} Matchup: </span>vs {{ $matchup['opponent'] ? Str::before($matchup['opponent']->user->name, ' ') : 'league median' }}:
             <span @class(['font-semibold', 'text-club' => $matchup['outcome']->isWin(), 'text-ink' => ! $matchup['outcome']->isWin()])>{{ match ($matchup['outcome']) {
                 App\MatchupOutcome::Win => 'leading',
                 App\MatchupOutcome::CloseWin => 'ahead in a photo finish',

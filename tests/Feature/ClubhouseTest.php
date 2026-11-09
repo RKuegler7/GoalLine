@@ -30,7 +30,7 @@ class ClubhouseTest extends TestCase
             ->get(route('dashboard'))
             ->assertSee('Good morning, Jordan.')
             ->assertSee('GoalWeek ends Sunday, 4 days left')
-            ->assertSeeInOrder(['This GoalWeek', 'Total points', 'In-line streak', 'GoalLeague record']);
+            ->assertSeeInOrder(['This week', 'Total', 'In line', 'Record']);
     }
 
     public function test_tasks_can_be_checked_off_right_from_the_clubhouse(): void
@@ -80,8 +80,9 @@ class ClubhouseTest extends TestCase
             ->assertSee('Week 1 of 4')
             ->assertSee('1st')
             ->assertSee('GoalWeek 1 Matchup')
-            ->assertSee('Sam')
-            ->assertSee('League chat');
+            ->assertSee('vs Sam')
+            ->assertSee('1st</span> of 2', false)
+            ->assertSee(route('leagues.show', $league));
     }
 
     public function test_a_great_week_prompts_you_to_share_it(): void

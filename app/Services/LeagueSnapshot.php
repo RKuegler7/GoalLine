@@ -32,6 +32,22 @@ class LeagueSnapshot
     }
 
     /**
+     * The place as words people say: "1st", "2nd", "3rd", "11th".
+     */
+    public function ordinal(): string
+    {
+        $rank = $this->rank();
+
+        return $rank.match (true) {
+            in_array($rank % 100, [11, 12, 13], true) => 'th',
+            $rank % 10 === 1 => 'st',
+            $rank % 10 === 2 => 'nd',
+            $rank % 10 === 3 => 'rd',
+            default => 'th',
+        };
+    }
+
+    /**
      * The member's total points this season.
      */
     public function points(): int

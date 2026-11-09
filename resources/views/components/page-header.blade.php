@@ -11,7 +11,7 @@
             </a>
         @endif
         @if ($eyebrow)
-            <p class="eyebrow text-[11px] text-mint">{{ $eyebrow }}</p>
+            <p class="eyebrow truncate text-[11px] text-mint">{{ $eyebrow }}</p>
         @endif
         <h1 class="truncate font-serif text-[20px] leading-tight font-bold tracking-tight text-ivory md:text-[24px]">{{ $title }}</h1>
         @if ($subtitle)
