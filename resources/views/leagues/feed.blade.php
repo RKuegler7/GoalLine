@@ -9,6 +9,12 @@
     </x-slot:hero>
 
     <div class="mx-auto max-w-2xl">
+        @if ($member)
+            <p class="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line bg-white px-5 py-3 text-sm">
+                <span class="text-ink">Posts by <span class="font-semibold">{{ $member->user->name }}</span> in {{ $league->name }}</span>
+                <a href="{{ route('leagues.feed', $league) }}" class="font-semibold text-club hover:underline">Everyone's posts</a>
+            </p>
+        @endif
         @if ($reports->isNotEmpty())
             <section class="mb-8 rounded-2xl border border-red-200 bg-red-50/60 px-5 py-4">
                 <h2 class="eyebrow text-red-800">Reports to review</h2>

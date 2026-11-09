@@ -43,15 +43,17 @@ class HighlightFeed
     }
 
     /**
-     * A GoalLeague's feed: check-in posts shared to it.
+     * A GoalLeague's feed: check-in posts shared to it, or just one member's.
      *
      * @return Paginator<int, Highlight>
      */
-    public function league(League $league, int $perPage): Paginator
+    public function league(League $league, int $perPage, ?int $userId = null): Paginator
     {
         return $this->visible()
             ->where('league_id', $league->id)
-            ->simplePaginate($perPage);
+            ->when($userId, fn (Builder $query) => $query->where('highlights.user_id', $userId))
+            ->simplePaginate($perPage)
+            ->withQueryString();
     }
 
     /**

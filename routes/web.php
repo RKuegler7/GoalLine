@@ -227,6 +227,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/group-tasks/{groupTask}/vote', [GroupTaskController::class, 'vote'])->name('group-tasks.vote')->middleware(['verified', 'throttle:30,1']);
     Route::get('/leagues/{league}/members/{member}/plan', [LeaguePlanController::class, 'show'])->name('leagues.members.plan')->can('view', 'league');
     Route::get('/leagues/{league}/matchups/{week?}', [LeagueMatchupController::class, 'show'])->name('leagues.matchups')->can('view', 'league')->whereNumber('week');
+    Route::get('/leagues/{league}/matchups/{week}/tasks/{task}', [LeagueMatchupController::class, 'task'])->name('leagues.matchups.task')->can('view', 'league')->whereNumber('week');
     Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');

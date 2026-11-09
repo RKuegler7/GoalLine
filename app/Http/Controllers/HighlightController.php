@@ -144,10 +144,13 @@ class HighlightController extends Controller
     public function league(Request $request, League $league): View
     {
         $isOwner = $league->commissioner_id === $request->user()->id;
+        // One member's posts, from a name on the matchup pager. Only league members can be picked.
+        $member = $league->members()->with('user')->where('user_id', (int) $request->query('member'))->first();
 
         return view('leagues.feed', [
             'league' => $league,
-            'posts' => (new HighlightFeed($request->user()))->league($league, self::LEAGUE_PAGE_SIZE),
+            'member' => $member,
+            'posts' => (new HighlightFeed($request->user()))->league($league, self::LEAGUE_PAGE_SIZE, $member?->user_id),
             'reports' => $isOwner
                 ? PostReport::where('league_id', $league->id)->whereHas('highlight')->with('highlight.user', 'reporter')->latest()->get()->groupBy('highlight_id')
                 : collect(),

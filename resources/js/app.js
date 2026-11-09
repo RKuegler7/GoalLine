@@ -824,43 +824,161 @@ document.querySelectorAll('[data-intake]').forEach((form) => {
 });
 
 /**
- * Matchup carousel: swipe (native scroll snapping), or use the arrows, dots, and scoreboard rows. The dot for the
- * matchup in view is highlighted.
+ * Matchup pager: one page per matchup. Swipe (native scroll snapping), use the arrows, dots and scoreboard rows, or
+ * the left and right arrow keys. The track is as tall as the page in view, so a short page doesn't leave a gap. On
+ * phones, a sticky toggle shows one player's tasks at a time. Without this script, it's a horizontal scroller.
  */
-document.querySelectorAll('[data-carousel]').forEach((carousel) => {
-    const track = carousel.querySelector('[data-carousel-track]');
-    const slides = [...carousel.querySelectorAll('[data-carousel-slide]')];
-    const dots = [...carousel.querySelectorAll('[data-carousel-dot]')];
+document.querySelectorAll('[data-pager]').forEach((pager) => {
+    const track = pager.querySelector('[data-pager-track]');
+    const pages = () => [...track.querySelectorAll('[data-pager-page]')];
+    const dots = [...pager.querySelectorAll('[data-pager-dot]')];
+    const count = pager.querySelector('[data-pager-count]');
+    const prev = pager.querySelector('[data-pager-prev]');
+    const next = pager.querySelector('[data-pager-next]');
+    const toggle = pager.querySelector('[data-player-toggle]');
+    const tabs = [...pager.querySelectorAll('[data-player-tab]')];
+    const phone = window.matchMedia('(max-width: 767px)');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let current = 0;
+    let player = 0;
 
-    const go = (index) => {
-        const slide = slides[Math.min(Math.max(index, 0), slides.length - 1)];
-        track.scrollTo({ left: slide.offsetLeft - (track.clientWidth - slide.clientWidth) / 2, behavior: 'smooth' });
+    const fitHeight = () => {
+        const page = pages()[current];
+
+        if (page) {
+            track.style.height = `${page.offsetHeight}px`;
+        }
+    };
+
+    const showPlayer = () => {
+        const page = pages()[current];
+        const names = JSON.parse(page?.dataset.sideNames || '[]');
+        const twoSided = names.length > 1;
+
+        if (toggle) {
+            toggle.hidden = !twoSided;
+            tabs.forEach((tab, index) => {
+                tab.textContent = names[index] ? `${names[index]}'s tasks` : '';
+                tab.setAttribute('aria-selected', String(index === player));
+            });
+        }
+
+        pages().forEach((each) => each.querySelectorAll('[data-player-panel]').forEach((panel) => {
+            panel.hidden = phone.matches && twoSided && Number(panel.dataset.playerPanel) !== player;
+        }));
+        fitHeight();
     };
 
     const mark = (index) => {
         current = index;
         dots.forEach((dot, i) => dot.toggleAttribute('data-active', i === index));
+        dots.forEach((dot, i) => (i === index ? dot.setAttribute('aria-current', 'true') : dot.removeAttribute('aria-current')));
+        count.textContent = `${index + 1} of ${pages().length}`;
+        prev.disabled = index === 0;
+        next.disabled = index === pages().length - 1;
+        showPlayer();
     };
 
-    const observer = new IntersectionObserver(
-        (entries) => entries.forEach((entry) => entry.isIntersecting && mark(slides.indexOf(entry.target))),
-        { root: track, threshold: 0.6 },
-    );
-    slides.forEach((slide) => observer.observe(slide));
-    mark(0);
+    const go = (index) => {
+        const page = pages()[Math.min(Math.max(index, 0), pages().length - 1)];
+        track.scrollTo({ left: page.offsetLeft - track.offsetLeft, behavior: reduced.matches ? 'auto' : 'smooth' });
+        mark(pages().indexOf(page));
+    };
 
-    carousel.querySelector('[data-carousel-prev]')?.addEventListener('click', () => go(current - 1));
-    carousel.querySelector('[data-carousel-next]')?.addEventListener('click', () => go(current + 1));
+    let settle;
+    track.addEventListener('scroll', () => {
+        window.clearTimeout(settle);
+        settle = window.setTimeout(() => {
+            const index = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+
+            if (index !== current) {
+                mark(Math.min(index, pages().length - 1));
+            }
+        }, 60);
+    }, { passive: true });
+
+    prev.addEventListener('click', () => go(current - 1));
+    next.addEventListener('click', () => go(current + 1));
     dots.forEach((dot, index) => dot.addEventListener('click', (event) => {
         event.preventDefault();
         go(index);
     }));
-    document.querySelectorAll('[data-carousel-jump]').forEach((link) => link.addEventListener('click', (event) => {
+    document.querySelectorAll('[data-pager-jump]').forEach((link) => link.addEventListener('click', (event) => {
         event.preventDefault();
-        carousel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        go(Number(link.dataset.carouselJump));
+        pager.scrollIntoView({ behavior: reduced.matches ? 'auto' : 'smooth', block: 'start' });
+        go(Number(link.dataset.pagerJump));
     }));
+
+    // Left and right arrow keys flip pages, unless someone is typing or a sheet is open.
+    document.addEventListener('keydown', (event) => {
+        if (!['ArrowLeft', 'ArrowRight'].includes(event.key) || event.altKey || event.metaKey || event.ctrlKey
+            || event.target.closest('input, textarea, select, [contenteditable], dialog[open]')) {
+            return;
+        }
+
+        event.preventDefault();
+        go(current + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+
+    tabs.forEach((tab, index) => tab.addEventListener('click', () => {
+        player = index;
+        showPlayer();
+    }));
+
+    phone.addEventListener('change', showPlayer);
+    new ResizeObserver(fitHeight).observe(track);
+    pages().forEach((page) => new ResizeObserver(fitHeight).observe(page));
+    document.addEventListener('goalline:updated', () => window.requestAnimationFrame(showPlayer));
+
+    const fromHash = pages().findIndex((page) => `#${page.id}` === window.location.hash);
+    mark(Math.max(fromHash, 0));
+
+    if (fromHash > 0) {
+        track.scrollLeft = pages()[fromHash].offsetLeft - track.offsetLeft;
+    }
+});
+
+/**
+ * Task sheet: tapping a task on the pager opens its details in a bottom sheet (a dialog on wider screens). If the
+ * sheet can't load, the link opens the task's own page instead.
+ */
+document.querySelectorAll('[data-task-sheet]').forEach((sheet) => {
+    const body = sheet.querySelector('[data-task-sheet-body]');
+    let opener = null;
+
+    document.addEventListener('click', async (event) => {
+        const link = event.target.closest('[data-task-sheet-open]');
+
+        if (!link || event.metaKey || event.ctrlKey || event.shiftKey || typeof sheet.showModal !== 'function') {
+            return;
+        }
+
+        event.preventDefault();
+        opener = link;
+
+        try {
+            const response = await fetch(link.href, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin' });
+
+            if (!response.ok) {
+                throw new Error(String(response.status));
+            }
+
+            body.innerHTML = await response.text();
+            sheet.showModal();
+            body.scrollTop = 0;
+        } catch {
+            window.location.assign(link.href);
+        }
+    });
+
+    // A tap on the dimmed backdrop closes it.
+    sheet.addEventListener('click', (event) => {
+        if (event.target === sheet) {
+            sheet.close();
+        }
+    });
+
+    sheet.addEventListener('close', () => opener?.focus({ preventScroll: true }));
 });
 
 /**

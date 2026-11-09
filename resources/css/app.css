@@ -77,6 +77,21 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     animation: gl-pop 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* The task sheet on the matchup pager slides up from the bottom on phones and fades in as a dialog on wider screens. */
+@keyframes gl-sheet-up {
+    from { transform: translateY(24px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.gl-sheet[open] {
+    animation: gl-sheet-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* The pager track only animates its height change; the page itself never jumps. */
+[data-pager-track] {
+    transition: height 200ms ease;
+}
+
 /* Progress bars glide to their new width. */
 [data-progress-bar] {
     transition: width 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -198,11 +213,13 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     .gl-pop,
     .gl-toast,
     .gl-toast__fill,
-    .gl-toast__dot {
+    .gl-toast__dot,
+    .gl-sheet[open] {
         animation: none;
     }
 
     [data-progress-bar],
+    [data-pager-track],
     .gl-toast {
         transition: none;
     }

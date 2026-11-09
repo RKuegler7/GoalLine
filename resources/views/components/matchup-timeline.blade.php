@@ -1,6 +1,6 @@
 {{-- Both sides' check-ins for a league week, visible to the whole league. Proof photos open for the opponent and the
      league owner; any league mate can ask someone to show their work; the opponent can confirm a Smashed week. --}}
-@props(['league', 'week', 'matchup', 'open' => false])
+@props(['league', 'week', 'matchup', 'open' => false, 'readOnly' => false])
 
 @php
     $viewer = auth()->user();
@@ -34,7 +34,8 @@
                 $isOpponent = $row['other']?->user_id === $viewer->id;
                 $canSeeProof = $owner->is($viewer) || $isOpponent || $league->commissioner_id === $viewer->id;
                 // The matchup opponent and the league owner can dispute a check-in; never your own.
-                $canDispute = ! $owner->is($viewer) && ($isOpponent || $league->commissioner_id === $viewer->id);
+                // A final week is read only: no new disputes, though open ones can still be settled.
+                $canDispute = ! $readOnly && ! $owner->is($viewer) && ($isOpponent || $league->commissioner_id === $viewer->id);
             @endphp
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-ink">{{ $owner->name }}</p>
@@ -79,7 +80,7 @@
                                     @else
                                         <span class="ml-1 inline-flex items-center gap-0.5 rounded-full bg-mint px-1.5 font-semibold text-club">&check; Verified</span>
                                     @endif
-                                @elseif (! $owner->is($viewer))
+                                @elseif (! $owner->is($viewer) && ! $readOnly)
                                     @if ($task->proofRequests->contains('requester_id', $viewer->id))
                                         <span class="ml-1 text-ink/45">Asked to see it</span>
                                     @else

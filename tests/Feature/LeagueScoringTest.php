@@ -167,11 +167,11 @@ class LeagueScoringTest extends TestCase
             ->assertSeeText('2 line + 3 match · Win')
             ->assertSee('1 more point to Past the line')
             ->assertSee('Scoreboard')
-            ->assertSee('data-carousel-slide', false);
+            ->assertSee('data-pager-page', false);
 
-        // The viewer's matchup comes first, then the others.
-        $this->assertSame(4, substr_count($response->getContent(), 'data-carousel-slide'));
-        $this->assertSame(2, substr_count($response->getContent(), 'data-carousel-dot'));
+        // One page per matchup, the viewer's first.
+        $this->assertSame(2, substr_count($response->getContent(), 'data-pager-page '));
+        $this->assertSame(2, substr_count($response->getContent(), 'data-pager-dot '));
 
         $this->actingAs($first->user)->get(route('leagues.matchups', [$league, 2]))->assertNotFound(); // Not played yet.
         $this->actingAs(User::factory()->create())->get(route('leagues.matchups', $league))->assertForbidden();
