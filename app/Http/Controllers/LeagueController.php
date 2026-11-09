@@ -12,6 +12,7 @@ use App\Models\LeagueInvite;
 use App\Models\LeagueMessage;
 use App\Models\PostReport;
 use App\Services\GroupTasks;
+use App\Services\LeagueSnapshot;
 use App\Services\LeagueTable;
 use App\Services\MatchupBoard;
 use Carbon\CarbonImmutable;
@@ -28,10 +29,22 @@ class LeagueController extends Controller
      */
     public function index(Request $request): View
     {
-        $leagues = $request->user()->leagues()->with('members')->latest('starts_on')->get();
+        $user = $request->user();
+        $leagues = $user->leagues()->with('members.goal.weeks.tasks', 'members.goal.habits.logs', 'members.user')->latest('starts_on')->get();
 
         return view('leagues.index', [
             'leagues' => $leagues,
+            // Your leagues first, with this week's band, record and matchup at a glance. In-season ones lead.
+            'snapshots' => $leagues
+                ->sortBy(fn (League $league) => match ($league->status()) {
+                    LeagueStatus::Active => 0,
+                    LeagueStatus::Forming => 1,
+                    LeagueStatus::Finished => 2,
+                })
+                ->map(fn (League $league) => new LeagueSnapshot($league, $user))
+                ->values(),
+            'invites' => LeagueInvite::usable()->where('invitee_id', $user->id)->with('league.commissioner')->latest()->get(),
+            'tab' => in_array($request->query('tab'), ['leagues', 'challenges', 'invites'], true) ? $request->query('tab') : 'leagues',
             'challenges' => $request->user()->challenges()
                 ->withCount(['members', 'checkIns as my_days' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)])
                 ->withExists(['checkIns as checked_today' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)->whereDate('checked_on', Clock::today()->toDateString())])

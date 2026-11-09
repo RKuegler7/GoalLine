@@ -40,6 +40,18 @@ class LeagueSnapshot
     }
 
     /**
+     * The member's season record, as wins, ties and losses.
+     *
+     * @return array{wins: int, ties: int, losses: int}
+     */
+    public function record(): array
+    {
+        $row = $this->table->standings()->first(fn (array $row) => $row['member']->is($this->me));
+
+        return ['wins' => $row['wins'] ?? 0, 'ties' => $row['ties'] ?? 0, 'losses' => $row['losses'] ?? 0];
+    }
+
+    /**
      * This week's matchup from the member's side: their result, the opponent (or the league median), and who leads.
      *
      * @return array{mine: array, opponent: LeagueMember|null, theirs: array|null, median: float|null, outcome: MatchupOutcome}|null
