@@ -47,11 +47,17 @@
                 <span class="font-semibold text-ink">You</span>
                 <span @class([
                     'rounded-full px-2 py-0.5 text-xs font-semibold',
-                    'bg-grass text-white' => $matchup['outcome'] === App\MatchupOutcome::Win,
+                    'bg-grass text-white' => $matchup['outcome']->isWin(),
                     'bg-mint text-club' => $matchup['outcome'] === App\MatchupOutcome::Tie,
-                    'bg-red-50 text-red-700' => $matchup['outcome'] === App\MatchupOutcome::Loss,
+                    'bg-red-50 text-red-700' => $matchup['outcome']->isLoss(),
                 ])>
-                    {{ match ($matchup['outcome']) { App\MatchupOutcome::Win => 'Leading', App\MatchupOutcome::Tie => 'Level', App\MatchupOutcome::Loss => 'Trailing' } }}
+                    {{ match ($matchup['outcome']) {
+                        App\MatchupOutcome::Win => 'Leading',
+                        App\MatchupOutcome::CloseWin => 'Leading · photo finish',
+                        App\MatchupOutcome::Tie => 'Level · photo finish',
+                        App\MatchupOutcome::CloseLoss => 'Trailing · photo finish',
+                        App\MatchupOutcome::Loss => 'Trailing',
+                    } }}
                 </span>
                 <span class="truncate font-semibold text-ink">{{ $matchup['opponent'] ? Str::before($matchup['opponent']->user->name, ' ') : 'League median' }}</span>
             </div>

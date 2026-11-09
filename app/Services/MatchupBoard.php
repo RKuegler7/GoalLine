@@ -38,7 +38,8 @@ class MatchupBoard
                     'home' => $home,
                     'away' => $away,
                     'median' => $matchup['median'],
-                    'verdict' => self::verdict($home, $away, $matchup['median'], $final),
+                    'verdict' => self::verdict($home, $away, $matchup['median'], $final, $matchup['medianPercent']),
+                    'medianPercent' => $matchup['medianPercent'],
                     'mine' => $viewer !== null && ($matchup['home']->is($viewer) || $matchup['away']?->is($viewer)),
                     'matchup' => $matchup,
                 ];
@@ -63,6 +64,7 @@ class MatchupBoard
             'result' => $result['result'],
             'goalWeek' => $goalWeek,
             'share' => $goalWeek?->completionShare(),
+            'percent' => $goalWeek ? $result['percent'] : null,
             'earned' => $goalWeek ? round($goalWeek->earnedPoints(), 1) : 0,
             'planned' => $goalWeek?->plannedPoints() ?? 0,
             'next' => $goalWeek ? self::nextBand($goalWeek) : null,
@@ -103,32 +105,55 @@ class MatchupBoard
     }
 
     /**
-     * "Red leads: Past the line beats In line." or "Level: both In line."
+     * "Red leads: Past the line beats In line.", or, in the same band, "Photo finish: both In line. Red leads, 98% to 94%."
      *
      * @param  array<string, mixed>  $home
      * @param  array<string, mixed>|null  $away
      */
-    public static function verdict(array $home, ?array $away, ?float $median, bool $final): string
+    public static function verdict(array $home, ?array $away, ?float $median, bool $final, ?float $medianPercent = null): string
     {
         $name = fn (array $side) => $side['member']->user->name;
-        $band = fn (array $side) => $side['result']?->label() ?? 'no GoalWeek';
+        $band = fn (array $side) => $side['result']?->label() ?? 'Short of the line';
+        $percent = fn (?float $value) => round($value ?? 0, 1).'%';
+        $outcome = $home['outcome'];
 
         if ($away === null) {
-            $against = 'the league median ('.($median === null ? 'no one else yet' : round($median, 1).' line '.($median == 1 ? 'point' : 'points')).')';
+            if ($median === null) {
+                return $name($home).' plays the league median, and no one else has a score yet.';
+            }
 
-            return match ($home['outcome']) {
-                MatchupOutcome::Win => $name($home).($final ? ' beat ' : ' is ahead of ').$against.'.',
-                MatchupOutcome::Tie => $name($home).($final ? ' drew with ' : ' is level with ').$against.'.',
-                MatchupOutcome::Loss => $name($home).($final ? ' fell short of ' : ' is behind ').$against.'.',
+            $against = 'the league median ('.round($median, 1).' line '.($median == 1 ? 'point' : 'points').')';
+
+            if (! $outcome->isPhotoFinish()) {
+                return $name($home).match ($outcome) {
+                    MatchupOutcome::Win => $final ? ' beat ' : ' is ahead of ',
+                    default => $final ? ' fell short of ' : ' is behind ',
+                }.$against.'.';
+            }
+
+            $score = $percent($home['percent']).' to the median '.$percent($medianPercent);
+
+            return 'Photo finish with '.$against.': '.match ($outcome) {
+                MatchupOutcome::CloseWin => $name($home).($final ? ' took the close win, ' : ' leads, ').$score.'.',
+                MatchupOutcome::CloseLoss => $name($home).($final ? ' took the close loss, ' : ' trails, ').$score.'.',
+                default => ($final ? 'a tie at ' : 'level at ').$percent($home['percent']).'.',
             };
         }
 
-        if ($home['outcome'] === MatchupOutcome::Tie) {
-            return ($final ? 'A draw: both ' : 'Level: both ').$band($home).'.';
+        if (! $outcome->isPhotoFinish()) {
+            [$leader, $trailer] = $outcome === MatchupOutcome::Win ? [$home, $away] : [$away, $home];
+
+            return $name($leader).($final ? ' won: ' : ' leads: ').$band($leader).' beats '.$band($trailer).'.';
         }
 
-        [$leader, $trailer] = $home['outcome'] === MatchupOutcome::Win ? [$home, $away] : [$away, $home];
+        $photo = 'Photo finish: both '.$band($home).'. ';
 
-        return $name($leader).($final ? ' won: ' : ' leads: ').$band($leader).' beats '.$band($trailer).'.';
+        if ($outcome === MatchupOutcome::Tie) {
+            return $photo.($final ? 'A tie at ' : 'Level at ').$percent($home['percent']).'.';
+        }
+
+        [$leader, $trailer] = $outcome === MatchupOutcome::CloseWin ? [$home, $away] : [$away, $home];
+
+        return $photo.$name($leader).($final ? ' takes the close win, ' : ' leads, ').$percent($leader['percent']).' to '.$percent($trailer['percent']).'.';
     }
 }

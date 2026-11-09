@@ -6,6 +6,7 @@ use Anthropic\Client;
 use App\GoalWeekResult;
 use App\Jobs\GenerateRoadmap;
 use App\Jobs\RefinePlan;
+use App\MatchupOutcome;
 use App\Models\Challenge;
 use App\Models\Dispute;
 use App\Models\GoalIntake;
@@ -108,6 +109,30 @@ class DemoTest extends TestCase
         $kate = $lastWeek('Kate Gibbons');
         $this->assertTrue($kate->needsProofForSmashed());
         $this->assertSame(GoalWeekResult::Past, $kate->result());
+    }
+
+    public function test_the_demo_seasons_show_wins_photo_finishes_and_the_capped_credit(): void
+    {
+        $this->get(route('demo'));
+        $result = fn (string $league, int $week, string $name) => League::where('name', $league)->sole()->results()
+            ->where('week', $week)->whereHas('user', fn ($users) => $users->where('name', $name))->sole();
+        $row = fn ($result) => [$result->result->value, $result->outcome, $result->result_points, $result->matchup_points];
+
+        // A higher band wins outright: Red's proven Smashed week, 3 line + 3 match.
+        $this->assertSame(['smashed', MatchupOutcome::Win, 3, 3], $row($result('Marathon by March', 5, 'Red Dufour')));
+        // Both In line at exactly 100%: a photo-finish tie, 1 each.
+        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Red Dufour')));
+        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Steph Busch')));
+        // Both In line, 100% beats 90%: a close win for 2 and a close loss for 1.
+        $this->assertSame(['in_line', MatchupOutcome::CloseWin, 1, 2], $row($result('4.0 This Fall', 1, 'Mary Mullen')));
+        $this->assertSame(['in_line', MatchupOutcome::CloseLoss, 1, 1], $row($result('4.0 This Fall', 1, 'Pat Caldwell')));
+        // Kate's unproven 150%+ week is credited as Past at 149%.
+        $kate = RoadmapWeek::whereHas('goal.user', fn ($users) => $users->where('name', 'Kate Gibbons'))->whereDate('starts_on', '2026-10-19')->sole();
+        $this->assertSame(149, $kate->creditedPercent());
+        $this->assertSame('past', $result('4.0 This Fall', 5, 'Kate Gibbons')->result->value);
+
+        $this->get(route('leagues.matchups', [League::where('name', '4.0 This Fall')->sole(), 1]))->assertOk()
+            ->assertSee('Photo finish: both In line. Mary Mullen takes the close win, 100% to 90%.');
     }
 
     public function test_the_seeder_builds_one_demo_world_with_a_known_sign_in_and_can_run_again(): void

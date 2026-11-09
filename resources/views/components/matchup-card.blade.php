@@ -38,18 +38,18 @@
                 @if ($side)
                     <div @class(['flex items-center gap-2', 'flex-row-reverse' => $index === 1])>
                         <x-avatar :user="$side['member']->user" class="size-10 text-xs" />
-                        @if ($final || $side['outcome'] === App\MatchupOutcome::Win)
+                        @if ($final || $side['outcome']->isWin())
                             <span @class([
                                 'rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold',
-                                'bg-grass text-white' => $side['outcome'] === App\MatchupOutcome::Win,
+                                'bg-grass text-white' => $side['outcome']->isWin(),
                                 'bg-mint text-club' => $side['outcome'] === App\MatchupOutcome::Tie,
-                                'bg-ink/10 text-ink/60' => $side['outcome'] === App\MatchupOutcome::Loss,
-                            ])>{{ $final ? $side['outcome']->letter() : 'Ahead' }}</span>
+                                'bg-ink/10 text-ink/60' => $side['outcome']->isLoss(),
+                            ])>{{ $final ? $side['outcome']->label() : 'Ahead' }}</span>
                         @endif
                     </div>
                     <p class="mt-2 truncate font-semibold text-ink">{{ $side['member']->user->name }}</p>
                     <p class="truncate text-xs text-ink/55">{{ $side['member']->goal?->title ?? 'No goal selected' }}</p>
-                    <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">@if ($side['share'] === null)–@else<span data-countup="{{ round($side['share'] * 100) }}" data-key="share-{{ $side['member']->id }}">{{ round($side['share'] * 100) }}</span>%@endif</p>
+                    <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">@if ($side['percent'] === null)–@else<span data-countup="{{ $side['percent'] }}" data-key="share-{{ $side['member']->id }}">{{ $side['percent'] }}</span>%@endif</p>
                     <p class="text-xs text-ink/55">{{ $side['earned'] }} of {{ $side['planned'] }} planned points</p>
                     <div @class(['mt-1 flex', 'justify-end' => $index === 1])>
                         <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
@@ -69,7 +69,7 @@
                     <p class="mt-2 font-semibold text-ink">League median</p>
                     <p class="text-xs text-ink/55">Odd number of members: one plays the middle score</p>
                     <p class="mt-3 font-serif text-4xl font-bold text-ink/60 tabular-nums tracking-tight">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
-                    <p class="text-xs text-ink/55">line points</p>
+                    <p class="text-xs text-ink/55">line points{{ $card['medianPercent'] === null ? '' : ' · '.round($card['medianPercent'], 1).'% of plan' }}</p>
                 @endif
             </div>
         @endforeach
@@ -95,17 +95,20 @@
     </div>
     <p class="sr-only">
         @foreach ($sides as $side)
-            {{ $side['member']->user->name }}: {{ $side['share'] === null ? 'no GoalWeek' : round($side['share'] * 100).' percent of plan' }}.
+            {{ $side['member']->user->name }}: {{ $side['percent'] === null ? 'no GoalWeek' : $side['percent'].' percent of plan' }}.
         @endforeach
     </p>
 
     {{-- Verdict and what it's worth. --}}
+    @if ($card['home']['outcome']->isPhotoFinish() && ($card['away'] !== null || $card['median'] !== null))
+        <p class="mt-3 flex justify-center"><span class="eyebrow rounded-full bg-gold/25 px-2.5 py-0.5 text-[0.6rem] text-ink" title="Same band, so the higher credited percent of plan takes it">Photo finish</span></p>
+    @endif
     <p class="mt-3 rounded-xl bg-ivory px-4 py-3 text-center font-medium text-ink">{{ $card['verdict'] }}</p>
     <div class="mt-3 grid gap-2 text-xs text-ink/65 sm:grid-cols-2">
         @foreach ($sides as $side)
             <div @class(['rounded-lg border border-line px-3 py-2', 'sm:text-right' => $loop->index === 1])>
                 <p class="font-semibold text-ink">{{ Str::before($side['member']->user->name, ' ') }}: {{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('pt', $side['total']) }}</p>
-                <p>{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match</p>
+                <p>{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match &middot; {{ $side['outcome']->label() }}</p>
                 @if (! $final && $side['next'])
                     <p class="mt-0.5 text-club">{{ $side['next']['points'] }} more {{ Str::plural('point', $side['next']['points']) }} to {{ $side['next']['band']->label() }}</p>
                 @elseif (! $final && $side['result'] === App\GoalWeekResult::Smashed)

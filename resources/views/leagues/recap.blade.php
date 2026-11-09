@@ -125,7 +125,7 @@
                                 @endphp
                                 <li class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-3 text-sm">
                                     <span class="min-w-0">
-                                        <span @class(['block truncate', 'font-semibold text-ink' => $home->outcome === App\MatchupOutcome::Win, 'text-ink/75' => $home->outcome !== App\MatchupOutcome::Win])>{{ $nameOf($home->user_id) }}</span>
+                                        <span @class(['block truncate', 'font-semibold text-ink' => $home->outcome->isWin(), 'text-ink/75' => ! $home->outcome->isWin()])>{{ $nameOf($home->user_id) }}</span>
                                         <x-goalweek-result :result="$home->result" class="mt-1" />
                                     </span>
                                     <span class="text-center font-serif text-lg tabular-nums text-ink tracking-tight">
@@ -133,13 +133,22 @@
                                         @if (! $away)
                                             <span class="block text-xs font-sans text-ink/50">vs median</span>
                                         @endif
+                                        @if ($home->outcome->isPhotoFinish())
+                                            <span class="block text-[0.65rem] font-sans font-semibold text-gold" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>
+                                        @endif
                                     </span>
                                     <span class="min-w-0 text-right">
                                         @if ($away)
-                                            <span @class(['block truncate', 'font-semibold text-ink' => $away->outcome === App\MatchupOutcome::Win, 'text-ink/75' => $away->outcome !== App\MatchupOutcome::Win])>{{ $nameOf($away->user_id) }}</span>
+                                            <span @class(['block truncate', 'font-semibold text-ink' => $away->outcome->isWin(), 'text-ink/75' => ! $away->outcome->isWin()])>{{ $nameOf($away->user_id) }}</span>
                                             <x-goalweek-result :result="$away->result" class="mt-1" />
                                         @else
-                                            <span class="block font-semibold text-ink/70">{{ $home->outcome->letter() === 'W' ? 'Beat the league' : ($home->outcome->letter() === 'T' ? 'Matched the league' : 'Below the league') }}</span>
+                                            <span class="block font-semibold text-ink/70">{{ match ($home->outcome) {
+                                                App\MatchupOutcome::Win => 'Beat the league',
+                                                App\MatchupOutcome::CloseWin => 'Edged the league',
+                                                App\MatchupOutcome::Tie => 'Matched the league',
+                                                App\MatchupOutcome::CloseLoss => 'Just behind the league',
+                                                App\MatchupOutcome::Loss => 'Below the league',
+                                            } }}</span>
                                         @endif
                                     </span>
                                 </li>

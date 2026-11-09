@@ -13,7 +13,7 @@ Everyone is scored on the **percent of their own planned work** they completed t
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% or more | 3 |
 
-The better band wins the weekly matchup (2 points), the same band is a draw (1 each), and the worse band gets 0. That's at most 5 points a week. A win is only worth 1 more point than a draw, so a lucky week doesn't run away with the season. The math is plain, tested code. **The AI never decides a score.**
+A higher band wins the weekly matchup outright: 3 match points to 0. When both sides land in the same band it's a photo finish: the higher credited percent of plan (a whole number) takes a close win for 2 and the other side a close loss for 1, and an exact tie is 1 each. Credited means what counts right now: points held in a dispute are out, and a Smashed week still waiting on proof is capped at 149%, the top of Past the line. That's at most 6 points a week, and a close loss still earns something for a week that stayed in the band. The math is plain, tested code. **The AI never decides a score.**
 
 ## 2. You can't quietly pad your plan
 

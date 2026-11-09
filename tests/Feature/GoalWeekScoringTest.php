@@ -54,22 +54,150 @@ class GoalWeekScoringTest extends TestCase
         $this->assertSame([0, 1, 2, 3], array_map(fn (GoalWeekResult $result) => $result->points(), GoalWeekResult::cases()));
     }
 
-    public function test_match_points_better_band_wins_2_same_band_draws_1(): void
+    /**
+     * A low, a middle and a high credited percent inside each band.
+     *
+     * @return array<string, array{int, int, int}>
+     */
+    private static function percentsInBand(): array
+    {
+        return [
+            GoalWeekResult::Short->value => [0, 45, 89],
+            GoalWeekResult::InLine->value => [90, 95, 100],
+            GoalWeekResult::Past->value => [101, 125, 149],
+            GoalWeekResult::Smashed->value => [150, 175, 325],
+        ];
+    }
+
+    public function test_the_full_band_matrix_higher_band_wins_3_to_0_whatever_the_percents(): void
     {
         foreach (GoalWeekResult::cases() as $mine) {
             foreach (GoalWeekResult::cases() as $theirs) {
-                $outcome = MatchupOutcome::compare($mine->points(), $theirs->points());
-                $expected = $mine->points() <=> $theirs->points();
+                if ($mine === $theirs) {
+                    continue;
+                }
 
-                $this->assertSame([1 => 2, 0 => 1, -1 => 0][$expected], $outcome->points(), "{$mine->value} vs {$theirs->value}");
+                // Every pairing of percents, even a lower band's top against a higher band's floor.
+                foreach (self::percentsInBand()[$mine->value] as $myPercent) {
+                    foreach (self::percentsInBand()[$theirs->value] as $theirPercent) {
+                        $outcome = MatchupOutcome::compare($mine->points(), $theirs->points(), $myPercent, $theirPercent);
+                        $higher = $mine->points() > $theirs->points();
+                        $label = "{$mine->value} {$myPercent}% vs {$theirs->value} {$theirPercent}%";
 
-                // A week is worth line points plus match points: 0 to 5.
-                $this->assertGreaterThanOrEqual(0, $mine->points() + $outcome->points());
-                $this->assertLessThanOrEqual(5, $mine->points() + $outcome->points());
+                        $this->assertSame($higher ? MatchupOutcome::Win : MatchupOutcome::Loss, $outcome, $label);
+                        $this->assertSame($higher ? 3 : 0, $outcome->points(), $label);
+                        $this->assertFalse($outcome->isPhotoFinish(), $label);
+                    }
+                }
+            }
+        }
+    }
+
+    public function test_the_full_band_matrix_same_band_is_a_photo_finish_on_credited_percent(): void
+    {
+        foreach (GoalWeekResult::cases() as $band) {
+            [$low, $middle, $high] = self::percentsInBand()[$band->value];
+            $points = $band->points();
+
+            $higher = MatchupOutcome::compare($points, $points, $high, $middle);
+            $lower = MatchupOutcome::compare($points, $points, $middle, $high);
+            $equal = MatchupOutcome::compare($points, $points, $low, $low);
+
+            $this->assertSame([MatchupOutcome::CloseWin, 2], [$higher, $higher->points()], "{$band->value}: higher percent");
+            $this->assertSame([MatchupOutcome::CloseLoss, 1], [$lower, $lower->points()], "{$band->value}: lower percent");
+            $this->assertSame([MatchupOutcome::Tie, 1], [$equal, $equal->points()], "{$band->value}: exact tie");
+            $this->assertTrue($higher->isPhotoFinish() && $lower->isPhotoFinish() && $equal->isPhotoFinish());
+
+            // One whole percent is enough to decide it.
+            $this->assertSame(MatchupOutcome::CloseWin, MatchupOutcome::compare($points, $points, $low + 1, $low));
+            $this->assertSame(MatchupOutcome::CloseLoss, MatchupOutcome::compare($points, $points, $low, $low + 1));
+        }
+    }
+
+    public function test_weekly_totals_run_from_0_to_6(): void
+    {
+        $totals = [];
+
+        foreach (GoalWeekResult::cases() as $mine) {
+            foreach (GoalWeekResult::cases() as $theirs) {
+                foreach ([[100, 90], [90, 100], [95, 95]] as [$myPercent, $theirPercent]) {
+                    $totals[] = $mine->points() + MatchupOutcome::compare($mine->points(), $theirs->points(), $myPercent, $theirPercent)->points();
+                }
             }
         }
 
-        $this->assertSame(5, GoalWeekResult::Smashed->points() + MatchupOutcome::compare(3, 2)->points());
+        $this->assertSame(0, min($totals), 'Short of the line and lost to a higher band.');
+        $this->assertSame(6, max($totals), 'Smashed the line and beat a lower band.');
+        $this->assertSame(6, GoalWeekResult::Smashed->points() + MatchupOutcome::Win->points());
+        $this->assertSame(5, GoalWeekResult::Smashed->points() + MatchupOutcome::CloseWin->points());
+        $this->assertSame(1, GoalWeekResult::Short->points() + MatchupOutcome::CloseLoss->points());
+        $this->assertSame(0, GoalWeekResult::Short->points() + MatchupOutcome::Loss->points());
+    }
+
+    public function test_outcome_labels_and_record_letters(): void
+    {
+        $this->assertSame(
+            ['Win', 'Close win', 'Tie', 'Close loss', 'Loss'],
+            array_map(fn (MatchupOutcome $outcome) => $outcome->label(), MatchupOutcome::cases()),
+        );
+        $this->assertSame(['W', 'W', 'T', 'L', 'L'], array_map(fn (MatchupOutcome $outcome) => $outcome->letter(), MatchupOutcome::cases()));
+        $this->assertSame([3, 2, 1, 1, 0], array_map(fn (MatchupOutcome $outcome) => $outcome->points(), MatchupOutcome::cases()));
+    }
+
+    public function test_the_league_median_can_be_a_half_point_or_a_half_percent(): void
+    {
+        // Line points 1 against a median of 1.5: a lower "band", so a loss.
+        $this->assertSame(MatchupOutcome::Loss, MatchupOutcome::compare(1, 1.5, 100, 95));
+        // Same band as the median, and a half percent decides the photo finish.
+        $this->assertSame(MatchupOutcome::CloseWin, MatchupOutcome::compare(1, 1.0, 98, 97.5));
+        $this->assertSame(MatchupOutcome::CloseLoss, MatchupOutcome::compare(1, 1.0, 97, 97.5));
+    }
+
+    /**
+     * @return array<string, array{float, bool, int}>
+     */
+    public static function creditedPercents(): array
+    {
+        return [
+            'nothing done' => [0.0, true, 0],
+            '89.99% rounds down to 89' => [0.8999, true, 89],
+            '90% exactly' => [0.90, true, 90],
+            '57% survives float error' => [0.57, true, 57],
+            '94.6% rounds down to 94' => [0.946, true, 94],
+            '100% exactly' => [1.00, true, 100],
+            '100.4% rounds down to 100' => [1.004, true, 100],
+            '100.5% is Past the line but still credits as 100' => [1.005, true, 100],
+            '101%' => [1.01, true, 101],
+            '149.99% rounds down to 149' => [1.4999, true, 149],
+            '150% verified' => [1.50, true, 150],
+            'verified Smashed is uncapped' => [3.25, true, 325],
+            '150% unverified is capped at 149' => [1.50, false, 149],
+            '240% unverified is capped at 149' => [2.40, false, 149],
+            'unverified below 150 is unchanged' => [1.25, false, 125],
+        ];
+    }
+
+    #[DataProvider('creditedPercents')]
+    public function test_credited_percent_is_a_whole_number_rounded_down_and_capped_at_149_without_proof(float $share, bool $verified, int $expected): void
+    {
+        $this->assertSame($expected, GoalWeekResult::creditedPercent($share, $verified));
+    }
+
+    public function test_credited_percent_never_shows_a_higher_bands_number(): void
+    {
+        foreach (range(0, 800) as $step) {
+            $share = $step / 400;
+
+            foreach ([true, false] as $verified) {
+                $band = GoalWeekResult::score($share, $verified);
+                $percent = GoalWeekResult::creditedPercent($share, $verified);
+
+                if ($band !== GoalWeekResult::Smashed) {
+                    $next = GoalWeekResult::cases()[array_search($band, GoalWeekResult::cases(), true) + 1];
+                    $this->assertLessThan(self::percentsInBand()[$next->value][0], $percent, "{$share} ({$band->value})");
+                }
+            }
+        }
     }
 
     public function test_planned_and_earned_points_include_tasks_habits_and_the_milestone(): void

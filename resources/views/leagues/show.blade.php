@@ -50,7 +50,7 @@
                             <p class="truncate font-semibold text-ink">{{ $side ? $side['member']->user->name : 'League median' }}</p>
                             <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">
                                 @if ($side)
-                                    {{ $side['share'] === null ? '–' : round($side['share'] * 100).'%' }}
+                                    {{ $side['percent'] === null ? '–' : $side['percent'].'%' }}
                                 @else
                                     {{ $myCard['median'] === null ? '–' : round($myCard['median'], 1) }}
                                 @endif
@@ -322,7 +322,7 @@
             </table>
         </div>
         <p class="mt-2 text-xs text-ink/50">
-            Points = line points for your band (0&ndash;3) + match points (better band wins 2, same band draws 1), up to 5 a week. Ties in the table go to result points, then wins.
+            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to result points, then wins.
         </p>
     </section>
 
@@ -352,7 +352,7 @@
                                     <span class="flex items-center gap-2">
                                         <x-goalweek-result :result="$row->result" />
                                         <span class="text-ink/50">vs {{ $row->vs_median ? 'league median' : ($league->members->firstWhere('user_id', $row->opponent_id)?->user->name ?? 'former member') }}</span>
-                                        <span class="font-bold text-ink">{{ $row->outcome->letter() }}</span>
+                                        <span class="font-bold text-ink" title="{{ $row->outcome->isPhotoFinish() ? 'Photo finish' : '' }}">{{ $row->outcome->label() }}</span>
                                         <span class="text-ink/60 tabular-nums">+{{ $row->result_points + $row->matchup_points }}</span>
                                     </span>
                                 </li>

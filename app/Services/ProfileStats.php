@@ -137,12 +137,12 @@ class ProfileStats
      */
     public function leagueRecord(): array
     {
-        $outcomes = $this->user->leagueResults()->get()->countBy(fn ($result) => $result->outcome->value);
+        $outcomes = $this->user->leagueResults()->get()->countBy(fn ($result) => $result->outcome->letter());
 
         return [
-            'wins' => $outcomes->get(MatchupOutcome::Win->value, 0),
-            'ties' => $outcomes->get(MatchupOutcome::Tie->value, 0),
-            'losses' => $outcomes->get(MatchupOutcome::Loss->value, 0),
+            'wins' => $outcomes->get(MatchupOutcome::Win->letter(), 0),
+            'ties' => $outcomes->get(MatchupOutcome::Tie->letter(), 0),
+            'losses' => $outcomes->get(MatchupOutcome::Loss->letter(), 0),
         ];
     }
 

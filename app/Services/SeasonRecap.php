@@ -173,7 +173,9 @@ class SeasonRecap
             $opponent = $mine->vs_median ? 'the league median' : ($this->member($mine->opponent_id)?->user->name ?? 'a former member');
             $verb = match ($mine->outcome) {
                 MatchupOutcome::Win => 'you beat',
-                MatchupOutcome::Tie => 'you tied',
+                MatchupOutcome::CloseWin => 'a photo finish, and you edged',
+                MatchupOutcome::Tie => 'a photo finish, and you tied',
+                MatchupOutcome::CloseLoss => 'a photo finish, and you just missed against',
                 MatchupOutcome::Loss => 'you lost to',
             };
             $points = $mine->result_points + $mine->matchup_points;
@@ -205,7 +207,7 @@ class SeasonRecap
                     'key' => [
                         (int) $mine->sum('result_points') + (int) $mine->sum('matchup_points'),
                         (int) $mine->sum('result_points'),
-                        $mine->where('outcome', MatchupOutcome::Win)->count(),
+                        $mine->filter(fn (LeagueResult $result) => $result->outcome->isWin())->count(),
                     ],
                 ];
             })

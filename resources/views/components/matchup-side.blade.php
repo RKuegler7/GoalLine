@@ -14,10 +14,10 @@
             @if ($final)
                 <span @class([
                     'flex size-6 items-center justify-center rounded-md text-xs font-bold',
-                    'bg-grass text-white' => $outcome === App\MatchupOutcome::Win,
+                    'bg-grass text-white' => $outcome->isWin(),
                     'bg-mint text-club' => $outcome === App\MatchupOutcome::Tie,
-                    'bg-red-100 text-red-700' => $outcome === App\MatchupOutcome::Loss,
-                ]) title="{{ ucfirst($outcome->value) }}">{{ $outcome->letter() }}</span>
+                    'bg-red-100 text-red-700' => $outcome->isLoss(),
+                ]) title="{{ $outcome->label() }}{{ $outcome->isPhotoFinish() ? ' (photo finish)' : '' }}">{{ $outcome->letter() }}</span>
             @endif
         </div>
     </div>

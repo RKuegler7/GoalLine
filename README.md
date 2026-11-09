@@ -46,7 +46,7 @@ Each GoalWeek, your share of your own planned points sets your band. A regular t
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% and up (needs proof or the opponent's OK) | 3 |
 
-In a matchup the **better band wins 2** match points, the **same band draws 1** each, the worse band gets 0. A week is worth 0 to 5 points (line points + match points). With an odd number of members, one person plays the league median.
+In a matchup a **higher band is a Win for 3** match points and a Loss for 0. The **same band is a Photo finish**: the higher credited percent of plan (whole number, held disputed points left out, unproven Smashed capped at 149%) takes a **Close win for 2** and the other a **Close loss for 1**; an exact tie is **1 each**. A week is worth 0 to 6 points (line points + match points). With an odd number of members, one person plays the league median.
 
 ## How fairness works
 

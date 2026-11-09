@@ -53,6 +53,18 @@ enum GoalWeekResult: string
     }
 
     /**
+     * The credited percent of plan as a whole number, used to settle a photo finish between two sides in the same
+     * band. It's rounded down, so it never shows a higher band's number. An unverified Smashed share is credited as
+     * Past the line, so it's capped at 149. Disputed points held out of the share are already left out.
+     */
+    public static function creditedPercent(float $share, bool $smashVerified = true): int
+    {
+        $percent = (int) floor(round($share * 100, 2));
+
+        return $smashVerified ? $percent : min($percent, (int) round(self::SMASHED_AT * 100) - 1);
+    }
+
+    /**
      * Whether a share is high enough to smash the line, verified or not.
      */
     public static function reachesSmashed(float $share): bool

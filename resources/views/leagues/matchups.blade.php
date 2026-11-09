@@ -65,12 +65,12 @@
                                     <span class="text-xs text-ink/40">vs</span>
                                 @endif
                                 <span @class(['min-w-0', 'text-right' => $sideIndex === 1])>
-                                    <span @class(['block truncate', 'font-semibold text-club' => $side && $side['outcome'] === App\MatchupOutcome::Win, 'text-ink' => ! $side || $side['outcome'] !== App\MatchupOutcome::Win])>
+                                    <span @class(['block truncate', 'font-semibold text-club' => $side && $side['outcome']->isWin(), 'text-ink' => ! $side || ! $side['outcome']->isWin()])>
                                         {{ $side ? $side['member']->user->name : 'League median' }}
                                     </span>
                                     <span class="block text-xs text-ink/55 tabular-nums">
                                         @if ($side)
-                                            {{ $side['share'] === null ? 'No GoalWeek' : round($side['share'] * 100).'%' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}
+                                            {{ $side['percent'] === null ? 'No GoalWeek' : $side['percent'].'%' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
                                         @else
                                             {{ $card['median'] === null ? '–' : round($card['median'], 1).' line pts' }}
                                         @endif
@@ -88,8 +88,9 @@
         <h2 class="eyebrow text-club">How a matchup is scored</h2>
         <ul class="mt-2 space-y-1.5">
             <li><span class="font-semibold text-ink">Your band</span> comes from the share of your own plan you finish: under 90% is Short of the line (0 pts), 90&ndash;100% In line (1), over 100% Past the line (2), 150% and up Smashed (3).</li>
-            <li><span class="font-semibold text-ink">The matchup</span> compares bands, not raw points: the better band wins 2, the same band draws 1 each.</li>
-            <li><span class="font-semibold text-ink">Your week</span> is line points + match points, up to 5. Results go final a day after the GoalWeek ends.</li>
+            <li><span class="font-semibold text-ink">The matchup</span> compares bands first: a higher band is a Win, 3 match points to 0.</li>
+            <li><span class="font-semibold text-ink">Photo finish</span>: in the same band, the higher credited percent of plan (a whole number) takes a Close win for 2 and the other a Close loss for 1. Exactly the same percent is a Tie, 1 each. Held disputed points don&rsquo;t count, and an unproven Smashed week is capped at 149%.</li>
+            <li><span class="font-semibold text-ink">Your week</span> is line points + match points, 0 to 6. Results go final a day after the GoalWeek ends.</li>
         </ul>
     </section>
 </x-layouts.app>

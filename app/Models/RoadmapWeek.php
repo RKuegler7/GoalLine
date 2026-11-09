@@ -328,6 +328,14 @@ class RoadmapWeek extends Model
     }
 
     /**
+     * The credited percent of plan as a whole number: what a photo finish compares. Zero before the week starts.
+     */
+    public function creditedPercent(): int
+    {
+        return $this->isStarted() ? GoalWeekResult::creditedPercent($this->completionShare(), $this->isSmashVerified()) : 0;
+    }
+
+    /**
      * Whether a Smashed week can count as Smashed: at least one check-in has proof, or the matchup opponent confirmed it.
      */
     public function isSmashVerified(): bool
