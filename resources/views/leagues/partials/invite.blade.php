@@ -21,19 +21,13 @@
                 <p class="text-sm text-ink/70">Invite code</p>
                 <div class="flex items-center gap-2">
                     <p class="font-mono text-3xl font-semibold tracking-[0.2em] text-club">{{ $league->invite_code }}</p>
-                    <button type="button" data-copy="{{ $league->invite_code }}" class="rounded-full border border-line px-3 py-1 text-xs font-semibold text-club hover:border-club/40">Copy</button>
+                    <button type="button" data-copy-text="{{ $league->invite_code }}" data-copy-toast="Code copied" aria-label="Copy invite code"
+                        class="min-h-10 rounded-full border border-line px-3 py-1 text-xs font-semibold text-club hover:border-club/40 data-copied:border-club data-copied:bg-mint">Copy</button>
                 </div>
             </div>
             <div class="min-w-0 sm:border-l sm:border-line sm:pl-4">
-                <label for="invite-link" class="text-sm text-ink/70">Invite link</label>
-                <div class="mt-1 flex gap-2">
-                    <input id="invite-link" readonly value="{{ $shareInvite->url() }}" onclick="this.select()"
-                        class="block min-w-0 flex-1 rounded-lg border border-line bg-ivory px-3 py-2 text-sm text-ink/80 outline-none focus:border-club">
-                    <button type="button" data-copy="{{ $shareInvite->url() }}" class="rounded-lg border border-line px-3 py-2 text-sm font-semibold text-club hover:border-club/40">Copy</button>
-                    <button type="button" data-share-url="{{ $shareInvite->url() }}" data-share-title="Join {{ $league->name }} on GoalLine"
-                        data-share-text="Join my GoalLeague {{ $league->name }} on GoalLine. We get more done together." hidden
-                        class="rounded-lg bg-club px-3 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Share</button>
-                </div>
+                <x-share-link id="invite-link" label="Invite link" :url="$shareInvite->url()" :share-title="'Join '.$league->name.' on GoalLine'"
+                    :share-message="App\ShareLink::leagueMessage($league->name, $shareInvite->url())" />
                 <p class="mt-1 text-xs text-ink/70">
                     {{ $shareInvite->expires_at ? 'Expires '.App\Clock::local($shareInvite->expires_at)->format('M j') : 'Never expires' }}{{ $shareInvite->max_uses ? ' · '.$shareInvite->uses.' of '.$shareInvite->max_uses.' uses' : '' }}.
                     People can join until kickoff.

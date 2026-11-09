@@ -1,4 +1,4 @@
-import './live';
+import { toast } from './live';
 
 /**
  * League chat: send without a page reload and pick up new messages every few seconds.
@@ -389,22 +389,6 @@ function setUpMentions(input) {
 document.querySelectorAll('[data-mention-input]').forEach(setUpMentions);
 
 /**
- * Copy buttons: copy the named field's value.
- */
-document.querySelectorAll('[data-copy]').forEach((button) => {
-    button.addEventListener('click', async () => {
-        const field = document.getElementById(button.dataset.copy);
-
-        try {
-            await navigator.clipboard.writeText(field.value);
-            button.textContent = 'Copied';
-        } catch {
-            field.select();
-        }
-    });
-});
-
-/**
  * Push notifications on this device: subscribe through the service worker and tell GoalLine where to send.
  * iPhone supports this only when GoalLine is opened from the home screen.
  */
@@ -735,30 +719,92 @@ document.addEventListener('click', async (event) => {
 });
 
 /**
- * Copy buttons (invite links and codes), and Share, which opens the phone's share sheet where there is one.
+ * Copy and Share, for every invite link, sign-up link, code and calendar link (see components/share-link).
+ *
+ * - data-copy-from="field-id" copies that field's value (the full link); data-copy-text="…" copies the text itself.
+ * - Copied: the button reads "Copied ✓" for a moment and a "Link copied" toast confirms it.
+ * - Clipboard blocked (some in-app browsers, older Safari): the link is shown, selected and focused so it can be
+ *   copied by hand, with a short note saying so.
+ * - data-share-message opens the phone's share sheet where there is one ("Join my GoalLine league, …: https://…").
+ *
+ * Listeners sit on the document, so buttons inside regions that update in place keep working.
  */
-document.querySelectorAll('[data-copy]').forEach((button) => {
-    button.addEventListener('click', async () => {
-        try {
-            await navigator.clipboard.writeText(button.dataset.copy);
-            const label = button.textContent;
-            button.textContent = 'Copied!';
-            setTimeout(() => (button.textContent = label), 1500);
-        } catch {
-            window.prompt('Copy this:', button.dataset.copy);
+const copyLabelReset = new WeakMap();
+
+function showCopied(button) {
+    button.dataset.label ??= button.textContent.trim();
+    button.textContent = 'Copied ✓';
+    button.setAttribute('data-copied', '');
+    window.clearTimeout(copyLabelReset.get(button));
+    copyLabelReset.set(button, window.setTimeout(() => {
+        button.textContent = button.dataset.label;
+        button.removeAttribute('data-copied');
+    }, 2000));
+}
+
+function copyByHand(button, field, text) {
+    const box = button.closest('[data-share-link]');
+
+    if (field) {
+        field.classList.remove('sr-only');
+        field.hidden = false;
+        field.focus();
+        field.select();
+        field.setSelectionRange?.(0, field.value.length);
+        box?.querySelector('[data-copy-fallback]')?.removeAttribute('hidden');
+        toast('Copying is blocked here. The link is selected: copy it by hand.', { tone: 'warning' });
+
+        return;
+    }
+
+    window.prompt('Copy this:', text);
+}
+
+document.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-copy-from], [data-copy-text]');
+
+    if (!button) {
+        return;
+    }
+
+    const field = button.dataset.copyFrom ? document.getElementById(button.dataset.copyFrom) : null;
+    const text = field ? field.value : button.dataset.copyText;
+
+    try {
+        if (!navigator.clipboard?.writeText || !window.isSecureContext) {
+            throw new Error('Clipboard unavailable');
         }
-    });
+
+        await navigator.clipboard.writeText(text);
+        showCopied(button);
+        toast(button.dataset.copyToast || 'Link copied');
+    } catch {
+        copyByHand(button, field, text);
+    }
 });
 
-document.querySelectorAll('[data-share-url]').forEach((button) => {
+function revealShareButtons(root = document) {
     if (!navigator.share) {
         return;
     }
 
-    button.hidden = false;
-    button.addEventListener('click', () => {
-        navigator.share({ title: button.dataset.shareTitle, text: button.dataset.shareText, url: button.dataset.shareUrl }).catch(() => {});
+    root.querySelectorAll('[data-share-message]').forEach((button) => {
+        button.hidden = false;
     });
+}
+
+revealShareButtons();
+document.addEventListener('goalline:updated', (event) => revealShareButtons(event.target));
+
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-share-message]');
+
+    if (!button || !navigator.share) {
+        return;
+    }
+
+    // The message carries the link itself, so every app (iMessage, WhatsApp, email) shows the same thing.
+    navigator.share({ title: button.dataset.shareTitle, text: button.dataset.shareMessage }).catch(() => {});
 });
 
 /**

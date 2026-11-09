@@ -150,8 +150,7 @@
                             <span class="min-w-0 flex-1 truncate text-ink/70">{{ $invite->note ?: 'No note' }}</span>
                             <span class="text-ink/70 tabular-nums">{{ $invite->uses }}/{{ $invite->max_uses }} used</span>
                             @if ($invite->isUsable())
-                                <input type="text" readonly value="{{ $invite->signupUrl() }}" id="invite-{{ $invite->id }}" onclick="this.select()" class="sr-only">
-                                <button type="button" data-copy="invite-{{ $invite->id }}" class="rounded-full border border-club/30 px-3 py-1 text-xs font-semibold text-club hover:border-club">Copy link</button>
+                                <x-share-link :id="'beta-invite-'.$invite->code" :label="'Sign-up link for '.$invite->code" :url="$invite->signupUrl()" compact />
                                 <form method="POST" action="{{ route('admin.invites.revoke', $invite) }}" onsubmit="return confirm('Revoke this invite? Nobody new can join with it.')">
                                     @csrf
                                     @method('DELETE')

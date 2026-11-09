@@ -118,6 +118,26 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
             await expect(page.locator('button', { hasText: 'Request sent' }).first()).toBeVisible();
         }));
 
+        await test.step('Copy a link', () => qa.step('Copy a link', async () => {
+            // Every copied link uses the same share component; the calendar link is always there in the demo.
+            const chromium = testInfo.project.name.includes('Chromium');
+
+            if (chromium) {
+                await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+            }
+
+            await qa.review('Notifications and calendar', '/settings/notifications');
+            const field = page.locator('#calendar-url');
+            await page.locator('[data-copy-from="calendar-url"]').click();
+            await expect(page.locator('.gl-toasts')).toContainText(/Link copied|Copying is blocked/);
+
+            if (chromium) {
+                const copied = await page.evaluate(() => navigator.clipboard.readText());
+                expect(copied).toBe(await field.inputValue());
+                expect(copied).toMatch(/^https?:\/\/[^/]+\/calendar\/.+/);
+            }
+        }));
+
         await test.step('More screens', () => qa.step('More screens', async () => {
             await qa.review('Highlights', '/highlights');
             await qa.review('Inbox', '/inbox');

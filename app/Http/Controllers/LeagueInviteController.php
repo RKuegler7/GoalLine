@@ -26,7 +26,7 @@ class LeagueInviteController extends Controller
      */
     public function show(Request $request, string $token): View|RedirectResponse
     {
-        $invite = LeagueInvite::where('token', $token)->with('league.members.user', 'league.commissioner')->first();
+        $invite = LeagueInvite::where('token', $token)->with('league.members.user', 'league.commissioner', 'creator')->first();
         abort_unless($invite, 404);
         $league = $invite->league;
         $user = $request->user();

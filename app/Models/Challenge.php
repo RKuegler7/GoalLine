@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Clock;
+use App\ShareLink;
 use Carbon\CarbonInterface;
 use Database\Factories\ChallengeFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -179,7 +180,7 @@ class Challenge extends Model
 
     public function joinUrl(): string
     {
-        return route('challenges.join', $this->invite_code);
+        return ShareLink::route('challenges.join', $this->invite_code);
     }
 
     public static function uniqueInviteCode(): string

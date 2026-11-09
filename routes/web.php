@@ -212,8 +212,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/challenges/create', [ChallengeController::class, 'create'])->name('challenges.create');
     Route::post('/challenges', [ChallengeController::class, 'store'])->name('challenges.store')->middleware(['verified', 'throttle:10,60']);
     Route::post('/challenges/find', [ChallengeController::class, 'find'])->name('challenges.find')->middleware('throttle:20,1');
-    Route::get('/challenges/join/{code}', [ChallengeController::class, 'join'])->name('challenges.join');
-    Route::post('/challenges/join/{code}', [ChallengeController::class, 'joinStore'])->name('challenges.join.store')->middleware('verified');
+    Route::get('/challenges/join/{code}', [ChallengeController::class, 'join'])->name('challenges.join')->middleware('throttle:20,1');
+    Route::post('/challenges/join/{code}', [ChallengeController::class, 'joinStore'])->name('challenges.join.store')->middleware(['verified', 'throttle:20,1']);
     Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show')->can('view', 'challenge');
     Route::post('/challenges/{challenge}/check-in', [ChallengeController::class, 'checkIn'])->name('challenges.check-in')->can('view', 'challenge');
     Route::delete('/challenges/{challenge}/membership', [ChallengeController::class, 'leave'])->name('challenges.leave')->can('view', 'challenge');
@@ -233,7 +233,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
-    Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join');
+    Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join')->middleware('throttle:20,1');
     Route::post('/invite/{token}', [LeagueInviteController::class, 'join'])->name('leagues.invite.join')->middleware('verified');
     Route::post('/leagues/{league}/invites', [LeagueInviteController::class, 'store'])->name('leagues.invites.store')->can('view', 'league')->middleware(['verified', 'throttle:20,60']);
     Route::post('/leagues/{league}/invite-link', [LeagueInviteController::class, 'regenerate'])->name('leagues.invites.regenerate');
@@ -244,7 +244,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goals/{goal}/intake', [GoalIntakeController::class, 'store'])->name('goals.intake.store')->can('update', 'goal');
     Route::get('/goals/{goal}/next', [GoalNextStepController::class, 'show'])->name('goals.next')->can('update', 'goal');
     Route::post('/goals/{goal}/next', [GoalNextStepController::class, 'choose'])->name('goals.next.choose')->can('update', 'goal');
-    Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware('verified');
+    Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware(['verified', 'throttle:20,1']);
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
     Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');
     Route::post('/leagues/{league}/messages', [LeagueMessageController::class, 'store'])->name('leagues.messages.store')->can('view', 'league')->middleware(['verified', 'throttle:30,1']);

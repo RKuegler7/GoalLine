@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ShareLink;
 use Database\Factories\LeagueInviteFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -136,7 +137,7 @@ class LeagueInvite extends Model
 
     public function url(): string
     {
-        return route('leagues.invite.show', $this->token);
+        return ShareLink::route('leagues.invite.show', $this->token);
     }
 
     /**

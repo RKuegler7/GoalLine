@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ShareLink;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -66,7 +67,7 @@ class Invite extends Model
 
     public function signupUrl(): string
     {
-        return route('register', ['invite' => $this->code]);
+        return ShareLink::route('register', ['invite' => $this->code]);
     }
 
     private static function uniqueCode(): string

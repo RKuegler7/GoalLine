@@ -5,6 +5,7 @@ namespace App\Models;
 use App\NotificationSettings;
 use App\ProfileVisibility;
 use App\Services\StoredPhoto;
+use App\ShareLink;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -99,7 +100,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->resetCalendarToken();
         }
 
-        return route('calendar.feed', $this->calendar_token);
+        return ShareLink::route('calendar.feed', $this->calendar_token);
     }
 
     /**

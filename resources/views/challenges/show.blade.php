@@ -131,12 +131,8 @@
                 <section class="rounded-2xl border border-line bg-white px-5 py-4">
                     <h2 class="eyebrow text-club">Bring people in</h2>
                     <p class="mt-2 font-mono text-2xl font-semibold tracking-widest text-ink">{{ $challenge->invite_code }}</p>
-                    <label for="challenge-link" class="mt-3 block text-sm text-ink/70">Or share this link</label>
-                    <div class="mt-1 flex gap-2">
-                        <input id="challenge-link" readonly value="{{ $challenge->joinUrl() }}" onclick="this.select()"
-                            class="min-w-0 flex-1 rounded-lg border border-line bg-ivory px-3 py-2 text-xs text-ink/80 outline-none focus:border-club">
-                        <button type="button" data-copy="challenge-link" class="shrink-0 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-club hover:border-club/40">Copy</button>
-                    </div>
+                    <x-share-link id="challenge-link" label="Or share this link" :url="$challenge->joinUrl()" class="mt-3"
+                        :share-title="'Join '.$challenge->title.' on GoalLine'" :share-message="'Join my GoalLine challenge, '.$challenge->title.': '.$challenge->joinUrl()" />
                     <p class="mt-2 text-xs text-ink/70">Anyone can join until the last day.</p>
                 </section>
             @endunless

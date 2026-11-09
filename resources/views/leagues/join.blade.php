@@ -3,12 +3,27 @@
     $viewer = auth()->user();
     $expired = $invite && ! $invite->isUsable();
     $chosenGoal = (int) old('goal_id', request()->integer('goal'));
+    $inviter = $invite?->creator ?? $league->commissioner;
+    $memberCount = $league->members->count();
+    $summary = collect([
+        $league->category?->label().($league->category ? ' goals' : null),
+        $memberCount.' '.Str::plural('member', $memberCount),
+        $league->weeksCount().'-week season',
+    ])->filter()->implode(' · ');
 @endphp
+
+@push('head')
+    @include('partials.share-meta', [
+        'title' => "Join {$league->name} on GoalLine",
+        'description' => Str::before($inviter->name, ' ')." invited you to a GoalLeague: {$summary}. Bring one real goal and play a friendly weekly matchup.",
+        'url' => $invite ? $invite->url() : App\ShareLink::route('leagues.join', $league->invite_code),
+    ])
+@endpush
 
 <x-dynamic-component :component="$viewer ? 'layouts.app' : 'layouts.field'" :title="'Join '.$league->name.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <p class="eyebrow text-mint">You're invited</p>
+            <p class="eyebrow text-mint">{{ Str::before($inviter->name, ' ') }} invited you</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>

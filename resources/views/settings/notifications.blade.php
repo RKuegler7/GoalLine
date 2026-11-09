@@ -101,12 +101,7 @@
             <a href="https://outlook.live.com/calendar/0/addfromweb?url={{ urlencode($feedUrl) }}&name=GoalLine" target="_blank" rel="noopener" class="rounded-full border border-club/30 px-4 py-2 text-sm font-semibold text-club hover:border-club">Outlook</a>
         </div>
 
-        <label for="calendar-url" class="mt-5 block text-sm font-medium text-ink/80">Or subscribe with this link in any calendar app</label>
-        <div class="mt-1.5 flex gap-2">
-            <input id="calendar-url" type="text" readonly value="{{ $feedUrl }}" onclick="this.select()"
-                class="min-w-0 flex-1 rounded-lg border border-line bg-ivory/60 px-3 py-2 font-mono text-xs text-ink/75 outline-none focus:border-club">
-            <button type="button" data-copy="calendar-url" class="shrink-0 rounded-lg border border-line px-3 py-2 text-sm font-semibold text-club hover:border-club/40">Copy</button>
-        </div>
+        <x-share-link id="calendar-url" label="Or subscribe with this link in any calendar app" :url="$feedUrl" copy-label="Copy" class="mt-5" />
         <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-ink/70">
             <span>Keep this link private: anyone with it can see your plan.</span>
             <form method="POST" action="{{ route('calendar.reset') }}" onsubmit="return confirm('Make a new link? Calendars using the old one will stop updating.')">
