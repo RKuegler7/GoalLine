@@ -30,14 +30,14 @@
 @endphp
 
 <li id="goalweek-{{ $week->position }}" data-region="goalweek-{{ $week->id }}" @class([
-    'scroll-mt-6 rounded-2xl border bg-white px-6 py-5',
+    'scroll-mt-6 rounded-2xl border bg-white px-4 py-3',
     'border-club ring-4 ring-mint' => $current,
     'border-line' => ! $current,
 ])>
     <div class="flex flex-wrap items-center justify-between gap-2">
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
             <span @class([
-                'eyebrow rounded-full px-3 py-1 text-[0.68rem] tabular-nums',
+                'eyebrow rounded-full px-3 py-1 text-[11px] tabular-nums',
                 'bg-club text-ivory' => $current,
                 'bg-mint text-club' => ! $current,
             ])>{{ $week->label() }}</span>
@@ -45,7 +45,7 @@
                 {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format($week->starts_on->month === $week->ends_on->month ? 'j' : 'M j') }}
             </span>
             @if ($current)
-                <span class="eyebrow rounded-full bg-grass px-2.5 py-1 text-[0.65rem] text-ink">You are here</span>
+                <span class="eyebrow rounded-full bg-grass px-2.5 py-1 text-[11px] text-ink">You are here</span>
             @endif
         </div>
 
@@ -209,7 +209,7 @@
                                 <span @class(['line-through decoration-ink/30 text-ink/70' => $task->completed_at])>
                                     {{ $task->description }}
                                     @if ($task->is_bonus)
-                                        <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink no-underline">Bonus</span>
+                                        <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[11px] text-ink no-underline">Bonus</span>
                                     @endif
                                 </span>
                                 <span class="shrink-0 text-xs font-semibold text-club opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100 pointer-coarse:opacity-100">Edit</span>
@@ -280,7 +280,7 @@
                         <span @class(['line-through decoration-ink/30 text-ink/70' => $task->completed_at])>
                             {{ $task->description }}
                             @if ($task->is_bonus)
-                                <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink">Bonus</span>
+                                <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[11px] text-ink">Bonus</span>
                             @endif
                         </span>
                     @endif

@@ -30,3 +30,6 @@ Thumbs.db
 /qa/playwright-report
 /database/qa.sqlite*
 /qa/server.log
+/qa/before
+/qa/after
+/qa/test-results-audit

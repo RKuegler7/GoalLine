@@ -120,7 +120,7 @@
         </section>
     @endif
 
-    <section class="mt-8 rounded-2xl border border-line bg-white px-6 py-5 text-sm text-ink/70">
+    <section class="mt-8 rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/70">
         <h2 class="eyebrow text-club">How a matchup is scored</h2>
         <ul class="mt-2 space-y-1.5">
             <li><span class="font-semibold text-ink">Your band</span> comes from the share of your own plan you finish: under 90% is Short of the line (0 pts), 90&ndash;100% In line (1), over 100% Past the line (2), 150% and up Smashed (3).</li>

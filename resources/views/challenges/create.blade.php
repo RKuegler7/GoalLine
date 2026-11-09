@@ -7,7 +7,7 @@
         </div>
     </x-slot:hero>
 
-    <form method="POST" action="{{ route('challenges.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-10">
+    <form method="POST" action="{{ route('challenges.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
         @csrf
 
         <x-form.input name="title" label="Challenge" maxlength="80" placeholder="No sugar for 30 days" required autofocus />

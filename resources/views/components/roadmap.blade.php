@@ -41,7 +41,7 @@
             </div>
         @endif
 
-        <div class="mt-3 rounded-2xl border border-line bg-white px-6 py-5">
+        <div class="mt-3 rounded-2xl border border-line bg-white px-4 py-3">
             <p class="font-serif text-xl leading-relaxed text-ink tracking-tight">{{ $goal->roadmap_summary }}</p>
             <p class="mt-3 border-t border-line pt-3 text-sm text-ink/70">
                 @if ($weeksPerStretch > 1)

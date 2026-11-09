@@ -6,7 +6,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-6 sm:p-10">
+    <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-4 sm:p-6">
         <x-goal-form :goal="$goal" :action="route('goals.update', $goal)" method="PUT" submit="Save changes" />
     </div>
 

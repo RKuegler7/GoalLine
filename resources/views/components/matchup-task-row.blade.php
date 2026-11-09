@@ -33,10 +33,10 @@
                     <span class="tabular-nums">{{ $row['result'] }}</span>
                 @endif
                 @if ($row['bonus'])
-                    <span class="rounded-full bg-gold/25 px-1.5 text-[0.6rem] font-semibold text-ink">Bonus</span>
+                    <span class="rounded-full bg-gold/25 px-1.5 text-[11px] font-semibold text-ink">Bonus</span>
                 @endif
                 @if ($row['group'])
-                    <span class="inline-flex items-center gap-0.5 rounded-full bg-club/10 px-1.5 text-[0.6rem] font-semibold text-club" title="Group task voted in by the league">
+                    <span class="inline-flex items-center gap-0.5 rounded-full bg-club/10 px-1.5 text-[11px] font-semibold text-club" title="Group task voted in by the league">
                         <svg viewBox="0 0 20 20" class="size-3" fill="currentColor" aria-hidden="true"><path d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1 16c0-3 2.7-5 6-5s6 2 6 5v1H1v-1Zm13 1v-1c0-1.7-.6-3.1-1.6-4.2.5-.1 1-.1 1.6-.1 2.8 0 5 1.7 5 4.3v1h-5Z" /></svg>
                         Group
                     </span>

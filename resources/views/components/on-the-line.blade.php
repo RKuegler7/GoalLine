@@ -6,7 +6,7 @@
     $count = $streak->daysOnTheLineThisWeek();
 @endphp
 
-<section data-region="on-the-line" {{ $attributes->class('rounded-2xl border border-line bg-white px-5 py-4') }}>
+<section data-region="on-the-line" {{ $attributes->class('rounded-2xl border border-line bg-white px-4 py-3') }}>
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
             <p class="font-serif text-lg font-bold text-club tracking-tight">{{ $count }} {{ Str::plural('day', $count) }} on the line this week</p>
@@ -21,7 +21,7 @@
                 @endphp
                 <li class="flex flex-col items-center gap-1">
                     <span @class([
-                        'grid size-7 place-items-center rounded-full text-[0.6rem] font-semibold',
+                        'grid size-7 place-items-center rounded-full text-[11px] font-semibold',
                         'bg-grass text-ink' => $active === true,
                         'bg-ivory text-ink/70 ring-1 ring-line' => $active === false,
                         'bg-white text-ink/25 border border-dashed border-line' => $active === null,

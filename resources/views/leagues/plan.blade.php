@@ -9,7 +9,7 @@
     </x-slot:hero>
 
     @if ($goal)
-        <p class="rounded-2xl bg-mint px-5 py-4 text-sm text-ink/80">
+        <p class="rounded-2xl bg-mint px-4 py-3 text-sm text-ink/80">
             Every GoalWeek has a minimum pace its deadline needs, worked out by GoalLine&rsquo;s code (never the AI). A plan can be harder than its minimum, never easier, and it locks when the week starts. Two lighter weeks a season are allowed, at 70% of the minimum, with a reason the league can see.
         </p>
 
@@ -51,7 +51,7 @@
         </div>
 
         @if ($versions->isNotEmpty())
-            <section class="mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+            <section class="mt-6 rounded-2xl border border-line bg-white px-4 py-3">
                 <h2 class="eyebrow text-club">Plan history</h2>
                 <ol class="mt-2 divide-y divide-line">
                     @foreach ($versions as $version)

@@ -5,7 +5,7 @@
     $joinable = $league->isJoinable();
     $inviteErrors = $errors->getBag('invite');
 @endphp
-<section id="invite" class="mb-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+<section id="invite" class="mb-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <h2 class="eyebrow text-club">Invite your people</h2>
         <span class="text-sm text-ink/70">{{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }}</span>
@@ -99,7 +99,7 @@
             <ul class="mt-1 space-y-1.5">
                 @foreach ($league->members as $leagueMember)
                     <li class="flex items-center justify-between gap-3 text-sm">
-                        <span class="flex min-w-0 items-center gap-2"><x-avatar :user="$leagueMember->user" class="size-6 text-[0.55rem]" /> <span class="truncate">{{ $leagueMember->user->name }}</span>
+                        <span class="flex min-w-0 items-center gap-2"><x-avatar :user="$leagueMember->user" class="size-6 text-[11px]" /> <span class="truncate">{{ $leagueMember->user->name }}</span>
                             @if ($leagueMember->user_id === $league->commissioner_id)
                                 <span class="text-xs text-ink/70">Owner</span>
                             @endif

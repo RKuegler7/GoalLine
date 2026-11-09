@@ -38,10 +38,10 @@
                 <a href="{{ route('goals.show', $goal) }}#refine" class="mt-6 inline-block rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Back to your plan</a>
             </section>
         @else
-            <p class="rounded-2xl bg-mint px-5 py-4 text-ink"><span class="font-semibold text-club">Why:</span> {{ $refinement->explanation }}</p>
+            <p class="rounded-2xl bg-mint px-4 py-3 text-ink"><span class="font-semibold text-club">Why:</span> {{ $refinement->explanation }}</p>
 
             @if ($diff['weeks'] === [])
-                <p class="mt-4 rounded-2xl border border-line bg-white px-5 py-4 text-ink/70">This wouldn't change anything in the GoalWeeks that can still change.</p>
+                <p class="mt-4 rounded-2xl border border-line bg-white px-4 py-3 text-ink/70">This wouldn't change anything in the GoalWeeks that can still change.</p>
             @endif
 
             <ol class="mt-4 space-y-3">
@@ -50,7 +50,7 @@
                         $week = $change['week'];
                         $delta = $change['pointsAfter'] - $change['pointsBefore'];
                     @endphp
-                    <li class="rounded-2xl border border-line bg-white px-5 py-4">
+                    <li class="rounded-2xl border border-line bg-white px-4 py-3">
                         <div class="flex flex-wrap items-center justify-between gap-2">
                             <p class="font-semibold text-club">{{ $week->label() }} <span class="font-normal text-ink/70">&middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</span></p>
                             <p class="text-sm text-ink/70 tabular-nums">

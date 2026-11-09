@@ -16,7 +16,7 @@
         </div>
         <x-goal-line />
 
-        <div class="space-y-6 p-6 sm:p-10">
+        <div class="space-y-6 p-4 sm:p-6">
             <p class="text-lg text-ink">
                 Marking this goal complete puts it in your trophy case and closes its roadmap.
                 @if ($goal->weeks->isNotEmpty())

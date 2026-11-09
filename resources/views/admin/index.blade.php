@@ -16,7 +16,7 @@
                     ['AI today', $money($ai['today']), 'of '.$money($ai['dailyBudget']).' daily budget'],
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
-                        <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
+                        <dt class="eyebrow text-[11px] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory/85">{{ $note }}</dd>
                     </div>
@@ -27,21 +27,21 @@
 
     <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-2">
         {{-- Daily active members. --}}
-        <section class="rounded-2xl border border-line bg-white px-5 py-4">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">Active members, last 14 days</h2>
             <ol class="mt-4 flex h-32 items-end gap-1.5" aria-label="Active members per day">
                 @foreach ($dailyActive as $day)
                     <li class="flex h-full flex-1 flex-col items-center justify-end gap-1" title="{{ $day['date']->format('D M j') }}: {{ $day['count'] }}">
-                        <span class="text-[0.6rem] text-ink/70 tabular-nums">{{ $day['count'] ?: '' }}</span>
+                        <span class="text-[11px] text-ink/70 tabular-nums">{{ $day['count'] ?: '' }}</span>
                         <span class="w-full rounded-t bg-grass" style="height: {{ max(2, round($day['count'] / $peak * 100)) }}%"></span>
-                        <span class="text-[0.6rem] text-ink/70">{{ $day['date']->format('j') }}</span>
+                        <span class="text-[11px] text-ink/70">{{ $day['date']->format('j') }}</span>
                     </li>
                 @endforeach
             </ol>
         </section>
 
         {{-- Photo storage: S3 keeps uploads through deploys. --}}
-        <section class="rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2">
             <h2 class="eyebrow text-club">Photo storage</h2>
             @if ($storage['s3'] && $storage['working'])
                 <p class="mt-2 text-sm text-ink"><span class="font-semibold text-club">&check; Working.</span> Photos and plan files are saved in the private S3 bucket <span class="font-mono">{{ $storage['bucket'] }}</span>, so they survive deploys.</p>
@@ -54,7 +54,7 @@
         </section>
 
         {{-- AI spend. --}}
-        <section class="rounded-2xl border border-line bg-white px-5 py-4">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">AI spend</h2>
             @foreach ([['Today', $ai['today'], $ai['dailyBudget']], ['This month', $ai['month'], $ai['monthlyBudget']]] as [$label, $spent, $limit])
                 <div class="mt-3">
@@ -80,7 +80,7 @@
         </section>
 
         {{-- Feature use. --}}
-        <section class="rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2">
             <h2 class="eyebrow text-club">What people used, last 7 days</h2>
             <table class="mt-3 w-full text-sm">
                 <thead class="text-left text-xs text-ink/70">
@@ -99,7 +99,7 @@
         </section>
 
         {{-- Beta feedback. --}}
-        <section id="feedback" class="scroll-mt-6 rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+        <section id="feedback" class="scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2">
             <div class="flex items-end justify-between gap-4">
                 <h2 class="eyebrow text-club">Beta feedback</h2>
                 <span class="text-sm text-ink/70">{{ $feedback->whereNull('resolved_at')->count() }} open</span>
@@ -127,7 +127,7 @@
         </section>
 
         {{-- Beta invites. --}}
-        <section id="invites" class="scroll-mt-6 rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
+        <section id="invites" class="scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2">
             <h2 class="eyebrow text-club">Beta invites</h2>
             <form method="POST" action="{{ route('admin.invites.store') }}" class="mt-3 flex flex-wrap items-end gap-3">
                 @csrf
@@ -157,7 +157,7 @@
                                     <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-red-700">Revoke</button>
                                 </form>
                             @else
-                                <span class="eyebrow rounded-full bg-ivory px-2 py-0.5 text-[0.6rem] text-ink/70">{{ $invite->revoked_at ? 'Revoked' : 'Used up' }}</span>
+                                <span class="eyebrow rounded-full bg-ivory px-2 py-0.5 text-[11px] text-ink/70">{{ $invite->revoked_at ? 'Revoked' : 'Used up' }}</span>
                             @endif
                         </li>
                     @endforeach

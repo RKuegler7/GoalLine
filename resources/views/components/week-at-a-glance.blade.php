@@ -6,7 +6,7 @@
     $activeDays = collect($days)->where('count', '>', 0)->count();
 @endphp
 
-<section class="rounded-2xl border border-line bg-white px-5 py-4">
+<section class="rounded-2xl border border-line bg-white px-4 py-3">
     <div class="flex items-baseline justify-between gap-4">
         <h2 class="eyebrow text-club">Week at a glance <a href="{{ route('recap.week') }}" class="ml-2 font-sans text-xs font-semibold tracking-normal normal-case text-club hover:underline">Your week &rarr;</a></h2>
         <span class="text-sm text-ink/70">{{ $total }} {{ Str::plural('check-in', $total) }} &middot; {{ $activeDays }} of 7 days</span>

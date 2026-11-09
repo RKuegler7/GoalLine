@@ -6,7 +6,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-6 text-center sm:p-10">
+    <div class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-4 text-center sm:p-6">
         <p class="text-lg text-ink">We sent a link to <span class="font-semibold">{{ auth()->user()->email }}</span>.</p>
         <p class="mt-2 text-ink/70">
             Your goals and roadmaps work right away. Verifying unlocks GoalLeagues, Highlights, and following friends, so everyone you play with is a real person.

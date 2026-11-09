@@ -57,7 +57,7 @@
     <div class="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="space-y-6">
             {{-- Today. --}}
-            <section class="rounded-2xl border border-club/30 bg-white px-6 py-5">
+            <section class="rounded-2xl border border-club/30 bg-white px-4 py-3">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <p class="eyebrow text-club">Your progress</p>
@@ -128,7 +128,7 @@
 
         <aside class="space-y-6">
             @unless ($challenge->isOver())
-                <section class="rounded-2xl border border-line bg-white px-5 py-4">
+                <section class="rounded-2xl border border-line bg-white px-4 py-3">
                     <h2 class="eyebrow text-club">Bring people in</h2>
                     <p class="mt-2 font-mono text-2xl font-semibold tracking-widest text-ink">{{ $challenge->invite_code }}</p>
                     <x-share-link id="challenge-link" label="Or share this link" :url="$challenge->joinUrl()" class="mt-3"

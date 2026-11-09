@@ -12,7 +12,7 @@
     <header class="flex items-center gap-3 px-4 py-3">
         <a href="{{ $post->user->profileUrl() }}" class="shrink-0 rounded-full p-0.5 ring-2 ring-grass/60">
             <span class="sr-only">{{ $post->user->name }}</span>
-            <x-avatar :user="$post->user" class="size-9 text-[0.65rem]" />
+            <x-avatar :user="$post->user" class="size-9 text-[11px]" />
         </a>
         <div class="min-w-0 flex-1 leading-tight">
             <p class="truncate text-sm">
@@ -68,6 +68,6 @@
             <svg viewBox="0 0 16 16" class="size-3.5 shrink-0 text-grass" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
             <span class="truncate">{{ $post->detail }}</span>
         </p>
-        <p class="eyebrow mt-1.5 text-[0.6rem] text-ink/70">{{ App\Clock::shortTime($post->created_at) }}</p>
+        <p class="eyebrow mt-1.5 text-[11px] text-ink/70">{{ App\Clock::shortTime($post->created_at) }}</p>
     </div>
 </article>

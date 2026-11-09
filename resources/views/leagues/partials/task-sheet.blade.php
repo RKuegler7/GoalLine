@@ -9,7 +9,7 @@
 
 <div class="space-y-4">
     <header>
-        <p class="eyebrow text-[0.62rem] text-ink/70">
+        <p class="eyebrow text-[11px] text-ink/70">
             {{ $owner->is($viewer) ? 'Your' : Str::before($owner->name, ' ').'’s' }} task &middot;
             {{ $task->planned_on ? $task->planned_on->format('l, M j') : 'Any day this week' }}
         </p>
@@ -59,7 +59,7 @@
     {{-- The post shared from this check-in. --}}
     @if ($highlight)
         <section class="rounded-2xl border border-line px-4 py-3">
-            <p class="eyebrow text-[0.6rem] text-ink/70">Shared to the feed</p>
+            <p class="eyebrow text-[11px] text-ink/70">Shared to the feed</p>
             @if ($highlight->headline)
                 <p class="mt-1 font-semibold text-ink">{{ $highlight->headline }}</p>
             @endif

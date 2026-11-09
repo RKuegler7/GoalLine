@@ -31,7 +31,7 @@
                 <span class="text-sm text-ink/70">&middot; {{ App\Clock::shortTime($highlight->created_at) }}</span>
             </p>
             <span @class([
-                'eyebrow mt-0.5 inline-block rounded-full px-2 py-0.5 text-[0.6rem]',
+                'eyebrow mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px]',
                 'bg-gold text-ink' => $highlight->kind === App\HighlightKind::GoalCompleted,
                 'bg-grass text-ink' => $highlight->kind === App\HighlightKind::GreatWeek,
                 'bg-mint text-club' => $highlight->kind === App\HighlightKind::MilestoneHit,
@@ -52,7 +52,7 @@
         @endif
     </div>
 
-    <div class="px-5 py-4">
+    <div class="px-4 py-3">
         @if ($highlight->photoUrl())
             <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $highlight->headline }}</h3>
         @endif
@@ -107,7 +107,7 @@
 
         <form method="POST" action="{{ route('highlights.comments.store', $highlight) }}" class="relative mt-3 flex items-end gap-2">
             @csrf
-            <x-avatar :user="$viewer" class="mb-1 size-7 text-[0.6rem]" />
+            <x-avatar :user="$viewer" class="mb-1 size-7 text-[11px]" />
             <label for="comment-{{ $highlight->id }}" class="sr-only">Add a comment</label>
             <textarea id="comment-{{ $highlight->id }}" name="body" rows="1" maxlength="{{ App\Models\HighlightComment::MAX_LENGTH }}" required
                 placeholder="Add a comment. Type @ to mention someone."

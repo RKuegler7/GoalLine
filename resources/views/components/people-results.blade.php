@@ -8,7 +8,7 @@
 <div data-region="people-results">
 @if (mb_strlen($query) >= 2)
     @if ($results->isEmpty())
-        <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">No one found for &ldquo;{{ $query }}&rdquo;. Try their exact username or email, or send an invite by email.</p>
+        <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/65">No one found for &ldquo;{{ $query }}&rdquo;. Try their exact username or email, or send an invite by email.</p>
     @else
         <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
             @foreach ($results as $person)

@@ -9,7 +9,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-6 sm:p-10">
+    <div class="mx-auto max-w-2xl rounded-2xl border border-line bg-white p-4 sm:p-6">
         @if ($goal->inTrial())
             <p class="eyebrow text-club">Trial period</p>
             <p class="mt-3 text-lg text-ink">
@@ -32,7 +32,7 @@
             </p>
 
             @if ($goal->roadmap_status === App\RoadmapStatus::Ready && $goal->replanFromPosition())
-                <div class="mt-6 rounded-xl border border-grass/40 bg-mint px-5 py-4">
+                <div class="mt-6 rounded-xl border border-grass/40 bg-mint px-4 py-3">
                     <p class="font-semibold text-club">Fallen behind, or life changed?</p>
                     <p class="mt-1 text-ink/75">
                         You don't have to quit. You can edit your tasks or re-plan the rest of your roadmap from here, and your coach will help you get back in line.

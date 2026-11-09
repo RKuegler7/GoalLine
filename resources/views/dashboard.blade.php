@@ -28,7 +28,7 @@
                     ['GoalLeague record', $record['wins'].'–'.$record['ties'].'–'.$record['losses'], 'wins, ties, losses'],
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
-                        <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
+                        <dt class="eyebrow text-[11px] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory">{{ $note }}</dd>
                     </div>
@@ -54,7 +54,7 @@
         <x-kickoff-checklist :kickoff="$kickoff" class="mb-6" />
     @endif
 
-    <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {{-- This GoalWeek, goal by goal. --}}
         <div class="min-w-0 space-y-6">
             @if ($goals->isEmpty())
@@ -97,7 +97,7 @@
                 @forelse ($leagues as $snapshot)
                     <x-league-snapshot :snapshot="$snapshot" class="mt-3" />
                 @empty
-                    <div class="mt-3 rounded-2xl border border-line bg-white px-5 py-4">
+                    <div class="mt-3 rounded-2xl border border-line bg-white px-4 py-3">
                         <p class="text-ink/70">Go head-to-head every GoalWeek with friends, or take on a challenge together.</p>
                         <div class="mt-4 grid gap-2">
                             <a href="{{ route('leagues.create') }}" class="flex items-center justify-center gap-2 rounded-full bg-club px-5 py-2.5 font-semibold text-ivory hover:bg-club-dark"><x-icon name="leagues" class="size-4" /> Start a GoalLeague</a>
@@ -117,7 +117,7 @@
                 <div class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                     @forelse ($friendFeed as $highlight)
                         <a href="{{ $highlight->league_id ? route('leagues.feed', $highlight->league_id) : route('highlights.index') }}#highlight-{{ $highlight->id }}" class="flex items-start gap-3 px-4 py-3 hover:bg-mint/40">
-                            <x-avatar :user="$highlight->user" class="size-8 shrink-0 text-[0.6rem]" />
+                            <x-avatar :user="$highlight->user" class="size-8 shrink-0 text-[11px]" />
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate text-sm"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/70">&middot; {{ $highlight->kind->label() }}</span></span>
                                 <span class="block truncate text-sm text-ink/70">{{ $highlight->isPost() ? $highlight->detail : $highlight->headline }}</span>

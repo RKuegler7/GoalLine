@@ -40,7 +40,7 @@
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-ink">{{ $owner->name }}</p>
                 @if ($row['personal']->isNotEmpty())
-                    <p class="mt-0.5 text-[0.7rem] text-ink/70">
+                    <p class="mt-0.5 text-[11px] text-ink/70">
                         Added by {{ $owner->is($viewer) ? 'you' : Str::before($owner->name, ' ') }}:
                         {{ $row['personal']->map(fn ($task) => $task->description.' ('.$task->points.' '.Str::plural('pt', $task->points).')')->implode(', ') }}
                     </p>

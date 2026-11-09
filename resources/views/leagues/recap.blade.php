@@ -43,18 +43,18 @@
         <section>
             <h2 class="eyebrow text-club">Season awards</h2>
             @if ($awards->isEmpty())
-                <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-ink/65">No awards this season. Nobody put points on the board.</p>
+                <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-ink/65">No awards this season. Nobody put points on the board.</p>
             @else
                 <ul class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($awards as $award)
                         <li @class([
-                            'flex items-center gap-4 rounded-2xl border px-5 py-4',
+                            'flex items-center gap-4 rounded-2xl border px-4 py-3',
                             'border-gold bg-gold/15 sm:col-span-2 lg:col-span-1' => $award->badge === App\Badge::Champion,
                             'border-gold/50 bg-white' => $award->badge !== App\Badge::Champion,
                         ])>
                             <x-badge :badge="$award->badge" class="size-16" />
                             <div class="min-w-0">
-                                <p class="eyebrow text-[0.62rem] text-ink/70">{{ $award->badge->label() }}</p>
+                                <p class="eyebrow text-[11px] text-ink/70">{{ $award->badge->label() }}</p>
                                 <p class="mt-0.5 truncate font-serif text-xl font-bold text-ink tracking-tight">{{ $award->user->name }}</p>
                                 <p class="text-sm text-ink/70">{{ $award->detail }}</p>
                             </div>
@@ -98,7 +98,7 @@
     <section @class(['mt-8' => $complete])>
         <h2 class="eyebrow text-club">Week by week</h2>
         @if ($weeks->isEmpty())
-            <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-ink/65">The first recap lands the day after week 1&rsquo;s check-ins close.</p>
+            <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-ink/65">The first recap lands the day after week 1&rsquo;s check-ins close.</p>
         @else
             <div class="mt-3 space-y-3">
                 @foreach ($weeks as $recapWeek)
@@ -134,7 +134,7 @@
                                             <span class="block text-xs font-sans text-ink/70">vs median</span>
                                         @endif
                                         @if ($home->outcome->isPhotoFinish())
-                                            <span class="block text-[0.65rem] font-sans font-semibold text-gold" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>
+                                            <span class="block text-[11px] font-sans font-semibold text-gold" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>
                                         @endif
                                     </span>
                                     <span class="min-w-0 text-right">

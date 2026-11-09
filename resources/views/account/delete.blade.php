@@ -6,7 +6,7 @@
         </div>
     </x-slot:hero>
 
-    <form method="POST" action="{{ route('account.destroy') }}" class="mx-auto max-w-xl space-y-5 rounded-2xl border border-line bg-white p-6 sm:p-10">
+    <form method="POST" action="{{ route('account.destroy') }}" class="mx-auto max-w-xl space-y-5 rounded-2xl border border-line bg-white p-4 sm:p-6">
         @csrf
         @method('DELETE')
         <p class="text-lg text-ink">This permanently deletes everything:</p>

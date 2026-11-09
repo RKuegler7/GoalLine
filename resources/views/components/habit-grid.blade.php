@@ -14,7 +14,7 @@
 @endphp
 
 <section id="week-grid" data-region="week-grid" {{ $attributes->class('scroll-mt-24 rounded-2xl border border-line bg-white') }}>
-    <header class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
+    <header class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-4 py-3">
         <h2 class="font-serif text-xl font-bold text-club tracking-tight">This week&rsquo;s habits</h2>
         <p class="text-xs text-ink/70">Tap today or yesterday to log. Earlier days stay as they are.</p>
     </header>
@@ -67,7 +67,7 @@
                                         @elseif ($day->gt($today))
                                             <span class="grid size-9 place-items-center rounded-lg text-xs text-ink/30 border border-dashed border-line" title="Upcoming">{{ $habit->isRestDay($day) ? 'Rest' : '' }}<span class="sr-only">Upcoming</span></span>
                                         @elseif ($habit->isRestDay($day))
-                                            <span class="grid size-9 place-items-center rounded-lg text-[0.65rem] text-ink/70" title="Rest day">Rest</span>
+                                            <span class="grid size-9 place-items-center rounded-lg text-[11px] text-ink/70" title="Rest day">Rest</span>
                                         @else
                                             <span class="grid size-9 place-items-center rounded-lg bg-ivory ring-1 ring-line" title="Not logged"><span class="sr-only">Not logged</span></span>
                                         @endif

@@ -2,7 +2,7 @@
 @props(['comment', 'highlight'])
 
 <li id="comment-{{ $comment->id }}" class="group flex items-start gap-2.5">
-    <a href="{{ $comment->user->profileUrl() }}" class="shrink-0"><span class="sr-only">{{ $comment->user->name }}</span><x-avatar :user="$comment->user" class="size-7 text-[0.6rem]" /></a>
+    <a href="{{ $comment->user->profileUrl() }}" class="shrink-0"><span class="sr-only">{{ $comment->user->name }}</span><x-avatar :user="$comment->user" class="size-7 text-[11px]" /></a>
     <div class="min-w-0 flex-1 rounded-xl bg-ivory px-3 py-2">
         <p class="text-sm">
             <a href="{{ $comment->user->profileUrl() }}" class="font-semibold text-ink hover:text-club hover:underline">{{ $comment->user->name }}</a>

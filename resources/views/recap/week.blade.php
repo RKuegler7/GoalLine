@@ -19,7 +19,7 @@
                     ['Streak', $recap->streak(), Str::plural('day', $recap->streak()).' in a row'],
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
-                        <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
+                        <dt class="eyebrow text-[11px] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
                         <dd class="text-xs text-ivory/85">{{ $note }}</dd>
                     </div>
@@ -30,7 +30,7 @@
 
     <div class="mx-auto max-w-3xl space-y-6">
         {{-- Day by day. --}}
-        <section class="rounded-2xl border border-line bg-white px-5 py-4">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">Day by day</h2>
             <ol class="mt-3 grid grid-cols-7 gap-2">
                 @foreach (range(0, 6) as $offset)
@@ -80,7 +80,7 @@
             $fair = $recap->fairPlay();
         @endphp
         @if ($fair['opened'] + $fair['aboutYou'] + $fair['settled'] > 0 || $fair['held'] > 0)
-            <section class="rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/75">
+            <section class="rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/75">
                 <h2 class="eyebrow text-club">Fair play</h2>
                 <ul class="mt-2 space-y-1">
                     @if ($fair['aboutYou'] > 0)
@@ -100,7 +100,7 @@
 
         {{-- Wins. --}}
         @if ($badges->isNotEmpty() || $recap->cheersReceived() > 0)
-            <section class="rounded-2xl border border-gold/50 bg-gold/10 px-5 py-4">
+            <section class="rounded-2xl border border-gold/50 bg-gold/10 px-4 py-3">
                 <h2 class="eyebrow text-ink/70">Wins this week</h2>
                 <ul class="mt-3 space-y-2">
                     @foreach ($badges as $badge)
@@ -119,7 +119,7 @@
             </section>
         @endif
 
-        <section class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-club/30 bg-white px-5 py-4">
+        <section class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-club/30 bg-white px-4 py-3">
             <p class="text-ink/75">{{ $isThisWeek ? 'Next week starts Monday. Put every task on a day before it does.' : 'Keep the momentum going this week.' }}</p>
             <a href="{{ route('planner.show') }}" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Plan my week</a>
         </section>

@@ -24,7 +24,7 @@
 
     <div class="mx-auto max-w-2xl space-y-6">
         {{-- The week in numbers. --}}
-        <section class="rounded-2xl border border-line bg-white px-6 py-5">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <h2 class="font-serif text-xl font-bold text-club tracking-tight">{{ $week->focus }}</h2>
                 @if ($result)
@@ -53,7 +53,7 @@
         @if ($review && ! request()->boolean('edit'))
             {{-- The coach's tip. --}}
             <section class="overflow-hidden rounded-2xl border border-club/30 bg-white">
-                <div class="relative bg-club px-6 py-5">
+                <div class="relative bg-club px-4 py-3">
                     <x-field-backdrop class="absolute inset-0 size-full opacity-70" />
                     <p class="eyebrow relative text-mint">Coach&rsquo;s tip for the week ahead</p>
                     @if ($review->coach_tip)
@@ -70,7 +70,7 @@
                     @endif
                 </div>
                 <x-goal-line />
-                <dl class="space-y-3 px-6 py-5 text-sm">
+                <dl class="space-y-3 px-4 py-3 text-sm">
                     @if ($review->feelingLabel())
                         <div><dt class="font-semibold text-ink">How it felt</dt><dd class="text-ink/75">{{ $review->feelingLabel() }}</dd></div>
                     @endif
@@ -86,7 +86,7 @@
                 @endif
             </section>
         @else
-            <form method="POST" action="{{ route('goalweeks.review.store', $week) }}" class="space-y-5 rounded-2xl border border-line bg-white p-6 sm:p-8">
+            <form method="POST" action="{{ route('goalweeks.review.store', $week) }}" class="space-y-5 rounded-2xl border border-line bg-white p-4 sm:p-6">
                 @csrf
                 <fieldset>
                     <legend class="font-semibold text-ink">How did this GoalWeek feel?</legend>

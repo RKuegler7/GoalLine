@@ -38,10 +38,10 @@
         <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-6 block overflow-hidden rounded-2xl border-2 border-club bg-white transition hover:shadow-md">
             <div class="flex items-center justify-between gap-3 bg-club px-5 py-3">
                 <h2 class="font-serif text-xl font-bold text-ivory tracking-tight">GoalWeek {{ $matchupWeek }} Matchup</h2>
-                <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[0.6rem] text-ivory">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
+                <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[11px] text-ivory">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
             </div>
             @if ($myCard)
-                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-4">
+                <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3">
                     @foreach ([$myCard['home'], $myCard['away']] as $index => $side)
                         @if ($index === 1)
                             <span class="font-serif text-sm text-ink/70 tracking-tight">vs</span>
@@ -70,7 +70,7 @@
     @endif
 
     {{-- Your goal in this league: edit it, switch to another, or set a new one for this league. --}}
-    <section class="mb-6 rounded-2xl border border-line bg-white px-5 py-4">
+    <section class="mb-6 rounded-2xl border border-line bg-white px-4 py-3">
         <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0">
                 <h2 class="eyebrow text-club">Your goal in this league</h2>
@@ -110,7 +110,7 @@
         </details>
     </section>
 
-    <a href="{{ route('leagues.feed', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white px-5 py-4 transition hover:border-club/40">
+    <a href="{{ route('leagues.feed', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-white px-4 py-3 transition hover:border-club/40">
         <span class="flex items-center gap-3">
             <span class="grid size-10 place-items-center rounded-full bg-mint text-club"><x-icon name="highlights" class="size-5" /></span>
             <span>
@@ -126,7 +126,7 @@
     </a>
 
     @if ($status === App\LeagueStatus::Finished)
-        <a href="{{ route('leagues.recap', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-gold/60 bg-gold/15 px-5 py-4 transition hover:bg-gold/25">
+        <a href="{{ route('leagues.recap', $league) }}" class="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-gold/60 bg-gold/15 px-4 py-3 transition hover:bg-gold/25">
             <span class="flex items-center gap-3">
                 <x-badge :badge="App\Badge::Champion" class="size-10" />
                 <span>
@@ -153,7 +153,7 @@
         </div>
 
         @if (! $groupTasksEnabled)
-            <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">Group tasks open up once a second member joins. Then anyone can propose one, and if two thirds of the league say yes within 24 hours, it goes on everyone's GoalWeek.</p>
+            <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/65">Group tasks open up once a second member joins. Then anyone can propose one, and if two thirds of the league say yes within 24 hours, it goes on everyone's GoalWeek.</p>
         @else
             @php
                 $groupErrors = $errors->getBag('groupTask');
@@ -166,10 +166,10 @@
                 @php
                     $myVote = $groupTask->voteOf(auth()->user());
                 @endphp
-                <article class="mt-3 rounded-2xl border border-gold/50 bg-white px-5 py-4">
+                <article class="mt-3 rounded-2xl border border-gold/50 bg-white px-4 py-3">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="eyebrow text-[0.6rem] text-ink/70">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
+                            <p class="eyebrow text-[11px] text-ink/70">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
                             <h3 class="mt-1 font-serif text-lg font-bold text-ink tracking-tight">{{ $groupTask->title }}</h3>
                             @if ($groupTask->description)
                                 <p class="text-sm text-ink/65">{{ $groupTask->description }}</p>
@@ -196,7 +196,7 @@
             @endforeach
 
             @if ($openWeeks->isNotEmpty())
-                <details class="mt-3 rounded-2xl border border-line bg-white px-5 py-4" @if ($groupErrors->any()) open @endif>
+                <details class="mt-3 rounded-2xl border border-line bg-white px-4 py-3" @if ($groupErrors->any()) open @endif>
                     <summary class="cursor-pointer list-none font-semibold text-club [&::-webkit-details-marker]:hidden">+ Propose a group task</summary>
                     <form method="POST" action="{{ route('leagues.group-tasks.store', $league) }}" data-live class="mt-3 space-y-3">
                         @csrf
@@ -255,7 +255,7 @@
                     </form>
                 </details>
             @elseif ($voting->isEmpty())
-                <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-sm text-ink/65">No weeks left with open group task slots this season.</p>
+                <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/65">No weeks left with open group task slots this season.</p>
             @endif
 
             @if ($decided->isNotEmpty())
@@ -302,7 +302,7 @@
                             <td class="px-4 py-3 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
                             <td class="px-2 py-3">
                                 <div class="flex items-center gap-2.5">
-                                    <x-avatar :user="$row['member']->user" class="size-7 text-[0.65rem]" />
+                                    <x-avatar :user="$row['member']->user" class="size-7 text-[11px]" />
                                     <div class="min-w-0">
                                         <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
                                         <p class="truncate text-xs text-ink/70">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
@@ -404,7 +404,7 @@
     </section>
 
     @can('leave', $league)
-        <form method="POST" action="{{ route('leagues.membership.destroy', $league) }}" class="mt-10 border-t border-line pt-6 text-right"
+        <form method="POST" action="{{ route('leagues.membership.destroy', $league) }}" class="mt-6 border-t border-line pt-6 text-right"
             onsubmit="return confirm('Leave this GoalLeague? You can rejoin with the code before kickoff.')">
             @csrf
             @method('DELETE')
@@ -412,7 +412,7 @@
         </form>
     @endcan
     @can('delete', $league)
-        <form method="POST" action="{{ route('leagues.destroy', $league) }}" class="mt-10 border-t border-line pt-6 text-right"
+        <form method="POST" action="{{ route('leagues.destroy', $league) }}" class="mt-6 border-t border-line pt-6 text-right"
             onsubmit="return confirm('Call off this GoalLeague? Everyone will be removed. This cannot be undone.')">
             @csrf
             @method('DELETE')

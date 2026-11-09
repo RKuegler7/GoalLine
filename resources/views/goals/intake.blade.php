@@ -59,7 +59,7 @@
                         $status = old("answers.{$question['id']}.status", in_array($saved['status'] ?? null, [App\Services\IntakeQuestions::NOT_SURE, App\Services\IntakeQuestions::SKIPPED], true) && $editing ? $saved['status'] : '');
                         $fieldId = 'intake-'.$question['id'];
                     @endphp
-                    <fieldset class="rounded-2xl border border-line bg-white p-6" data-intake-question>
+                    <fieldset class="rounded-2xl border border-line bg-white p-4" data-intake-question>
                         <legend class="sr-only">Question {{ $index + 1 }}</legend>
                         <p class="font-serif text-xl font-bold text-club tracking-tight">
                             @if (in_array($question['type'], [App\Services\IntakeQuestions::NUMBER, App\Services\IntakeQuestions::SHORT_TEXT], true))

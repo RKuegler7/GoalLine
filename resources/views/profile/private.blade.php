@@ -9,7 +9,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-8 text-center">
+    <div class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-5 text-center">
         <p class="font-serif text-xl text-club tracking-tight">This profile is private</p>
         <p class="mt-2 text-ink/70">
             @if ($user->profile_visibility === App\ProfileVisibility::Leagues)

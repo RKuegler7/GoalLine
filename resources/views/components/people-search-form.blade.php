@@ -1,7 +1,7 @@
 {{-- The people search box, used on the Friends page, Around the League, and a league's invite section. --}}
 @props(['query' => '', 'league' => null, 'label' => 'Find people'])
 
-<form method="GET" action="{{ route('people.search') }}" {{ $attributes->merge(['class' => 'rounded-2xl border border-line bg-white px-5 py-4']) }}>
+<form method="GET" action="{{ route('people.search') }}" {{ $attributes->merge(['class' => 'rounded-2xl border border-line bg-white px-4 py-3']) }}>
     @if ($league)
         <input type="hidden" name="league" value="{{ $league->id }}">
     @endif

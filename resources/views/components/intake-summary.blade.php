@@ -8,7 +8,7 @@
 
 @can('update', $goal)
     @if ($goal->isActive() && $intake?->isOpen())
-        <section class="mt-6 flex flex-col gap-4 rounded-2xl border-2 border-club bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <section class="mt-6 flex flex-col gap-4 rounded-2xl border-2 border-club bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h2 class="font-serif text-xl font-bold text-club tracking-tight">A few questions first</h2>
                 <p class="mt-1 text-sm text-ink/70">Tell GoalLine where you're starting from, and your plan will fit you instead of everyone.</p>
@@ -16,7 +16,7 @@
             <a href="{{ route('goals.intake', $goal) }}" class="shrink-0 rounded-full bg-club px-5 py-2.5 text-center text-sm font-semibold text-ivory hover:bg-club-dark">Answer the questions</a>
         </section>
     @elseif ($given)
-        <section class="mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+        <section class="mt-6 rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex items-start justify-between gap-4">
                 <h2 class="eyebrow text-club">Your plan is built from</h2>
                 @if ($goal->isActive())

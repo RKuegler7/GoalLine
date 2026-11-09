@@ -3,13 +3,13 @@
 @props(['result', 'closeCall' => false, 'notStarted' => false, 'needsProof' => false])
 
 @if ($notStarted)
-    <span {{ $attributes->class('eyebrow inline-flex items-center rounded-full bg-ivory px-2.5 py-1 text-[0.65rem] text-ink/70 ring-1 ring-inset ring-line') }}>
+    <span {{ $attributes->class('eyebrow inline-flex items-center rounded-full bg-ivory px-2.5 py-1 text-[11px] text-ink/70 ring-1 ring-inset ring-line') }}>
         Not started
     </span>
 @else
     <span {{ $attributes->class('inline-flex flex-wrap items-center gap-1.5') }}>
         <span @class([
-            'eyebrow inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.65rem]',
+            'eyebrow inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px]',
             'bg-red-50 text-red-700' => $result === App\GoalWeekResult::Short,
             'bg-amber-100 text-amber-800' => $result === App\GoalWeekResult::InLine && $closeCall,
             'bg-grass text-ink' => $result === App\GoalWeekResult::InLine && ! $closeCall,
@@ -23,7 +23,7 @@
             <span>&middot; {{ $result->points() }} {{ Str::plural('pt', $result->points()) }}</span>
         </span>
         @if ($needsProof)
-            <span class="rounded-full bg-sky-50 px-2 py-0.5 text-[0.65rem] font-semibold text-sky-800 ring-1 ring-inset ring-sky-200">Needs proof to count as Smashed</span>
+            <span class="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800 ring-1 ring-inset ring-sky-200">Needs proof to count as Smashed</span>
         @endif
     </span>
 @endif

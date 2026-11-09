@@ -8,7 +8,7 @@
                 ['GoalLeagues (optional)', 'Each GoalWeek you face one league mate in the GoalWeek Matchup. A higher band is a Win for 3 match points. Same band is a Photo finish: the higher percent of plan takes a Close win for 2, the other a Close loss for 1, and an exact tie is 1 each. With line points, 0 to 6 points a week.'],
                 ['Your coach has your back', 'Change your plan anytime. Your coach checks you are still in line and suggests a fix if not.'],
             ] as [$heading, $body])
-                <li class="flex gap-4 rounded-2xl border border-line bg-white px-5 py-4">
+                <li class="flex gap-4 rounded-2xl border border-line bg-white px-4 py-3">
                     <span class="font-serif text-2xl font-bold text-club tabular-nums tracking-tight">{{ $loop->iteration }}</span>
                     <div>
                         <p class="font-semibold text-ink">{{ $heading }}</p>

@@ -103,6 +103,71 @@
     text-transform: uppercase;
 }
 
+/* ---------- Compact app density ----------
+   Every screen inside the app (<body data-density="compact">) uses one tighter scale, set here and nowhere else:
+   body 14px, secondary 13px, captions 12px, titles at most 20px on phones and 24px on desktop. Tailwind's size
+   utilities read these variables, so existing classes (text-4xl, text-sm…) follow without page-by-page changes.
+   The landing page, login and the signed-out About hero keep the larger marketing sizes. Corners are 12px. */
+[data-density='compact'] {
+    --text-xs: 0.75rem;
+    --text-xs--line-height: 1rem;
+    --text-sm: 0.8125rem;
+    --text-sm--line-height: 1.125rem;
+    --text-base: 0.875rem;
+    --text-base--line-height: 1.3rem;
+    --text-lg: 0.9375rem;
+    --text-lg--line-height: 1.3rem;
+    --text-xl: 1rem;
+    --text-xl--line-height: 1.3rem;
+    --text-2xl: 1.125rem;
+    --text-2xl--line-height: 1.4rem;
+    --text-3xl: 1.25rem;
+    --text-3xl--line-height: 1.5rem;
+    --text-4xl: 1.25rem;
+    --text-4xl--line-height: 1.5rem;
+    --text-5xl: 1.25rem;
+    --text-5xl--line-height: 1.5rem;
+    --text-6xl: 1.25rem;
+    --text-6xl--line-height: 1.5rem;
+    --text-7xl: 1.25rem;
+    --text-7xl--line-height: 1.5rem;
+    --radius-2xl: 0.75rem;
+    --radius-3xl: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+    [data-density='compact'] {
+        --text-3xl: 1.375rem;
+        --text-3xl--line-height: 1.75rem;
+        --text-4xl: 1.5rem;
+        --text-4xl--line-height: 1.85rem;
+        --text-5xl: 1.5rem;
+        --text-5xl--line-height: 1.85rem;
+        --text-6xl: 1.5rem;
+        --text-6xl--line-height: 1.85rem;
+        --text-7xl: 1.5rem;
+        --text-7xl--line-height: 1.85rem;
+    }
+}
+
+/* Section labels: 12px, semibold, spaced capitals. */
+[data-density='compact'] .eyebrow {
+    letter-spacing: 0.1em;
+}
+
+/* Headings and big numbers: bold and tight, never a wall of type. */
+[data-density='compact'] :is(h1, h2, h3) {
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+}
+
+/* Status colors stand out because everything else is quiet: cards are flat, with a 1px border, not a shadow. */
+[data-density='compact'] main :is(.shadow-xl, .shadow-lg) {
+    box-shadow: 0 1px 2px rgb(30 41 34 / 0.06);
+}
+
 /* The photo cropper shows a round guide for profile photos. */
 .crop-round .cropper-view-box,
 .crop-round .cropper-face {
@@ -294,4 +359,38 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     .gl-toast {
         transition: none;
     }
+}
+
+/* Skeleton loader: a soft shimmer that holds the space. Still when motion is reduced. */
+.gl-skeleton {
+    background: linear-gradient(90deg, rgb(30 41 34 / 0.06) 25%, rgb(30 41 34 / 0.11) 50%, rgb(30 41 34 / 0.06) 75%);
+    background-size: 200% 100%;
+    animation: gl-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes gl-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gl-skeleton {
+        animation: none;
+    }
+}
+
+/* Page heroes inside the app are compact: a slim band under the top bar, not a banner. Pages on x-page-header are
+   already slim; older heroes are tightened here so no page needs its own fix. */
+[data-density='compact'] .gl-hero > div {
+    padding-top: 0.25rem;
+    padding-bottom: 0.875rem;
+}
+
+[data-density='compact'] .gl-hero :is(.mt-2, .mt-3, .mt-4, .mt-5, .mt-6, .mt-7, .mt-8) {
+    margin-top: 0.375rem;
+}
+
+[data-density='compact'] .gl-hero p:not(.eyebrow) {
+    font-size: 0.8125rem;
+    line-height: 1.35;
 }

@@ -52,7 +52,7 @@
                             <div class="flex items-start justify-between gap-3">
                                 <x-badge :badge="App\Badge::ChallengeFinisher" :earned="$finished" class="size-11" />
                                 <span @class([
-                                    'eyebrow rounded-full px-2.5 py-1 text-[0.6rem]',
+                                    'eyebrow rounded-full px-2.5 py-1 text-[11px]',
                                     'bg-club text-ivory' => $active,
                                     'bg-mint text-club' => ! $challenge->hasStarted(),
                                     'bg-ivory text-ink/70 ring-1 ring-line ring-inset' => $challenge->isOver(),
@@ -117,14 +117,14 @@
 
     <h2 class="eyebrow mb-3 text-club">GoalLeagues</h2>
     <div class="grid gap-4 sm:grid-cols-2">
-        <a href="{{ route('leagues.create') }}" class="group rounded-2xl border border-line bg-white px-6 py-5 transition hover:border-club/40">
+        <a href="{{ route('leagues.create') }}" class="group rounded-2xl border border-line bg-white px-4 py-3 transition hover:border-club/40">
             <p class="eyebrow text-club">Start a GoalLeague</p>
             <p class="mt-2 font-serif text-xl font-bold text-club tracking-tight">Be the commissioner</p>
             <p class="mt-1 text-ink/65">Pick a kickoff Monday and a season end, then invite your people.</p>
             <span class="mt-3 inline-block text-sm font-semibold text-club group-hover:underline">Create a GoalLeague &rarr;</span>
         </a>
 
-        <form id="join" method="POST" action="{{ route('leagues.find') }}" class="scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+        <form id="join" method="POST" action="{{ route('leagues.find') }}" class="scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
             @csrf
             <p class="eyebrow text-club">Join a GoalLeague</p>
             <label for="code" class="mt-2 block font-serif text-xl font-bold text-club tracking-tight">Have an invite code?</label>
@@ -139,7 +139,7 @@
         </form>
     </div>
 
-    <section class="mt-10">
+    <section class="mt-6">
         <h2 class="eyebrow text-club">Your GoalLeagues</h2>
         @if ($leagues->isEmpty())
             <div class="mt-3 overflow-hidden rounded-2xl border border-line bg-white">
@@ -147,7 +147,7 @@
                     <x-field-backdrop class="absolute inset-0 size-full" />
                 </div>
                 <x-goal-line />
-                <p class="px-6 py-5 text-ink/70">You're not in a GoalLeague yet. GoalLeagues are optional: start one with friends, teammates, or classmates, or join with a code.</p>
+                <p class="px-4 py-3 text-ink/70">You're not in a GoalLeague yet. GoalLeagues are optional: start one with friends, teammates, or classmates, or join with a code.</p>
             </div>
         @else
             <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
@@ -177,7 +177,7 @@
                                 <span class="shrink-0 rounded-full bg-club px-2 py-0.5 text-xs font-semibold text-ivory tabular-nums" title="Unread chat messages">{{ $unread }} new</span>
                             @endif
                             <span @class([
-                                'eyebrow shrink-0 rounded-full px-2.5 py-1 text-[0.65rem]',
+                                'eyebrow shrink-0 rounded-full px-2.5 py-1 text-[11px]',
                                 'bg-mint text-club' => $league->status() === App\LeagueStatus::Forming,
                                 'bg-grass text-ink' => $league->status() === App\LeagueStatus::Active,
                                 'bg-ivory text-ink/70' => $league->status() === App\LeagueStatus::Finished,

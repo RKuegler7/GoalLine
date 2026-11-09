@@ -109,7 +109,7 @@
                 <label for="proof-file-{{ $fieldId }}" class="sr-only">Photo or screenshot</label>
                 <input id="proof-file-{{ $fieldId }}" name="proof" type="file" accept="image/jpeg,image/png,image/webp" required
                     class="w-full text-xs text-ink/70 file:mr-3 file:rounded-full file:border-0 file:bg-club file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-ivory hover:file:bg-club-dark">
-                <p class="mt-1 text-[0.7rem] text-ink/70">JPG, PNG, or WebP, up to 5 MB. Location data is removed.</p>
+                <p class="mt-1 text-[11px] text-ink/70">JPG, PNG, or WebP, up to 5 MB. Location data is removed.</p>
             </div>
 
             <fieldset>
@@ -138,8 +138,8 @@
                     class="mt-0.5 w-full resize-y rounded-lg border border-line bg-white px-2.5 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">{{ $proofError ? old('caption') : '' }}</textarea>
                 @if (config('goalline.caption_suggestions') && filled(config('services.anthropic.key')))
                     <button type="button" data-suggest-caption="{{ route('roadmap.tasks.caption', $task) }}" data-target="proof-caption-{{ $fieldId }}"
-                        class="text-[0.7rem] font-semibold text-club hover:underline">Suggest a caption</button>
-                    <span data-suggest-status class="text-[0.7rem] text-ink/70"></span>
+                        class="text-[11px] font-semibold text-club hover:underline">Suggest a caption</button>
+                    <span data-suggest-status class="text-[11px] text-ink/70"></span>
                 @endif
             </div>
 
@@ -147,7 +147,7 @@
                 <label for="proof-location-{{ $fieldId }}" class="text-xs font-semibold text-ink/75">Where? <span class="font-normal text-ink/70">(optional)</span></label>
                 <input id="proof-location-{{ $fieldId }}" name="location" maxlength="{{ App\Models\Highlight::MAX_LOCATION }}" value="{{ $proofError ? old('location') : '' }}" placeholder="Riverside trail, the library, Gold's Gym"
                     class="mt-0.5 w-full rounded-lg border border-line bg-white px-2.5 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                <p class="mt-0.5 text-[0.7rem] text-ink/70">Crop out maps that show your home.</p>
+                <p class="mt-0.5 text-[11px] text-ink/70">Crop out maps that show your home.</p>
             </div>
 
             <button type="submit" class="rounded-full bg-club px-4 py-1.5 text-xs font-semibold text-ivory hover:bg-club-dark">Add proof</button>

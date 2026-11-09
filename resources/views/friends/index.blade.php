@@ -7,10 +7,10 @@
         </div>
     </x-slot:hero>
 
-    <div class="mx-auto max-w-2xl space-y-8">
+    <div class="mx-auto max-w-2xl space-y-5">
         <x-people-search-form label="Find people" />
 
-        <div data-region="friends" class="space-y-8">
+        <div data-region="friends" class="space-y-5">
 
         {{-- Add a friend: exact username or email only. No directory. --}}
         <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white p-5">
@@ -56,7 +56,7 @@
         <section>
             <h2 class="eyebrow text-club">Your friends</h2>
             @if ($friends->isEmpty())
-                <p class="mt-3 rounded-2xl border border-line bg-white px-5 py-4 text-ink/65">No friends yet. Add someone you trust to keep you honest. The process is easier with company.</p>
+                <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-ink/65">No friends yet. Add someone you trust to keep you honest. The process is easier with company.</p>
             @else
                 <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                     @foreach ($friends as $friend)

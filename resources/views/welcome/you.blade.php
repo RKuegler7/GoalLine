@@ -1,5 +1,5 @@
 <x-layouts.welcome :step="1" title="Welcome to GoalLine" intro="Let's set up your locker. You can change any of this later.">
-    <form method="POST" action="{{ route('welcome.you') }}" enctype="multipart/form-data" class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+    <form method="POST" action="{{ route('welcome.you') }}" enctype="multipart/form-data" class="space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
         @csrf
         @method('PUT')
 

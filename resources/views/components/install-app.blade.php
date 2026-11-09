@@ -1,5 +1,5 @@
 {{-- "Get the app": shown by app.js only when the browser can install GoalLine and it isn't installed yet. --}}
-<section data-install-card hidden {{ $attributes->class('relative overflow-hidden rounded-2xl bg-club px-5 py-4 text-ivory') }}>
+<section data-install-card hidden {{ $attributes->class('relative overflow-hidden rounded-2xl bg-club px-4 py-3 text-ivory') }}>
     <x-field-backdrop class="absolute inset-0 size-full opacity-60" />
     <div class="relative flex items-start gap-4">
         <img src="/icons/app-icon.svg" alt="" class="size-12 shrink-0 rounded-xl ring-2 ring-ivory/30">

@@ -77,7 +77,7 @@
             </ul>
         </nav>
 
-        <div class="mt-10 space-y-14 leading-relaxed text-ink/80 [&_h2]:scroll-mt-6 [&_section]:scroll-mt-6">
+        <div class="mt-6 space-y-14 leading-relaxed text-ink/80 [&_h2]:scroll-mt-6 [&_section]:scroll-mt-6">
             {{-- 1. What it is --}}
             <section id="what" aria-labelledby="what-title">
                 <p class="eyebrow text-club">What GoalLine is</p>
@@ -90,7 +90,7 @@
                 <p class="eyebrow text-club">The goal of GoalLine</p>
                 <h2 id="mission-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">Goals completed, not goals intended</h2>
                 <p class="mt-3">People finish what matters when they have a real plan, a daily process, and friends who see their progress. A life is built from goals completed, not goals intended.</p>
-                <div class="mt-5 rounded-2xl border-l-4 border-club bg-mint px-5 py-4">
+                <div class="mt-5 rounded-2xl border-l-4 border-club bg-mint px-4 py-3">
                     <p class="font-serif text-lg font-bold tracking-tight text-club">Trust the process.</p>
                     <p class="mt-1 text-ink/80">Doing the right things each day, consistently, is what builds the goal. GoalLine scores the process, so every day on the line counts.</p>
                 </div>
@@ -223,7 +223,7 @@
                     <p class="eyebrow border-b border-line px-5 py-3 text-club">Weekly points explained</p>
                     <div class="grid gap-px bg-line sm:grid-cols-2">
                         @foreach ([$avery, $sam] as $player)
-                            <div class="bg-white px-5 py-4 text-sm">
+                            <div class="bg-white px-4 py-3 text-sm">
                                 <p class="font-serif text-lg font-bold tracking-tight text-ink">{{ $player['name'] }}</p>
                                 <p class="mt-1">Planned {{ $player['tasks'] }} tasks + {{ $player['habitDays'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['planned'] }} pts</strong></p>
                                 <p>Earned {{ $player['tasksDone'] }} tasks + {{ $player['habitDaysDone'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['earned'] }} pts</strong></p>
@@ -288,7 +288,7 @@
                         </div>
                     @endforeach
                 </dl>
-                <p class="mt-4 rounded-2xl bg-club px-5 py-4 font-semibold text-ivory">Scoring is done by plain, tested code. The AI never touches a score.</p>
+                <p class="mt-4 rounded-2xl bg-club px-4 py-3 font-semibold text-ivory">Scoring is done by plain, tested code. The AI never touches a score.</p>
             </section>
 
             {{-- 9. AI --}}
@@ -362,7 +362,7 @@
                 <p class="eyebrow text-club">Contact and feedback</p>
                 <h2 id="contact-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">Something broken, confusing, or great?</h2>
                 @if ($viewer)
-                    <form method="POST" action="{{ route('feedback.store') }}" class="mt-4 rounded-2xl border border-line bg-white px-5 py-4">
+                    <form method="POST" action="{{ route('feedback.store') }}" class="mt-4 rounded-2xl border border-line bg-white px-4 py-3">
                         @csrf
                         <input type="hidden" name="page" value="/about">
                         <label for="about-feedback" class="text-sm font-semibold text-ink">Tell the GoalLine team</label>

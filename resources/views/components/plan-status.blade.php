@@ -13,8 +13,8 @@
 
 @if ($label)
     @if ($href)
-        <a href="{{ $href }}" {{ $attributes->class("inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-semibold hover:underline {$classes}") }} title="Planned {{ $week->plannedPoints() }} · minimum {{ $week->effectiveFloor() }}">{{ $label }}</a>
+        <a href="{{ $href }}" {{ $attributes->class("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold hover:underline {$classes}") }} title="Planned {{ $week->plannedPoints() }} · minimum {{ $week->effectiveFloor() }}">{{ $label }}</a>
     @else
-        <span {{ $attributes->class("inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-semibold {$classes}") }} title="Planned {{ $week->plannedPoints() }} · minimum {{ $week->effectiveFloor() }}">{{ $label }}</span>
+        <span {{ $attributes->class("inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold {$classes}") }} title="Planned {{ $week->plannedPoints() }} · minimum {{ $week->effectiveFloor() }}">{{ $label }}</span>
     @endif
 @endif

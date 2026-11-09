@@ -42,7 +42,7 @@
 
     @if ($matchup)
         <a href="{{ route('leagues.matchups', $league) }}" class="mx-5 mt-3 block rounded-xl bg-ivory px-3 py-2.5 hover:bg-mint/50">
-            <p class="flex items-center justify-between eyebrow text-[0.58rem] text-ink/70"><span>GoalWeek {{ $league->currentWeek() }} Matchup</span><span class="text-club">&rarr;</span></p>
+            <p class="flex items-center justify-between eyebrow text-[11px] text-ink/70"><span>GoalWeek {{ $league->currentWeek() }} Matchup</span><span class="text-club">&rarr;</span></p>
             <div class="mt-1.5 flex items-center justify-between gap-2 text-sm">
                 <span class="font-semibold text-ink">You</span>
                 <span @class([

@@ -10,7 +10,7 @@
     @php
         $goalChoice = old('goal_id', $fromGoal?->id ?? ($goals->isEmpty() ? 'new' : $goals->first()->id));
     @endphp
-        <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-10">
+        <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             @csrf
 
             @if ($fromGoal)

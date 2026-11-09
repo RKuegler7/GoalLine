@@ -80,9 +80,9 @@
                     $logFrom = $week->starts_on->max($today->copy()->subDays(App\Http\Controllers\HabitController::BACKFILL_DAYS))->copy();
                 @endphp
                 <section class="overflow-hidden rounded-2xl border border-line bg-white">
-                    <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
+                    <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-4 py-3">
                         <div class="min-w-0">
-                            <p class="eyebrow text-[0.62rem] text-ink/70">{{ $week->label() }} &middot; ends {{ $week->ends_on->format('D, M j') }}</p>
+                            <p class="eyebrow text-[11px] text-ink/70">{{ $week->label() }} &middot; ends {{ $week->ends_on->format('D, M j') }}</p>
                             <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
                             <p class="mt-0.5 text-sm text-ink/65">{{ $week->focus }}</p>
                         </div>
@@ -97,7 +97,7 @@
                                 <span @class(['min-w-0 text-sm', 'text-ink/70 line-through' => $task->completed_at, 'text-ink' => ! $task->completed_at])>
                                     {{ $task->description }}
                                     @if ($task->is_bonus)
-                                        <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] text-ink no-underline">Bonus</span>
+                                        <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[11px] text-ink no-underline">Bonus</span>
                                     @endif
                                 </span>
                                 @if ($task->completed_at)
@@ -127,9 +127,9 @@
                     </ul>
 
                     @if ($habits->isNotEmpty())
-                        <div class="border-t border-line bg-ivory/60 px-5 py-4">
+                        <div class="border-t border-line bg-ivory/60 px-4 py-3">
                             <div class="flex items-center justify-between gap-3">
-                                <h3 class="eyebrow flex items-center gap-1.5 text-[0.65rem] text-club"><x-icon name="repeat" class="size-3.5" /> Habits</h3>
+                                <h3 class="eyebrow flex items-center gap-1.5 text-[11px] text-club"><x-icon name="repeat" class="size-3.5" /> Habits</h3>
                                 <a href="{{ route('goals.show', $goal) }}#habits" class="text-xs font-semibold text-club hover:underline">Edit habits</a>
                             </div>
                             <ul class="mt-2 space-y-2">
@@ -140,7 +140,7 @@
                                         <span class="flex items-center gap-1.5">
                                             @for ($day = $logFrom->copy(); $day->lte($today); $day = $day->copy()->addDay())
                                                 <span class="flex flex-col items-center">
-                                                    <span class="text-[0.6rem] font-semibold text-ink/70" aria-hidden="true">{{ $day->format('D')[0] }}</span>
+                                                    <span class="text-[11px] font-semibold text-ink/70" aria-hidden="true">{{ $day->format('D')[0] }}</span>
                                                     <x-habit-toggle :habit="$habit" :day="$day" return="planner" />
                                                 </span>
                                             @endfor

@@ -6,7 +6,7 @@
     $weeks = $heatmap->weeks();
 @endphp
 
-<section {{ $attributes->class('rounded-2xl border border-line bg-white px-5 py-4') }}>
+<section {{ $attributes->class('rounded-2xl border border-line bg-white px-4 py-3') }}>
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <h2 class="eyebrow text-club">A year of check-ins</h2>
         <p class="text-sm text-ink/70">
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="mt-2 flex items-center justify-end gap-1 text-[0.65rem] text-ink/70">
+    <div class="mt-2 flex items-center justify-end gap-1 text-[11px] text-ink/70">
         Less
         @foreach ($shades as $shade)
             <span class="size-[11px] rounded-[3px] {{ $shade }}"></span>

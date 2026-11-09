@@ -15,9 +15,9 @@
                         </a>
                     </div>
                 @elseif ($goal->isCompleted())
-                    <span class="eyebrow shrink-0 self-start rounded-full bg-gold px-4 py-2 text-[0.7rem] text-ink sm:self-auto">Completed</span>
+                    <span class="eyebrow shrink-0 self-start rounded-full bg-gold px-4 py-2 text-[11px] text-ink sm:self-auto">Completed</span>
                 @else
-                    <span class="eyebrow shrink-0 self-start rounded-full bg-ivory/15 px-4 py-2 text-[0.7rem] text-ivory sm:self-auto">Retired</span>
+                    <span class="eyebrow shrink-0 self-start rounded-full bg-ivory/15 px-4 py-2 text-[11px] text-ivory sm:self-auto">Retired</span>
                 @endif
             </div>
         </div>
@@ -46,7 +46,7 @@
             </div>
             <x-goal-line />
             @if ($goal->completion_note)
-                <p class="px-6 py-5 font-serif text-xl leading-relaxed text-ink sm:px-10 tracking-tight">&ldquo;{{ $goal->completion_note }}&rdquo;</p>
+                <p class="px-4 py-3 font-serif text-xl leading-relaxed text-ink sm:px-10 tracking-tight">&ldquo;{{ $goal->completion_note }}&rdquo;</p>
             @endif
         </section>
     @elseif (! $goal->isActive())
@@ -56,11 +56,11 @@
     @endif
 
     <dl class="grid overflow-hidden rounded-2xl border border-line bg-white sm:grid-cols-2">
-        <div class="border-line px-6 py-5 max-sm:border-b sm:border-r">
+        <div class="border-line px-4 py-3 max-sm:border-b sm:border-r">
             <dt class="eyebrow text-club">Target date</dt>
             <dd class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">{{ $goal->target_date->format('F j, Y') }}</dd>
         </div>
-        <div class="px-6 py-5">
+        <div class="px-4 py-3">
             <dt class="eyebrow text-club">Time left</dt>
             <dd class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">
                 <x-days-left :days="$goal->daysRemaining()" />
@@ -69,7 +69,7 @@
     </dl>
 
     @if ($goal->why)
-        <section class="mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+        <section class="mt-6 rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">Why it matters</h2>
             <p class="mt-2 font-serif text-xl leading-relaxed text-ink tracking-tight">&ldquo;{{ $goal->why }}&rdquo;</p>
         </section>
@@ -84,7 +84,7 @@
     <x-roadmap :goal="$goal" />
 
     @if ($goal->isActive())
-        <div class="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+        <div class="mt-6 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p class="text-ink/70">
                 @if ($goal->inTrial())
                     <span class="font-semibold text-club">Trial:</span> you can remove this goal until {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. After that, you're locked in.

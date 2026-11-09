@@ -20,7 +20,7 @@
                             {{ $version->label() }}
                             <span class="font-normal text-ink/70">&middot; {{ App\Clock::local($version->created_at)->format('M j, g:i a') }}</span>
                             @if ($loop->first)
-                                <span class="ml-1 rounded-full bg-mint px-2 py-0.5 text-[0.65rem] font-semibold text-club">Current</span>
+                                <span class="ml-1 rounded-full bg-mint px-2 py-0.5 text-[11px] font-semibold text-club">Current</span>
                             @endif
                         </p>
                         <p class="mt-0.5 text-sm text-ink/65">{{ $version->summary }}</p>

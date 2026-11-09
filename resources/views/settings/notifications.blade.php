@@ -11,7 +11,7 @@
         @csrf
         @method('PUT')
 
-        <section class="space-y-5 rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <section class="space-y-5 rounded-2xl border border-line bg-white p-4 sm:p-6">
             <div>
                 <h2 class="eyebrow text-club">Daily reminders</h2>
                 <p class="mt-1 text-sm text-ink/70">On your clock ({{ str_replace('_', ' ', auth()->user()->timezoneName()) }}).</p>
@@ -42,7 +42,7 @@
         </section>
 
         {{-- Push on this device: app.js shows the right state once it knows what the browser supports. --}}
-        <section class="rounded-2xl border border-line bg-white p-6 sm:p-8" data-push-panel data-vapid-key="{{ config('services.webpush.public_key') }}">
+        <section class="rounded-2xl border border-line bg-white p-4 sm:p-6" data-push-panel data-vapid-key="{{ config('services.webpush.public_key') }}">
             <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="bell" class="size-4" /> Phone notifications</h2>
             <p data-push-state="off" class="mt-2 text-sm text-ink/65">Get your gameplan, nudges, cheers, and results as notifications on this device.</p>
             <p data-push-state="on" hidden class="mt-2 text-sm font-medium text-club">Notifications are on for this device.</p>
@@ -54,7 +54,7 @@
             </div>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <section class="rounded-2xl border border-line bg-white p-4 sm:p-6">
             <div class="flex items-end justify-between gap-4">
                 <h2 class="eyebrow text-club">What to send</h2>
                 <div class="flex shrink-0 gap-3 text-xs font-semibold text-ink/70">
@@ -91,7 +91,7 @@
         $feedUrl = auth()->user()->calendarUrl();
         $webcalUrl = preg_replace('/^https?:/', 'webcal:', $feedUrl);
     @endphp
-    <section id="calendar" class="mx-auto mt-6 max-w-2xl scroll-mt-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+    <section id="calendar" class="mx-auto mt-6 max-w-2xl scroll-mt-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
         <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="calendar" class="size-4" /> Add GoalLine to your calendar</h2>
         <p class="mt-2 text-sm text-ink/65">Your planned tasks on their days, recurring habits, GoalWeek milestones, and target dates, kept in sync automatically.</p>
 

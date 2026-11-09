@@ -7,7 +7,7 @@
         </div>
     </x-slot:hero>
 
-    <div class="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+    <div class="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div class="min-w-0">
             @if ($highlights->isEmpty())
                 <section class="overflow-hidden rounded-2xl border border-line bg-white">
@@ -39,7 +39,7 @@
         <aside class="space-y-6 lg:sticky lg:top-6 lg:self-start">
             <x-people-search-form label="Find people" />
 
-            <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-5 py-4">
+            <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-4 py-3">
                 @csrf
                 <label for="friend-who" class="eyebrow text-club">Add a friend</label>
                 <div class="mt-2 flex gap-2">
@@ -51,14 +51,14 @@
                 @enderror
             </form>
 
-            <section class="rounded-2xl border border-line bg-white px-5 py-4">
+            <section class="rounded-2xl border border-line bg-white px-4 py-3">
                 <div class="flex items-baseline justify-between">
                     <h2 class="eyebrow text-club">Friends</h2>
                     <a href="{{ route('friends.index') }}" class="text-xs font-semibold text-club hover:underline">Manage</a>
                 </div>
                 @forelse ($friends as $friend)
                     <a href="{{ $friend->profileUrl() }}" class="mt-3 flex items-center gap-2.5 text-sm text-ink hover:text-club">
-                        <x-avatar :user="$friend" class="size-8 text-[0.6rem]" />
+                        <x-avatar :user="$friend" class="size-8 text-[11px]" />
                         <span class="truncate font-medium">{{ $friend->name }}</span>
                     </a>
                 @empty

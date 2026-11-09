@@ -16,7 +16,7 @@
             </p>
         @endif
         @if ($reports->isNotEmpty())
-            <section class="mb-8 rounded-2xl border border-red-200 bg-red-50/60 px-5 py-4">
+            <section class="mb-5 rounded-2xl border border-red-200 bg-red-50/60 px-4 py-3">
                 <h2 class="eyebrow text-red-800">Reports to review</h2>
                 <p class="mt-1 text-sm text-ink/70">Only you see this, as league owner. Reported posts are hidden from whoever reported them. Remove a post from the league with its &hellip; menu, or leave it up if it's fine.</p>
                 <ul class="mt-3 space-y-3">

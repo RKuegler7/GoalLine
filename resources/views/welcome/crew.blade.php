@@ -1,7 +1,7 @@
 <x-layouts.welcome :step="3" title="Who's in your corner?" intro="Goals stick when people are watching. Join a GoalLeague, start one, or add friends. All optional.">
     <div class="space-y-4">
         @if ($pendingInvite = App\Models\LeagueInvite::findUsable(session('league_invite')))
-            <a href="{{ $pendingInvite->url() }}" class="block rounded-2xl border-2 border-club bg-mint px-6 py-5">
+            <a href="{{ $pendingInvite->url() }}" class="block rounded-2xl border-2 border-club bg-mint px-4 py-3">
                 <span class="eyebrow text-club">You're invited</span>
                 <span class="mt-1 block font-serif text-xl text-club tracking-tight">Join {{ $pendingInvite->league->name }} &rarr;</span>
             </a>
@@ -13,7 +13,7 @@
             </p>
         @endunless
 
-        <form method="POST" action="{{ route('leagues.find') }}" class="rounded-2xl border border-line bg-white px-6 py-5">
+        <form method="POST" action="{{ route('leagues.find') }}" class="rounded-2xl border border-line bg-white px-4 py-3">
             @csrf
             <label for="code" class="eyebrow text-club">Got an invite code?</label>
             <div class="mt-3 flex gap-2">
@@ -26,7 +26,7 @@
             @enderror
         </form>
 
-        <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-6 py-5">
+        <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white px-4 py-3">
             @csrf
             <label for="who" class="eyebrow text-club">Add a friend</label>
             <div class="mt-3 flex gap-2">

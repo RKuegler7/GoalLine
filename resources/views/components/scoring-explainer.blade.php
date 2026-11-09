@@ -1,5 +1,5 @@
 {{-- How scoring works, in one place. --}}
-<details {{ $attributes->class('group rounded-2xl border border-line bg-white px-5 py-4') }}>
+<details {{ $attributes->class('group rounded-2xl border border-line bg-white px-4 py-3') }}>
     <summary class="flex cursor-pointer list-none items-center justify-between [&::-webkit-details-marker]:hidden">
         <span class="eyebrow text-club">How scoring works</span>
         <span class="text-ink/70 transition group-open:rotate-45" aria-hidden="true">+</span>

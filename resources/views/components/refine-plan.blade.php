@@ -13,7 +13,7 @@
     $refineErrors = $errors->getBag('refine');
 @endphp
 
-<section id="refine" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+<section id="refine" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
     <h2 class="eyebrow text-club">Refine your plan</h2>
 
     @if ($open)

@@ -11,7 +11,7 @@
         @method('PUT')
 
         {{-- Photos. --}}
-        <section class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <section class="space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             <h2 class="eyebrow text-club">Photos</h2>
 
             <div class="flex items-center gap-5">
@@ -39,7 +39,7 @@
                         <img src="{{ $user->coverUrl() }}" alt="Current cover photo" class="size-full object-cover">
                     @else
                         <x-field-backdrop class="absolute inset-0 size-full" />
-                        <span class="eyebrow absolute bottom-2 left-3 text-[0.6rem] text-ivory/80">Default: the field</span>
+                        <span class="eyebrow absolute bottom-2 left-3 text-[11px] text-ivory/80">Default: the field</span>
                     @endif
                 </div>
                 <label for="cover" class="sr-only">Cover photo</label>
@@ -58,7 +58,7 @@
         </section>
 
         {{-- About you. --}}
-        <section class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <section class="space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             <h2 class="eyebrow text-club">About you</h2>
             <x-form.input name="name" label="Name" :value="$user->name" autocomplete="name" required />
             <x-form.input name="email" label="Email" type="email" :value="$user->email" autocomplete="email" required
@@ -86,7 +86,7 @@
         </section>
 
         {{-- Settings. --}}
-        <section class="space-y-6 rounded-2xl border border-line bg-white p-6 sm:p-8">
+        <section class="space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             <div class="flex items-center justify-between gap-4">
                 <h2 class="eyebrow text-club">Settings</h2>
                 <a href="{{ route('settings.notifications') }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-club hover:underline"><x-icon name="bell" class="size-4" /> Notifications &amp; reminders</a>
@@ -142,7 +142,7 @@
         </div>
     </form>
 
-    <div class="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-4 border-t border-line pt-6">
+    <div class="mx-auto mt-6 flex max-w-2xl items-center justify-between gap-4 border-t border-line pt-6">
         <p class="text-sm text-ink/70">
             <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a> &middot; <a href="{{ route('terms') }}" class="hover:text-club">Terms</a>
             @can('admin')

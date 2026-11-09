@@ -5,7 +5,9 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "qa": "vite build && playwright test"
+        "qa": "vite build && playwright test",
+        "audit:before": "vite build && playwright test -c qa/audit.config.js",
+        "audit:after": "vite build && playwright test -c qa/audit.config.js"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.14.0",

@@ -38,7 +38,7 @@
         </div>
     </x-slot:hero>
 
-    <div @class(['mx-auto max-w-2xl rounded-2xl border border-line bg-white p-6 sm:p-10', 'my-10 mx-4 sm:mx-auto' => ! $viewer])>
+    <div @class(['mx-auto max-w-2xl rounded-2xl border border-line bg-white p-4 sm:p-6', 'my-10 mx-4 sm:mx-auto' => ! $viewer])>
         @if ($expired)
             <p class="font-serif text-xl text-club tracking-tight">This invite has expired or was turned off.</p>
             <p class="mt-2 text-ink/70">Ask {{ $league->commissioner->name }} for a fresh link.</p>
@@ -81,7 +81,7 @@
                 <ul class="flex flex-wrap gap-2" aria-label="Members">
                     @foreach ($league->members as $member)
                         <li class="flex items-center gap-2 rounded-full bg-ivory py-1 pr-3 pl-1 text-sm text-ink/80">
-                            <x-avatar :user="$member->user" class="size-6 text-[0.6rem]" /> {{ $member->user->name }}
+                            <x-avatar :user="$member->user" class="size-6 text-[11px]" /> {{ $member->user->name }}
                         </li>
                     @endforeach
                 </ul>

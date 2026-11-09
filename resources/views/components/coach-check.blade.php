@@ -48,7 +48,7 @@
     </details>
 @elseif ($checkStatus === App\RoadmapStatus::Ready && $verdict)
     <div @class([
-        'mt-4 rounded-2xl border px-6 py-5',
+        'mt-4 rounded-2xl border px-4 py-3',
         'border-grass/40 bg-mint' => $verdict === App\PlanVerdict::OnTrack,
         'border-amber-300 bg-amber-50' => $verdict === App\PlanVerdict::AtRisk,
         'border-red-300 bg-red-50' => $verdict === App\PlanVerdict::OffTrack,
@@ -56,7 +56,7 @@
         <div class="flex flex-wrap items-center gap-3">
             <span class="eyebrow text-ink/70">Coach check</span>
             <span @class([
-                'eyebrow rounded-full px-2.5 py-1 text-[0.65rem]',
+                'eyebrow rounded-full px-2.5 py-1 text-[11px]',
                 'bg-grass text-ink' => $verdict === App\PlanVerdict::OnTrack,
                 'bg-amber-500 text-white' => $verdict === App\PlanVerdict::AtRisk,
                 'bg-red-600 text-white' => $verdict === App\PlanVerdict::OffTrack,

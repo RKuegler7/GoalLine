@@ -23,8 +23,8 @@
     {{-- The scoreboard. --}}
     <section data-region="matchup-{{ $card['home']['member']->id }}" @class(['rounded-2xl border bg-white p-4 sm:p-5', 'border-club ring-4 ring-mint' => $page['mine'], 'border-line' => ! $page['mine']])>
         <div class="flex items-center justify-between gap-2">
-            <p class="eyebrow text-[0.62rem] text-ink/70">{{ $eyebrow }}</p>
-            <p @class(['eyebrow rounded-full px-2 py-0.5 text-[0.6rem]', 'bg-ink/5 text-ink/70' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</p>
+            <p class="eyebrow text-[11px] text-ink/70">{{ $eyebrow }}</p>
+            <p @class(['eyebrow rounded-full px-2 py-0.5 text-[11px]', 'bg-ink/5 text-ink/70' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</p>
         </div>
 
         <div @class(['mt-4 grid gap-4', 'grid-cols-2' => $page['kind'] !== 'solo'])>
@@ -38,7 +38,7 @@
                         <x-avatar :user="$side['member']->user" class="size-11 text-xs" />
                         @if ($page['kind'] !== 'solo' && ($final || $side['outcome']->isWin()))
                             <span @class([
-                                'rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold',
+                                'rounded-md px-1.5 py-0.5 text-[11px] font-bold',
                                 'bg-grass text-ink' => $side['outcome']->isWin(),
                                 'bg-mint text-club' => $side['outcome'] === App\MatchupOutcome::Tie,
                                 'bg-ink/10 text-ink/70' => $side['outcome']->isLoss(),
@@ -95,7 +95,7 @@
             <p class="mt-3 rounded-xl bg-ivory px-4 py-3 text-center text-sm text-ink">It&rsquo;s you against the line this season. Invite someone and the matchups start.</p>
         @else
             @if ($card['home']['outcome']->isPhotoFinish() && ($card['away'] !== null || $card['median'] !== null))
-                <p class="mt-3 flex justify-center"><span class="eyebrow rounded-full bg-gold/25 px-2.5 py-0.5 text-[0.6rem] text-ink" title="Same band, so the higher credited percent of plan takes it">Photo finish</span></p>
+                <p class="mt-3 flex justify-center"><span class="eyebrow rounded-full bg-gold/25 px-2.5 py-0.5 text-[11px] text-ink" title="Same band, so the higher credited percent of plan takes it">Photo finish</span></p>
             @endif
             <p class="mt-3 rounded-xl bg-ivory px-4 py-3 text-center font-medium text-ink">{{ $card['verdict'] }}</p>
         @endif
@@ -146,10 +146,10 @@
                             @foreach ($side['days'] as $day)
                                 <li>
                                     <p @class(['flex items-center gap-2 px-1 text-xs font-semibold', 'text-club' => $day['isToday'], 'text-ink/70' => ! $day['isToday']])>
-                                        <span class="eyebrow text-[0.6rem]">{{ $day['label'] }}</span>
+                                        <span class="eyebrow text-[11px]">{{ $day['label'] }}</span>
                                         <span>{{ $day['date']->format('M j') }}</span>
                                         @if ($day['isToday'])
-                                            <span class="rounded-full bg-mint px-1.5 text-[0.6rem]">Today</span>
+                                            <span class="rounded-full bg-mint px-1.5 text-[11px]">Today</span>
                                         @endif
                                     </p>
                                     @if ($day['rows'] === [])
@@ -165,7 +165,7 @@
                             @endforeach
                             @if ($side['anytime'] !== [])
                                 <li>
-                                    <p class="px-1 text-xs font-semibold text-ink/70"><span class="eyebrow text-[0.6rem]">Any day</span> this week</p>
+                                    <p class="px-1 text-xs font-semibold text-ink/70"><span class="eyebrow text-[11px]">Any day</span> this week</p>
                                     <ul class="mt-1 space-y-1">
                                         @foreach ($side['anytime'] as $row)
                                             <x-matchup-task-row :row="$row" />

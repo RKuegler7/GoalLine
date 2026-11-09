@@ -11,7 +11,7 @@
 
     {{-- The card sits across the goal line. --}}
     <div class="relative -mt-16 px-4 pb-16">
-        <div class="mx-auto w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-xl shadow-ink/5">
+        <div class="mx-auto w-full max-w-md rounded-2xl border border-line bg-white p-5 shadow-xl shadow-ink/5">
             {{ $slot }}
         </div>
     </div>

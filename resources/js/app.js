@@ -1182,3 +1182,37 @@ document.querySelectorAll('[data-habit-fields]').forEach((fields) => {
     fields.addEventListener('change', sync);
     sync();
 });
+
+/**
+ * Segmented controls with in-page panels (components/segmented): show the chosen [data-segment-panel], hide the rest.
+ * Delegated, so controls inside regions that update in place keep working.
+ */
+document.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-segment]');
+    const group = button?.closest('[data-segmented]');
+
+    if (!button || !group) {
+        return;
+    }
+
+    group.querySelectorAll('[data-segment]').forEach((option) => {
+        const active = option === button;
+        option.setAttribute('aria-selected', active ? 'true' : 'false');
+        option.classList.toggle('bg-white', active);
+        option.classList.toggle('text-club', active);
+        option.classList.toggle('shadow-sm', active);
+        option.classList.toggle('text-ink/70', !active);
+    });
+    group.querySelectorAll('[data-segment-panel]').forEach((panel) => {
+        panel.hidden = panel.dataset.segmentPanel !== button.dataset.segment;
+    });
+});
+
+/* Close any open "+ Start" menu when tapping elsewhere. */
+document.addEventListener('click', (event) => {
+    document.querySelectorAll('[data-action-menu][open]').forEach((menu) => {
+        if (!menu.contains(event.target)) {
+            menu.open = false;
+        }
+    });
+});

@@ -9,7 +9,7 @@
         </div>
     </x-slot:hero>
 
-    <section class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-6 text-center sm:p-8">
+    <section class="mx-auto max-w-xl rounded-2xl border border-line bg-white p-4 text-center sm:p-6">
         <p class="text-ink/75">
             {{ $challenge->starts_on->format('M j') }}&ndash;{{ $challenge->ends_on->format('M j') }} &middot;
             check in on {{ $challenge->target_days }} of {{ $challenge->lengthInDays() }} days to finish &middot;

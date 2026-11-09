@@ -5,7 +5,7 @@
 
     @if (config('goalline.demo.enabled'))
         {{-- Judges and the curious never need a username or password. --}}
-        <a href="{{ route('demo') }}" class="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gold px-5 py-4 text-ink shadow-sm transition hover:brightness-105">
+        <a href="{{ route('demo') }}" class="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gold px-4 py-3 text-ink shadow-sm transition hover:brightness-105">
             <span>
                 <span class="block font-serif text-lg font-bold tracking-tight">Try the demo</span>
                 <span class="block text-sm text-ink/75">One click, no sign-up. Your own pretend world with friends and a live matchup.</span>

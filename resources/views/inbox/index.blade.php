@@ -32,7 +32,7 @@
                         };
                     @endphp
                     <li>
-                        <a href="{{ $notification->data['url'] ?? route('dashboard') }}" @class(['flex items-start gap-3 px-5 py-4 transition hover:bg-mint/40', 'bg-mint/60' => $isNew])>
+                        <a href="{{ $notification->data['url'] ?? route('dashboard') }}" @class(['flex items-start gap-3 px-4 py-3 transition hover:bg-mint/40', 'bg-mint/60' => $isNew])>
                             @if ($actor)
                                 <x-avatar :user="$actor" class="size-10 text-xs" />
                             @else

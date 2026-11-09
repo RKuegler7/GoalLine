@@ -18,7 +18,7 @@
 <section id="goal-{{ $goal->id }}" data-region="clubhouse-goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex flex-wrap items-start justify-between gap-3 px-5 pt-5">
         <div class="min-w-0">
-            <p class="eyebrow text-[0.62rem] text-ink/70">
+            <p class="eyebrow text-[11px] text-ink/70">
                 {{ $goal->category->label() }} &middot; <x-days-left :days="$goal->daysRemaining()" />
             </p>
             <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
@@ -56,7 +56,7 @@
                             <span @class(['text-ink/70 line-through decoration-ink/30' => $task->completed_at, 'text-ink/85' => ! $task->completed_at])>
                                 {{ $task->description }}
                                 @if ($task->is_bonus)
-                                    <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] text-ink no-underline">Bonus</span>
+                                    <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[11px] text-ink no-underline">Bonus</span>
                                 @endif
                             </span>
                             <x-task-details :task="$task" :checkable="$checkable" return="clubhouse" context="clubhouse" />

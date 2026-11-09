@@ -18,7 +18,7 @@
                 GoalLine turns what matters to you into a dated, personal plan, shows you today's next step, and keeps the people around you in your corner.
             </p>
 
-            <div class="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
                 @auth
                     <a href="{{ route('dashboard') }}" class="rounded-full bg-ivory px-7 py-3 font-semibold text-club shadow-lg shadow-black/10 transition hover:bg-chalk">
                         Go to your clubhouse

@@ -17,7 +17,7 @@
 <head>
     @include('partials.head')
 </head>
-<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(6rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-0" data-signed-in>
+<body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(6rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-0" data-signed-in data-density="compact">
     <section class="bg-club pt-[env(safe-area-inset-top)]">
         <header class="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-4 lg:gap-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
@@ -48,7 +48,7 @@
                     aria-label="Inbox{{ $inboxCount ? ', '.($inboxCount > 9 ? '9+' : $inboxCount).' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
                     @if ($inboxCount)
-                        <span class="absolute top-0.5 right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
+                        <span class="absolute top-0.5 right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[11px] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
                     @endif
                 </a>
 
@@ -80,15 +80,15 @@
             </div>
         </header>
 
-        {{ $hero ?? '' }}
+        <div class="gl-hero">{{ $hero ?? '' }}</div>
     </section>
 
     <x-goal-line />
 
-    <main class="mx-auto max-w-5xl px-4 py-10">
+    <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6">
         @if ($viewer->isDemo())
             <div class="mb-6 flex flex-col gap-2 rounded-xl border border-club/30 bg-mint px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-ink"><span class="eyebrow mr-1 rounded-full bg-club px-2 py-0.5 text-[0.6rem] text-ivory">Demo mode</span> You're <span class="font-semibold text-club">{{ $viewer->name }}</span>. Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.</p>
+                <p class="text-ink"><span class="eyebrow mr-1 rounded-full bg-club px-2 py-0.5 text-[11px] text-ivory">Demo mode</span> You're <span class="font-semibold text-club">{{ $viewer->name }}</span>. Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.</p>
                 <div class="flex shrink-0 items-center gap-4">
                     <form method="POST" action="{{ route('demo.reset') }}">
                         @csrf
@@ -142,18 +142,18 @@
                 @endif
                 <li>
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
-                        'relative flex flex-col items-center gap-1 pt-2.5 pb-2 text-[0.68rem] font-semibold transition',
+                        'relative flex flex-col items-center gap-1 pt-2.5 pb-2 text-[11px] font-semibold transition',
                         'text-club' => $tab['active'],
                         'text-ink/70 hover:text-ink/70' => ! $tab['active'],
                     ])>
                         @if ($tab['icon'])
                             <x-icon :name="$tab['icon']" class="size-6" />
                         @else
-                            <x-avatar :user="$viewer" class="size-6 text-[0.55rem] {{ $tab['active'] ? 'ring-2 ring-club ring-offset-1' : '' }}" />
+                            <x-avatar :user="$viewer" class="size-6 text-[11px] {{ $tab['active'] ? 'ring-2 ring-club ring-offset-1' : '' }}" />
                         @endif
                         {{ $tab['label'] }}
                         @if (($tab['badge'] ?? 0) > 0)
-                            <span class="absolute top-1.5 left-1/2 ml-2 min-w-4 rounded-full bg-gold px-1 text-center text-[0.6rem] leading-4 text-ink">{{ min($tab['badge'], 99) }}</span>
+                            <span class="absolute top-1.5 left-1/2 ml-2 min-w-4 rounded-full bg-gold px-1 text-center text-[11px] leading-4 text-ink">{{ min($tab['badge'], 99) }}</span>
                         @endif
                         @if ($tab['active'])
                             <span class="absolute top-0 h-0.5 w-8 rounded-full bg-club" aria-hidden="true"></span>

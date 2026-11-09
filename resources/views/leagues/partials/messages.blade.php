@@ -9,7 +9,7 @@
     @else
         <li data-message-id="{{ $message->id }}" class="group flex items-start gap-3 py-2">
             @if ($message->user)
-                <x-avatar :user="$message->user" class="mt-0.5 size-8 text-[0.65rem]" />
+                <x-avatar :user="$message->user" class="mt-0.5 size-8 text-[11px]" />
             @else
                 <span class="mt-0.5 size-8 shrink-0 rounded-full bg-line" aria-hidden="true"></span>
             @endif

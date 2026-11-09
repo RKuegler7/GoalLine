@@ -66,7 +66,7 @@
             ['In-line streak', $stats->currentStreak(), 'Best: '.$stats->bestStreak().' '.Str::plural('GoalWeek', $stats->bestStreak())],
             ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, ties, losses. Join a GoalLeague to start.' : 'Wins, ties, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
         ] as [$label, $value, $note])
-            <div class="border-line px-6 py-5 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
+            <div class="border-line px-4 py-3 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
                 <dd class="mt-2 font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $value }}</dd>
                 <dd class="mt-1 text-sm text-ink/70">{{ $note }}</dd>
@@ -75,7 +75,7 @@
     </dl>
 
     @if ($featured = $user->featuredGoal)
-        <section class="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <section class="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="min-w-0">
                 <p class="eyebrow text-club">Featured goal</p>
                 <p class="mt-2 font-serif text-2xl font-bold text-club tracking-tight">
@@ -96,7 +96,7 @@
             </div>
             <div class="shrink-0 text-right">
                 @if ($featured->isCompleted())
-                    <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[0.65rem] text-ink">Completed</span>
+                    <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[11px] text-ink">Completed</span>
                 @else
                     <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $featured->points() }}</p>
                     <p class="text-sm text-ink/70">GoalWeek points</p>
@@ -107,7 +107,7 @@
 
     <div class="mt-6 grid gap-6 lg:grid-cols-2">
         {{-- Form guide: the latest finished GoalWeeks, like a league table. --}}
-        <section class="rounded-2xl border border-line bg-white px-6 py-5">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">Form</h2>
             @if ($stats->form()->isEmpty())
                 <p class="mt-3 text-ink/70">Your last 10 GoalWeek results will show here once your first GoalWeek is final.</p>
@@ -129,7 +129,7 @@
         </section>
 
         {{-- GoalWeek result history. --}}
-        <section class="rounded-2xl border border-line bg-white px-6 py-5">
+        <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">GoalWeek results</h2>
                 <span class="text-sm text-ink/70">{{ $finished }} finished</span>
@@ -153,12 +153,12 @@
         </section>
     </div>
 
-    <x-activity-heatmap :heatmap="$heatmap" class="mt-10" />
+    <x-activity-heatmap :heatmap="$heatmap" class="mt-6" />
 
-    <x-badge-shelf :user="$user" :is-own="$isOwn" class="mt-10" />
+    <x-badge-shelf :user="$user" :is-own="$isOwn" class="mt-6" />
 
     {{-- Trophy case. --}}
-    <section class="mt-10">
+    <section class="mt-6">
         <h2 class="eyebrow text-club">Trophy case</h2>
         @if ($stats->completedGoals()->isEmpty())
             <div class="mt-3 overflow-hidden rounded-2xl border border-line bg-white">
@@ -166,7 +166,7 @@
                     <x-field-backdrop class="absolute inset-0 size-full" />
                 </div>
                 <x-goal-line />
-                <p class="px-6 py-5 text-ink/70">When you cross the line on a goal, it lands here, with a photo and a few words if you want.</p>
+                <p class="px-4 py-3 text-ink/70">When you cross the line on a goal, it lands here, with a photo and a few words if you want.</p>
             </div>
         @else
             <ul class="mt-3 grid gap-4 sm:grid-cols-2">
@@ -179,9 +179,9 @@
                                 @else
                                     <x-field-backdrop class="absolute inset-0 size-full" />
                                 @endif
-                                <span class="eyebrow absolute top-3 left-3 rounded-full bg-gold px-2.5 py-1 text-[0.65rem] text-ink">Completed</span>
+                                <span class="eyebrow absolute top-3 left-3 rounded-full bg-gold px-2.5 py-1 text-[11px] text-ink">Completed</span>
                             </div>
-                            <div class="px-5 py-4">
+                            <div class="px-4 py-3">
                                 <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $goal->title }}</h3>
                                 <p class="mt-0.5 text-sm text-ink/70">
                                     {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }}
@@ -198,7 +198,7 @@
     </section>
 
     {{-- Goals in progress. --}}
-    <section class="mt-10">
+    <section class="mt-6">
         <div class="flex items-end justify-between">
             <h2 class="eyebrow text-club">Goals in progress</h2>
             @if ($isOwn)
@@ -213,7 +213,7 @@
                     <li>
                         <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif @class(['flex items-center justify-between gap-4 px-6 py-4', 'hover:bg-mint/50' => $isOwn])>
                             <div class="min-w-0">
-                                <p class="eyebrow text-[0.65rem] text-ink/70">{{ $goal->category->label() }}</p>
+                                <p class="eyebrow text-[11px] text-ink/70">{{ $goal->category->label() }}</p>
                                 <p class="mt-0.5 font-serif text-lg font-bold text-club tracking-tight">{{ $goal->title }}</p>
                             </div>
                             <div class="shrink-0 text-right text-sm">
@@ -228,8 +228,8 @@
     </section>
 
     {{-- Leagues and friends arrive next. --}}
-    <section class="mt-10 grid gap-4 sm:grid-cols-2">
-        <div class="rounded-2xl border border-line bg-white px-6 py-5">
+    <section class="mt-6 grid gap-4 sm:grid-cols-2">
+        <div class="rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">GoalLeagues</h2>
                 @if ($isOwn)
@@ -245,7 +245,7 @@
                 <p class="mt-2 text-ink/70">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
             @endforelse
         </div>
-        <div class="rounded-2xl border border-line bg-white px-6 py-5">
+        <div class="rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">Friends</h2>
                 @if ($isOwn)
@@ -259,7 +259,7 @@
                     @foreach ($friends as $friend)
                         <li>
                             <a href="{{ $friend->profileUrl() }}" class="flex items-center gap-2 rounded-full bg-ivory py-1 pr-3 pl-1 text-sm text-ink/80 hover:text-club">
-                                <x-avatar :user="$friend" class="size-6 text-[0.55rem]" /> {{ $friend->name }}
+                                <x-avatar :user="$friend" class="size-6 text-[11px]" /> {{ $friend->name }}
                             </a>
                         </li>
                     @endforeach
@@ -270,7 +270,7 @@
 
     {{-- Recent highlights. --}}
     @if ($highlights->isNotEmpty())
-        <section class="mt-10">
+        <section class="mt-6">
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">Highlights</h2>
                 <a href="{{ route('highlights.index') }}" class="text-sm font-semibold text-club hover:underline">Open feed</a>

@@ -16,7 +16,7 @@
 @endif
 
 @if ($materials->isNotEmpty() || $canEdit)
-    <section id="materials" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5">
+    <section id="materials" class="mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-4 py-3">
         <div class="flex items-center justify-between gap-4">
             <h2 class="eyebrow text-club">Your plan materials</h2>
             @if ($materials->isEmpty())
@@ -50,7 +50,7 @@
                                 @elseif (! ($material->digest['relevant'] ?? true))
                                     <span class="text-sm text-amber-700">Doesn't look like a plan for this goal</span>
                                 @else
-                                    <span class="eyebrow rounded-full bg-mint px-2.5 py-1 text-[0.65rem] text-club">Read</span>
+                                    <span class="eyebrow rounded-full bg-mint px-2.5 py-1 text-[11px] text-club">Read</span>
                                 @endif
 
                                 @if ($canEdit)

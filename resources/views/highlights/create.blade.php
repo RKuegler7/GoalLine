@@ -22,7 +22,7 @@
             <x-field-backdrop class="absolute inset-0 size-full" />
             <div class="relative">
                 <span @class([
-                    'eyebrow inline-block rounded-full px-2.5 py-1 text-[0.65rem]',
+                    'eyebrow inline-block rounded-full px-2.5 py-1 text-[11px]',
                     'bg-gold text-ink' => $draft['kind'] === App\HighlightKind::GoalCompleted,
                     'bg-grass text-ink' => $draft['kind'] === App\HighlightKind::GreatWeek,
                     'bg-mint text-club' => $draft['kind'] === App\HighlightKind::MilestoneHit,
@@ -33,7 +33,7 @@
         </div>
         <x-goal-line />
 
-        <div class="space-y-6 p-6 sm:p-8">
+        <div class="space-y-6 p-4 sm:p-6">
             <x-form.textarea name="caption" label="Say something (optional)" :value="$draft['caption']" maxlength="{{ App\Models\Highlight::MAX_CAPTION }}"
                 hint="What it took, who helped, what's next." />
 
