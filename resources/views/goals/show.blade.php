@@ -1,7 +1,7 @@
 <x-layouts.app :title="$goal->title.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Clubhouse</a>
+            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Clubhouse</a>
             <p class="eyebrow mt-6 text-mint">{{ $goal->category->label() }}</p>
             <div class="mt-3 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
                 <h1 class="font-serif text-4xl font-bold tracking-tight text-balance text-ivory sm:text-5xl">{{ $goal->title }}</h1>
@@ -85,14 +85,14 @@
 
     @if ($goal->isActive())
         <div class="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <p class="text-ink/60">
+            <p class="text-ink/70">
                 @if ($goal->inTrial())
                     <span class="font-semibold text-club">Trial:</span> you can remove this goal until {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. After that, you're locked in.
                 @else
                     <span class="font-semibold text-club">Locked in</span> since {{ App\Clock::local($goal->lockedInAt())->format('F j') }}.
                 @endif
             </p>
-            <a href="{{ route('goals.leave', $goal) }}" class="font-semibold text-ink/60 hover:text-red-700">
+            <a href="{{ route('goals.leave', $goal) }}" class="font-semibold text-ink/70 hover:text-red-700">
                 {{ $goal->inTrial() ? 'Remove goal' : 'Retire goal' }}
             </a>
         </div>

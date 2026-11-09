@@ -17,7 +17,7 @@
         @endif
         <button type="submit" data-check="{{ $done ? 'done' : 'open' }}" data-focus-key="task-{{ $task->id }}" title="{{ $done ? 'Mark as not done' : 'Check off' }}" @class([
             "mt-0.5 flex {$size} shrink-0 items-center justify-center rounded-full border-2 transition",
-            'border-grass bg-grass text-white' => $done,
+            'border-grass bg-grass text-ink' => $done,
             'border-grass/60 hover:border-grass hover:bg-mint' => ! $done,
         ])>
             @if ($done)
@@ -29,7 +29,7 @@
 @else
     <span @class([
         "mt-0.5 flex {$size} shrink-0 items-center justify-center rounded-full border-2",
-        'border-grass bg-grass text-white' => $done,
+        'border-grass bg-grass text-ink' => $done,
         'border-dashed border-grass/60' => ! $done && $task->result_required,
         'border-grass/40' => ! $done && ! $task->result_required,
     ]) aria-hidden="true">

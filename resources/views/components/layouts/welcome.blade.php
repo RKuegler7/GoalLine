@@ -18,7 +18,7 @@
                 <x-brand.logo class="h-7" />
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="text-sm text-ivory/70 hover:text-ivory">Log out</button>
+                    <button type="submit" class="text-sm text-ivory/85 hover:text-ivory">Log out</button>
                 </form>
             </div>
 
@@ -31,9 +31,9 @@
                     <li class="flex flex-1 items-center">
                         <span @class([
                             'flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                            'bg-grass text-white' => $number < $step,
+                            'bg-grass text-ink' => $number < $step,
                             'bg-ivory text-club ring-4 ring-grass/50' => $number === $step,
-                            'bg-ivory/20 text-ivory/70' => $number > $step,
+                            'bg-ivory/20 text-ivory/85' => $number > $step,
                         ]) @if ($number === $step) aria-current="step" @endif>
                             <span class="sr-only">Step {{ $number }}: {{ $label }}</span>
                             <span aria-hidden="true">{{ $number }}</span>

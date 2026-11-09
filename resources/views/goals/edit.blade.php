@@ -11,7 +11,7 @@
     </div>
 
     <div class="mx-auto mt-6 flex max-w-2xl items-center justify-between gap-4 rounded-2xl border border-line px-6 py-4">
-        <p class="text-sm text-ink/60">No longer chasing this one?</p>
+        <p class="text-sm text-ink/70">No longer chasing this one?</p>
         <a href="{{ route('goals.leave', $goal) }}" class="text-sm font-semibold text-red-700 hover:underline">{{ $goal->inTrial() ? 'Remove goal' : 'Retire goal' }}</a>
     </div>
 </x-layouts.app>

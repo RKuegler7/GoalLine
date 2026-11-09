@@ -17,7 +17,7 @@
         <input type="hidden" name="timezone" value="{{ old('timezone') }}" data-detect-timezone>
 
         <x-form.button>Create account</x-form.button>
-        <p class="text-center text-xs text-ink/55">By creating an account, you agree to the <a href="{{ route('terms') }}" class="font-semibold text-club hover:underline">Terms</a> and <a href="{{ route('privacy') }}" class="font-semibold text-club hover:underline">Privacy policy</a>.</p>
+        <p class="text-center text-xs text-ink/70">By creating an account, you agree to the <a href="{{ route('terms') }}" class="font-semibold text-club hover:underline">Terms</a> and <a href="{{ route('privacy') }}" class="font-semibold text-club hover:underline">Privacy policy</a>.</p>
     </form>
 
     <p class="mt-6 border-t border-line pt-6 text-center text-sm text-ink/70">

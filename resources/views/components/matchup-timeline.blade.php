@@ -40,7 +40,7 @@
             <div class="min-w-0">
                 <p class="text-xs font-semibold text-ink">{{ $owner->name }}</p>
                 @if ($row['personal']->isNotEmpty())
-                    <p class="mt-0.5 text-[0.7rem] text-ink/55">
+                    <p class="mt-0.5 text-[0.7rem] text-ink/70">
                         Added by {{ $owner->is($viewer) ? 'you' : Str::before($owner->name, ' ') }}:
                         {{ $row['personal']->map(fn ($task) => $task->description.' ('.$task->points.' '.Str::plural('pt', $task->points).')')->implode(', ') }}
                     </p>
@@ -61,18 +61,18 @@
                 @endif
 
                 @if ($row['tasks']->isEmpty())
-                    <p class="mt-1.5 text-xs text-ink/50">No check-ins yet this week. One more day on the line.</p>
+                    <p class="mt-1.5 text-xs text-ink/70">No check-ins yet this week. One more day on the line.</p>
                 @else
                     <ol class="mt-1.5 space-y-1.5 border-l-2 border-mint pl-3">
                         @foreach ($row['tasks'] as $task)
                             <li class="text-xs">
-                                <span class="text-ink/45 tabular-nums">{{ App\Clock::shortTime($task->completed_at) }}</span>
+                                <span class="text-ink/70 tabular-nums">{{ App\Clock::shortTime($task->completed_at) }}</span>
                                 <span class="text-ink">{{ $task->description }}</span>
                                 @if ($task->isGroupTask() || $task->is_personal)
                                     <x-task-tags :task="$task" />
                                 @endif
                                 @if ($task->result_required && $task->result_value !== null)
-                                    <span class="text-ink/60 tabular-nums">&middot; {{ $task->formatNumber($task->result_value) }}</span>
+                                    <span class="text-ink/70 tabular-nums">&middot; {{ $task->formatNumber($task->result_value) }}</span>
                                 @endif
                                 @if ($task->isVerified())
                                     @if ($canSeeProof)
@@ -82,7 +82,7 @@
                                     @endif
                                 @elseif (! $owner->is($viewer) && ! $readOnly)
                                     @if ($task->proofRequests->contains('requester_id', $viewer->id))
-                                        <span class="ml-1 text-ink/45">Asked to see it</span>
+                                        <span class="ml-1 text-ink/70">Asked to see it</span>
                                     @else
                                         <form method="POST" action="{{ route('roadmap.tasks.proof.request', $task) }}" data-live class="inline">
                                             @csrf

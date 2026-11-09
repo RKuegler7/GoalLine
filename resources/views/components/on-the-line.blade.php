@@ -10,7 +10,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
             <p class="font-serif text-lg font-bold text-club tracking-tight">{{ $count }} {{ Str::plural('day', $count) }} on the line this week</p>
-            <p class="text-sm text-ink/60">
+            <p class="text-sm text-ink/70">
                 {{ $streak->checkedInToday() ? 'Today is on the line. Trust the process.' : 'One more day on the line: one check-in today does it.' }}
             </p>
         </div>
@@ -22,8 +22,8 @@
                 <li class="flex flex-col items-center gap-1">
                     <span @class([
                         'grid size-7 place-items-center rounded-full text-[0.6rem] font-semibold',
-                        'bg-grass text-white' => $active === true,
-                        'bg-ivory text-ink/40 ring-1 ring-line' => $active === false,
+                        'bg-grass text-ink' => $active === true,
+                        'bg-ivory text-ink/70 ring-1 ring-line' => $active === false,
                         'bg-white text-ink/25 border border-dashed border-line' => $active === null,
                         'ring-2 ring-club/40' => $day->isSameDay(App\Clock::today()) && ! $active,
                     ]) title="{{ $day->format('l') }}{{ $active ? ': on the line' : '' }}">{{ Str::substr($day->format('D'), 0, 1) }}</span>

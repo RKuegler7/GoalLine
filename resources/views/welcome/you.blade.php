@@ -31,7 +31,7 @@
                 @endforeach
             </select>
             <button type="button" hidden data-use-browser-timezone="timezone" class="mt-2 text-sm font-semibold text-club hover:underline"></button>
-            <p class="mt-1.5 text-sm text-ink/55">Your GoalWeeks run Monday to Sunday on this clock.</p>
+            <p class="mt-1.5 text-sm text-ink/70">Your GoalWeeks run Monday to Sunday on this clock.</p>
         </div>
 
         <fieldset>
@@ -43,7 +43,7 @@
                             @checked(old('profile_visibility', $user->profile_visibility?->value ?? 'leagues') === $visibility->value)>
                         <span>
                             <span class="block font-medium text-ink">{{ $visibility->label() }}</span>
-                            <span class="block text-sm text-ink/60">{{ $visibility->description() }}</span>
+                            <span class="block text-sm text-ink/70">{{ $visibility->description() }}</span>
                         </span>
                     </label>
                 @endforeach

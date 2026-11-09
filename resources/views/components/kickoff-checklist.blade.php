@@ -11,11 +11,11 @@
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-5 py-4">
         <div>
             <h2 class="font-serif text-xl font-bold text-club tracking-tight">Your kickoff</h2>
-            <p class="text-sm text-ink/60">{{ $done }} of {{ count($steps) }} done. Finish these and GoalLine works for you every day.</p>
+            <p class="text-sm text-ink/70">{{ $done }} of {{ count($steps) }} done. Finish these and GoalLine works for you every day.</p>
         </div>
         <form method="POST" action="{{ route('kickoff.dismiss') }}" data-live>
             @csrf
-            <button type="submit" class="text-sm font-medium text-ink/50 hover:text-ink">Hide</button>
+            <button type="submit" class="text-sm font-medium text-ink/70 hover:text-ink">Hide</button>
         </form>
     </header>
     <div class="px-5 pt-3">
@@ -32,7 +32,7 @@
                 ])>
                     <span @class([
                         'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border-2',
-                        'border-grass bg-grass text-white' => $step['done'],
+                        'border-grass bg-grass text-ink' => $step['done'],
                         'border-club/40' => ! $step['done'],
                     ])>
                         @if ($step['done'])
@@ -40,14 +40,14 @@
                         @endif
                     </span>
                     <span class="min-w-0">
-                        <span @class(['block text-sm font-semibold', 'text-ink/45 line-through decoration-ink/30' => $step['done'], 'text-ink' => ! $step['done']])>
+                        <span @class(['block text-sm font-semibold', 'text-ink/70 line-through decoration-ink/30' => $step['done'], 'text-ink' => ! $step['done']])>
                             {{ $step['label'] }}
                             @if ($step['done'])
                                 <span class="sr-only">(done)</span>
                             @endif
                         </span>
                         @unless ($step['done'])
-                            <span class="block text-xs text-ink/55">{{ $step['hint'] }}</span>
+                            <span class="block text-xs text-ink/70">{{ $step['hint'] }}</span>
                         @endunless
                     </span>
                 </a>

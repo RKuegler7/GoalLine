@@ -7,7 +7,7 @@
 <x-layouts.app :title="($complete ? 'Season recap' : 'Recaps').' · '.$league->name">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $league->name }}</a>
+            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
             <p class="eyebrow mt-6 {{ $complete ? 'text-gold' : 'text-mint' }}">
                 {{ $complete ? 'Season recap' : 'Weekly recaps' }} &middot; {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }}
             </p>
@@ -21,7 +21,7 @@
                             <li class="flex flex-col items-center text-center" style="order: {{ [1 => 0, 0 => 1, 2 => 2][$place] }}">
                                 <x-avatar :user="$row['member']->user" tone="light" :class="Arr::toCssClasses(['text-sm ring-4', 'size-20 ring-gold' => $place === 0, 'size-14 ring-ivory/40' => $place !== 0])" />
                                 <span class="mt-2 max-w-full truncate text-sm font-semibold text-ivory">{{ $row['member']->user->name }}</span>
-                                <span class="text-xs text-ivory/70 tabular-nums">{{ $row['total'] }} pts</span>
+                                <span class="text-xs text-ivory/85 tabular-nums">{{ $row['total'] }} pts</span>
                                 <span @class([
                                     'mt-2 flex w-full items-start justify-center rounded-t-xl pt-2 font-serif text-2xl font-medium',
                                     'h-24 bg-gold text-ink' => $place === 0,
@@ -54,9 +54,9 @@
                         ])>
                             <x-badge :badge="$award->badge" class="size-16" />
                             <div class="min-w-0">
-                                <p class="eyebrow text-[0.62rem] text-ink/55">{{ $award->badge->label() }}</p>
+                                <p class="eyebrow text-[0.62rem] text-ink/70">{{ $award->badge->label() }}</p>
                                 <p class="mt-0.5 truncate font-serif text-xl font-bold text-ink tracking-tight">{{ $award->user->name }}</p>
-                                <p class="text-sm text-ink/60">{{ $award->detail }}</p>
+                                <p class="text-sm text-ink/70">{{ $award->detail }}</p>
                             </div>
                         </li>
                     @endforeach
@@ -69,7 +69,7 @@
             <h2 class="eyebrow text-club">Final table</h2>
             <div class="mt-3 overflow-x-auto rounded-2xl border border-line bg-white">
                 <table class="w-full text-sm">
-                    <thead class="text-left text-xs text-ink/50">
+                    <thead class="text-left text-xs text-ink/70">
                         <tr class="border-b border-line">
                             <th class="px-4 py-2 font-semibold">#</th>
                             <th class="px-4 py-2 font-semibold">Member</th>
@@ -81,7 +81,7 @@
                     <tbody class="divide-y divide-line">
                         @foreach ($standings as $index => $row)
                             <tr @class(['bg-gold/10' => $index === 0])>
-                                <td class="px-4 py-2.5 font-semibold text-ink/60 tabular-nums">{{ $index + 1 }}</td>
+                                <td class="px-4 py-2.5 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
                                 <td class="px-4 py-2.5 font-medium text-ink">{{ $row['member']->user->name }}</td>
                                 <td class="px-4 py-2.5 text-right text-ink/70 tabular-nums">{{ $row['wins'] }}&ndash;{{ $row['ties'] }}&ndash;{{ $row['losses'] }}</td>
                                 <td class="px-4 py-2.5 text-right text-ink/70 tabular-nums">{{ $row['resultPoints'] }}</td>
@@ -106,14 +106,14 @@
                         <header class="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-ivory/60 px-5 py-3">
                             <h3 class="font-serif text-lg font-bold text-club tracking-tight">
                                 Week {{ $recapWeek['week'] }}
-                                <span class="font-sans text-sm font-normal text-ink/50">&middot; {{ $league->weekStartsOn($recapWeek['week'])->format('M j') }}&ndash;{{ $league->weekEndsOn($recapWeek['week'])->format('M j') }}</span>
+                                <span class="font-sans text-sm font-normal text-ink/70">&middot; {{ $league->weekStartsOn($recapWeek['week'])->format('M j') }}&ndash;{{ $league->weekEndsOn($recapWeek['week'])->format('M j') }}</span>
                             </h3>
                             @if ($recapWeek['players']->isNotEmpty())
                                 <span class="flex items-center gap-2 text-sm">
                                     <x-badge :badge="App\Badge::Mvp" class="size-6" />
-                                    <span class="text-ink/60">Player of the Week:</span>
+                                    <span class="text-ink/70">Player of the Week:</span>
                                     <span class="font-semibold text-ink">{{ $recapWeek['players']->map(fn ($member) => $member->user->name)->join(', ', ' and ') }}</span>
-                                    <span class="text-ink/50 tabular-nums">+{{ $recapWeek['best'] }}</span>
+                                    <span class="text-ink/70 tabular-nums">+{{ $recapWeek['best'] }}</span>
                                 </span>
                             @endif
                         </header>
@@ -131,7 +131,7 @@
                                     <span class="text-center font-serif text-lg tabular-nums text-ink tracking-tight">
                                         {{ $home->result_points }}<span class="mx-1 text-ink/30">&ndash;</span>{{ $away ? $away->result_points : '' }}
                                         @if (! $away)
-                                            <span class="block text-xs font-sans text-ink/50">vs median</span>
+                                            <span class="block text-xs font-sans text-ink/70">vs median</span>
                                         @endif
                                         @if ($home->outcome->isPhotoFinish())
                                             <span class="block text-[0.65rem] font-sans font-semibold text-gold" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>

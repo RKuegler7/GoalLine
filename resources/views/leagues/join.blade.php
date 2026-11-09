@@ -13,7 +13,7 @@
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
             @endif
-            <p class="mt-3 text-sm text-ivory/70">
+            <p class="mt-3 text-sm text-ivory/85">
                 @if ($league->category)
                     {{ $league->category->label() }} &middot;
                 @endif
@@ -57,7 +57,7 @@
                             <option value="{{ $goal->id }}" @selected($chosenGoal === $goal->id)>{{ $goal->title }} (by {{ $goal->target_date->format('M j, Y') }})</option>
                         @endforeach
                     </select>
-                    <p class="mt-1.5 text-sm text-ink/55">Its GoalWeek results score your matchups. You can switch goals later if one wraps up.</p>
+                    <p class="mt-1.5 text-sm text-ink/70">Its GoalWeek results score your matchups. You can switch goals later if one wraps up.</p>
                     @error('goal_id')
                         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                     @enderror

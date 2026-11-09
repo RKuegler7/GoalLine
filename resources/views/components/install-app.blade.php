@@ -13,7 +13,7 @@
             </p>
             <div class="mt-3 flex items-center gap-3">
                 <button type="button" data-install-button data-install-variant="prompt" class="rounded-full bg-ivory px-4 py-1.5 text-sm font-semibold text-club transition hover:bg-white">Install GoalLine</button>
-                <button type="button" data-install-dismiss class="text-sm font-medium text-ivory/70 hover:text-ivory">Not now</button>
+                <button type="button" data-install-dismiss class="text-sm font-medium text-ivory/85 hover:text-ivory">Not now</button>
             </div>
         </div>
     </div>

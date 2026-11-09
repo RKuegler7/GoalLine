@@ -11,7 +11,7 @@
 <details class="relative shrink-0">
     <summary @class([
         'cursor-pointer list-none rounded-full px-2 text-xl leading-none [&::-webkit-details-marker]:hidden',
-        'text-ink/40 hover:text-ink' => $tone === 'dark',
+        'text-ink/70 hover:text-ink' => $tone === 'dark',
         'text-ivory/80 hover:text-ivory' => $tone === 'light',
     ]) aria-label="Post options">&hellip;</summary>
     <div class="absolute right-0 z-10 mt-1 w-60 overflow-hidden rounded-xl border border-line bg-white py-1 text-sm shadow-lg">

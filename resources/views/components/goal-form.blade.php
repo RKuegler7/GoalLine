@@ -39,7 +39,7 @@
                     >
                     <span>
                         <span class="block font-medium text-ink">{{ $category->label() }}</span>
-                        <span class="block text-sm text-ink/60">{{ $category->example() }}</span>
+                        <span class="block text-sm text-ink/70">{{ $category->example() }}</span>
                     </span>
                 </label>
             @endforeach

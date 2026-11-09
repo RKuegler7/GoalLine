@@ -9,7 +9,7 @@
                 ['Your coach has your back', 'Change your plan anytime. Your coach checks you are still in line and suggests a fix if not.'],
             ] as [$heading, $body])
                 <li class="flex gap-4 rounded-2xl border border-line bg-white px-5 py-4">
-                    <span class="font-serif text-2xl font-bold text-grass tabular-nums tracking-tight">{{ $loop->iteration }}</span>
+                    <span class="font-serif text-2xl font-bold text-club tabular-nums tracking-tight">{{ $loop->iteration }}</span>
                     <div>
                         <p class="font-semibold text-ink">{{ $heading }}</p>
                         <p class="mt-0.5 text-sm text-ink/70">{{ $body }}</p>

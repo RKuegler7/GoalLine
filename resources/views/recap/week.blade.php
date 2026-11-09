@@ -21,7 +21,7 @@
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
-                        <dd class="text-xs text-ivory/65">{{ $note }}</dd>
+                        <dd class="text-xs text-ivory/85">{{ $note }}</dd>
                     </div>
                 @endforeach
             </dl>
@@ -39,11 +39,11 @@
                         $count = $recap->daily->get($date->toDateString(), 0);
                     @endphp
                     <li class="flex flex-col items-center gap-1">
-                        <span class="text-xs font-semibold text-ink/50">{{ $date->format('D') }}</span>
+                        <span class="text-xs font-semibold text-ink/70">{{ $date->format('D') }}</span>
                         <span @class([
                             'flex aspect-square w-full max-w-12 items-center justify-center rounded-xl text-sm font-semibold tabular-nums',
                             'bg-club text-ivory' => $count >= 4,
-                            'bg-grass text-white' => $count >= 2 && $count < 4,
+                            'bg-grass text-ink' => $count >= 2 && $count < 4,
                             'bg-mint text-club' => $count === 1,
                             'bg-ivory text-ink/30 ring-1 ring-line ring-inset' => $count === 0,
                         ])>{{ $count ?: '–' }}</span>
@@ -61,7 +61,7 @@
                         <li class="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
                             <a href="{{ route('goals.show', $row['goal']) }}#goalweek-{{ $row['week']->position }}" class="min-w-0">
                                 <span class="block truncate font-medium text-club hover:underline">{{ $row['goal']->title }}</span>
-                                <span class="text-sm text-ink/55">{{ $row['week']->label() }}: {{ $row['week']->focus }}</span>
+                                <span class="text-sm text-ink/70">{{ $row['week']->label() }}: {{ $row['week']->focus }}</span>
                             </a>
                             <span class="flex flex-wrap items-center gap-2">
                                 <x-plan-status :week="$row['week']" />
@@ -111,7 +111,7 @@
                     @endforeach
                     @if ($recap->cheersReceived() > 0)
                         <li class="flex items-center gap-3">
-                            <span class="flex size-9 items-center justify-center rounded-full bg-grass text-white"><x-icon name="highlights" class="size-5" /></span>
+                            <span class="flex size-9 items-center justify-center rounded-full bg-grass text-ink"><x-icon name="highlights" class="size-5" /></span>
                             <span class="text-ink">{{ $recap->cheersReceived() }} {{ Str::plural('cheer', $recap->cheersReceived()) }} on your posts</span>
                         </li>
                     @endif

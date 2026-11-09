@@ -7,7 +7,7 @@
 
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('goals.show', $goal) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $goal->title }}</a>
+            <a href="{{ route('goals.show', $goal) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $goal->title }}</a>
             <p class="eyebrow mt-6 text-mint">{{ $refinement->kind === App\Models\PlanRefinement::RESTORE ? 'Plan history' : 'Refine your plan' }}</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">
                 {{ $refinement->status === App\Models\PlanRefinement::PENDING ? 'Working on it…' : 'Preview the change' }}
@@ -28,7 +28,7 @@
                 </div>
                 <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}" data-live class="mt-6">
                     @csrf
-                    <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-ink">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold text-ink/70 hover:text-ink">Cancel</button>
                 </form>
             </section>
         @elseif ($refinement->status === App\Models\PlanRefinement::FAILED)
@@ -52,11 +52,11 @@
                     @endphp
                     <li class="rounded-2xl border border-line bg-white px-5 py-4">
                         <div class="flex flex-wrap items-center justify-between gap-2">
-                            <p class="font-semibold text-club">{{ $week->label() }} <span class="font-normal text-ink/50">&middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</span></p>
-                            <p class="text-sm text-ink/60 tabular-nums">
+                            <p class="font-semibold text-club">{{ $week->label() }} <span class="font-normal text-ink/70">&middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</span></p>
+                            <p class="text-sm text-ink/70 tabular-nums">
                                 Planned points {{ $change['pointsBefore'] }} &rarr; <span class="font-semibold text-ink">{{ $change['pointsAfter'] }}</span>
                                 @if ($delta !== 0)
-                                    <span @class(['ml-1', 'text-club' => $delta > 0, 'text-ink/60' => $delta < 0])>({{ $delta > 0 ? '+' : '' }}{{ $delta }})</span>
+                                    <span @class(['ml-1', 'text-club' => $delta > 0, 'text-ink/70' => $delta < 0])>({{ $delta > 0 ? '+' : '' }}{{ $delta }})</span>
                                 @endif
                             </p>
                         </div>
@@ -64,23 +64,23 @@
                             <p class="mt-1 text-xs text-club">That would be below the minimum pace your deadline needs, so GoalLine raises it to {{ $change['floor'] }} points with minimum-pace sessions.</p>
                         @endif
                         @if ($change['focus'])
-                            <p class="mt-2 text-sm"><span class="text-ink/55">Focus:</span> <span class="text-ink/50 line-through">{{ $change['focus'][0] }}</span> &rarr; <span class="font-medium text-ink">{{ $change['focus'][1] }}</span></p>
+                            <p class="mt-2 text-sm"><span class="text-ink/70">Focus:</span> <span class="text-ink/70 line-through">{{ $change['focus'][0] }}</span> &rarr; <span class="font-medium text-ink">{{ $change['focus'][1] }}</span></p>
                         @endif
                         @if ($change['milestone'])
-                            <p class="mt-1 text-sm"><span class="text-ink/55">Milestone:</span> <span class="text-ink/50 line-through">{{ $change['milestone'][0] }}</span> &rarr; <span class="font-medium text-ink">{{ $change['milestone'][1] }}</span></p>
+                            <p class="mt-1 text-sm"><span class="text-ink/70">Milestone:</span> <span class="text-ink/70 line-through">{{ $change['milestone'][0] }}</span> &rarr; <span class="font-medium text-ink">{{ $change['milestone'][1] }}</span></p>
                         @endif
                         <ul class="mt-3 space-y-1 text-sm">
                             @foreach ($change['added'] as $task)
-                                <li class="flex gap-2"><span class="font-bold text-grass">+</span> <span class="text-ink">{{ $task }}</span> <span class="text-ink/45">added</span></li>
+                                <li class="flex gap-2"><span class="font-bold text-club">+</span> <span class="text-ink">{{ $task }}</span> <span class="text-ink/70">added</span></li>
                             @endforeach
                             @foreach ($change['moved'] as $move)
-                                <li class="flex gap-2"><span class="font-bold text-club">&rarr;</span> <span class="text-ink">{{ $move['description'] }}</span> <span class="text-ink/45">moved from {{ $move['from'] }}</span></li>
+                                <li class="flex gap-2"><span class="font-bold text-club">&rarr;</span> <span class="text-ink">{{ $move['description'] }}</span> <span class="text-ink/70">moved from {{ $move['from'] }}</span></li>
                             @endforeach
                             @foreach ($change['removed'] as $task)
-                                <li class="flex gap-2"><span class="font-bold text-ink/45">&minus;</span> <span class="text-ink/50 line-through">{{ $task }}</span> <span class="text-ink/45">removed</span></li>
+                                <li class="flex gap-2"><span class="font-bold text-ink/70">&minus;</span> <span class="text-ink/70 line-through">{{ $task }}</span> <span class="text-ink/70">removed</span></li>
                             @endforeach
                             @if ($change['reordered'])
-                                <li class="text-ink/55">Tasks reordered.</li>
+                                <li class="text-ink/70">Tasks reordered.</li>
                             @endif
                         </ul>
                     </li>
@@ -88,10 +88,10 @@
             </ol>
 
             @if ($diff['skipped'])
-                <p class="mt-3 text-sm text-ink/60">{{ count($diff['skipped']) }} {{ Str::plural('GoalWeek', count($diff['skipped'])) }} in this change started since it was made, so {{ count($diff['skipped']) === 1 ? 'it stays' : 'they stay' }} as is.</p>
+                <p class="mt-3 text-sm text-ink/70">{{ count($diff['skipped']) }} {{ Str::plural('GoalWeek', count($diff['skipped'])) }} in this change started since it was made, so {{ count($diff['skipped']) === 1 ? 'it stays' : 'they stay' }} as is.</p>
             @endif
 
-            <p class="mt-4 text-xs text-ink/55">Only GoalWeeks that haven't started change, and none goes below the minimum pace its deadline needs. Past check-ins, group tasks, and your personal tasks stay as they are. New tasks are worth 1 point each.</p>
+            <p class="mt-4 text-xs text-ink/70">Only GoalWeeks that haven't started change, and none goes below the minimum pace its deadline needs. Past check-ins, group tasks, and your personal tasks stay as they are. New tasks are worth 1 point each.</p>
 
             <div class="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <form method="POST" action="{{ route('goals.refinements.discard', [$goal, $refinement]) }}" data-live>

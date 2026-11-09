@@ -13,7 +13,7 @@
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-5 py-4">
         <div>
             <h2 class="font-serif text-xl font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>
-            <p class="text-sm text-ink/60">
+            <p class="text-sm text-ink/70">
                 @if ($total === 0)
                     Nothing on for today.
                 @elseif ($done === $total)
@@ -52,9 +52,9 @@
                 <li class="flex items-start gap-3 py-3">
                     <x-task-check :task="$task" return="{{ $return }}" size="size-9 sm:size-7" />
                     <div class="min-w-0 flex-1">
-                        <p @class(['text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink' => ! $task->completed_at])>{{ $task->description }}</p>
+                        <p @class(['text-ink/70 line-through decoration-ink/30' => $task->completed_at, 'text-ink' => ! $task->completed_at])>{{ $task->description }}</p>
                         <x-task-details :task="$task" return="{{ $return }}" context="gameplan" />
-                        <p class="mt-0.5 flex flex-wrap gap-x-2 text-xs text-ink/50">
+                        <p class="mt-0.5 flex flex-wrap gap-x-2 text-xs text-ink/70">
                             <a href="{{ route('goals.show', $entry['goal']) }}" class="hover:text-club hover:underline">{{ $entry['goal']->title }}</a>
                             @if ($gameplan->isCarriedOver($task))
                                 <span class="font-semibold text-amber-700">Carried over from {{ $task->planned_on->format('l') }}</span>
@@ -67,7 +67,7 @@
                     @if ($gameplan->canMoveToTomorrow($task, $entry['week']))
                         <form method="POST" action="{{ route('roadmap.tasks.tomorrow', $task) }}">
                             @csrf
-                            <button type="submit" class="rounded-full px-2.5 py-1 text-xs font-semibold text-ink/50 transition hover:bg-ivory hover:text-club">Tomorrow</button>
+                            <button type="submit" title="Move to tomorrow" class="rounded-full border border-line px-2.5 py-1 text-xs font-semibold text-ink/70 transition hover:border-club/40 hover:bg-ivory hover:text-club"><span class="sr-only">Move to </span>Tomorrow &rarr;</button>
                         </form>
                     @endif
                 </li>
@@ -81,11 +81,11 @@
                 <li class="flex items-center gap-3 py-3">
                     <x-habit-log :habit="$habit" :day="$gameplan->today" return="{{ $return }}" />
                     <div class="min-w-0 flex-1">
-                        <p @class(['flex items-center gap-1.5', 'text-ink/50 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
+                        <p @class(['flex items-center gap-1.5', 'text-ink/70 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
                             <x-icon name="repeat" class="size-3.5 shrink-0 text-club/60" />
                             {{ $habit->label() }}
                         </p>
-                        <p class="mt-0.5 text-xs text-ink/50">
+                        <p class="mt-0.5 text-xs text-ink/70">
                             {{ $entry['goal']->title }} &middot; {{ $habit->doneIn($entry['week']) }} of {{ $habit->targetFor($entry['week']) }} this GoalWeek
                             @if ($partial)
                                 &middot; <span class="font-semibold text-ink/70">Logged {{ $habit->formatNumber($habit->logOn($gameplan->today)->value ?? 0) }}, counts at {{ $habit->ruleLabel() }}</span>
@@ -116,11 +116,11 @@
                     </button>
                 </form>
                 <div class="min-w-0 flex-1">
-                    <p @class(['flex items-center gap-1.5', 'text-ink/50 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
+                    <p @class(['flex items-center gap-1.5', 'text-ink/70 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
                         <x-icon name="flag" class="size-3.5 text-gold" />
                         {{ $challenge->title }}
                     </p>
-                    <p class="mt-0.5 text-xs text-ink/50">
+                    <p class="mt-0.5 text-xs text-ink/70">
                         <a href="{{ route('challenges.show', $challenge) }}" class="hover:text-club hover:underline">Challenge &middot; day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}</a>
                     </p>
                 </div>

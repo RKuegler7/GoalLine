@@ -18,7 +18,7 @@
 <section id="goal-{{ $goal->id }}" data-region="clubhouse-goal-{{ $goal->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex flex-wrap items-start justify-between gap-3 px-5 pt-5">
         <div class="min-w-0">
-            <p class="eyebrow text-[0.62rem] text-ink/50">
+            <p class="eyebrow text-[0.62rem] text-ink/70">
                 {{ $goal->category->label() }} &middot; <x-days-left :days="$goal->daysRemaining()" />
             </p>
             <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
@@ -44,7 +44,7 @@
                 <span class="font-semibold text-ink">{{ $week->label() }}:</span> {{ $week->focus }}
             </p>
             <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" :name="'goal-'.$goal->id" />
-            <p class="mt-1 text-xs text-ink/55">
+            <p class="mt-1 text-xs text-ink/70">
                 {{ collect([App\Points::format($week->earnedPoints()).' of '.$week->plannedPoints().' points ('.round($week->completionShare() * 100).'%)', "{$done} of {$planned->count()} ".Str::plural('task', $planned->count()), ...$habits->map(fn ($habit) => $habit->title.' '.$habit->doneIn($week).'/'.$habit->targetFor($week)), $week->milestone_hit_at ? 'milestone hit' : null])->filter()->implode(' · ') }}
             </p>
 
@@ -53,7 +53,7 @@
                     <li class="flex items-start gap-3">
                         <x-task-check :task="$task" :checkable="$checkable" return="clubhouse" />
                         <div class="min-w-0 flex-1 text-sm">
-                            <span @class(['text-ink/50 line-through decoration-ink/30' => $task->completed_at, 'text-ink/85' => ! $task->completed_at])>
+                            <span @class(['text-ink/70 line-through decoration-ink/30' => $task->completed_at, 'text-ink/85' => ! $task->completed_at])>
                                 {{ $task->description }}
                                 @if ($task->is_bonus)
                                     <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] text-ink no-underline">Bonus</span>
@@ -66,7 +66,7 @@
                                 'shrink-0 text-xs tabular-nums',
                                 'font-semibold text-club' => $task->planned_on->isSameDay($today),
                                 'font-semibold text-amber-700' => $task->planned_on->lt($today),
-                                'text-ink/45' => $task->planned_on->gt($today),
+                                'text-ink/70' => $task->planned_on->gt($today),
                             ])>{{ $task->planned_on->isSameDay($today) ? 'Today' : $task->planned_on->format('D') }}</span>
                         @endif
                     </li>
@@ -74,7 +74,7 @@
                 @foreach ($habits as $habit)
                     <li @class(['flex items-start gap-3', 'border-t border-line pt-2' => $loop->first])>
                         <x-habit-toggle :habit="$habit" :day="$today" :disabled="! $checkable" return="clubhouse" />
-                        <span class="min-w-0 flex-1 text-sm text-ink/85">{{ $habit->label() }} <span class="text-ink/45">&middot; {{ $habit->cadence() }}</span></span>
+                        <span class="min-w-0 flex-1 text-sm text-ink/85">{{ $habit->label() }} <span class="text-ink/70">&middot; {{ $habit->cadence() }}</span></span>
                         <x-habit-week :habit="$habit" :week="$week" />
                     </li>
                 @endforeach
@@ -84,7 +84,7 @@
                         <input type="hidden" name="return" value="clubhouse">
                         <button type="submit" title="{{ $week->milestone_hit_at ? 'Mark milestone as not hit' : 'Mark milestone as hit' }}" @class([
                             'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition',
-                            'border-grass bg-grass text-white' => $week->milestone_hit_at,
+                            'border-grass bg-grass text-ink' => $week->milestone_hit_at,
                             'border-club/40 hover:border-club' => ! $week->milestone_hit_at,
                         ])>
                             @if ($week->milestone_hit_at)

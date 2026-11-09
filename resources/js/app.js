@@ -325,7 +325,7 @@ function setUpMentions(input) {
             item.setAttribute('role', 'option');
             item.setAttribute('aria-selected', index === active ? 'true' : 'false');
             item.className = `cursor-pointer px-3 py-1.5 ${index === active ? 'bg-mint' : 'hover:bg-ivory'}`;
-            item.innerHTML = '<span class="font-semibold text-ink"></span> <span class="text-ink/50"></span>';
+            item.innerHTML = '<span class="font-semibold text-ink"></span> <span class="text-ink/70"></span>';
             item.firstChild.textContent = person.n;
             item.lastChild.textContent = `@${person.u}`;
             item.addEventListener('mousedown', (event) => {
@@ -574,10 +574,10 @@ function openCropper(input) {
     dialog.className = 'w-[min(36rem,calc(100vw-2rem))] rounded-2xl p-0 backdrop:bg-ink/60';
     dialog.innerHTML = `
         <div class="border-b border-line px-5 py-3"><h2 class="font-serif text-lg font-medium text-club"></h2>
-            <p class="text-xs text-ink/55">Drag to move. Pinch, scroll, or use the slider to zoom.</p></div>
+            <p class="text-xs text-ink/70">Drag to move. Pinch, scroll, or use the slider to zoom.</p></div>
         <div class="bg-ink/5 ${shape.round ? 'crop-round' : ''}" style="height: min(60vh, 24rem)"><img alt="" class="block max-w-full"></div>
         <div class="flex items-center gap-3 px-5 py-3">
-            <label class="flex flex-1 items-center gap-2 text-xs text-ink/60">Zoom <input type="range" min="0" max="1" step="0.01" value="0" class="flex-1 accent-club" data-zoom></label>
+            <label class="flex flex-1 items-center gap-2 text-xs text-ink/70">Zoom <input type="range" min="0" max="1" step="0.01" value="0" class="flex-1 accent-club" data-zoom></label>
         </div>
         <div class="flex justify-end gap-2 border-t border-line px-5 py-3">
             <button type="button" class="rounded-full px-4 py-2 text-sm font-semibold text-ink/70 hover:text-ink" data-cancel>Cancel</button>

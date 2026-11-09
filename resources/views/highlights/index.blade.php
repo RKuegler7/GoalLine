@@ -62,7 +62,7 @@
                         <span class="truncate font-medium">{{ $friend->name }}</span>
                     </a>
                 @empty
-                    <p class="mt-2 text-sm text-ink/60">Add friends by their exact username or email. They'll see the posts you share with friends, and you'll see theirs.</p>
+                    <p class="mt-2 text-sm text-ink/70">Add friends by their exact username or email. They'll see the posts you share with friends, and you'll see theirs.</p>
                 @endforelse
             </section>
         </aside>

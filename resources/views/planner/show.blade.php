@@ -8,7 +8,7 @@
 <x-layouts.app title="Plan my week · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
-            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Clubhouse</a>
+            <a href="{{ route('dashboard') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Clubhouse</a>
             <p class="eyebrow mt-6 text-mint">{{ $monday->format('M j') }}&ndash;{{ $monday->copy()->addDays(6)->format($monday->month === $monday->copy()->addDays(6)->month ? 'j' : 'M j') }}</p>
             <div class="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
@@ -36,7 +36,7 @@
         </section>
     @else
         {{-- The week at a glance: what's on each day, across goals. --}}
-        <section aria-label="Your week" class="-mx-4 overflow-x-auto px-4 pb-2">
+        <section aria-label="Your week" tabindex="0" class="relative -mx-4 overflow-x-auto px-4 pb-2">
             <ol class="grid min-w-[44rem] grid-cols-7 gap-2">
                 @foreach ($days as $day)
                     @php
@@ -50,15 +50,15 @@
                         'border-line' => ! $isToday,
                         'opacity-60' => $day->lt($today),
                     ])>
-                        <p @class(['text-xs font-semibold uppercase tracking-wide', 'text-club' => $isToday, 'text-ink/50' => ! $isToday])>{{ $isToday ? 'Today' : $day->format('D') }}</p>
+                        <p @class(['text-xs font-semibold uppercase tracking-wide', 'text-club' => $isToday, 'text-ink/70' => ! $isToday])>{{ $isToday ? 'Today' : $day->format('D') }}</p>
                         <p class="font-serif text-lg text-ink tracking-tight">{{ $day->format('j') }}</p>
                         <ul class="mt-2 space-y-1">
                             @foreach ($tasks as $task)
-                                <li @class(['rounded-md px-1.5 py-1 text-xs leading-snug', 'bg-mint/70 text-ink/45 line-through' => $task->completed_at, 'bg-ivory text-ink/80' => ! $task->completed_at]) title="{{ $task->description }}">{{ Str::limit($task->description, 48) }}</li>
+                                <li @class(['rounded-md px-1.5 py-1 text-xs leading-snug', 'bg-mint/70 text-ink/70 line-through' => $task->completed_at, 'bg-ivory text-ink/80' => ! $task->completed_at]) title="{{ $task->description }}">{{ Str::limit($task->description, 48) }}</li>
                             @endforeach
                         </ul>
                         @if ($habitCount > 0)
-                            <p class="mt-2 flex items-center gap-1 text-xs text-club/70"><x-icon name="repeat" class="size-3" /> {{ $habitCount }} {{ Str::plural('habit', $habitCount) }}</p>
+                            <p class="mt-2 flex items-center gap-1 text-xs text-club"><x-icon name="repeat" class="size-3" /> {{ $habitCount }} {{ Str::plural('habit', $habitCount) }}</p>
                         @endif
                         @if ($tasks->isEmpty() && $habitCount === 0)
                             <p class="mt-2 text-xs text-ink/35">Open</p>
@@ -82,7 +82,7 @@
                 <section class="overflow-hidden rounded-2xl border border-line bg-white">
                     <header class="flex flex-wrap items-start justify-between gap-3 border-b border-line px-5 py-4">
                         <div class="min-w-0">
-                            <p class="eyebrow text-[0.62rem] text-ink/50">{{ $week->label() }} &middot; ends {{ $week->ends_on->format('D, M j') }}</p>
+                            <p class="eyebrow text-[0.62rem] text-ink/70">{{ $week->label() }} &middot; ends {{ $week->ends_on->format('D, M j') }}</p>
                             <a href="{{ route('goals.show', $goal) }}" class="mt-1 block font-serif text-xl font-bold text-club hover:underline tracking-tight">{{ $goal->title }}</a>
                             <p class="mt-0.5 text-sm text-ink/65">{{ $week->focus }}</p>
                         </div>
@@ -94,20 +94,20 @@
                     <ul class="divide-y divide-line px-5">
                         @foreach ($week->tasks as $task)
                             <li class="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
-                                <span @class(['min-w-0 text-sm', 'text-ink/45 line-through' => $task->completed_at, 'text-ink' => ! $task->completed_at])>
+                                <span @class(['min-w-0 text-sm', 'text-ink/70 line-through' => $task->completed_at, 'text-ink' => ! $task->completed_at])>
                                     {{ $task->description }}
                                     @if ($task->is_bonus)
                                         <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[0.55rem] text-ink no-underline">Bonus</span>
                                     @endif
                                 </span>
                                 @if ($task->completed_at)
-                                    <span class="shrink-0 text-xs font-semibold text-grass">Done {{ App\Clock::local($task->completed_at)->format('D') }}</span>
+                                    <span class="shrink-0 text-xs font-semibold text-club">Done {{ App\Clock::local($task->completed_at)->format('D') }}</span>
                                 @else
                                     <label class="sr-only" for="plan-{{ $task->id }}">Day for {{ $task->description }}</label>
                                     <select id="plan-{{ $task->id }}" name="tasks[{{ $task->id }}]" form="week-plan" @class([
                                         'shrink-0 rounded-lg border bg-white px-2 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10 sm:w-44',
                                         'border-amber-400 text-amber-800' => $task->planned_on?->lt($today),
-                                        'border-dashed border-club/40 text-ink/50' => ! $task->planned_on,
+                                        'border-dashed border-club/40 text-ink/70' => ! $task->planned_on,
                                         'border-line' => $task->planned_on?->gte($today),
                                     ])>
                                         <option value="">No day yet</option>
@@ -135,12 +135,12 @@
                             <ul class="mt-2 space-y-2">
                                 @foreach ($habits as $habit)
                                     <li class="flex flex-wrap items-center justify-between gap-2">
-                                        <span class="text-sm text-ink">{{ $habit->label() }} <span class="text-ink/50">&middot; {{ $habit->cadence() }} &middot; {{ $habit->doneIn($week) }} of {{ $habit->targetFor($week) }} done</span></span>
+                                        <span class="text-sm text-ink">{{ $habit->label() }} <span class="text-ink/70">&middot; {{ $habit->cadence() }} &middot; {{ $habit->doneIn($week) }} of {{ $habit->targetFor($week) }} done</span></span>
                                         {{-- Forgot to log yesterday? Catch up here. --}}
                                         <span class="flex items-center gap-1.5">
                                             @for ($day = $logFrom->copy(); $day->lte($today); $day = $day->copy()->addDay())
                                                 <span class="flex flex-col items-center">
-                                                    <span class="text-[0.6rem] font-semibold text-ink/45" aria-hidden="true">{{ $day->format('D')[0] }}</span>
+                                                    <span class="text-[0.6rem] font-semibold text-ink/70" aria-hidden="true">{{ $day->format('D')[0] }}</span>
                                                     <x-habit-toggle :habit="$habit" :day="$day" return="planner" />
                                                 </span>
                                             @endfor

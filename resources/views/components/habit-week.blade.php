@@ -17,5 +17,5 @@
             'ring-2 ring-club/30 ring-offset-1' => $day->isSameDay($today),
         ])></span>
     @endfor
-    <span class="ml-1 text-xs text-ink/55 tabular-nums">{{ $habit->doneIn($week) }}/{{ $habit->targetFor($week) }}</span>
+    <span class="ml-1 text-xs text-ink/70 tabular-nums">{{ $habit->doneIn($week) }}/{{ $habit->targetFor($week) }}</span>
 </span>

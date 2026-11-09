@@ -212,6 +212,32 @@ class DemoTest extends TestCase
             ->assertSee('We raised this week to the minimum pace your deadline needs')->assertSee('Your plan is built from');
     }
 
+    public function test_on_a_monday_morning_early_birds_have_checked_in_so_the_matchup_is_never_empty(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-09 09:30', config('app.timezone'))); // A Monday.
+        $this->get(route('demo'));
+        $visitor = auth()->user();
+        $sandbox = $visitor->demo_sandbox;
+        $doneToday = fn (User $person) => $person->goals()->first()->weeks()->whereDate('starts_on', '2026-11-09')->sole()
+            ->tasks()->whereDate('completed_at', '2026-11-09')->count();
+
+        $red = User::where('demo_sandbox', $sandbox)->where('name', 'Red Dufour')->sole();
+        $this->assertSame(1, $doneToday($red), 'Red ran first thing this morning.');
+        $this->assertSame(0, $doneToday($visitor), 'The visitor still has today to do.');
+
+        $running = $visitor->leagues()->where('name', 'Marathon by March')->sole();
+        $this->get(route('leagues.matchups', $running))->assertOk()->assertSee('Dispute');
+    }
+
+    public function test_at_midnight_nobody_has_checked_in_today_yet(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-09 00:10', config('app.timezone')));
+        $this->get(route('demo'));
+
+        $this->assertTrue(User::where('demo_sandbox', auth()->user()->demo_sandbox)->get()
+            ->every(fn (User $person) => $person->goals()->get()->every(fn ($goal) => $goal->weeks()->whereDate('starts_on', '2026-11-09')->sole()->tasks()->whereNotNull('completed_at')->doesntExist())));
+    }
+
     public function test_the_demo_coach_uses_saved_samples_and_never_calls_the_api(): void
     {
         // A stand-in client with no expectations: any real Claude call would fail this test.

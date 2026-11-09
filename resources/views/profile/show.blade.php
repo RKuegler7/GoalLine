@@ -32,7 +32,7 @@
                         @if ($user->bio)
                             <p class="mt-2 max-w-md text-ivory/95">{{ $user->bio }}</p>
                         @endif
-                        <p class="mt-2 text-sm text-ivory/70">
+                        <p class="mt-2 text-sm text-ivory/85">
                             @if ($user->location)
                                 {{ $user->location }} &middot;
                             @endif
@@ -69,7 +69,7 @@
             <div class="border-line px-6 py-5 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
                 <dd class="mt-2 font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $value }}</dd>
-                <dd class="mt-1 text-sm text-ink/60">{{ $note }}</dd>
+                <dd class="mt-1 text-sm text-ink/70">{{ $note }}</dd>
             </div>
         @endforeach
     </dl>
@@ -85,7 +85,7 @@
                         {{ $featured->title }}
                     @endif
                 </p>
-                <p class="mt-1 text-sm text-ink/60">
+                <p class="mt-1 text-sm text-ink/70">
                     {{ $featured->category->label() }} &middot;
                     @if ($featured->isCompleted())
                         Completed {{ App\Clock::local($featured->completed_at)->format('F j, Y') }}
@@ -99,7 +99,7 @@
                     <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[0.65rem] text-ink">Completed</span>
                 @else
                     <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $featured->points() }}</p>
-                    <p class="text-sm text-ink/55">GoalWeek points</p>
+                    <p class="text-sm text-ink/70">GoalWeek points</p>
                 @endif
             </div>
         </section>
@@ -110,7 +110,7 @@
         <section class="rounded-2xl border border-line bg-white px-6 py-5">
             <h2 class="eyebrow text-club">Form</h2>
             @if ($stats->form()->isEmpty())
-                <p class="mt-3 text-ink/60">Your last 10 GoalWeek results will show here once your first GoalWeek is final.</p>
+                <p class="mt-3 text-ink/70">Your last 10 GoalWeek results will show here once your first GoalWeek is final.</p>
             @else
                 <ol class="mt-4 flex flex-wrap items-center gap-2" aria-label="Last {{ $stats->form()->count() }} GoalWeek results, oldest first">
                     @foreach ($stats->form() as $week)
@@ -118,9 +118,9 @@
                             <span class="sr-only">{{ $week->result()->label() }}</span>
                         </li>
                     @endforeach
-                    <li class="ml-1 text-xs text-ink/50" aria-hidden="true">Latest &rarr;</li>
+                    <li class="ml-1 text-xs text-ink/70" aria-hidden="true">Latest &rarr;</li>
                 </ol>
-                <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/60">
+                <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/70">
                     @foreach (App\GoalWeekResult::cases() as $tier)
                         <li class="flex items-center gap-1.5"><span class="size-3 rounded-sm {{ $tones[$tier->value] }}"></span>{{ $tier->label() }}</li>
                     @endforeach
@@ -132,7 +132,7 @@
         <section class="rounded-2xl border border-line bg-white px-6 py-5">
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">GoalWeek results</h2>
-                <span class="text-sm text-ink/50">{{ $finished }} finished</span>
+                <span class="text-sm text-ink/70">{{ $finished }} finished</span>
             </div>
             <ul class="mt-4 space-y-3">
                 @foreach (App\GoalWeekResult::cases() as $tier)
@@ -183,7 +183,7 @@
                             </div>
                             <div class="px-5 py-4">
                                 <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $goal->title }}</h3>
-                                <p class="mt-0.5 text-sm text-ink/55">
+                                <p class="mt-0.5 text-sm text-ink/70">
                                     {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }}
                                 </p>
                                 @if ($goal->completion_note)
@@ -206,19 +206,19 @@
             @endif
         </div>
         @if ($stats->activeGoals()->isEmpty())
-            <p class="mt-3 text-ink/60">No goals in progress.</p>
+            <p class="mt-3 text-ink/70">No goals in progress.</p>
         @else
             <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                 @foreach ($stats->activeGoals() as $goal)
                     <li>
                         <a @if ($isOwn) href="{{ route('goals.show', $goal) }}" @endif @class(['flex items-center justify-between gap-4 px-6 py-4', 'hover:bg-mint/50' => $isOwn])>
                             <div class="min-w-0">
-                                <p class="eyebrow text-[0.65rem] text-ink/50">{{ $goal->category->label() }}</p>
+                                <p class="eyebrow text-[0.65rem] text-ink/70">{{ $goal->category->label() }}</p>
                                 <p class="mt-0.5 font-serif text-lg font-bold text-club tracking-tight">{{ $goal->title }}</p>
                             </div>
                             <div class="shrink-0 text-right text-sm">
                                 <p class="font-semibold text-ink tabular-nums">{{ $goal->points() }} {{ Str::plural('pt', $goal->points()) }}</p>
-                                <p class="text-ink/55"><x-days-left :days="$goal->daysRemaining()" /></p>
+                                <p class="text-ink/70"><x-days-left :days="$goal->daysRemaining()" /></p>
                             </div>
                         </a>
                     </li>
@@ -239,10 +239,10 @@
             @forelse ($stats->leagues() as $league)
                 <a @can('view', $league) href="{{ route('leagues.show', $league) }}" @endcan class="mt-2 flex items-center justify-between gap-3 text-ink hover:text-club">
                     <span class="truncate font-medium">{{ $league->name }}</span>
-                    <span class="shrink-0 text-sm text-ink/55">{{ $league->members_count }} {{ Str::plural('member', $league->members_count) }} &middot; {{ $league->status()->label() }}</span>
+                    <span class="shrink-0 text-sm text-ink/70">{{ $league->members_count }} {{ Str::plural('member', $league->members_count) }} &middot; {{ $league->status()->label() }}</span>
                 </a>
             @empty
-                <p class="mt-2 text-ink/60">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
+                <p class="mt-2 text-ink/70">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
             @endforelse
         </div>
         <div class="rounded-2xl border border-line bg-white px-6 py-5">
@@ -253,7 +253,7 @@
                 @endif
             </div>
             @if ($friends->isEmpty())
-                <p class="mt-2 text-ink/60">{{ $isOwn ? 'Add friends by their exact username or email.' : 'No friends to show yet.' }}</p>
+                <p class="mt-2 text-ink/70">{{ $isOwn ? 'Add friends by their exact username or email.' : 'No friends to show yet.' }}</p>
             @else
                 <ul class="mt-3 flex flex-wrap gap-2">
                     @foreach ($friends as $friend)

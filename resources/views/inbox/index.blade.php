@@ -42,7 +42,7 @@
                             @endif
                             <span class="min-w-0 flex-1">
                                 <span class="block text-ink">{{ $notification->data['text'] ?? '' }}</span>
-                                <span class="mt-0.5 block text-xs text-ink/50">{{ App\Clock::shortTime($notification->created_at) }}</span>
+                                <span class="mt-0.5 block text-xs text-ink/70">{{ App\Clock::shortTime($notification->created_at) }}</span>
                             </span>
                             @if ($isNew)
                                 <span class="mt-2 size-2.5 shrink-0 rounded-full bg-grass" title="New"><span class="sr-only">New</span></span>

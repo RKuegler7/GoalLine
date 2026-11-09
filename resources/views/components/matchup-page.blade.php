@@ -23,8 +23,8 @@
     {{-- The scoreboard. --}}
     <section data-region="matchup-{{ $card['home']['member']->id }}" @class(['rounded-2xl border bg-white p-4 sm:p-5', 'border-club ring-4 ring-mint' => $page['mine'], 'border-line' => ! $page['mine']])>
         <div class="flex items-center justify-between gap-2">
-            <p class="eyebrow text-[0.62rem] text-ink/50">{{ $eyebrow }}</p>
-            <p @class(['eyebrow rounded-full px-2 py-0.5 text-[0.6rem]', 'bg-ink/5 text-ink/60' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</p>
+            <p class="eyebrow text-[0.62rem] text-ink/70">{{ $eyebrow }}</p>
+            <p @class(['eyebrow rounded-full px-2 py-0.5 text-[0.6rem]', 'bg-ink/5 text-ink/70' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</p>
         </div>
 
         <div @class(['mt-4 grid gap-4', 'grid-cols-2' => $page['kind'] !== 'solo'])>
@@ -39,33 +39,33 @@
                         @if ($page['kind'] !== 'solo' && ($final || $side['outcome']->isWin()))
                             <span @class([
                                 'rounded-md px-1.5 py-0.5 text-[0.65rem] font-bold',
-                                'bg-grass text-white' => $side['outcome']->isWin(),
+                                'bg-grass text-ink' => $side['outcome']->isWin(),
                                 'bg-mint text-club' => $side['outcome'] === App\MatchupOutcome::Tie,
-                                'bg-ink/10 text-ink/60' => $side['outcome']->isLoss(),
+                                'bg-ink/10 text-ink/70' => $side['outcome']->isLoss(),
                             ])>{{ $final ? $side['outcome']->label() : 'Ahead' }}</span>
                         @endif
                     </div>
                     <a href="{{ $side['highlightsUrl'] }}" class="mt-2 block truncate font-semibold text-ink hover:text-club hover:underline" title="{{ $side['member']->user->name }}'s posts in {{ $league->name }}">{{ $side['member']->user->name }}</a>
-                    <p class="text-xs text-ink/55 tabular-nums" title="Wins, ties and losses this season">{{ $record['wins'] }}&ndash;{{ $record['ties'] }}&ndash;{{ $record['losses'] }} <span class="text-ink/40">W&ndash;T&ndash;L</span></p>
-                    <p class="truncate text-xs text-ink/55">{{ $side['member']->goal?->title ?? 'No goal selected' }} &middot; {{ $league->name }}</p>
+                    <p class="text-xs text-ink/70 tabular-nums" title="Wins, ties and losses this season">{{ $record['wins'] }}&ndash;{{ $record['ties'] }}&ndash;{{ $record['losses'] }} <span class="text-ink/70">W&ndash;T&ndash;L</span></p>
+                    <p class="truncate text-xs text-ink/70">{{ $side['member']->goal?->title ?? 'No goal selected' }} &middot; {{ $league->name }}</p>
 
                     <p class="mt-3 font-serif text-4xl font-bold text-club tabular-nums tracking-tight">@if ($side['percent'] === null)–@else<span data-countup="{{ $side['percent'] }}" data-key="share-{{ $side['member']->id }}">{{ $side['percent'] }}</span>%@endif</p>
-                    <p class="text-xs text-ink/55">{{ $side['earned'] }} of {{ $side['planned'] }} planned points</p>
+                    <p class="text-xs text-ink/70">{{ $side['earned'] }} of {{ $side['planned'] }} planned points</p>
                     <div @class(['mt-1 flex', 'justify-end' => $sideIndex === 1])>
                         <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
                     </div>
                     @if ($side['held'] > 0)
-                        <p class="mt-1 text-xs text-ink/60">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
+                        <p class="mt-1 text-xs text-ink/70">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
                     @endif
                     <div @class(['mt-2 flex', 'justify-end' => $sideIndex === 1])>
                         @if ($side['result'])
                             <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" :needs-proof="$side['needsProof']" />
                         @else
-                            <span class="text-xs text-ink/50">No GoalWeek this week</span>
+                            <span class="text-xs text-ink/70">No GoalWeek this week</span>
                         @endif
                     </div>
                     @if (! $final)
-                        <div @class(['mt-2 text-xs text-ink/60', 'text-right' => $sideIndex === 1])>
+                        <div @class(['mt-2 text-xs text-ink/70', 'text-right' => $sideIndex === 1])>
                             <p>Projected, on current pace</p>
                             @if ($projection['band'])
                                 <div @class(['mt-1 flex flex-wrap items-center gap-1.5', 'justify-end' => $sideIndex === 1])>
@@ -73,7 +73,7 @@
                                     <span class="tabular-nums">{{ $projection['percent'] }}%</span>
                                 </div>
                             @else
-                                <p class="mt-1 text-ink/45">Too early to tell</p>
+                                <p class="mt-1 text-ink/70">Too early to tell</p>
                             @endif
                         </div>
                     @endif
@@ -82,11 +82,11 @@
 
             @if ($page['kind'] === 'bye')
                 <div class="min-w-0 text-right">
-                    <div class="flex justify-end"><span class="grid size-11 place-items-center rounded-full bg-ivory text-xs font-semibold text-ink/50 ring-1 ring-line">M</span></div>
+                    <div class="flex justify-end"><span class="grid size-11 place-items-center rounded-full bg-ivory text-xs font-semibold text-ink/70 ring-1 ring-line">M</span></div>
                     <p class="mt-2 font-semibold text-ink">League median</p>
-                    <p class="text-xs text-ink/55">Odd number of members: one plays the middle score</p>
-                    <p class="mt-3 font-serif text-4xl font-bold text-ink/60 tabular-nums tracking-tight">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
-                    <p class="text-xs text-ink/55">line points{{ $card['medianPercent'] === null ? '' : ' · '.round($card['medianPercent'], 1).'% of plan' }}</p>
+                    <p class="text-xs text-ink/70">Odd number of members: one plays the middle score</p>
+                    <p class="mt-3 font-serif text-4xl font-bold text-ink/70 tabular-nums tracking-tight">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
+                    <p class="text-xs text-ink/70">line points{{ $card['medianPercent'] === null ? '' : ' · '.round($card['medianPercent'], 1).'% of plan' }}</p>
                 </div>
             @endif
         </div>
@@ -114,7 +114,7 @@
             @endforeach
         </div>
 
-        <p class="mt-3 flex flex-wrap items-center justify-center gap-x-2 text-xs text-ink/60">
+        <p class="mt-3 flex flex-wrap items-center justify-center gap-x-2 text-xs text-ink/70">
             @if (! $final && $page['daysLeft'] > 0)
                 <span class="font-semibold text-ink">{{ $page['daysLeft'] }} {{ Str::plural('day', $page['daysLeft']) }} left</span> <span aria-hidden="true">&middot;</span>
             @endif
@@ -140,12 +140,12 @@
                 <div data-player-panel="{{ $sideIndex }}" class="min-w-0 rounded-2xl border border-line bg-white p-3 sm:p-4">
                     <h3 class="px-1 font-serif text-lg font-bold text-club tracking-tight">{{ $first($side) }}&rsquo;s week</h3>
                     @if (! $side['goalWeek'])
-                        <p class="mt-2 px-1 text-sm text-ink/55">No GoalWeek this week.</p>
+                        <p class="mt-2 px-1 text-sm text-ink/70">No GoalWeek this week.</p>
                     @else
                         <ol class="mt-2 space-y-3">
                             @foreach ($side['days'] as $day)
                                 <li>
-                                    <p @class(['flex items-center gap-2 px-1 text-xs font-semibold', 'text-club' => $day['isToday'], 'text-ink/55' => ! $day['isToday']])>
+                                    <p @class(['flex items-center gap-2 px-1 text-xs font-semibold', 'text-club' => $day['isToday'], 'text-ink/70' => ! $day['isToday']])>
                                         <span class="eyebrow text-[0.6rem]">{{ $day['label'] }}</span>
                                         <span>{{ $day['date']->format('M j') }}</span>
                                         @if ($day['isToday'])
@@ -153,7 +153,7 @@
                                         @endif
                                     </p>
                                     @if ($day['rows'] === [])
-                                        <p class="mt-1 rounded-xl bg-ivory px-3 py-2 text-xs text-ink/50">Rest day</p>
+                                        <p class="mt-1 rounded-xl bg-ivory px-3 py-2 text-xs text-ink/70">Rest day</p>
                                     @else
                                         <ul class="mt-1 space-y-1">
                                             @foreach ($day['rows'] as $row)
@@ -165,7 +165,7 @@
                             @endforeach
                             @if ($side['anytime'] !== [])
                                 <li>
-                                    <p class="px-1 text-xs font-semibold text-ink/55"><span class="eyebrow text-[0.6rem]">Any day</span> this week</p>
+                                    <p class="px-1 text-xs font-semibold text-ink/70"><span class="eyebrow text-[0.6rem]">Any day</span> this week</p>
                                     <ul class="mt-1 space-y-1">
                                         @foreach ($side['anytime'] as $row)
                                             <x-matchup-task-row :row="$row" />

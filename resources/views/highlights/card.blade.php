@@ -12,7 +12,7 @@
 <x-layouts.app title="Share card · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('highlights.index') }}#highlight-{{ $highlight->id }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Highlights</a>
+            <a href="{{ route('highlights.index') }}#highlight-{{ $highlight->id }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Highlights</a>
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Your share card</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Post it on Instagram, your story, or anywhere you celebrate.</p>
         </div>
@@ -70,6 +70,6 @@
             class="w-full rounded-xl bg-club px-5 py-3 font-semibold text-ivory hover:bg-club-dark">
             Download image
         </button>
-        <p class="text-center text-sm text-ink/55">On a phone, you can also press and hold the card to save it.</p>
+        <p class="text-center text-sm text-ink/70">On a phone, you can also press and hold the card to save it.</p>
     </div>
 </x-layouts.app>

@@ -16,20 +16,20 @@
 <section id="week-grid" data-region="week-grid" {{ $attributes->class('scroll-mt-24 rounded-2xl border border-line bg-white') }}>
     <header class="flex flex-wrap items-baseline justify-between gap-2 border-b border-line px-5 py-4">
         <h2 class="font-serif text-xl font-bold text-club tracking-tight">This week&rsquo;s habits</h2>
-        <p class="text-xs text-ink/55">Tap today or yesterday to log. Earlier days stay as they are.</p>
+        <p class="text-xs text-ink/70">Tap today or yesterday to log. Earlier days stay as they are.</p>
     </header>
 
     @if ($rows->isEmpty())
         <p class="px-5 py-6 text-sm text-ink/65">No habits yet. Add the recurring things that move your goal, like &ldquo;Run 2+ miles&rdquo; 3 days a week, from your goal page.</p>
     @else
-        <div class="overflow-x-auto">
+        <div class="relative overflow-x-auto" tabindex="0" role="region" aria-label="This week's habits, scrolls sideways">
             <table class="w-full min-w-[34rem] text-sm">
                 <thead>
-                    <tr class="text-xs text-ink/55">
+                    <tr class="text-xs text-ink/70">
                         <th class="px-4 py-2 text-left font-semibold">Habit</th>
                         @foreach ($days as $day)
                             <th @class(['px-1 py-2 text-center font-semibold', 'text-club' => $day->isSameDay($today)])>
-                                {{ $day->format('D') }}<span class="block font-normal text-ink/40">{{ $day->format('j') }}</span>
+                                {{ $day->format('D') }}<span class="block font-normal text-ink/70">{{ $day->format('j') }}</span>
                             </th>
                         @endforeach
                         <th class="px-4 py-2 text-right font-semibold">Week</th>
@@ -44,7 +44,7 @@
                         <tr>
                             <td class="px-4 py-2.5">
                                 <p class="font-medium text-ink">{{ $habit->label() }}</p>
-                                <p class="text-xs text-ink/50">{{ $habit->cadence() }} &middot; <a href="{{ route('goals.show', $goal) }}#habits" class="hover:text-club hover:underline">{{ Str::limit($goal->title, 28) }}</a></p>
+                                <p class="text-xs text-ink/70">{{ $habit->cadence() }} &middot; <a href="{{ route('goals.show', $goal) }}#habits" class="hover:text-club hover:underline">{{ Str::limit($goal->title, 28) }}</a></p>
                             </td>
                             @foreach ($days as $day)
                                 @php
@@ -58,7 +58,7 @@
                                         @if ($loggable)
                                             <x-habit-log :habit="$habit" :day="$day" return="today" compact />
                                         @elseif ($isDone)
-                                            <span class="grid size-9 place-items-center rounded-lg bg-grass text-white" title="Done">
+                                            <span class="grid size-9 place-items-center rounded-lg bg-grass text-ink" title="Done">
                                                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
                                                 <span class="sr-only">Done</span>
                                             </span>
@@ -67,7 +67,7 @@
                                         @elseif ($day->gt($today))
                                             <span class="grid size-9 place-items-center rounded-lg text-xs text-ink/30 border border-dashed border-line" title="Upcoming">{{ $habit->isRestDay($day) ? 'Rest' : '' }}<span class="sr-only">Upcoming</span></span>
                                         @elseif ($habit->isRestDay($day))
-                                            <span class="grid size-9 place-items-center rounded-lg text-[0.65rem] text-ink/40" title="Rest day">Rest</span>
+                                            <span class="grid size-9 place-items-center rounded-lg text-[0.65rem] text-ink/70" title="Rest day">Rest</span>
                                         @else
                                             <span class="grid size-9 place-items-center rounded-lg bg-ivory ring-1 ring-line" title="Not logged"><span class="sr-only">Not logged</span></span>
                                         @endif
@@ -75,15 +75,15 @@
                                 </td>
                             @endforeach
                             <td class="px-4 py-2 text-right">
-                                <p @class(['font-semibold tabular-nums', 'text-grass' => $done >= $target, 'text-ink' => $done < $target])>{{ $done }} of {{ $target }}</p>
-                                <p class="text-xs text-ink/50">{{ $done >= $target ? 'Target met' : 'this week' }}</p>
+                                <p @class(['font-semibold tabular-nums', 'text-club' => $done >= $target, 'text-ink' => $done < $target])>{{ $done }} of {{ $target }}</p>
+                                <p class="text-xs text-ink/70">{{ $done >= $target ? 'Target met' : 'this week' }}</p>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-        <p class="border-t border-line px-5 py-3 text-xs text-ink/55">
+        <p class="border-t border-line px-5 py-3 text-xs text-ink/70">
             <span class="mr-3 inline-flex items-center gap-1"><span class="size-3 rounded bg-grass"></span> Done</span>
             <span class="mr-3 inline-flex items-center gap-1"><span class="size-3 rounded bg-gold/15 ring-1 ring-gold"></span> Logged, under the rule</span>
             <span class="mr-3 inline-flex items-center gap-1"><span class="size-3 rounded ring-1 ring-line"></span> Due or not logged</span>

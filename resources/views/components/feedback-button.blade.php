@@ -9,7 +9,7 @@
         @csrf
         <input type="hidden" name="page" value="{{ request()->path() === '/' ? '/' : '/'.request()->path() }}">
         <label for="feedback-body" class="font-serif text-lg font-bold text-club tracking-tight">Tell us anything</label>
-        <p class="text-xs text-ink/55">Something broken, confusing, or great? You&rsquo;re shaping GoalLine.</p>
+        <p class="text-xs text-ink/70">Something broken, confusing, or great? You&rsquo;re shaping GoalLine.</p>
         <textarea id="feedback-body" name="body" rows="4" maxlength="2000" required placeholder="The planner was confusing when..."
             class="mt-2 block w-full rounded-xl border border-line bg-ivory/60 px-3 py-2 text-sm text-ink outline-none placeholder:text-ink/35 focus:border-club focus:bg-white focus:ring-4 focus:ring-club/10"></textarea>
         <button type="submit" class="mt-3 w-full rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Send feedback</button>

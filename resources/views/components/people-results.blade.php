@@ -19,7 +19,7 @@
                     <x-avatar :user="$person" class="size-10 text-xs" />
                     <span class="min-w-0 flex-1">
                         <span class="block truncate font-medium text-ink">{{ $person->name }}</span>
-                        <span class="block truncate text-sm text-ink/55">{{ '@'.$person->username }}</span>
+                        <span class="block truncate text-sm text-ink/70">{{ '@'.$person->username }}</span>
                     </span>
                     <div class="flex flex-wrap items-center gap-2">
                         <x-friend-button :user="$person" />
@@ -39,7 +39,7 @@
                                 <button type="submit" class="rounded-full border border-club/30 px-4 py-2 text-sm font-semibold text-club hover:border-club">Invite to league</button>
                             </form>
                         @endif
-                        <a href="{{ $person->profileUrl() }}" class="rounded-full px-3 py-2 text-sm font-semibold text-ink/60 hover:text-ink">View</a>
+                        <a href="{{ $person->profileUrl() }}" class="rounded-full px-3 py-2 text-sm font-semibold text-ink/70 hover:text-ink">View</a>
                     </div>
                 </li>
             @endforeach

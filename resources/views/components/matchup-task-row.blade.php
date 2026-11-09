@@ -5,10 +5,10 @@
 @php
     $task = $row['task'];
     $tone = match ($row['status']) {
-        App\Services\MatchupPager::STATUS_DONE => 'bg-grass text-white',
+        App\Services\MatchupPager::STATUS_DONE => 'bg-grass text-ink',
         App\Services\MatchupPager::STATUS_TODAY => 'bg-gold/30 text-ink',
         App\Services\MatchupPager::STATUS_MISSED => 'bg-red-50 text-red-700',
-        default => 'bg-ivory text-ink/55 ring-1 ring-inset ring-line',
+        default => 'bg-ivory text-ink/70 ring-1 ring-inset ring-line',
     };
 @endphp
 
@@ -24,7 +24,7 @@
         </span>
         <span class="min-w-0 flex-1">
             <span class="block truncate text-sm font-medium text-ink">{{ $task->description }}</span>
-            <span class="flex flex-wrap items-center gap-x-1.5 text-xs text-ink/55">
+            <span class="flex flex-wrap items-center gap-x-1.5 text-xs text-ink/70">
                 <span>{{ $row['statusLabel'] }}</span>
                 <span aria-hidden="true">&middot;</span>
                 <span class="tabular-nums">{{ $row['points'] }} {{ Str::plural('pt', $row['points']) }}</span>

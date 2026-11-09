@@ -6,7 +6,7 @@
     $times = (int) old('times_per_week', $habit?->times_per_week && $habit->times_per_week < 7 ? $habit->times_per_week : 3);
     $days = array_map('intval', old('days', $habit?->days ?? []));
     $rule = old('rule', $habit?->rule ?? App\Models\Habit::CHECK);
-    $chip = 'block rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink/60 transition peer-checked:border-club peer-checked:bg-club peer-checked:text-ivory peer-focus-visible:ring-4 peer-focus-visible:ring-club/20';
+    $chip = 'block rounded-full border border-line px-3 py-1.5 text-xs font-semibold text-ink/70 transition peer-checked:border-club peer-checked:bg-club peer-checked:text-ivory peer-focus-visible:ring-4 peer-focus-visible:ring-club/20';
     $input = 'rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none placeholder:text-ink/35 focus:border-club focus:ring-4 focus:ring-club/10';
 @endphp
 
@@ -42,7 +42,7 @@
                     <option value="{{ $count }}" @selected($count === $times)>{{ $count }}&times; a week, any days</option>
                 @endforeach
             </select>
-            <p class="mt-1 text-xs text-ink/55">Progress counts toward the target, like &ldquo;3 of 4 this week&rdquo;. A day off isn't a miss.</p>
+            <p class="mt-1 text-xs text-ink/70">Progress counts toward the target, like &ldquo;3 of 4 this week&rdquo;. A day off isn't a miss.</p>
         </div>
     </fieldset>
 
@@ -67,6 +67,6 @@
                 <input id="{{ $prefix }}-unit" name="unit" maxlength="20" value="{{ old('unit', $habit?->unit) }}" placeholder="miles" class="w-28 {{ $input }}">
             </span>
         </div>
-        <p class="mt-1 text-xs text-ink/55">The rule shows on the habit, like &ldquo;Run &middot; 2+ miles&rdquo;, so it's clear what counts.</p>
+        <p class="mt-1 text-xs text-ink/70">The rule shows on the habit, like &ldquo;Run &middot; 2+ miles&rdquo;, so it's clear what counts.</p>
     </fieldset>
 </div>

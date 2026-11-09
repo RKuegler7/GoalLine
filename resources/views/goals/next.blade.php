@@ -35,7 +35,7 @@
         <form method="POST" action="{{ route('goals.next.choose', $goal) }}" class="flex flex-col rounded-2xl border border-line bg-white p-5">
             @csrf
             <input type="hidden" name="choice" value="solo">
-            <x-icon name="flame" class="size-7 text-ink/50" />
+            <x-icon name="flame" class="size-7 text-ink/70" />
             <h2 class="mt-3 font-serif text-xl font-bold text-ink tracking-tight">Keep it solo</h2>
             <p class="mt-1 flex-1 text-sm text-ink/65">Just you against the line, every GoalWeek. You can start or join a league any time.</p>
             <button type="submit" class="mt-4 rounded-full px-5 py-2.5 font-semibold text-ink/70 hover:text-ink">Play against the line</button>

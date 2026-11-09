@@ -24,16 +24,16 @@
 @else
 <article id="highlight-{{ $highlight->id }}" data-region="post-{{ $highlight->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex items-center gap-3 px-5 pt-4">
-        <a href="{{ $highlight->user->profileUrl() }}" class="shrink-0"><x-avatar :user="$highlight->user" class="size-10 text-xs" /></a>
+        <a href="{{ $highlight->user->profileUrl() }}" class="shrink-0"><span class="sr-only">{{ $highlight->user->name }}</span><x-avatar :user="$highlight->user" class="size-10 text-xs" /></a>
         <div class="min-w-0 flex-1">
             <p class="truncate">
                 <a href="{{ $highlight->user->profileUrl() }}" class="font-semibold text-ink hover:text-club hover:underline">{{ $highlight->user->name }}</a>
-                <span class="text-sm text-ink/45">&middot; {{ App\Clock::shortTime($highlight->created_at) }}</span>
+                <span class="text-sm text-ink/70">&middot; {{ App\Clock::shortTime($highlight->created_at) }}</span>
             </p>
             <span @class([
                 'eyebrow mt-0.5 inline-block rounded-full px-2 py-0.5 text-[0.6rem]',
                 'bg-gold text-ink' => $highlight->kind === App\HighlightKind::GoalCompleted,
-                'bg-grass text-white' => $highlight->kind === App\HighlightKind::GreatWeek,
+                'bg-grass text-ink' => $highlight->kind === App\HighlightKind::GreatWeek,
                 'bg-mint text-club' => $highlight->kind === App\HighlightKind::MilestoneHit,
             ])>{{ $highlight->kind->label() }}</span>
         </div>
@@ -57,7 +57,7 @@
             <h3 class="font-serif text-xl font-bold text-club tracking-tight">{{ $highlight->headline }}</h3>
         @endif
         @if ($highlight->detail)
-            <p class="text-sm text-ink/60">{{ $highlight->detail }}</p>
+            <p class="text-sm text-ink/70">{{ $highlight->detail }}</p>
         @endif
         @if ($highlight->caption)
             <p class="mt-2 whitespace-pre-line text-ink/90">{{ $highlight->caption }}</p>
@@ -69,7 +69,7 @@
                 <input type="hidden" name="intent" value="{{ $cheered ? 'remove' : 'add' }}">
                 <button type="submit" aria-pressed="{{ $cheered ? 'true' : 'false' }}" @class([
                     'flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-semibold transition',
-                    'bg-grass text-white' => $cheered,
+                    'bg-grass text-ink' => $cheered,
                     'bg-mint text-club hover:bg-grass/20' => ! $cheered,
                 ])>
                     <x-icon name="highlights" class="size-4" />
@@ -77,7 +77,7 @@
                 </button>
             </form>
             @if ($summary = $highlight->cheerSummary($viewer))
-                <p class="truncate text-sm text-ink/55">{{ $summary }}</p>
+                <p class="truncate text-sm text-ink/70">{{ $summary }}</p>
             @endif
         </div>
 
@@ -86,7 +86,7 @@
             <div class="mt-3 space-y-2.5">
                 @if ($hiddenComments > 0)
                     <details class="group/more">
-                        <summary class="cursor-pointer list-none text-sm font-semibold text-ink/55 hover:text-club [&::-webkit-details-marker]:hidden">
+                        <summary class="cursor-pointer list-none text-sm font-semibold text-ink/70 hover:text-club [&::-webkit-details-marker]:hidden">
                             <span class="group-open/more:hidden">View all {{ $comments->count() }} comments</span>
                             <span class="hidden group-open/more:inline">Show fewer</span>
                         </summary>

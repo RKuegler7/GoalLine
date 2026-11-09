@@ -15,6 +15,6 @@
             @csrf
             <button type="submit" class="rounded-full bg-club px-6 py-2.5 font-semibold text-ivory hover:bg-club-dark">Send the link again</button>
         </form>
-        <p class="mt-4 text-sm text-ink/55">Can't find it? Check spam, or <a href="{{ route('profile.edit') }}" class="font-semibold text-club hover:underline">fix your email address</a>.</p>
+        <p class="mt-4 text-sm text-ink/70">Can't find it? Check spam, or <a href="{{ route('profile.edit') }}" class="font-semibold text-club hover:underline">fix your email address</a>.</p>
     </div>
 </x-layouts.app>

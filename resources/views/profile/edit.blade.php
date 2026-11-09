@@ -1,7 +1,7 @@
 <x-layouts.app title="Edit profile · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('profile.show') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Profile</a>
+            <a href="{{ route('profile.show') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Profile</a>
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Edit profile</h1>
         </div>
     </x-slot:hero>
@@ -20,7 +20,7 @@
                     <label for="avatar" class="mb-1.5 block text-sm font-medium text-ink/80">Profile photo</label>
                     <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" data-crop="avatar"
                         class="block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                    <p class="mt-1.5 text-sm text-ink/55">JPG, PNG, or WebP, up to 2 MB.</p>
+                    <p class="mt-1.5 text-sm text-ink/70">JPG, PNG, or WebP, up to 2 MB.</p>
                     @error('avatar')
                         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                     @enderror
@@ -45,7 +45,7 @@
                 <label for="cover" class="sr-only">Cover photo</label>
                 <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" data-crop="cover"
                     class="mt-3 block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                <p class="mt-1.5 text-sm text-ink/55">A wide photo works best: a finish line, your desk, your team. Up to 4 MB.</p>
+                <p class="mt-1.5 text-sm text-ink/70">A wide photo works best: a finish line, your desk, your team. Up to 4 MB.</p>
                 @error('cover')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror
@@ -78,7 +78,7 @@
                         </option>
                     @endforeach
                 </select>
-                <p class="mt-1.5 text-sm text-ink/55">Pinned to the top of your profile.</p>
+                <p class="mt-1.5 text-sm text-ink/70">Pinned to the top of your profile.</p>
                 @error('featured_goal_id')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror
@@ -104,7 +104,7 @@
                     @endforeach
                 </select>
                 <button type="button" hidden data-use-browser-timezone="timezone" class="mt-2 text-sm font-semibold text-club hover:underline"></button>
-                <p class="mt-1.5 text-sm text-ink/55">Your GoalWeeks run Monday to Sunday on this clock, and check-ins close at midnight here.</p>
+                <p class="mt-1.5 text-sm text-ink/70">Your GoalWeeks run Monday to Sunday on this clock, and check-ins close at midnight here.</p>
                 @error('timezone')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror
@@ -119,7 +119,7 @@
                                 @checked(old('profile_visibility', $user->profile_visibility?->value ?? 'leagues') === $visibility->value)>
                             <span>
                                 <span class="block font-medium text-ink">{{ $visibility->label() }}</span>
-                                <span class="block text-sm text-ink/60">{{ $visibility->description() }}</span>
+                                <span class="block text-sm text-ink/70">{{ $visibility->description() }}</span>
                             </span>
                         </label>
                     @endforeach
@@ -131,7 +131,7 @@
                 <input type="checkbox" name="discoverable" value="1" class="mt-1 accent-club" @checked(old('discoverable', $user->discoverable))>
                 <span>
                     <span class="block font-medium text-ink">Let people find me by name</span>
-                    <span class="block text-sm text-ink/60">When off, people can only find you by your exact username or email. Your email is never shown to anyone.</span>
+                    <span class="block text-sm text-ink/70">When off, people can only find you by your exact username or email. Your email is never shown to anyone.</span>
                 </span>
             </label>
         </section>
@@ -143,13 +143,13 @@
     </form>
 
     <div class="mx-auto mt-10 flex max-w-2xl items-center justify-between gap-4 border-t border-line pt-6">
-        <p class="text-sm text-ink/55">
+        <p class="text-sm text-ink/70">
             <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a> &middot; <a href="{{ route('terms') }}" class="hover:text-club">Terms</a>
             @can('admin')
                 &middot; <a href="{{ route('admin.index') }}" class="font-semibold text-club hover:underline">Admin</a>
             @endcan
             &middot; Done with GoalLine?
         </p>
-        <a href="{{ route('account.delete') }}" class="text-sm font-semibold text-ink/60 hover:text-red-700">Delete account</a>
+        <a href="{{ route('account.delete') }}" class="text-sm font-semibold text-ink/70 hover:text-red-700">Delete account</a>
     </div>
 </x-layouts.app>

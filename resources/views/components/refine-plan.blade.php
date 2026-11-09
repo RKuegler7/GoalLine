@@ -40,7 +40,7 @@
                 <p class="mt-2 text-sm text-red-700">{{ $refineErrors->first() }}</p>
             @endif
             <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-                <p class="text-xs text-ink/50">
+                <p class="text-xs text-ink/70">
                     Changes {{ $editableWeeks->count() }} upcoming {{ Str::plural('GoalWeek', $editableWeeks->count()) }} at most. Past check-ins never change.
                 </p>
                 <button type="submit" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Preview the change</button>

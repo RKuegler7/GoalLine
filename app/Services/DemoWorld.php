@@ -258,7 +258,7 @@ class DemoWorld
                 [$done, $milestone, $bonus] = $history[$offset + self::WEEKS_PLAYED];
                 $this->playPastWeek($week, $tasks, $done, $milestone, $bonus);
             } elseif ($offset === 0) {
-                $this->playThisWeek($tasks, $missedThisWeek);
+                $this->playThisWeek($tasks, $missedThisWeek, earlyBird: $missedThisWeek === 0);
             }
         }
 
@@ -308,11 +308,13 @@ class DemoWorld
     }
 
     /**
-     * This week so far: everything before today checked off except the ones missed, today's still to do.
+     * This week so far: everything before today checked off except the ones missed. Early birds (league mates with a
+     * perfect week so far) have also done today's task first thing, so even on a Monday the matchup has check-ins to
+     * see and dispute. The visitor's today is always still to do.
      *
      * @param  list<RoadmapTask>  $tasks
      */
-    private function playThisWeek(array $tasks, int $missed): void
+    private function playThisWeek(array $tasks, int $missed, bool $earlyBird = false): void
     {
         $earlier = array_values(array_filter($tasks, fn (RoadmapTask $task) => $task->planned_on->lt($this->today)));
 
@@ -322,6 +324,18 @@ class DemoWorld
             }
 
             $this->checkOff($task, CarbonImmutable::instance($task->planned_on)->setTime(rand(6, 20), rand(0, 59)));
+        }
+
+        $morning = $this->today->setTime(6, 15)->min(CarbonImmutable::now()->subMinutes(20));
+
+        if (! $earlyBird || $morning->lt($this->today)) {
+            return;
+        }
+
+        foreach ($tasks as $task) {
+            if ($task->planned_on->isSameDay($this->today)) {
+                $this->checkOff($task, $morning);
+            }
         }
     }
 

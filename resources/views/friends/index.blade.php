@@ -1,7 +1,7 @@
 <x-layouts.app title="Friends · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('highlights.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; Around the League</a>
+            <a href="{{ route('highlights.index') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Around the League</a>
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Friends</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Doing it with friends makes it stick. Friends cheer each other on, nudge each other, and see the posts you share with friends.</p>
         </div>
@@ -16,7 +16,7 @@
         <form method="POST" action="{{ route('friends.store') }}" data-live class="rounded-2xl border border-line bg-white p-5">
             @csrf
             <label for="who" class="font-serif text-lg font-bold text-club tracking-tight">Add a friend</label>
-            <p class="text-sm text-ink/60">Enter their exact username or email. Their username is on their locker, like @jordan.rivera.</p>
+            <p class="text-sm text-ink/70">Enter their exact username or email. Their username is on their locker, like @jordan.rivera.</p>
             <div class="mt-3 flex gap-2">
                 <input id="who" name="who" value="{{ old('who') }}" required autocomplete="off" autocapitalize="none" placeholder="@username or email"
                     class="min-w-0 flex-1 rounded-xl border border-line bg-white px-4 py-2.5 outline-none focus:border-club focus:ring-4 focus:ring-club/10">
@@ -36,7 +36,7 @@
                             <x-avatar :user="$request->requester" class="size-10 text-xs" />
                             <span class="min-w-0 flex-1">
                                 <span class="block truncate font-medium text-ink">{{ $request->requester->name }}</span>
-                                <span class="block truncate text-sm text-ink/55">{{ '@'.$request->requester->username }}</span>
+                                <span class="block truncate text-sm text-ink/70">{{ '@'.$request->requester->username }}</span>
                             </span>
                             <form method="POST" action="{{ route('friends.accept', $request) }}" data-live>
                                 @csrf
@@ -45,7 +45,7 @@
                             <form method="POST" action="{{ route('friends.destroy', $request) }}" data-live>
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="rounded-full px-3 py-1.5 text-sm font-semibold text-ink/60 hover:text-ink">Decline</button>
+                                <button type="submit" class="rounded-full px-3 py-1.5 text-sm font-semibold text-ink/70 hover:text-ink">Decline</button>
                             </form>
                         </li>
                     @endforeach
@@ -65,13 +65,13 @@
                                 <x-avatar :user="$friend" class="size-10 text-xs" />
                                 <span class="min-w-0">
                                     <span class="block truncate font-medium text-ink">{{ $friend->name }}</span>
-                                    <span class="block truncate text-sm text-ink/55">{{ '@'.$friend->username }}</span>
+                                    <span class="block truncate text-sm text-ink/70">{{ '@'.$friend->username }}</span>
                                 </span>
                             </a>
                             <form method="POST" action="{{ route('friends.destroy', $friendships[$friend->id]) }}" data-live onsubmit="return confirm('Remove {{ addslashes($friend->name) }} from your friends?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-xs font-semibold text-ink/45 hover:text-red-700">Remove</button>
+                                <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-red-700">Remove</button>
                             </form>
                         </li>
                     @endforeach
@@ -89,7 +89,7 @@
                                 <x-avatar :user="$mate" class="size-10 text-xs" />
                                 <span class="min-w-0">
                                     <span class="block truncate font-medium text-ink">{{ $mate->name }}</span>
-                                    <span class="block truncate text-sm text-ink/55">{{ '@'.$mate->username }}</span>
+                                    <span class="block truncate text-sm text-ink/70">{{ '@'.$mate->username }}</span>
                                 </span>
                             </a>
                             <x-friend-button :user="$mate" />
@@ -101,16 +101,16 @@
 
         @if ($outgoing->isNotEmpty())
             <section>
-                <h2 class="eyebrow text-ink/55">Requests you sent</h2>
+                <h2 class="eyebrow text-ink/70">Requests you sent</h2>
                 <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                     @foreach ($outgoing as $request)
                         <li class="flex items-center gap-3 px-5 py-3">
                             <x-avatar :user="$request->addressee" class="size-9 text-xs" />
-                            <span class="min-w-0 flex-1 truncate text-ink/75">{{ $request->addressee->name }} <span class="text-ink/45">&middot; waiting</span></span>
+                            <span class="min-w-0 flex-1 truncate text-ink/75">{{ $request->addressee->name }} <span class="text-ink/70">&middot; waiting</span></span>
                             <form method="POST" action="{{ route('friends.destroy', $request) }}" data-live>
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-ink">Cancel</button>
+                                <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-ink">Cancel</button>
                             </form>
                         </li>
                     @endforeach

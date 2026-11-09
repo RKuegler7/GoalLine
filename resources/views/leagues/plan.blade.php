@@ -1,7 +1,7 @@
 <x-layouts.app :title="$member->user->name.'\'s plan · '.$league->name">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $league->name }}</a>
+            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
             <p class="eyebrow mt-6 text-mint">Plan transparency</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $member->user->name }}&rsquo;s plan</h1>
             <p class="mt-3 max-w-xl text-ivory/85">{{ $goal?->title ?? 'No goal in this league right now.' }}</p>
@@ -15,7 +15,7 @@
 
         <div class="mt-4 overflow-x-auto rounded-2xl border border-line bg-white">
             <table class="w-full min-w-[30rem] text-left text-sm">
-                <thead class="border-b border-line text-xs text-ink/55 uppercase">
+                <thead class="border-b border-line text-xs text-ink/70 uppercase">
                     <tr>
                         <th class="px-4 py-3 font-semibold">GoalWeek</th>
                         <th class="px-2 py-3 text-right font-semibold">Planned</th>
@@ -31,17 +31,17 @@
                         <tr @class(['bg-mint/30' => $week->isCurrent()])>
                             <td class="px-4 py-2.5">
                                 <span class="font-medium text-ink">{{ $week->label() }}</span>
-                                <span class="block text-xs text-ink/50">{{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}{{ $week->isCurrent() ? ' · this week' : '' }}</span>
+                                <span class="block text-xs text-ink/70">{{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}{{ $week->isCurrent() ? ' · this week' : '' }}</span>
                             </td>
                             <td class="px-2 py-2.5 text-right tabular-nums">{{ $week->plannedPoints() }}</td>
-                            <td class="px-2 py-2.5 text-right tabular-nums text-ink/60">{{ $week->effectiveFloor() ?? '–' }}</td>
+                            <td class="px-2 py-2.5 text-right tabular-nums text-ink/70">{{ $week->effectiveFloor() ?? '–' }}</td>
                             <td class="px-4 py-2.5">
                                 <x-plan-status :week="$week" />
                                 @if ($week->isLighter())
-                                    <span class="mt-0.5 block text-xs text-ink/55">&ldquo;{{ $week->lighter_reason }}&rdquo;</span>
+                                    <span class="mt-0.5 block text-xs text-ink/70">&ldquo;{{ $week->lighter_reason }}&rdquo;</span>
                                 @endif
                                 @if ($week->floor_note)
-                                    <span class="mt-0.5 block text-xs text-ink/55">Raised to the minimum pace.</span>
+                                    <span class="mt-0.5 block text-xs text-ink/70">Raised to the minimum pace.</span>
                                 @endif
                             </td>
                         </tr>
@@ -57,7 +57,7 @@
                     @foreach ($versions as $version)
                         <li class="py-2.5 text-sm">
                             <span class="font-semibold text-ink">{{ $version->label() }}</span>
-                            <span class="text-ink/50">&middot; {{ App\Clock::local($version->created_at)->format('M j, g:i a') }}</span>
+                            <span class="text-ink/70">&middot; {{ App\Clock::local($version->created_at)->format('M j, g:i a') }}</span>
                             <p class="text-ink/65">{{ $version->summary }}</p>
                         </li>
                     @endforeach

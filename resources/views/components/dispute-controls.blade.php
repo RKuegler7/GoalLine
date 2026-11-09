@@ -42,7 +42,7 @@
                 @endif
                 @if ($isLeagueOwner && ! $isOwner && $dispute->league_id === $league->id)
                     <span class="flex flex-wrap items-center gap-1.5">
-                        <span class="text-ink/55">League owner:</span>
+                        <span class="text-ink/70">League owner:</span>
                         @foreach (['counts' => 'It counts', 'out' => 'It doesn\'t count'] as $outcome => $label)
                             <form method="POST" action="{{ route('disputes.rule', $dispute) }}" data-live class="inline">
                                 @csrf
@@ -56,12 +56,12 @@
         </div>
     @endif
 @elseif ($task->disputes->isNotEmpty())
-    <span class="ml-1 text-ink/45">Dispute settled</span>
+    <span class="ml-1 text-ink/70">Dispute settled</span>
 @endif
 
 @if ($canDispute && ! $mine && $task->dispute_status !== App\Models\RoadmapTask::DISPUTE_UPHELD)
     <details class="ml-1 inline-block">
-        <summary class="cursor-pointer list-none font-semibold text-ink/50 hover:text-club [&::-webkit-details-marker]:hidden">Dispute</summary>
+        <summary class="cursor-pointer list-none font-semibold text-ink/70 hover:text-club [&::-webkit-details-marker]:hidden">Dispute</summary>
         <form method="POST" action="{{ route('disputes.store', $task) }}" data-live class="mt-1 flex gap-1.5">
             @csrf
             <label for="dispute-{{ $task->id }}" class="sr-only">Why? (optional)</label>

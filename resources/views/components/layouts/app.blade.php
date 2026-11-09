@@ -30,7 +30,7 @@
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
                         'relative flex min-h-11 items-center rounded-full px-2 text-sm font-semibold whitespace-nowrap transition lg:px-4',
                         'bg-ivory/15 text-ivory' => $tab['active'],
-                        'text-ivory/70 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
+                        'text-ivory/85 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
                     ])>
                         {{ $tab['label'] }}
                         @if (($tab['badge'] ?? 0) > 0)
@@ -45,7 +45,7 @@
                     <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
                 <a href="{{ route('inbox') }}" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
-                    aria-label="Inbox{{ $inboxCount ? ', '.$inboxCount.' new' : '' }}">
+                    aria-label="Inbox{{ $inboxCount ? ', '.($inboxCount > 9 ? '9+' : $inboxCount).' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
                     @if ($inboxCount)
                         <span class="absolute top-0.5 right-0.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-gold px-1 text-[0.62rem] font-bold text-ink tabular-nums">{{ $inboxCount > 9 ? '9+' : $inboxCount }}</span>
@@ -54,13 +54,14 @@
 
                 {{-- Account menu: your locker, settings, admin, and log out, under your photo. --}}
                 <details class="relative" data-account-menu>
-                    <summary class="grid size-11 cursor-pointer list-none place-items-center rounded-full [&::-webkit-details-marker]:hidden" aria-label="Account menu">
+                    <summary class="grid size-11 cursor-pointer list-none place-items-center rounded-full [&::-webkit-details-marker]:hidden">
+                        <span class="sr-only">Account menu</span>
                         <x-avatar :user="$viewer" tone="light" class="size-9 text-xs ring-2 ring-ivory/25 transition hover:ring-ivory/60" />
                     </summary>
                     <div class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-1.5 text-sm shadow-xl">
                         <p class="truncate border-b border-line px-4 pt-1.5 pb-2.5">
                             <span class="block font-semibold text-ink">{{ $viewer->name }}</span>
-                            <span class="block text-xs text-ink/50">{{ '@'.$viewer->username }}</span>
+                            <span class="block text-xs text-ink/70">{{ '@'.$viewer->username }}</span>
                         </p>
                         <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-ink hover:bg-mint">My Locker</a>
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-ink hover:bg-mint">Profile settings</a>
@@ -134,7 +135,7 @@
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
                         'relative flex flex-col items-center gap-1 pt-2.5 pb-2 text-[0.68rem] font-semibold transition',
                         'text-club' => $tab['active'],
-                        'text-ink/45 hover:text-ink/70' => ! $tab['active'],
+                        'text-ink/70 hover:text-ink/70' => ! $tab['active'],
                     ])>
                         @if ($tab['icon'])
                             <x-icon :name="$tab['icon']" class="size-6" />

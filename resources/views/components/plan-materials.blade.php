@@ -20,7 +20,7 @@
         <div class="flex items-center justify-between gap-4">
             <h2 class="eyebrow text-club">Your plan materials</h2>
             @if ($materials->isEmpty())
-                <span class="text-sm text-ink/50">Optional</span>
+                <span class="text-sm text-ink/70">Optional</span>
             @endif
         </div>
 
@@ -35,7 +35,7 @@
                         <div class="flex items-start justify-between gap-4">
                             <div class="min-w-0">
                                 <p class="truncate font-medium text-ink">{{ $material->digest['title'] ?? $material->original_name }}</p>
-                                <p class="text-sm text-ink/55">
+                                <p class="text-sm text-ink/70">
                                     {{ $material->original_name }}
                                     @if ($material->digest['kind'] ?? null)
                                         &middot; {{ $material->digest['kind'] }}
@@ -44,7 +44,7 @@
                             </div>
                             <div class="flex shrink-0 items-center gap-3">
                                 @if ($material->status === App\RoadmapStatus::Pending)
-                                    <span class="flex items-center gap-2 text-sm text-ink/60"><span class="size-2 animate-pulse rounded-full bg-grass" aria-hidden="true"></span>Reading&hellip;</span>
+                                    <span class="flex items-center gap-2 text-sm text-ink/70"><span class="size-2 animate-pulse rounded-full bg-grass" aria-hidden="true"></span>Reading&hellip;</span>
                                 @elseif ($material->status === App\RoadmapStatus::Failed)
                                     <span class="text-sm text-red-700">Couldn't read this file</span>
                                 @elseif (! ($material->digest['relevant'] ?? true))
@@ -57,7 +57,7 @@
                                     <form method="POST" action="{{ route('materials.destroy', $material) }}" onsubmit="return confirm('Remove this file?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-sm font-semibold text-ink/50 hover:text-red-700">Remove</button>
+                                        <button type="submit" class="text-sm font-semibold text-ink/70 hover:text-red-700">Remove</button>
                                     </form>
                                 @endif
                             </div>

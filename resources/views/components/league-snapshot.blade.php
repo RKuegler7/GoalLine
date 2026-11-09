@@ -21,7 +21,7 @@
         <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
                 <p class="truncate font-serif text-lg font-bold text-club tracking-tight">{{ $league->name }}</p>
-                <p class="text-xs text-ink/55">
+                <p class="text-xs text-ink/70">
                     @if ($league->status() === App\LeagueStatus::Forming)
                         Kicks off {{ $league->starts_on->format('M j') }} &middot; {{ $size }} {{ Str::plural('member', $size) }}
                     @elseif ($league->status() === App\LeagueStatus::Active)
@@ -34,7 +34,7 @@
             @if ($league->status() !== App\LeagueStatus::Forming)
                 <div class="shrink-0 text-right">
                     <p class="font-serif text-2xl font-bold text-club tracking-tight">{{ $ordinal }}</p>
-                    <p class="text-xs text-ink/55">of {{ $size }} &middot; <span data-countup="{{ $snapshot->points() }}" data-key="league-points-{{ $league->id }}">{{ $snapshot->points() }}</span> pts</p>
+                    <p class="text-xs text-ink/70">of {{ $size }} &middot; <span data-countup="{{ $snapshot->points() }}" data-key="league-points-{{ $league->id }}">{{ $snapshot->points() }}</span> pts</p>
                 </div>
             @endif
         </div>
@@ -42,12 +42,12 @@
 
     @if ($matchup)
         <a href="{{ route('leagues.matchups', $league) }}" class="mx-5 mt-3 block rounded-xl bg-ivory px-3 py-2.5 hover:bg-mint/50">
-            <p class="flex items-center justify-between eyebrow text-[0.58rem] text-ink/50"><span>GoalWeek {{ $league->currentWeek() }} Matchup</span><span class="text-club">&rarr;</span></p>
+            <p class="flex items-center justify-between eyebrow text-[0.58rem] text-ink/70"><span>GoalWeek {{ $league->currentWeek() }} Matchup</span><span class="text-club">&rarr;</span></p>
             <div class="mt-1.5 flex items-center justify-between gap-2 text-sm">
                 <span class="font-semibold text-ink">You</span>
                 <span @class([
                     'rounded-full px-2 py-0.5 text-xs font-semibold',
-                    'bg-grass text-white' => $matchup['outcome']->isWin(),
+                    'bg-grass text-ink' => $matchup['outcome']->isWin(),
                     'bg-mint text-club' => $matchup['outcome'] === App\MatchupOutcome::Tie,
                     'bg-red-50 text-red-700' => $matchup['outcome']->isLoss(),
                 ])>
@@ -61,7 +61,7 @@
                 </span>
                 <span class="truncate font-semibold text-ink">{{ $matchup['opponent'] ? Str::before($matchup['opponent']->user->name, ' ') : 'League median' }}</span>
             </div>
-            <div class="mt-1 flex items-center justify-between gap-2 text-xs text-ink/60">
+            <div class="mt-1 flex items-center justify-between gap-2 text-xs text-ink/70">
                 <span>{{ $matchup['mine']['result']?->label() ?? 'No GoalWeek' }} &middot; {{ $matchup['mine']['points'] }}</span>
                 <span class="text-right">
                     @if ($matchup['opponent'])
@@ -79,7 +79,7 @@
         @if ($unread > 0)
             <span class="rounded-full bg-club px-2 py-0.5 text-xs font-semibold text-ivory tabular-nums">{{ $unread }} new</span>
         @else
-            <span class="text-ink/40">&rarr;</span>
+            <span class="text-ink/70">&rarr;</span>
         @endif
     </a>
 </article>

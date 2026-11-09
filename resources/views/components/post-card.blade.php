@@ -11,19 +11,20 @@
 <article id="highlight-{{ $post->id }}" data-region="post-{{ $post->id }}" class="scroll-mt-24 overflow-hidden rounded-2xl border border-line bg-white">
     <header class="flex items-center gap-3 px-4 py-3">
         <a href="{{ $post->user->profileUrl() }}" class="shrink-0 rounded-full p-0.5 ring-2 ring-grass/60">
+            <span class="sr-only">{{ $post->user->name }}</span>
             <x-avatar :user="$post->user" class="size-9 text-[0.65rem]" />
         </a>
         <div class="min-w-0 flex-1 leading-tight">
             <p class="truncate text-sm">
                 <a href="{{ $post->user->profileUrl() }}" class="font-semibold text-ink hover:underline">{{ $post->user->name }}</a>
                 @if ($post->league)
-                    <span class="text-ink/40">&middot;</span>
+                    <span class="text-ink/70">&middot;</span>
                     <a href="{{ route('leagues.feed', $post->league) }}" class="font-medium text-club hover:underline">{{ $post->league->name }}</a>
                 @endif
             </p>
-            <p class="truncate text-xs text-ink/60">{{ $post->headline }}</p>
+            <p class="truncate text-xs text-ink/70">{{ $post->headline }}</p>
             @if ($post->location)
-                <p class="truncate text-xs text-ink/50">&#x1F4CD; {{ $post->location }}</p>
+                <p class="truncate text-xs text-ink/70">&#x1F4CD; {{ $post->location }}</p>
             @endif
         </div>
         <x-post-options :post="$post" />
@@ -40,7 +41,7 @@
                 <input type="hidden" name="intent" value="{{ $cheered ? 'remove' : 'add' }}">
                 <button type="submit" aria-pressed="{{ $cheered ? 'true' : 'false' }}" @class([
                     'flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold transition',
-                    'bg-grass text-white' => $cheered,
+                    'bg-grass text-ink' => $cheered,
                     'bg-mint text-club hover:bg-grass/20' => ! $cheered,
                 ])>
                     <x-icon name="highlights" class="size-4" />
@@ -67,6 +68,6 @@
             <svg viewBox="0 0 16 16" class="size-3.5 shrink-0 text-grass" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
             <span class="truncate">{{ $post->detail }}</span>
         </p>
-        <p class="eyebrow mt-1.5 text-[0.6rem] text-ink/40">{{ App\Clock::shortTime($post->created_at) }}</p>
+        <p class="eyebrow mt-1.5 text-[0.6rem] text-ink/70">{{ App\Clock::shortTime($post->created_at) }}</p>
     </div>
 </article>

@@ -17,7 +17,7 @@
             {{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }} so far
         </p>
         @if ($challenge->isOver())
-            <p class="mt-5 font-semibold text-ink/60">This challenge is over.</p>
+            <p class="mt-5 font-semibold text-ink/70">This challenge is over.</p>
         @else
             <form method="POST" action="{{ route('challenges.join.store', $challenge->invite_code) }}" data-live class="mt-6">
                 @csrf

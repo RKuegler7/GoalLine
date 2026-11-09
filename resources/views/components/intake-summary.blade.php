@@ -26,7 +26,7 @@
             <dl class="mt-3 grid gap-x-6 gap-y-3 sm:grid-cols-2">
                 @foreach (array_slice($given, 0, 6) as $answer)
                     <div>
-                        <dt class="text-sm text-ink/55">{{ $answer['question'] }}</dt>
+                        <dt class="text-sm text-ink/70">{{ $answer['question'] }}</dt>
                         <dd class="font-medium text-ink">{{ $answer['answer'] }}</dd>
                     </div>
                 @endforeach

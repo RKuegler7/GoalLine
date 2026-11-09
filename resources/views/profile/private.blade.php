@@ -4,7 +4,7 @@
             <x-avatar :user="$user" tone="light" class="size-20 text-2xl ring-4 ring-ivory/25" />
             <div>
                 <h1 class="font-serif text-3xl font-bold tracking-tight text-ivory">{{ $user->name }}</h1>
-                <p class="mt-1 text-ivory/75">{{ '@'.$user->username }}</p>
+                <p class="mt-1 text-ivory/85">{{ '@'.$user->username }}</p>
             </div>
         </div>
     </x-slot:hero>

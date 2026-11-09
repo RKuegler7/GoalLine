@@ -1,7 +1,7 @@
 <x-layouts.app :title="'Feed · '.$league->name.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $league->name }}</a>
+            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
             <p class="eyebrow mt-6 text-mint">League feed</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">The work behind the wins</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Every photo here is a check-in someone showed. Cheer the process, not just the result.</p>
@@ -25,11 +25,11 @@
                         <li class="rounded-xl border border-line bg-white px-4 py-3 text-sm">
                             <p>
                                 <a href="#highlight-{{ $reported->id }}" class="font-semibold text-ink hover:text-club hover:underline">{{ $reported->user->name }}: {{ Str::limit($reported->detail, 60) }}</a>
-                                <span class="text-ink/50">&middot; {{ $postReports->count() }} {{ Str::plural('report', $postReports->count()) }}</span>
+                                <span class="text-ink/70">&middot; {{ $postReports->count() }} {{ Str::plural('report', $postReports->count()) }}</span>
                             </p>
                             <ul class="mt-1 space-y-0.5 text-ink/70">
                                 @foreach ($postReports as $report)
-                                    <li>{{ $report->reporter->name }}: {{ $report->reason ?: 'No reason given' }} <span class="text-ink/45">&middot; {{ App\Clock::shortTime($report->created_at) }}</span></li>
+                                    <li>{{ $report->reporter->name }}: {{ $report->reason ?: 'No reason given' }} <span class="text-ink/70">&middot; {{ App\Clock::shortTime($report->created_at) }}</span></li>
                                 @endforeach
                             </ul>
                         </li>

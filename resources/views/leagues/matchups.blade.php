@@ -2,7 +2,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
             <div class="flex flex-wrap items-center justify-between gap-3">
-                <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; {{ $league->name }}</a>
+                <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
 
                 {{-- League switcher, when you play in more than one league. --}}
                 @if ($leagues->count() > 1)
@@ -35,7 +35,7 @@
                             <li>
                                 <a href="{{ route('leagues.matchups', [$league, $option]) }}" @class(['flex min-h-11 items-center justify-between px-4 text-ink hover:bg-mint/50', 'font-semibold text-club' => $option === $week]) @if ($option === $week) aria-current="page" @endif>
                                     <span>GoalWeek {{ $option }}</span>
-                                    <span class="text-xs text-ink/50">{{ $option === $latest && ! $final ? 'Live' : 'Final' }}</span>
+                                    <span class="text-xs text-ink/70">{{ $option === $latest && ! $final ? 'Live' : 'Final' }}</span>
                                 </a>
                             </li>
                         @endforeach
@@ -77,7 +77,7 @@
                 <div class="grid grid-cols-2 gap-1 rounded-full bg-white p-1 ring-1 ring-line" role="tablist" aria-label="Whose tasks to show">
                     @foreach ([0, 1] as $sideIndex)
                         <button type="button" role="tab" data-player-tab="{{ $sideIndex }}" aria-selected="{{ $sideIndex === 0 ? 'true' : 'false' }}"
-                            class="min-h-11 truncate rounded-full px-3 text-sm font-semibold text-ink/60 aria-selected:bg-club aria-selected:text-ivory"></button>
+                            class="min-h-11 truncate rounded-full px-3 text-sm font-semibold text-ink/70 aria-selected:bg-club aria-selected:text-ivory"></button>
                     @endforeach
                 </div>
             </div>
@@ -98,13 +98,13 @@
                         <a href="#matchup-{{ $index + 1 }}" data-pager-jump="{{ $index }}" @class(['grid min-h-11 grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 text-sm hover:bg-mint/30', 'bg-mint/40' => $card['mine']])>
                             @foreach ([$card['home'], $card['away']] as $sideIndex => $side)
                                 @if ($sideIndex === 1)
-                                    <span class="text-xs text-ink/40">vs</span>
+                                    <span class="text-xs text-ink/70">vs</span>
                                 @endif
                                 <span @class(['min-w-0', 'text-right' => $sideIndex === 1])>
                                     <span @class(['block truncate', 'font-semibold text-club' => $side && $side['outcome']->isWin(), 'text-ink' => ! $side || ! $side['outcome']->isWin()])>
                                         {{ $side ? $side['member']->user->name : 'League median' }}
                                     </span>
-                                    <span class="block text-xs text-ink/55 tabular-nums">
+                                    <span class="block text-xs text-ink/70 tabular-nums">
                                         @if ($side)
                                             {{ $side['percent'] === null ? 'No GoalWeek' : $side['percent'].'%' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
                                         @else
@@ -137,7 +137,7 @@
             <span class="mx-auto mt-1 h-1.5 w-10 rounded-full bg-ink/15 sm:hidden" aria-hidden="true"></span>
         </div>
         <form method="dialog" class="absolute top-3 right-3">
-            <button type="submit" class="grid size-11 place-items-center rounded-full text-ink/60 hover:bg-ivory" aria-label="Close">&times;</button>
+            <button type="submit" class="grid size-11 place-items-center rounded-full text-ink/70 hover:bg-ivory" aria-label="Close">&times;</button>
         </form>
         <div data-task-sheet-body class="max-h-[80dvh] overflow-y-auto px-5 pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom))]"></div>
     </dialog>

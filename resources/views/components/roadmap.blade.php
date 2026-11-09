@@ -43,7 +43,7 @@
 
         <div class="mt-3 rounded-2xl border border-line bg-white px-6 py-5">
             <p class="font-serif text-xl leading-relaxed text-ink tracking-tight">{{ $goal->roadmap_summary }}</p>
-            <p class="mt-3 border-t border-line pt-3 text-sm text-ink/60">
+            <p class="mt-3 border-t border-line pt-3 text-sm text-ink/70">
                 @if ($weeksPerStretch > 1)
                     This is a longer goal, so each step of your plan spans <span class="font-semibold text-club">{{ $weeksPerStretch }} GoalWeeks</span>, with one milestone to hit before the next begins.
                 @else
@@ -76,7 +76,7 @@
                             $count = $scored->filter(fn ($week) => $week->result() === $tier)->count();
                         @endphp
                         @if ($count > 0)
-                            <span class="text-sm text-ink/60">{{ $tier->label() }} <span class="font-semibold text-ink">&times;{{ $count }}</span></span>
+                            <span class="text-sm text-ink/70">{{ $tier->label() }} <span class="font-semibold text-ink">&times;{{ $count }}</span></span>
                         @endif
                     @endforeach
                 </div>

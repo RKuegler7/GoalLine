@@ -30,7 +30,7 @@
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
-                        <dd class="text-xs text-ivory/65">{{ $note }}</dd>
+                        <dd class="text-xs text-ivory">{{ $note }}</dd>
                     </div>
                 @endforeach
             </dl>
@@ -119,10 +119,10 @@
                         <a href="{{ $highlight->league_id ? route('leagues.feed', $highlight->league_id) : route('highlights.index') }}#highlight-{{ $highlight->id }}" class="flex items-start gap-3 px-4 py-3 hover:bg-mint/40">
                             <x-avatar :user="$highlight->user" class="size-8 shrink-0 text-[0.6rem]" />
                             <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/55">&middot; {{ $highlight->kind->label() }}</span></span>
+                                <span class="block truncate text-sm"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/70">&middot; {{ $highlight->kind->label() }}</span></span>
                                 <span class="block truncate text-sm text-ink/70">{{ $highlight->isPost() ? $highlight->detail : $highlight->headline }}</span>
                                 @if ($highlight->caption)
-                                    <span class="block truncate text-xs text-ink/50">&ldquo;{{ $highlight->caption }}&rdquo;</span>
+                                    <span class="block truncate text-xs text-ink/70">&ldquo;{{ $highlight->caption }}&rdquo;</span>
                                 @endif
                             </span>
                             @if ($highlight->photoUrl())
@@ -130,7 +130,7 @@
                             @endif
                         </a>
                     @empty
-                        <p class="px-4 py-3 text-sm text-ink/60">
+                        <p class="px-4 py-3 text-sm text-ink/70">
                             @if (auth()->user()->friendIds()->isEmpty() && ! $friendFeed->previousPageUrl())
                                 Goals stick better with company. <a href="{{ route('friends.index') }}" class="font-semibold text-club hover:underline">Add a friend</a> by their username or email, and their check-ins and wins show up here.
                             @else
@@ -157,12 +157,12 @@
 
             @if ($retired->isNotEmpty())
                 <section>
-                    <h2 class="eyebrow text-ink/50">Retired goals</h2>
+                    <h2 class="eyebrow text-ink/70">Retired goals</h2>
                     <ul class="mt-2 space-y-1">
                         @foreach ($retired as $goal)
                             <li>
-                                <a href="{{ route('goals.show', $goal) }}" class="text-sm text-ink/60 hover:text-club hover:underline">{{ $goal->title }}</a>
-                                <span class="text-sm text-ink/40">&middot; retired {{ App\Clock::local($goal->retired_at)?->format('M j, Y') }}</span>
+                                <a href="{{ route('goals.show', $goal) }}" class="text-sm text-ink/70 hover:text-club hover:underline">{{ $goal->title }}</a>
+                                <span class="text-sm text-ink/70">&middot; retired {{ App\Clock::local($goal->retired_at)?->format('M j, Y') }}</span>
                             </li>
                         @endforeach
                     </ul>

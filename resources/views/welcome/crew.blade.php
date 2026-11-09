@@ -36,7 +36,7 @@
             @error('who')
                 <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
             @enderror
-            <p class="mt-2 text-sm text-ink/55">You can also start your own GoalLeague from the GoalLeagues tab once you're in.</p>
+            <p class="mt-2 text-sm text-ink/70">You can also start your own GoalLeague from the GoalLeagues tab once you're in.</p>
         </form>
 
         <div class="flex justify-end pt-2">

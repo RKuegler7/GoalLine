@@ -13,7 +13,7 @@
         ]) }}
     >{{ old($name, $value) }}</textarea>
     @if ($hint)
-        <p class="mt-1.5 text-sm text-ink/55">{{ $hint }}</p>
+        <p class="mt-1.5 text-sm text-ink/70">{{ $hint }}</p>
     @endif
     @error($name)
         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>

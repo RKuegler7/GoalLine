@@ -11,7 +11,7 @@
 @elseif ($disabled)
     <span @class([
         'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2',
-        'border-grass bg-grass text-white' => $done,
+        'border-grass bg-grass text-ink' => $done,
         'border-club/25' => ! $done,
     ]) aria-hidden="true">
         @if ($done)
@@ -28,7 +28,7 @@
         @endif
         <button type="submit" data-check="{{ $done ? 'done' : 'open' }}" data-focus-key="habit-{{ $habit->id }}-{{ $day->toDateString() }}" title="{{ $done ? 'Undo' : 'Log it for '.($day->isSameDay(App\Clock::today()) ? 'today' : $day->format('l')) }}" @class([
             'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition',
-            'border-grass bg-grass text-white' => $done,
+            'border-grass bg-grass text-ink' => $done,
             'border-club/40 hover:border-club hover:bg-mint' => ! $done,
         ])>
             @if ($done)

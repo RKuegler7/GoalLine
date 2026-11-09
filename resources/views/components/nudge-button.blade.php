@@ -9,8 +9,8 @@
     @if ($viewer->recentlyNudged($user))
         <span {{ $attributes->class([
             'inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold',
-            'bg-ivory/15 text-ivory/70' => $tone === 'light',
-            'bg-mint text-club/70' => $tone !== 'light',
+            'bg-ivory/15 text-ivory/85' => $tone === 'light',
+            'bg-mint text-club' => $tone !== 'light',
         ]) }}>Nudged today</span>
     @else
         <form method="POST" action="{{ route('nudges.store', $user) }}" data-live {{ $attributes }}>

@@ -12,7 +12,7 @@
     <section id="habits" data-region="habits-{{ $goal->id }}" {{ $attributes->class('mt-6 scroll-mt-6 rounded-2xl border border-line bg-white px-6 py-5') }}>
         <div class="flex items-center justify-between gap-4">
             <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="repeat" class="size-4" /> Habits</h2>
-            <span class="text-sm text-ink/50">Count toward every GoalWeek</span>
+            <span class="text-sm text-ink/70">Count toward every GoalWeek</span>
         </div>
 
         @if ($habits->isEmpty())
@@ -27,7 +27,7 @@
                             <summary class="flex cursor-pointer list-none items-center gap-3 [&::-webkit-details-marker]:hidden">
                                 <span class="min-w-0 flex-1">
                                     <span class="block font-medium text-ink">{{ $habit->label() }}</span>
-                                    <span class="block text-sm text-ink/55">{{ $habit->cadence() }}</span>
+                                    <span class="block text-sm text-ink/70">{{ $habit->cadence() }}</span>
                                 </span>
                                 @if ($week?->isStarted())
                                     <x-habit-week :habit="$habit" :week="$week" />

@@ -18,7 +18,7 @@
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
                         <dt class="eyebrow text-[0.62rem] text-mint">{{ $label }}</dt>
                         <dd class="mt-1 font-serif text-3xl font-bold text-ivory tabular-nums tracking-tight">{{ $value }}</dd>
-                        <dd class="text-xs text-ivory/65">{{ $note }}</dd>
+                        <dd class="text-xs text-ivory/85">{{ $note }}</dd>
                     </div>
                 @endforeach
             </dl>
@@ -32,9 +32,9 @@
             <ol class="mt-4 flex h-32 items-end gap-1.5" aria-label="Active members per day">
                 @foreach ($dailyActive as $day)
                     <li class="flex h-full flex-1 flex-col items-center justify-end gap-1" title="{{ $day['date']->format('D M j') }}: {{ $day['count'] }}">
-                        <span class="text-[0.6rem] text-ink/50 tabular-nums">{{ $day['count'] ?: '' }}</span>
+                        <span class="text-[0.6rem] text-ink/70 tabular-nums">{{ $day['count'] ?: '' }}</span>
                         <span class="w-full rounded-t bg-grass" style="height: {{ max(2, round($day['count'] / $peak * 100)) }}%"></span>
-                        <span class="text-[0.6rem] text-ink/40">{{ $day['date']->format('j') }}</span>
+                        <span class="text-[0.6rem] text-ink/70">{{ $day['date']->format('j') }}</span>
                     </li>
                 @endforeach
             </ol>
@@ -44,10 +44,10 @@
         <section class="rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
             <h2 class="eyebrow text-club">Photo storage</h2>
             @if ($storage['s3'] && $storage['working'])
-                <p class="mt-2 text-sm text-ink"><span class="font-semibold text-grass">&check; Working.</span> Photos and plan files are saved in the private S3 bucket <span class="font-mono">{{ $storage['bucket'] }}</span>, so they survive deploys.</p>
+                <p class="mt-2 text-sm text-ink"><span class="font-semibold text-club">&check; Working.</span> Photos and plan files are saved in the private S3 bucket <span class="font-mono">{{ $storage['bucket'] }}</span>, so they survive deploys.</p>
             @elseif ($storage['s3'])
                 <p class="mt-2 text-sm text-red-700"><span class="font-semibold">S3 is turned on but not working.</span> Check the bucket name, the region, and that the server's role can use the bucket.</p>
-                <p class="mt-1 font-mono text-xs text-ink/60">{{ $storage['problem'] }}</p>
+                <p class="mt-1 font-mono text-xs text-ink/70">{{ $storage['problem'] }}</p>
             @else
                 <p class="mt-2 text-sm text-ink/75"><span class="font-semibold text-amber-800">On the server's own disk.</span> Uploaded photos vanish every time you deploy. Set <span class="font-mono">UPLOADS_DISK=s3</span> and <span class="font-mono">AWS_BUCKET</span> to keep them.</p>
             @endif
@@ -64,18 +64,18 @@
                     </div>
                 </div>
             @endforeach
-            <p class="mt-3 text-xs text-ink/50">Estimates from token counts. AI pauses for everyone at either limit; each member is also capped at {{ config('goalline.ai.daily_requests_per_member') }} AI requests a day.</p>
+            <p class="mt-3 text-xs text-ink/70">Estimates from token counts. AI pauses for everyone at either limit; each member is also capped at {{ config('goalline.ai.daily_requests_per_member') }} AI requests a day.</p>
             @if ($ai['byKind'])
                 <table class="mt-3 w-full text-sm">
                     <tbody class="divide-y divide-line">
                         @foreach ($ai['byKind'] as $row)
-                            <tr><td class="py-1.5 text-ink/75">{{ Str::headline($row['kind']) }}</td><td class="py-1.5 text-right text-ink/60 tabular-nums">{{ $row['requests'] }} calls</td><td class="py-1.5 text-right font-semibold text-ink tabular-nums">{{ $money($row['cost']) }}</td></tr>
+                            <tr><td class="py-1.5 text-ink/75">{{ Str::headline($row['kind']) }}</td><td class="py-1.5 text-right text-ink/70 tabular-nums">{{ $row['requests'] }} calls</td><td class="py-1.5 text-right font-semibold text-ink tabular-nums">{{ $money($row['cost']) }}</td></tr>
                         @endforeach
                     </tbody>
                 </table>
             @endif
             @if ($ai['topMembersToday'])
-                <p class="mt-3 text-xs text-ink/50">Most AI today: {{ collect($ai['topMembersToday'])->map(fn ($row) => $row['name'].' ('.$row['requests'].')')->join(', ') }}</p>
+                <p class="mt-3 text-xs text-ink/70">Most AI today: {{ collect($ai['topMembersToday'])->map(fn ($row) => $row['name'].' ('.$row['requests'].')')->join(', ') }}</p>
             @endif
         </section>
 
@@ -83,12 +83,12 @@
         <section class="rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
             <h2 class="eyebrow text-club">What people used, last 7 days</h2>
             <table class="mt-3 w-full text-sm">
-                <thead class="text-left text-xs text-ink/50">
+                <thead class="text-left text-xs text-ink/70">
                     <tr><th class="py-1.5 font-semibold">Feature</th><th class="py-1.5 text-right font-semibold">Uses</th><th class="py-1.5 text-right font-semibold">Members</th></tr>
                 </thead>
                 <tbody class="divide-y divide-line">
                     @foreach ($features as $feature)
-                        <tr @class(['text-ink/40' => $feature['uses'] === 0])>
+                        <tr @class(['text-ink/70' => $feature['uses'] === 0])>
                             <td class="py-1.5">{{ $feature['label'] }}</td>
                             <td class="py-1.5 text-right tabular-nums">{{ $feature['uses'] }}</td>
                             <td class="py-1.5 text-right tabular-nums">{{ $feature['members'] }}</td>
@@ -102,16 +102,16 @@
         <section id="feedback" class="scroll-mt-6 rounded-2xl border border-line bg-white px-5 py-4 lg:col-span-2">
             <div class="flex items-end justify-between gap-4">
                 <h2 class="eyebrow text-club">Beta feedback</h2>
-                <span class="text-sm text-ink/50">{{ $feedback->whereNull('resolved_at')->count() }} open</span>
+                <span class="text-sm text-ink/70">{{ $feedback->whereNull('resolved_at')->count() }} open</span>
             </div>
             @if ($feedback->isEmpty())
-                <p class="mt-3 text-sm text-ink/60">No notes yet. Testers send them with the Feedback button at the bottom right of every page.</p>
+                <p class="mt-3 text-sm text-ink/70">No notes yet. Testers send them with the Feedback button at the bottom right of every page.</p>
             @else
                 <ul class="mt-3 divide-y divide-line">
                     @foreach ($feedback as $note)
                         <li @class(['flex flex-wrap items-start gap-3 py-3', 'opacity-50' => $note->resolved_at])>
                             <div class="min-w-0 flex-1">
-                                <p class="text-xs text-ink/50">{{ $note->member ?? 'Former member' }} &middot; {{ App\Clock::shortTime(Carbon\Carbon::parse($note->created_at)) }}@if ($note->page) &middot; on <code>{{ $note->page }}</code>@endif</p>
+                                <p class="text-xs text-ink/70">{{ $note->member ?? 'Former member' }} &middot; {{ App\Clock::shortTime(Carbon\Carbon::parse($note->created_at)) }}@if ($note->page) &middot; on <code>{{ $note->page }}</code>@endif</p>
                                 <p class="mt-1 whitespace-pre-line text-sm text-ink">{{ $note->body }}</p>
                             </div>
                             @unless ($note->resolved_at)
@@ -147,18 +147,18 @@
                     @foreach ($invites as $invite)
                         <li class="flex flex-wrap items-center gap-3 py-2.5 text-sm">
                             <span class="font-mono font-semibold tracking-wider text-ink">{{ $invite->code }}</span>
-                            <span class="min-w-0 flex-1 truncate text-ink/60">{{ $invite->note ?: 'No note' }}</span>
-                            <span class="text-ink/60 tabular-nums">{{ $invite->uses }}/{{ $invite->max_uses }} used</span>
+                            <span class="min-w-0 flex-1 truncate text-ink/70">{{ $invite->note ?: 'No note' }}</span>
+                            <span class="text-ink/70 tabular-nums">{{ $invite->uses }}/{{ $invite->max_uses }} used</span>
                             @if ($invite->isUsable())
                                 <input type="text" readonly value="{{ $invite->signupUrl() }}" id="invite-{{ $invite->id }}" onclick="this.select()" class="sr-only">
                                 <button type="button" data-copy="invite-{{ $invite->id }}" class="rounded-full border border-club/30 px-3 py-1 text-xs font-semibold text-club hover:border-club">Copy link</button>
                                 <form method="POST" action="{{ route('admin.invites.revoke', $invite) }}" onsubmit="return confirm('Revoke this invite? Nobody new can join with it.')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-red-700">Revoke</button>
+                                    <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-red-700">Revoke</button>
                                 </form>
                             @else
-                                <span class="eyebrow rounded-full bg-ivory px-2 py-0.5 text-[0.6rem] text-ink/50">{{ $invite->revoked_at ? 'Revoked' : 'Used up' }}</span>
+                                <span class="eyebrow rounded-full bg-ivory px-2 py-0.5 text-[0.6rem] text-ink/70">{{ $invite->revoked_at ? 'Revoked' : 'Used up' }}</span>
                             @endif
                         </li>
                     @endforeach

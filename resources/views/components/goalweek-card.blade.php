@@ -41,11 +41,11 @@
                 'bg-club text-ivory' => $current,
                 'bg-mint text-club' => ! $current,
             ])>{{ $week->label() }}</span>
-            <span class="text-sm text-ink/60">
+            <span class="text-sm text-ink/70">
                 {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format($week->starts_on->month === $week->ends_on->month ? 'j' : 'M j') }}
             </span>
             @if ($current)
-                <span class="eyebrow rounded-full bg-grass px-2.5 py-1 text-[0.65rem] text-white">You are here</span>
+                <span class="eyebrow rounded-full bg-grass px-2.5 py-1 text-[0.65rem] text-ink">You are here</span>
             @endif
         </div>
 
@@ -55,14 +55,14 @@
                 @if ($week->goal->user_id === auth()->id() && in_array($result, [App\GoalWeekResult::Past, App\GoalWeekResult::Smashed], true))
                     <a href="{{ route('highlights.create', ['week' => $week]) }}" class="text-xs font-semibold text-club hover:underline">Share</a>
                 @endif
-                <span class="text-xs text-ink/50">{{ $week->isLocked() ? 'Final' : 'Check-ins close '.$week->ends_on->copy()->addDays(App\Models\RoadmapWeek::CHECK_IN_GRACE_DAYS)->format('M j') }}</span>
+                <span class="text-xs text-ink/70">{{ $week->isLocked() ? 'Final' : 'Check-ins close '.$week->ends_on->copy()->addDays(App\Models\RoadmapWeek::CHECK_IN_GRACE_DAYS)->format('M j') }}</span>
             </div>
         @endif
     </div>
 
-    <h3 @class(['mt-3 font-serif text-xl font-medium', 'text-club' => ! $past, 'text-club/70' => $past])>{{ $week->focus }}</h3>
+    <h3 @class(['mt-3 font-serif text-xl font-medium', 'text-club' => ! $past, 'text-club' => $past])>{{ $week->focus }}</h3>
     @if ($week->effectiveFloor() !== null && ! $past)
-        <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink/60">
+        <div class="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink/70">
             <span class="tabular-nums">Planned {{ $week->plannedPoints() }} &middot; minimum pace {{ $week->effectiveFloor() }}</span>
             <x-plan-status :week="$week" />
             @if ($week->isLighter())
@@ -96,7 +96,7 @@
                             class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-1.5 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                         <button type="submit" class="rounded-lg bg-club px-3 py-1.5 text-sm font-semibold text-ivory hover:bg-club-dark">Declare</button>
                     </div>
-                    <p class="mt-1 text-xs text-ink/55">Its minimum drops to {{ (int) ceil($week->floor_points * App\Models\RoadmapWeek::LIGHTER_SHARE) }} points (70%). {{ $lighterLeft }} of {{ App\Models\RoadmapWeek::LIGHTER_WEEKS_PER_SEASON }} lighter weeks left this season.</p>
+                    <p class="mt-1 text-xs text-ink/70">Its minimum drops to {{ (int) ceil($week->floor_points * App\Models\RoadmapWeek::LIGHTER_SHARE) }} points (70%). {{ $lighterLeft }} of {{ App\Models\RoadmapWeek::LIGHTER_WEEKS_PER_SEASON }} lighter weeks left this season.</p>
                     @if ($lighterErrors->any())
                         <p class="mt-1 text-xs text-red-700">{{ $lighterErrors->first() }}</p>
                     @endif
@@ -134,7 +134,7 @@
                 @csrf
                 <button type="submit" title="{{ $week->milestone_hit_at ? 'Mark milestone as not hit' : 'Mark milestone as hit' }}" @class([
                     'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border-2 transition',
-                    'border-grass bg-grass text-white' => $week->milestone_hit_at,
+                    'border-grass bg-grass text-ink' => $week->milestone_hit_at,
                     'border-club/40 hover:border-club' => ! $week->milestone_hit_at,
                 ])>
                     @if ($week->milestone_hit_at)
@@ -147,7 +147,7 @@
         <p class="text-ink/75">
             <span class="font-semibold text-ink">Milestone:</span> {{ $week->milestone }}
             @if ($week->milestone_hit_at)
-                <span class="ml-1 text-sm font-semibold text-grass">Hit</span>
+                <span class="ml-1 text-sm font-semibold text-club">Hit</span>
                 @if ($week->goal->user_id === auth()->id())
                     <a href="{{ route('highlights.create', ['milestone' => $week]) }}" class="ml-1 text-sm font-semibold text-club hover:underline">Share</a>
                 @endif
@@ -206,7 +206,7 @@
                     @if ($editable && ! $task->isGroupTask())
                         <details>
                             <summary class="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
-                                <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
+                                <span @class(['line-through decoration-ink/30 text-ink/70' => $task->completed_at])>
                                     {{ $task->description }}
                                     @if ($task->is_bonus)
                                         <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink no-underline">Bonus</span>
@@ -235,7 +235,7 @@
                                             <label for="track-unit-{{ $task->id }}" class="sr-only">Unit</label>
                                             <input id="track-unit-{{ $task->id }}" name="track_unit" maxlength="20" value="{{ $task->result_unit }}" placeholder="miles"
                                                 class="w-24 rounded-lg border border-line bg-white px-2 py-1 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                                            <span class="text-ink/45">Leave blank for a simple check-off.</span>
+                                            <span class="text-ink/70">Leave blank for a simple check-off.</span>
                                         </fieldset>
                                         @error('track_target')
                                             <p class="text-xs text-red-700">{{ $message }}</p>
@@ -277,7 +277,7 @@
                             </div>
                         </details>
                     @else
-                        <span @class(['line-through decoration-ink/30 text-ink/55' => $task->completed_at])>
+                        <span @class(['line-through decoration-ink/30 text-ink/70' => $task->completed_at])>
                             {{ $task->description }}
                             @if ($task->is_bonus)
                                 <span class="eyebrow ml-1 rounded-full bg-gold/25 px-2 py-0.5 text-[0.6rem] text-ink">Bonus</span>
@@ -301,7 +301,7 @@
                     @if ($current)
                         <x-habit-week :habit="$habit" :week="$week" />
                     @else
-                        <span class="text-xs text-ink/55 tabular-nums">{{ $habit->doneIn($week) }}/{{ $habit->targetFor($week) }}</span>
+                        <span class="text-xs text-ink/70 tabular-nums">{{ $habit->doneIn($week) }}/{{ $habit->targetFor($week) }}</span>
                     @endif
                 </li>
             @endforeach
@@ -329,13 +329,13 @@
                     </select>
                     <button type="submit" class="rounded-lg px-3 py-1.5 text-sm font-semibold text-club hover:bg-mint">Add</button>
                 </div>
-                <p class="mt-1 text-xs text-ink/50">
+                <p class="mt-1 text-xs text-ink/70">
                     {{ $week->personalTasksLeft() }} of {{ App\Models\RoadmapWeek::PERSONAL_TASK_LIMIT }} personal tasks and {{ $week->personalPointsLeft() }} {{ Str::plural('point', $week->personalPointsLeft()) }} left.
                     Your league sees them labeled &ldquo;Added by&rdquo; you. Open until Tuesday 11:59 p.m. of the GoalWeek.
                 </p>
             </form>
         @elseif ($week->acceptsPersonalTasks())
-            <p class="mt-3 text-xs text-ink/50">This GoalWeek's personal tasks are full: up to {{ App\Models\RoadmapWeek::PERSONAL_TASK_LIMIT }}, worth up to 15% of the planned points.</p>
+            <p class="mt-3 text-xs text-ink/70">This GoalWeek's personal tasks are full: up to {{ App\Models\RoadmapWeek::PERSONAL_TASK_LIMIT }}, worth up to 15% of the planned points.</p>
         @endif
         @if ($personalErrors->any())
             <p class="mt-1 text-xs text-red-700">{{ $personalErrors->first() }}</p>

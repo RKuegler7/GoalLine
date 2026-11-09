@@ -36,7 +36,7 @@
                 <form method="POST" action="{{ route('goals.intake.store', $goal) }}" class="mt-6">
                     @csrf
                     <input type="hidden" name="from" value="{{ $from }}">
-                    <button type="submit" name="skip" value="1" class="text-sm font-semibold text-ink/60 hover:text-ink">Skip the questions and build my plan</button>
+                    <button type="submit" name="skip" value="1" class="text-sm font-semibold text-ink/70 hover:text-ink">Skip the questions and build my plan</button>
                 </form>
             </section>
         @else
@@ -45,7 +45,7 @@
                 <input type="hidden" name="from" value="{{ $from }}">
 
                 <div class="flex items-center gap-3" data-intake-progress hidden>
-                    <p class="shrink-0 text-sm font-medium text-ink/60">Question <span data-intake-current>1</span> of {{ count($questions) }}</p>
+                    <p class="shrink-0 text-sm font-medium text-ink/70">Question <span data-intake-current>1</span> of {{ count($questions) }}</p>
                     <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-mint" aria-hidden="true">
                         <div class="h-full rounded-full bg-grass transition-all" data-intake-bar style="width: {{ round(100 / max(1, count($questions))) }}%"></div>
                     </div>
@@ -69,7 +69,7 @@
                             @endif
                         </p>
                         @if ($question['why'])
-                            <p class="mt-1 text-sm text-ink/55">{{ $question['why'] }}</p>
+                            <p class="mt-1 text-sm text-ink/70">{{ $question['why'] }}</p>
                         @endif
 
                         <input type="hidden" name="{{ $name }}[status]" value="{{ $status }}" data-intake-status>
@@ -93,7 +93,7 @@
                                             </label>
                                         @endforeach
                                     </div>
-                                    <p class="mt-2 text-sm text-ink/55">Pick any that apply.</p>
+                                    <p class="mt-2 text-sm text-ink/70">Pick any that apply.</p>
                                     @break
                                 @case(App\Services\IntakeQuestions::NUMBER)
                                     <div class="flex items-center gap-3">
@@ -106,13 +106,13 @@
                                     @break
                                 @case(App\Services\IntakeQuestions::SCALE)
                                     <div class="flex flex-wrap items-center gap-2">
-                                        <span class="text-sm text-ink/55">Not at all</span>
+                                        <span class="text-sm text-ink/70">Not at all</span>
                                         @foreach (range(1, 5) as $step)
                                             <label class="{{ $chip }} px-3.5">
                                                 <input type="radio" name="{{ $name }}[value]" value="{{ $step }}" class="sr-only" @checked((string) $value === (string) $step)> {{ $step }}
                                             </label>
                                         @endforeach
-                                        <span class="text-sm text-ink/55">Very</span>
+                                        <span class="text-sm text-ink/70">Very</span>
                                     </div>
                                     @break
                                 @default
@@ -131,7 +131,7 @@
                             <button type="button" class="rounded-full border border-line px-4 py-2 text-sm font-medium text-ink/70 transition hover:border-club/40 data-[active]:border-club data-[active]:bg-mint data-[active]:text-club" data-intake-mark="{{ App\Services\IntakeQuestions::NOT_SURE }}">I'm not sure</button>
                             <button type="button" class="rounded-full border border-line px-4 py-2 text-sm font-medium text-ink/70 transition hover:border-club/40 data-[active]:border-club data-[active]:bg-mint data-[active]:text-club" data-intake-mark="{{ App\Services\IntakeQuestions::SKIPPED }}">Skip</button>
                             <span class="flex-1"></span>
-                            <button type="button" class="rounded-full px-4 py-2 text-sm font-semibold text-ink/60 hover:text-ink" data-intake-back hidden>Back</button>
+                            <button type="button" class="rounded-full px-4 py-2 text-sm font-semibold text-ink/70 hover:text-ink" data-intake-back hidden>Back</button>
                             <button type="button" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark" data-intake-next hidden>Next</button>
                         </div>
                     </fieldset>
@@ -145,7 +145,7 @@
                     @if ($editing)
                         <a href="{{ route('goals.show', $goal) }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 hover:text-ink">Cancel</a>
                     @else
-                        <button type="submit" name="skip" value="1" formnovalidate class="rounded-lg px-4 py-3 font-semibold text-ink/60 hover:text-ink">Skip all and build my plan</button>
+                        <button type="submit" name="skip" value="1" formnovalidate class="rounded-lg px-4 py-3 font-semibold text-ink/70 hover:text-ink">Skip all and build my plan</button>
                     @endif
                     <x-form.button class="sm:w-auto sm:px-8">{{ $editing ? 'Save and re-plan' : 'Build my plan' }}</x-form.button>
                 </div>

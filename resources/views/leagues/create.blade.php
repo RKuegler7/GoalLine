@@ -1,7 +1,7 @@
 <x-layouts.app title="Start a GoalLeague · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues</a>
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; GoalLeagues</a>
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Start a GoalLeague</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Everyone joins before kickoff and plays the whole season together.</p>
         </div>
@@ -59,7 +59,7 @@
                             <option value="{{ $monday->toDateString() }}" @selected(old('starts_on') === $monday->toDateString())>Monday, {{ $monday->format('M j') }}</option>
                         @endforeach
                     </select>
-                    <p class="mt-1.5 text-sm text-ink/55">People can join until then.</p>
+                    <p class="mt-1.5 text-sm text-ink/70">People can join until then.</p>
                     @error('starts_on')
                         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                     @enderror

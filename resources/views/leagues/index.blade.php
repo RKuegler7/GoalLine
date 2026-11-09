@@ -23,7 +23,7 @@
         <div class="flex flex-wrap items-end justify-between gap-3">
             <div>
                 <h2 class="eyebrow flex items-center gap-1.5 text-club"><x-icon name="flag" class="size-4 text-gold" /> Challenges</h2>
-                <p class="mt-1 text-sm text-ink/60">Short sprints with your crew. One check-in a day, a live leaderboard, and a badge for finishing.</p>
+                <p class="mt-1 text-sm text-ink/70">Short sprints with your crew. One check-in a day, a live leaderboard, and a badge for finishing.</p>
             </div>
             <a href="{{ route('challenges.create') }}" class="inline-flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ink shadow-sm transition hover:brightness-105">
                 <x-icon name="plus" class="size-4" /> Start a challenge
@@ -55,7 +55,7 @@
                                     'eyebrow rounded-full px-2.5 py-1 text-[0.6rem]',
                                     'bg-club text-ivory' => $active,
                                     'bg-mint text-club' => ! $challenge->hasStarted(),
-                                    'bg-ivory text-ink/55 ring-1 ring-line ring-inset' => $challenge->isOver(),
+                                    'bg-ivory text-ink/70 ring-1 ring-line ring-inset' => $challenge->isOver(),
                                 ])>
                                     @if (! $challenge->hasStarted())
                                         Starts {{ $challenge->starts_on->format('D, M j') }}
@@ -68,10 +68,10 @@
                             </div>
                             <div class="min-w-0">
                                 <p class="font-serif text-xl font-bold text-balance text-club tracking-tight">{{ $challenge->title }}</p>
-                                <p class="mt-0.5 text-sm text-ink/55">{{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }} &middot; finish with {{ $challenge->target_days }} days</p>
+                                <p class="mt-0.5 text-sm text-ink/70">{{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }} &middot; finish with {{ $challenge->target_days }} days</p>
                             </div>
                             <div>
-                                <div class="flex justify-between text-xs text-ink/60">
+                                <div class="flex justify-between text-xs text-ink/70">
                                     <span>Your progress</span>
                                     <span class="font-semibold text-ink tabular-nums">{{ $challenge->my_days }}/{{ $challenge->target_days }}</span>
                                 </div>
@@ -156,7 +156,7 @@
                         <a href="{{ route('leagues.show', $league) }}" class="flex items-center justify-between gap-4 px-6 py-4 hover:bg-mint/50">
                             <div class="min-w-0">
                                 <p class="font-serif text-lg font-bold text-club tracking-tight">{{ $league->name }}</p>
-                                <p class="text-sm text-ink/60">
+                                <p class="text-sm text-ink/70">
                                     {{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }} &middot;
                                     @if ($league->status() === App\LeagueStatus::Forming)
                                         Kicks off {{ $league->starts_on->format('M j') }}
@@ -179,8 +179,8 @@
                             <span @class([
                                 'eyebrow shrink-0 rounded-full px-2.5 py-1 text-[0.65rem]',
                                 'bg-mint text-club' => $league->status() === App\LeagueStatus::Forming,
-                                'bg-grass text-white' => $league->status() === App\LeagueStatus::Active,
-                                'bg-ivory text-ink/60' => $league->status() === App\LeagueStatus::Finished,
+                                'bg-grass text-ink' => $league->status() === App\LeagueStatus::Active,
+                                'bg-ivory text-ink/70' => $league->status() === App\LeagueStatus::Finished,
                             ])>{{ $league->status()->label() }}</span>
                         </a>
                     </li>

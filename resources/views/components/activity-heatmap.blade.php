@@ -9,14 +9,14 @@
 <section {{ $attributes->class('rounded-2xl border border-line bg-white px-5 py-4') }}>
     <div class="flex flex-wrap items-baseline justify-between gap-2">
         <h2 class="eyebrow text-club">A year of check-ins</h2>
-        <p class="text-sm text-ink/55">
+        <p class="text-sm text-ink/70">
             {{ number_format($heatmap->total()) }} {{ Str::plural('check-in', $heatmap->total()) }} &middot;
             {{ $heatmap->activeDays() }} active {{ Str::plural('day', $heatmap->activeDays()) }} &middot;
             longest streak {{ $heatmap->longestStreak() }} {{ Str::plural('day', $heatmap->longestStreak()) }}
         </p>
     </div>
 
-    <div class="-mx-5 mt-3 overflow-x-auto px-5 pb-1" data-scroll-end>
+    <div class="relative -mx-5 mt-3 overflow-x-auto px-5 pb-1" data-scroll-end tabindex="0" role="region" aria-label="Activity over the past year, scrolls sideways">
         <div class="flex w-max gap-[3px]" role="img" aria-label="{{ $heatmap->total() }} check-ins on {{ $heatmap->activeDays() }} days in the last year">
             @foreach ($weeks as $week)
                 <div class="flex flex-col gap-[3px]">
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="mt-2 flex items-center justify-end gap-1 text-[0.65rem] text-ink/45">
+    <div class="mt-2 flex items-center justify-end gap-1 text-[0.65rem] text-ink/70">
         Less
         @foreach ($shades as $shade)
             <span class="size-[11px] rounded-[3px] {{ $shade }}"></span>

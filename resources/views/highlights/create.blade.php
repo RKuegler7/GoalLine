@@ -24,7 +24,7 @@
                 <span @class([
                     'eyebrow inline-block rounded-full px-2.5 py-1 text-[0.65rem]',
                     'bg-gold text-ink' => $draft['kind'] === App\HighlightKind::GoalCompleted,
-                    'bg-grass text-white' => $draft['kind'] === App\HighlightKind::GreatWeek,
+                    'bg-grass text-ink' => $draft['kind'] === App\HighlightKind::GreatWeek,
                     'bg-mint text-club' => $draft['kind'] === App\HighlightKind::MilestoneHit,
                 ])>{{ $draft['kind']->label() }}</span>
                 <p class="mt-3 font-serif text-3xl font-bold text-balance text-ivory tracking-tight">{{ $draft['headline'] }}</p>
@@ -49,7 +49,7 @@
                 <label for="photo" class="mb-1.5 block text-sm font-medium text-ink/80">{{ $draft['goalPhoto'] ? 'Or add a different photo' : 'Add a photo (optional)' }}</label>
                 <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp"
                     class="block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                <p class="mt-1.5 text-sm text-ink/55">JPG, PNG, or WebP, up to 5 MB.</p>
+                <p class="mt-1.5 text-sm text-ink/70">JPG, PNG, or WebP, up to 5 MB.</p>
                 @error('photo')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror

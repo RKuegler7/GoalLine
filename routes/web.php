@@ -60,7 +60,7 @@ Route::view('/terms', 'legal.terms')->name('terms');
 Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
 
 // One click into a demo world: for judges, professors, and the curious. Keeps beta invites for real members.
-Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo')->middleware('throttle:10,60');
+Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo')->middleware('throttle:'.config('goalline.demo.starts_per_hour').',60');
 Route::post('/demo/reset', [DemoController::class, 'reset'])->name('demo.reset')->middleware(['auth', 'throttle:10,60']);
 
 // League invite links open for anyone; joining needs an account.

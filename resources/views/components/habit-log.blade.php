@@ -21,7 +21,7 @@
             'flex shrink-0 items-center justify-center rounded-lg border-2 transition',
             'size-9 sm:size-7' => ! $compact,
             'size-9' => $compact,
-            'border-grass bg-grass text-white' => $done,
+            'border-grass bg-grass text-ink' => $done,
             'border-club/40 hover:border-club hover:bg-mint' => ! $done,
         ])>
             @if ($done)
@@ -36,7 +36,7 @@
             'flex cursor-pointer list-none items-center justify-center rounded-lg border-2 text-xs font-semibold tabular-nums transition [&::-webkit-details-marker]:hidden',
             'size-9' => $compact,
             'h-9 min-w-9 px-2 sm:h-7' => ! $compact,
-            'border-grass bg-grass text-white' => $done,
+            'border-grass bg-grass text-ink' => $done,
             'border-gold bg-gold/15 text-ink' => $log && ! $done,
             'border-club/40 text-club hover:border-club hover:bg-mint' => ! $log,
         ]) title="{{ $log ? $habit->formatNumber($log->value ?? 0).' '.$habit->unitLabel() : 'Log '.$dayName }}">
@@ -60,10 +60,10 @@
                 <input id="habit-{{ $habit->id }}-{{ $day->toDateString() }}" name="value" type="number" inputmode="decimal" step="any" min="0" required
                     value="{{ $log?->value !== null ? $habit->formatNumber($log->value) : '' }}" placeholder="{{ $habit->formatNumber((float) $habit->threshold) }}"
                     class="w-20 rounded-lg border border-line px-2 py-1.5 text-sm tabular-nums outline-none focus:border-club focus:ring-4 focus:ring-club/10">
-                <span class="text-xs text-ink/60">{{ $habit->unitLabel() }}</span>
+                <span class="text-xs text-ink/70">{{ $habit->unitLabel() }}</span>
                 <button type="submit" class="ml-auto rounded-lg bg-club px-3 py-1.5 text-xs font-semibold text-ivory hover:bg-club-dark">{{ $log ? 'Update' : 'Log' }}</button>
             </form>
-            <p class="mt-1.5 text-xs text-ink/55">Counts at {{ $habit->ruleLabel() }}.</p>
+            <p class="mt-1.5 text-xs text-ink/70">Counts at {{ $habit->ruleLabel() }}.</p>
             @if ($log)
                 <form method="POST" action="{{ route('habits.log', $habit) }}" data-live class="mt-1">
                     @csrf
@@ -71,7 +71,7 @@
                     @if ($return)
                         <input type="hidden" name="return" value="{{ $return }}">
                     @endif
-                    <button type="submit" class="text-xs font-semibold text-ink/50 hover:text-ink">Clear this day</button>
+                    <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-ink">Clear this day</button>
                 </form>
             @endif
         </div>

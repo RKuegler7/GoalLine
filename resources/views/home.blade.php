@@ -37,7 +37,7 @@
                 <a href="{{ route('demo') }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 font-semibold text-ink shadow-lg shadow-black/10 transition hover:brightness-105">
                     Try the demo &rarr;
                 </a>
-                <p class="mt-2 text-sm text-ivory/70">One click. A pretend account with friends, two GoalLeagues mid-season, and a live matchup. No sign-up.</p>
+                <p class="mt-2 text-sm text-ivory/85">One click. A pretend account with friends, two GoalLeagues mid-season, and a live matchup. No sign-up.</p>
             @endif
         </div>
     </x-slot:hero>
@@ -56,7 +56,7 @@
                 ['Stay accountable', 'Check in with friends or teammates in a friendly league. Optional, encouraging, and fun.'],
             ] as [$heading, $body])
                 <li class="border-line p-7 max-sm:not-last:border-b sm:max-lg:odd:border-r sm:max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
-                    <span class="font-serif text-3xl font-bold text-grass tabular-nums tracking-tight">0{{ $loop->iteration }}</span>
+                    <span class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">0{{ $loop->iteration }}</span>
                     <h3 class="mt-4 font-semibold text-ink">{{ $heading }}</h3>
                     <p class="mt-2 text-[0.95rem] leading-relaxed text-ink/70">{{ $body }}</p>
                 </li>

@@ -25,3 +25,8 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /deploy.zip
+/qa/screenshots
+/qa/test-results
+/qa/playwright-report
+/database/qa.sqlite*
+/qa/server.log

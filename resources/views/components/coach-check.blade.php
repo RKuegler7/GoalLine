@@ -54,10 +54,10 @@
         'border-red-300 bg-red-50' => $verdict === App\PlanVerdict::OffTrack,
     ])>
         <div class="flex flex-wrap items-center gap-3">
-            <span class="eyebrow text-ink/60">Coach check</span>
+            <span class="eyebrow text-ink/70">Coach check</span>
             <span @class([
                 'eyebrow rounded-full px-2.5 py-1 text-[0.65rem]',
-                'bg-grass text-white' => $verdict === App\PlanVerdict::OnTrack,
+                'bg-grass text-ink' => $verdict === App\PlanVerdict::OnTrack,
                 'bg-amber-500 text-white' => $verdict === App\PlanVerdict::AtRisk,
                 'bg-red-600 text-white' => $verdict === App\PlanVerdict::OffTrack,
             ])>{{ $verdict->label() }}</span>

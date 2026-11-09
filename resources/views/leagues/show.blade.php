@@ -8,7 +8,7 @@
 <x-layouts.app :title="$league->name.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/75 hover:text-ivory">&larr; GoalLeagues</a>
+            <a href="{{ route('leagues.index') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; GoalLeagues</a>
             <p class="eyebrow mt-6 text-mint">
                 @if ($status === App\LeagueStatus::Forming)
                     Forming &middot; kicks off {{ $league->starts_on->format('l, M j') }}
@@ -22,7 +22,7 @@
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
             @endif
-            <p class="mt-3 text-sm text-ivory/70">
+            <p class="mt-3 text-sm text-ivory/85">
                 {{ $league->members->count() }} {{ Str::plural('member', $league->members->count()) }} &middot;
                 {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }} &middot;
                 Commissioner: {{ $league->commissioner->name }}
@@ -38,13 +38,13 @@
         <a href="{{ route('leagues.matchups', [$league, $matchupWeek]) }}" class="mb-6 block overflow-hidden rounded-2xl border-2 border-club bg-white transition hover:shadow-md">
             <div class="flex items-center justify-between gap-3 bg-club px-5 py-3">
                 <h2 class="font-serif text-xl font-bold text-ivory tracking-tight">GoalWeek {{ $matchupWeek }} Matchup</h2>
-                <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[0.6rem] text-mint">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
+                <span class="eyebrow rounded-full bg-ivory/15 px-2 py-0.5 text-[0.6rem] text-ivory">{{ $matchupFinal ? 'Final' : 'Live' }}</span>
             </div>
             @if ($myCard)
                 <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3 px-5 py-4">
                     @foreach ([$myCard['home'], $myCard['away']] as $index => $side)
                         @if ($index === 1)
-                            <span class="font-serif text-sm text-ink/40 tracking-tight">vs</span>
+                            <span class="font-serif text-sm text-ink/70 tracking-tight">vs</span>
                         @endif
                         <div @class(['min-w-0', 'text-right' => $index === 1])>
                             <p class="truncate font-semibold text-ink">{{ $side ? $side['member']->user->name : 'League median' }}</p>
@@ -76,7 +76,7 @@
                 <h2 class="eyebrow text-club">Your goal in this league</h2>
                 @if ($me->goal)
                     <a href="{{ route('goals.show', $me->goal) }}" class="mt-1 block font-serif text-lg font-bold text-club hover:underline tracking-tight">{{ $me->goal->title }}</a>
-                    <p class="text-xs text-ink/55">By {{ $me->goal->target_date->format('M j, Y') }} &middot; {{ $me->goal->isActive() ? 'in progress' : $me->goal->status->value }}</p>
+                    <p class="text-xs text-ink/70">By {{ $me->goal->target_date->format('M j, Y') }} &middot; {{ $me->goal->isActive() ? 'in progress' : $me->goal->status->value }}</p>
                 @else
                     <p class="mt-1 text-sm text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as short of the line.</p>
                 @endif
@@ -106,7 +106,7 @@
             <a href="{{ route('goals.create', ['league' => $league->id]) }}" class="mt-3 inline-flex items-center gap-1.5 rounded-full bg-club px-4 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">
                 <x-icon name="plus" class="size-4" /> Set a new goal for this league
             </a>
-            <p class="mt-2 text-xs text-ink/50">Switching affects GoalWeeks that aren't final yet. Settled results stay as they are.</p>
+            <p class="mt-2 text-xs text-ink/70">Switching affects GoalWeeks that aren't final yet. Settled results stay as they are.</p>
         </details>
     </section>
 
@@ -148,7 +148,7 @@
         <div class="flex items-end justify-between gap-4">
             <h2 class="eyebrow text-club">Group tasks</h2>
             @if ($groupTasksEnabled)
-                <span class="text-xs text-ink/55">Needs {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} yes votes within 24 hours</span>
+                <span class="text-xs text-ink/70">Needs {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} yes votes within 24 hours</span>
             @endif
         </div>
 
@@ -169,14 +169,14 @@
                 <article class="mt-3 rounded-2xl border border-gold/50 bg-white px-5 py-4">
                     <div class="flex flex-wrap items-start justify-between gap-3">
                         <div class="min-w-0">
-                            <p class="eyebrow text-[0.6rem] text-ink/50">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
+                            <p class="eyebrow text-[0.6rem] text-ink/70">Voting &middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</p>
                             <h3 class="mt-1 font-serif text-lg font-bold text-ink tracking-tight">{{ $groupTask->title }}</h3>
                             @if ($groupTask->description)
                                 <p class="text-sm text-ink/65">{{ $groupTask->description }}</p>
                             @endif
-                            <p class="mt-1 text-xs text-ink/50">Proposed by {{ $groupTask->proposer?->name ?? 'a former member' }} &middot; voting closes {{ App\Clock::shortTime($groupTask->closes_at) }}</p>
+                            <p class="mt-1 text-xs text-ink/70">Proposed by {{ $groupTask->proposer?->name ?? 'a former member' }} &middot; voting closes {{ App\Clock::shortTime($groupTask->closes_at) }}</p>
                         </div>
-                        <p class="shrink-0 text-sm tabular-nums"><span class="font-semibold text-grass">{{ $groupTask->yesCount() }} yes</span> &middot; <span class="text-ink/55">{{ $groupTask->noCount() }} no</span></p>
+                        <p class="shrink-0 text-sm tabular-nums"><span class="font-semibold text-club">{{ $groupTask->yesCount() }} yes</span> &middot; <span class="text-ink/70">{{ $groupTask->noCount() }} no</span></p>
                     </div>
                     <div class="mt-3 flex flex-wrap items-center gap-2">
                         @foreach ([1 => 'Yes', 0 => 'No'] as $value => $label)
@@ -190,7 +190,7 @@
                                 ])>{{ $label }}</button>
                             </form>
                         @endforeach
-                        <span class="text-xs text-ink/50">{{ $myVote === null ? "You haven't voted yet." : 'You can change your vote until it closes.' }}</span>
+                        <span class="text-xs text-ink/70">{{ $myVote === null ? "You haven't voted yet." : 'You can change your vote until it closes.' }}</span>
                     </div>
                 </article>
             @endforeach
@@ -206,7 +206,7 @@
                                 class="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                         </div>
                         <div>
-                            <label for="group-description" class="text-sm font-semibold text-ink/80">Details <span class="font-normal text-ink/45">(optional)</span></label>
+                            <label for="group-description" class="text-sm font-semibold text-ink/80">Details <span class="font-normal text-ink/70">(optional)</span></label>
                             <input id="group-description" name="description" maxlength="500" value="{{ old('description') }}"
                                 class="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                         </div>
@@ -222,7 +222,7 @@
                         </div>
                         <fieldset>
                             <legend class="text-sm font-semibold text-ink/80">How big is it?</legend>
-                            <p class="text-xs text-ink/55">
+                            <p class="text-xs text-ink/70">
                                 A regular task on your roadmap is worth 1 point.
                                 @if ($typicalPoints)
                                     A typical GoalWeek in this league is about {{ $typicalPoints }} planned points.
@@ -238,16 +238,16 @@
                                             </span>
                                             <span class="text-sm font-semibold text-club">{{ $points }} {{ Str::plural('pt', $points) }}</span>
                                         </span>
-                                        <span class="mt-1 text-xs text-ink/60">{{ $like }}</span>
+                                        <span class="mt-1 text-xs text-ink/70">{{ $like }}</span>
                                         @if ($typicalPoints)
-                                            <span class="mt-1 text-xs text-ink/45">About {{ max(1, round($points / $typicalPoints * 100)) }}% of a typical week</span>
+                                            <span class="mt-1 text-xs text-ink/70">About {{ max(1, round($points / $typicalPoints * 100)) }}% of a typical week</span>
                                         @endif
                                     </label>
                                 @endforeach
                             </div>
-                            <p class="mt-2 text-xs text-ink/55">It's added to everyone's plan, so finishing it keeps you on pace and skipping it costs the same share for everyone.</p>
+                            <p class="mt-2 text-xs text-ink/70">It's added to everyone's plan, so finishing it keeps you on pace and skipping it costs the same share for everyone.</p>
                         </fieldset>
-                        <p class="text-xs text-ink/55">Your yes counts right away. If {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} members say yes within 24 hours, it goes on everyone's GoalWeek for that week and counts in everyone's plan. Not enough yes votes means no task. Up to {{ App\Services\GroupTasks::MAX_PASSED_PER_WEEK }} a week.</p>
+                        <p class="text-xs text-ink/70">Your yes counts right away. If {{ App\Models\GroupTask::requiredYes($league->members->count()) }} of {{ $league->members->count() }} members say yes within 24 hours, it goes on everyone's GoalWeek for that week and counts in everyone's plan. Not enough yes votes means no task. Up to {{ App\Services\GroupTasks::MAX_PASSED_PER_WEEK }} a week.</p>
                         @if ($groupErrors->any())
                             <p class="text-sm text-red-700">{{ $groupErrors->first() }}</p>
                         @endif
@@ -264,12 +264,12 @@
                         <li class="flex flex-wrap items-center justify-between gap-2 px-5 py-2.5">
                             <span class="min-w-0">
                                 <span class="font-medium text-ink">{{ $groupTask->title }}</span>
-                                <span class="text-ink/50">&middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</span>
+                                <span class="text-ink/70">&middot; GoalWeek {{ $groupTask->week }} &middot; {{ $groupTask->sizeLabel() }}</span>
                             </span>
                             @if ($groupTask->status === App\Models\GroupTask::PASSED)
                                 <span class="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-club">Passed &middot; on everyone's plan</span>
                             @else
-                                <span class="rounded-full bg-ink/5 px-2.5 py-0.5 text-xs font-semibold text-ink/60" title="{{ $groupTask->outcome_note }}">Did not pass</span>
+                                <span class="rounded-full bg-ink/5 px-2.5 py-0.5 text-xs font-semibold text-ink/70" title="{{ $groupTask->outcome_note }}">Did not pass</span>
                             @endif
                         </li>
                     @endforeach
@@ -283,7 +283,7 @@
         <h2 class="eyebrow text-club">Standings</h2>
         <div class="mt-3 overflow-x-auto rounded-2xl border border-line bg-white">
             <table class="w-full text-left text-sm">
-                <thead class="border-b border-line text-xs tracking-wide text-ink/50 uppercase">
+                <thead class="border-b border-line text-xs tracking-wide text-ink/70 uppercase">
                     <tr>
                         <th class="px-4 py-3 font-semibold">#</th>
                         <th class="px-2 py-3 font-semibold">Member</th>
@@ -299,13 +299,13 @@
                 <tbody class="divide-y divide-line">
                     @foreach ($standings as $index => $row)
                         <tr @class(['bg-mint/40' => $row['member']->is($me)])>
-                            <td class="px-4 py-3 font-semibold text-ink/60 tabular-nums">{{ $index + 1 }}</td>
+                            <td class="px-4 py-3 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
                             <td class="px-2 py-3">
                                 <div class="flex items-center gap-2.5">
                                     <x-avatar :user="$row['member']->user" class="size-7 text-[0.65rem]" />
                                     <div class="min-w-0">
                                         <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
-                                        <p class="truncate text-xs text-ink/50">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
+                                        <p class="truncate text-xs text-ink/70">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -321,7 +321,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="mt-2 text-xs text-ink/50">
+        <p class="mt-2 text-xs text-ink/70">
             Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to result points, then wins.
         </p>
     </section>
@@ -340,7 +340,7 @@
                     @endphp
                     <details class="rounded-2xl border border-line bg-white px-5 py-3" @if ($loop->first) open @endif>
                         <summary class="cursor-pointer font-medium text-club">
-                            GoalWeek {{ $pastWeek }} <span class="font-normal text-ink/50">&middot; {{ $league->weekStartsOn($pastWeek)->format('M j') }}&ndash;{{ $league->weekEndsOn($pastWeek)->format('M j') }}</span>
+                            GoalWeek {{ $pastWeek }} <span class="font-normal text-ink/70">&middot; {{ $league->weekStartsOn($pastWeek)->format('M j') }}&ndash;{{ $league->weekEndsOn($pastWeek)->format('M j') }}</span>
                         </summary>
                         <ul class="mt-2 divide-y divide-line">
                             @foreach ($rows as $row)
@@ -351,9 +351,9 @@
                                     <span class="font-medium text-ink">{{ $member?->user->name ?? 'Former member' }}</span>
                                     <span class="flex items-center gap-2">
                                         <x-goalweek-result :result="$row->result" />
-                                        <span class="text-ink/50">vs {{ $row->vs_median ? 'league median' : ($league->members->firstWhere('user_id', $row->opponent_id)?->user->name ?? 'former member') }}</span>
+                                        <span class="text-ink/70">vs {{ $row->vs_median ? 'league median' : ($league->members->firstWhere('user_id', $row->opponent_id)?->user->name ?? 'former member') }}</span>
                                         <span class="font-bold text-ink" title="{{ $row->outcome->isPhotoFinish() ? 'Photo finish' : '' }}">{{ $row->outcome->label() }}</span>
-                                        <span class="text-ink/60 tabular-nums">+{{ $row->result_points + $row->matchup_points }}</span>
+                                        <span class="text-ink/70 tabular-nums">+{{ $row->result_points + $row->matchup_points }}</span>
                                     </span>
                                 </li>
                             @endforeach
@@ -379,12 +379,12 @@
         data-last-id="{{ $messages->last()?->id ?? 0 }}">
         <div class="flex items-center justify-between border-b border-line px-6 py-4">
             <h2 class="eyebrow text-club">League chat</h2>
-            <span class="flex items-center gap-1.5 text-xs text-ink/50"><span class="size-1.5 animate-pulse rounded-full bg-grass" aria-hidden="true"></span>Live</span>
+            <span class="flex items-center gap-1.5 text-xs text-ink/70"><span class="size-1.5 animate-pulse rounded-full bg-grass" aria-hidden="true"></span>Live</span>
         </div>
 
         <ol data-chat-list class="max-h-[28rem] overflow-y-auto px-6 py-2" aria-live="polite" aria-label="Messages">
             @if ($messages->isEmpty())
-                <li data-chat-empty class="py-8 text-center text-ink/55">No messages yet. Say hi to your GoalLeague.</li>
+                <li data-chat-empty class="py-8 text-center text-ink/70">No messages yet. Say hi to your GoalLeague.</li>
             @endif
             @include('leagues.partials.messages', ['messages' => $messages])
         </ol>
@@ -408,7 +408,7 @@
             onsubmit="return confirm('Leave this GoalLeague? You can rejoin with the code before kickoff.')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Leave GoalLeague</button>
+            <button type="submit" class="text-sm font-semibold text-ink/70 hover:text-red-700">Leave GoalLeague</button>
         </form>
     @endcan
     @can('delete', $league)
@@ -416,7 +416,7 @@
             onsubmit="return confirm('Call off this GoalLeague? Everyone will be removed. This cannot be undone.')">
             @csrf
             @method('DELETE')
-            <button type="submit" class="text-sm font-semibold text-ink/60 hover:text-red-700">Call off GoalLeague</button>
+            <button type="submit" class="text-sm font-semibold text-ink/70 hover:text-red-700">Call off GoalLeague</button>
         </form>
     @endcan
 </x-layouts.app>

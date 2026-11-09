@@ -16,7 +16,7 @@
 
 1. **Set a goal** with a deadline (an exam, a race, a thesis, a job search). GoalLine asks 5 to 8 questions written for that goal, then the AI coach drafts a dated roadmap of GoalWeeks: a focus, a milestone and daily tasks, plus habits with clear rules like "Run · 2+ miles" on Mon, Wed, Fri.
 2. **Check in every day** from Today's Gameplan or the Today page's week grid. Add a photo to show your work.
-3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the swipeable **GoalWeek Matchup**: who's ahead, both bands, and how many points each needs for the next band.
+3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the **GoalWeek Matchup**, a fantasy-football-style pager: swipe between matchups, see both players' tasks day by day where the players would be, each side's band, its projected band on current pace, and the points each would take if the week ended now. Same band? It's a photo finish, settled by percent of plan.
 4. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
 
 ## Who it's for
@@ -95,7 +95,22 @@ Then open http://localhost:8000.
 - `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**, or tap **Try the demo**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 24 hours, so re-seed if it's gone.
 - Without an `ANTHROPIC_API_KEY`, everything works and the coach uses its built-in fallbacks.
 - Emails are written to `storage/logs/laravel.log` (`MAIL_MAILER=log`).
-- Run the tests with `php artisan test --compact`.
+- Run the tests with `php artisan test --compact`. More in [Testing](#testing).
+
+## Testing
+
+**Unit and feature tests (PHPUnit).** `php artisan test --compact` runs 500+ tests: scoring (every band boundary and the full matchup matrix, photo finishes, the 149% cap, held disputes), fair play, plan floor, the matchup pager and its projections, privacy of proof photos and posts, the demo, and mobile readiness.
+
+**QA suite (Playwright).** `npm run qa` builds the assets, starts its own server on a fresh `database/qa.sqlite` (your local data is never touched), and clicks through the whole Try the demo script on three profiles: an **iPhone 14 (WebKit)**, a **small Android phone (Chromium)** and a **desktop (Chromium)**. The script: Try the demo, dashboard, a goal and its plan, check in a task, attach proof, the matchup pager (swipe between matchups), a task sheet, a dispute, a group-task vote, a friend request, Highlights, the inbox, My Locker and the privacy page.
+
+On every screen and profile it checks for failed requests and 500s, console errors, horizontal overflow, tap targets under 44 px, text under 12 px, missing alt text or form labels, colour contrast (axe-core), and actions that reload the page or jump to the top. It writes:
+
+- `qa/REPORT.md`: findings by severity (blocker, important, nice to have) with the screen, profile and a suggested fix, plus a checklist for a real iPhone. WebKit emulation is close to iPhone Safari, not the same.
+- `qa/screenshots/<profile>/`: a full-page screenshot of every screen (git-ignored).
+
+First time only: `npx playwright install chromium webkit`.
+
+**UX reviewer agent.** `.claude/agents/ux-reviewer.md` is a read-only Claude Code reviewer. In Claude Code, ask: *"Use the ux-reviewer agent to review the app."* It runs `npm run qa`, reads the report and screenshots, and replies with prioritized feedback on clarity, flow, visual polish, mobile usability and tone, plus its top 5 fixes. It never edits code.
 
 ## What we chose not to build
 
@@ -129,8 +144,13 @@ Then open http://localhost:8000.
 | I | Plan floor, plan lock, plan transparency, disputes | Done |
 | J | One-click Try the demo with isolated, resettable accounts | Done |
 | K | README, final checks and freeze readiness | Done |
+| L | In-place interactions, animations and toasts | Done |
+| — | Scoring: 3-2-1-0 match points with the photo finish | Done |
+| M | Swipeable matchup pager with task view and projections | Done |
+| N | iPhone and mobile polish | Done |
+| O | Playwright QA suite and UX reviewer agent | Done |
 
-The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H) and [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K).
+The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H) and [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K) and [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O).
 
 ## Deploying to Elastic Beanstalk
 

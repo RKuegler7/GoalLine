@@ -78,6 +78,8 @@ return [
     'demo' => [
         'enabled' => (bool) env('DEMO_ENABLED', true),
         'ttl_hours' => (int) env('DEMO_TTL_HOURS', 24),
+        // How many demos one visitor (by IP) can start an hour. The QA suite raises it for its own local server.
+        'starts_per_hour' => (int) env('DEMO_STARTS_PER_HOUR', 10),
         // Demo visitors get the coach's saved sample answers, so the demo never fails or spends money. True uses the
         // real coach within the allowance below.
         'live_ai' => (bool) env('DEMO_LIVE_AI', false),
