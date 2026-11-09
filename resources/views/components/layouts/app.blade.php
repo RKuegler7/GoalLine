@@ -4,12 +4,16 @@
     $viewer = auth()->user();
     $unread = $viewer->unreadLeagueMessages();
     $inboxCount = $viewer->unreadNotifications()->count();
+    $onMatchups = request()->routeIs('leagues.matchups*', 'matchups');
     $tabs = [
-        ['label' => 'Clubhouse', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'goals.*', 'planner.*'), 'icon' => 'clubhouse'],
-        ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => request()->routeIs('leagues.*', 'challenges.*'), 'icon' => 'leagues', 'badge' => $unread],
-        ['label' => 'Highlights', 'route' => 'highlights.index', 'active' => request()->routeIs('highlights.*', 'people.*'), 'icon' => 'highlights'],
+        ['label' => 'Clubhouse', 'route' => 'dashboard', 'active' => request()->routeIs('dashboard', 'goals.*', 'planner.*', 'today'), 'icon' => 'clubhouse'],
+        ['label' => 'GoalLeagues', 'route' => 'leagues.index', 'active' => ! $onMatchups && request()->routeIs('leagues.*', 'challenges.*'), 'icon' => 'leagues', 'badge' => $unread],
+        ['label' => 'Matchups', 'route' => 'matchups', 'active' => $onMatchups, 'icon' => 'matchups'],
+        ['label' => 'Highlights', 'route' => 'highlights.index', 'active' => request()->routeIs('highlights.*', 'people.*', 'friends.*'), 'icon' => 'highlights'],
         ['label' => 'My Locker', 'route' => 'profile.show', 'active' => request()->routeIs('profile.*') || (request()->routeIs('profiles.show') && request()->route('user')?->is($viewer)), 'icon' => null],
     ];
+    // The floating "Check in" button: on every main screen except where today's list is already the page.
+    $showCheckIn = ! request()->routeIs('today', 'goals.create', 'goals.intake*', 'welcome.*');
 @endphp
 
 <!DOCTYPE html>
@@ -18,10 +22,11 @@
     @include('partials.head')
 </head>
 <body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(6rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-0" data-signed-in data-density="compact">
-    <section class="bg-club pt-[env(safe-area-inset-top)]">
-        <header class="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-4 lg:gap-4">
-            <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint">
-                <x-brand.logo class="h-7 lg:h-8" />
+    {{-- Slim top bar: stays put while the page scrolls, so you're never stuck on a screen. --}}
+    <div class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)]">
+        <header class="mx-auto flex h-13 max-w-5xl items-center justify-between gap-2 px-4 lg:gap-4">
+            <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint" aria-label="GoalLine, Clubhouse">
+                <x-brand.logo class="h-6" />
             </a>
 
             {{-- Desktop tabs. --}}
@@ -41,7 +46,7 @@
             </nav>
 
             <div class="flex shrink-0 items-center gap-1 lg:gap-3">
-                <a href="{{ route('goals.create') }}" class="hidden min-h-11 items-center gap-1.5 rounded-full bg-ivory px-3 text-sm lg:px-4 font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="New goal">
+                <a href="{{ route('goals.create') }}" class="hidden min-h-9 items-center gap-1.5 rounded-full bg-ivory px-3 text-[13px] font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="Set a new goal">
                     <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
                 <a href="{{ route('inbox') }}" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
@@ -56,7 +61,7 @@
                 <details class="relative" data-account-menu>
                     <summary class="grid size-11 cursor-pointer list-none place-items-center rounded-full [&::-webkit-details-marker]:hidden">
                         <span class="sr-only">Account menu</span>
-                        <x-avatar :user="$viewer" tone="light" class="size-9 text-xs ring-2 ring-ivory/25 transition hover:ring-ivory/60" />
+                        <x-avatar :user="$viewer" tone="light" class="size-8 text-[11px] ring-2 ring-ivory/25 transition hover:ring-ivory/60" />
                     </summary>
                     <div class="absolute right-0 z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-line bg-white py-1.5 text-sm shadow-xl">
                         <p class="truncate border-b border-line px-4 pt-1.5 pb-2.5">
@@ -68,6 +73,7 @@
                         <a href="{{ route('settings.notifications') }}" class="block px-4 py-2 text-ink hover:bg-mint">Notifications &amp; calendar</a>
                         <a href="{{ route('recap.week') }}" class="block px-4 py-2 text-ink hover:bg-mint">Your week</a>
                         <a href="{{ route('about') }}" class="block px-4 py-2 text-ink hover:bg-mint">About GoalLine</a>
+                        <a href="{{ route('about') }}#contact" class="block px-4 py-2 text-ink hover:bg-mint">Send feedback</a>
                         @can('admin')
                             <a href="{{ route('admin.index') }}" class="block px-4 py-2 font-semibold text-ink hover:bg-gold/20"><span class="mr-1.5 inline-block size-2 rounded-full bg-gold align-middle"></span>Admin</a>
                         @endcan
@@ -79,7 +85,9 @@
                 </details>
             </div>
         </header>
+    </div>
 
+    <section class="bg-club">
         <div class="gl-hero">{{ $hero ?? '' }}</div>
     </section>
 
@@ -87,22 +95,25 @@
 
     <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6">
         @if ($viewer->isDemo())
-            <div class="mb-6 flex flex-col gap-2 rounded-xl border border-club/30 bg-mint px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-                <p class="text-ink"><span class="eyebrow mr-1 rounded-full bg-club px-2 py-0.5 text-[11px] text-ivory">Demo mode</span> You're <span class="font-semibold text-club">{{ $viewer->name }}</span>. Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.</p>
-                <div class="flex shrink-0 items-center gap-4">
+            {{-- One slim line, so the page starts right under it. --}}
+            <div class="mb-3 flex items-center justify-between gap-2 rounded-xl border border-club/25 bg-mint px-3 py-1.5 text-[13px]">
+                <p class="min-w-0 truncate text-ink" title="Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.">
+                    <span class="eyebrow mr-1 rounded-full bg-club px-1.5 py-0.5 text-[11px] text-ivory">Demo mode</span> You're {{ Str::before($viewer->name, ' ') }}. All pretend, so tap anything.
+                </p>
+                <div class="flex shrink-0 items-center gap-3">
                     <form method="POST" action="{{ route('demo.reset') }}">
                         @csrf
-                        <button type="submit" class="font-semibold text-club hover:underline">Reset demo</button>
+                        <button type="submit" class="gl-tap relative font-semibold text-club hover:underline">Reset demo</button>
                     </form>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="font-semibold text-club hover:underline">Leave the demo</button>
+                        <button type="submit" class="gl-tap relative font-semibold text-club hover:underline" aria-label="Leave the demo">Leave</button>
                     </form>
                 </div>
             </div>
         @endif
         @unless ($viewer->hasVerifiedEmail() || request()->routeIs('verification.notice'))
-            <div class="mb-6 flex flex-col gap-2 rounded-xl border border-gold/50 bg-gold/15 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div class="mb-3 flex flex-col gap-1 rounded-xl border border-gold/50 bg-gold/15 px-3 py-2 text-[13px] sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-ink"><span class="font-semibold">Verify your email</span> to unlock GoalLeagues, Highlights, and friends. We sent a link to {{ $viewer->email }}.</p>
                 <form method="POST" action="{{ route('verification.send') }}" class="shrink-0">
                     @csrf
@@ -112,7 +123,7 @@
         @endunless
 
         @if (session('status'))
-            <p role="status" data-flash class="mb-6 flex items-center gap-3 rounded-xl border border-grass/30 bg-mint px-4 py-3 text-sm font-medium text-club">
+            <p role="status" data-flash class="mb-3 flex items-center gap-2.5 rounded-xl border border-grass/30 bg-mint px-3 py-2 text-[13px] font-medium text-club">
                 <span class="size-2 rounded-full bg-grass" aria-hidden="true"></span>
                 {{ session('status') }}
             </p>
@@ -129,27 +140,20 @@
         </nav>
     </footer>
 
-    {{-- Phone tab bar, Instagram-style, with "set a goal" in the middle. --}}
+    {{-- Phone tab bar: always there, above the iPhone home indicator, so no screen is a dead end. --}}
     <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Main">
-        <ul class="mx-auto grid max-w-md grid-cols-5 items-end">
-            @foreach ($tabs as $index => $tab)
-                @if ($index === 2)
-                    <li class="flex justify-center">
-                        <a href="{{ route('goals.create') }}" class="-mt-5 mb-2 flex size-14 items-center justify-center rounded-full bg-club text-ivory shadow-lg shadow-club/30 ring-4 ring-ivory transition active:scale-95" aria-label="Set a new goal">
-                            <x-icon name="plus" class="size-6" />
-                        </a>
-                    </li>
-                @endif
+        <ul class="mx-auto grid max-w-md grid-cols-5">
+            @foreach ($tabs as $tab)
                 <li>
                     <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
-                        'relative flex flex-col items-center gap-1 pt-2.5 pb-2 text-[11px] font-semibold transition',
+                        'relative flex min-h-13 flex-col items-center justify-center gap-0.5 pt-1.5 pb-1 text-[11px] font-semibold transition',
                         'text-club' => $tab['active'],
-                        'text-ink/70 hover:text-ink/70' => ! $tab['active'],
+                        'text-ink/70 hover:text-ink' => ! $tab['active'],
                     ])>
                         @if ($tab['icon'])
-                            <x-icon :name="$tab['icon']" class="size-6" />
+                            <x-icon :name="$tab['icon']" class="size-[22px]" />
                         @else
-                            <x-avatar :user="$viewer" class="size-6 text-[11px] {{ $tab['active'] ? 'ring-2 ring-club ring-offset-1' : '' }}" />
+                            <x-avatar :user="$viewer" class="size-[22px] text-[9px] {{ $tab['active'] ? 'ring-2 ring-club ring-offset-1' : '' }}" />
                         @endif
                         {{ $tab['label'] }}
                         @if (($tab['badge'] ?? 0) > 0)
@@ -163,8 +167,26 @@
             @endforeach
         </ul>
     </nav>
-    @if (config('goalline.beta.invite_only'))
-        <x-feedback-button />
+
+    @if ($showCheckIn)
+        {{-- Check in from anywhere: a floating button that opens today's list as a bottom sheet over the page. --}}
+        <button type="button" data-checkin-open
+            class="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 inline-flex min-h-12 items-center gap-2 rounded-full bg-club pr-4 pl-3.5 text-sm font-semibold text-ivory shadow-lg shadow-club/25 transition hover:bg-club-dark active:scale-95 md:bottom-6">
+            <x-icon name="check-in" class="size-5" /> Check in
+        </button>
+        <dialog data-checkin-sheet data-live-source="{{ route('checkin.sheet') }}" aria-label="Check in for today"
+            class="gl-sheet m-0 mt-auto w-full max-w-none rounded-t-2xl bg-ivory p-0 text-ink shadow-2xl backdrop:bg-ink/40 sm:m-auto sm:max-w-lg sm:rounded-2xl">
+            <div class="flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-2">
+                <p class="font-serif text-base font-bold tracking-tight text-club">Check in</p>
+                <a href="{{ route('today') }}" class="ml-auto text-[13px] font-semibold text-club hover:underline">Open Today</a>
+                <form method="dialog">
+                    <button type="submit" class="grid size-11 place-items-center rounded-full text-ink/70 hover:bg-ivory" aria-label="Close"><x-icon name="x" class="size-5" /></button>
+                </form>
+            </div>
+            <div data-checkin-body class="max-h-[75dvh] overflow-y-auto p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <x-skeleton :rows="4" />
+            </div>
+        </dialog>
     @endif
 </body>
 </html>

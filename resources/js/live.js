@@ -30,7 +30,7 @@ const toastRegion = (() => {
 /**
  * A short message at the bottom of the screen with the GoalLine line filling across it. It leaves on its own.
  */
-export function toast(message, { tone = 'success', retry = null } = {}) {
+export function toast(message, { tone = 'success', retry = null, action = null } = {}) {
     const item = document.createElement('div');
     item.className = `gl-toast gl-toast--${tone}`;
 
@@ -38,14 +38,17 @@ export function toast(message, { tone = 'success', retry = null } = {}) {
     text.textContent = message;
     item.appendChild(text);
 
-    if (retry) {
+    // "Try again" after a failure, or a next step like "Add proof" after a check-in.
+    const next = retry ? { label: 'Try again', run: retry } : action;
+
+    if (next) {
         const button = document.createElement('button');
         button.type = 'button';
-        button.textContent = 'Try again';
+        button.textContent = next.label;
         button.className = 'gl-toast__action';
         button.addEventListener('click', () => {
             item.remove();
-            retry();
+            next.run();
         });
         item.appendChild(button);
     }
@@ -57,8 +60,8 @@ export function toast(message, { tone = 'success', retry = null } = {}) {
     item.appendChild(line);
 
     toastRegion.appendChild(item);
-    window.setTimeout(() => item.classList.add('is-leaving'), retry ? 8000 : 3200);
-    window.setTimeout(() => item.remove(), retry ? 8400 : 3600);
+    window.setTimeout(() => item.classList.add('is-leaving'), next ? 8000 : 3200);
+    window.setTimeout(() => item.remove(), next ? 8400 : 3600);
 }
 
 // A message carried over from a live action that moved to another page.
@@ -190,6 +193,42 @@ function applyRegions(doc) {
  */
 function flashFrom(doc) {
     return doc.querySelector('[data-flash]')?.textContent.trim() || null;
+}
+
+async function fetchDocument(url) {
+    const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin' });
+
+    if (!response.ok) {
+        throw new Error(String(response.status));
+    }
+
+    return new DOMParser().parseFromString(await response.text(), 'text/html');
+}
+
+/**
+ * Bring this page's regions up to date (for example after checking in from the sheet), with no reload.
+ */
+export async function refreshPage() {
+    try {
+        applyRegions(await fetchDocument(window.location.href));
+    } catch {
+        // The page still works; it just shows the older numbers until the next visit.
+    }
+}
+
+/**
+ * The toast after a live action. Checking off a task offers "Add proof", which opens its Show your work panel.
+ */
+function announce(form, message, regions, sent) {
+    const checked = form.dataset.optimistic === 'check' && sent?.get('intent') === 'done';
+    const taskId = form.dataset.liveKey?.replace('task-', '');
+    const proofLink = checked && taskId
+        ? regions.map((region) => region.querySelector(`[data-open-proof$="-${CSS.escape(taskId)}"]`)).find(Boolean)
+        : null;
+
+    if (message) {
+        toast(message, proofLink ? { action: { label: 'Add proof', run: () => proofLink.click() } } : {});
+    }
 }
 
 /* ---------- Forms ---------- */
@@ -354,6 +393,22 @@ async function submit(form, submitter) {
         const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
         const landed = new URL(response.url);
 
+        // A form inside a sheet with its own source (the Check in sheet): refresh from that source, wherever the
+        // server sent the answer, so the page underneath never navigates or reloads.
+        const source = form.closest('[data-live-source]')?.dataset.liveSource;
+
+        if (source) {
+            const fresh = await fetchDocument(source);
+            optimistic(form, false);
+            const regions = applyRegions(fresh);
+            restoreTyping(form.dataset.liveKey, typed);
+            celebrate(form, regions);
+            form.closest('[data-live-source]').dataset.changed = '1';
+            announce(form, flashFrom(doc), regions, typed);
+
+            return;
+        }
+
         // The action leads somewhere else (joining a league, a new page): go there, with its message.
         if (landed.pathname !== window.location.pathname) {
             try {
@@ -401,7 +456,7 @@ async function submit(form, submitter) {
         const hasErrors = Boolean(sentAgain?.closest('[data-region]') && sentAgain.parentElement?.querySelector('.text-red-700'));
 
         if (message) {
-            toast(message);
+            announce(form, message, regions, typed);
         } else if (hasErrors) {
             toast('Almost: check the note next to the field.', { tone: 'warning' });
         }

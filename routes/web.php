@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\CheckInSheetController;
 use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeaguePlanController;
 use App\Http\Controllers\LeagueRecapController;
+use App\Http\Controllers\MatchupHubController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
 use App\Http\Controllers\PeopleSearchController;
@@ -188,6 +190,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/plan', [GameplanController::class, 'show'])->name('planner.show');
     Route::get('/today', [TodayController::class, 'show'])->name('today');
+    Route::get('/check-in', CheckInSheetController::class)->name('checkin.sheet');
+    Route::get('/matchups', MatchupHubController::class)->name('matchups');
     Route::post('/today/done', [TodayController::class, 'markAllDone'])->name('today.done');
     Route::put('/plan', [GameplanController::class, 'update'])->name('planner.update');
     Route::post('/plan/auto', [GameplanController::class, 'autoPlan'])->name('planner.auto');

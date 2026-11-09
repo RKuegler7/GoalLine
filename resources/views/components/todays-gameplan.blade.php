@@ -1,5 +1,5 @@
 {{-- Today's Gameplan: what's on for today across every goal, tasks and habits, with one-tap check-offs. --}}
-@props(['gameplan', 'return' => 'gameplan'])
+@props(['gameplan', 'return' => 'gameplan', 'region' => 'gameplan', 'anchor' => 'gameplan'])
 
 @php
     $total = $gameplan->total();
@@ -9,7 +9,7 @@
     $check = '<svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>';
 @endphp
 
-<section id="gameplan" data-region="gameplan" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
+<section id="{{ $anchor }}" data-region="{{ $region }}" {{ $attributes->class('scroll-mt-24 overflow-hidden rounded-2xl border border-club/25 bg-white') }}>
     <header class="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-mint/50 px-4 py-3">
         <div>
             <h2 class="font-serif text-xl font-bold text-club tracking-tight">Today&rsquo;s Gameplan</h2>

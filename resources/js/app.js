@@ -1,4 +1,4 @@
-import { toast } from './live';
+import { refreshPage, toast } from './live';
 
 /**
  * League chat: send without a page reload and pick up new messages every few seconds.
@@ -1213,6 +1213,52 @@ document.addEventListener('click', (event) => {
     document.querySelectorAll('[data-action-menu][open]').forEach((menu) => {
         if (!menu.contains(event.target)) {
             menu.open = false;
+        }
+    });
+});
+
+/**
+ * "Check in" from any screen: the floating button opens a bottom sheet with today's list, loaded fresh each time.
+ * Its forms are live and refresh from the sheet's own source (see live.js), so the page underneath never reloads.
+ */
+document.addEventListener('click', async (event) => {
+    const opener = event.target.closest('[data-checkin-open]');
+    const sheet = opener && document.querySelector('[data-checkin-sheet]');
+
+    if (!sheet) {
+        return;
+    }
+
+    const body = sheet.querySelector('[data-checkin-body]');
+    sheet.showModal();
+
+    try {
+        const response = await fetch(sheet.dataset.liveSource, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin' });
+
+        if (!response.ok) {
+            throw new Error(String(response.status));
+        }
+
+        body.innerHTML = await response.text();
+        body.dispatchEvent(new CustomEvent('goalline:updated', { bubbles: true }));
+    } catch {
+        body.innerHTML = '<p class="px-1 py-6 text-center text-sm text-ink/70">Couldn\'t load today\'s list. <a class="font-semibold text-club underline" href="/today">Open Today</a></p>';
+    }
+});
+
+// Tapping the dimmed area outside the sheet closes it.
+document.addEventListener('click', (event) => {
+    if (event.target.matches?.('dialog[data-checkin-sheet]')) {
+        event.target.close();
+    }
+});
+
+// After checking in from the sheet, bring the page underneath up to date when it closes.
+document.querySelectorAll('[data-checkin-sheet]').forEach((sheet) => {
+    sheet.addEventListener('close', () => {
+        if (sheet.dataset.changed) {
+            delete sheet.dataset.changed;
+            refreshPage();
         }
     });
 });

@@ -13,7 +13,7 @@
 @endphp
 
 <span @class(['inline-flex flex-col items-center gap-3', $light ? 'text-ivory' : 'text-club'])>
-    <svg {{ $attributes->class('h-9 w-auto') }} viewBox="3 22 518 81.5" role="img" aria-label="GoalLine">
+    <svg {{ $attributes->class(['w-auto', 'h-9' => ! preg_match('/(^|\s)h-\d/', (string) $attributes->get('class'))]) }} viewBox="3 22 518 81.5" role="img" aria-label="GoalLine">
         <x-brand.letters />
 
         <g stroke-width="6" stroke-linecap="round">

@@ -138,7 +138,7 @@ export class Reviewer {
             while (walker.nextNode()) {
                 const el = walker.currentNode.parentElement;
 
-                if (walker.currentNode.textContent.trim() && el && visible(el) && parseFloat(getComputedStyle(el).fontSize) < 12) {
+                if (walker.currentNode.textContent.trim() && el && visible(el) && parseFloat(getComputedStyle(el).fontSize) < 11) {
                     out.tiny.push(`"${walker.currentNode.textContent.trim().slice(0, 40)}" ${getComputedStyle(el).fontSize}`);
                 }
             }
@@ -158,7 +158,7 @@ export class Reviewer {
         }
 
         if (result.tiny.length) {
-            this.add('nice-to-have', 'Text under 12 px', result.tiny.slice(0, 8).join('; '), 'Use at least 12 px (text-xs) for anything people need to read.');
+            this.add('nice-to-have', 'Text under 11 px', result.tiny.slice(0, 8).join('; '), 'Use at least 11 px for chips and captions, 13-14 px for anything people need to read.');
         }
     }
 

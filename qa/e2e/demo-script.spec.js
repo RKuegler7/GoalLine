@@ -42,6 +42,26 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
             await qa.review('Goal after a check-in');
         }));
 
+        await test.step('Check in from the sheet', () => qa.step('Check-in sheet', async () => {
+            // The floating Check in button works from any screen, without leaving it.
+            await page.goto('/leagues');
+            await page.locator('[data-checkin-open]').click();
+            const sheet = page.locator('dialog[data-checkin-sheet][open]');
+            await expect(sheet.locator('[data-region="checkin-sheet"]')).toBeVisible();
+            const open = sheet.locator('form[data-optimistic="check"] button[data-check="open"]').first();
+
+            if (await open.count()) {
+                const key = await open.evaluate((button) => button.closest('form').dataset.liveKey);
+                await qa.inPlace('Check in from the sheet', () => open.click());
+                await expect(sheet.locator(`form[data-live-key="${key}"] [data-check="done"]`)).toBeVisible();
+                await expect(page).toHaveURL(/\/leagues$/);
+            }
+
+            await qa.screenshot('Check-in sheet');
+            await page.keyboard.press('Escape');
+            await page.goto(goalUrl);
+        }));
+
         await test.step('Attach proof', () => qa.step('Attach proof', async () => {
             const panel = page.locator('[data-proof-panel]:visible').first();
 
