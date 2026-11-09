@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Exceptions\AiLimitReached;
 use App\HighlightKind;
 use App\Models\Highlight;
@@ -56,15 +57,25 @@ class TaskProofController extends Controller
             return back()->withErrors(['proof' => "That file doesn't look like a JPG, PNG, or WebP image."])->withInput();
         }
 
+        // The upload happens first, outside any transaction; the database write is short and locks the task row.
         $disk = Storage::disk(RoadmapTask::proofDisk());
         $path = "proofs/{$week->goal_id}/{$task->id}-".Str::random(12).'.'.$clean['extension'];
         $disk->put($path, $clean['bytes']);
 
-        if ($task->proof_path) {
-            $disk->delete($task->proof_path);
+        $replaced = Atomic::run(function () use ($task, $path) {
+            $current = RoadmapTask::whereKey($task->id)->lockForUpdate()->first();
+            $old = $current->proof_path;
+            $current->forceFill(['proof_path' => $path, 'proof_mime_type' => StoredPhoto::typeFor($path), 'proof_uploaded_at' => now()])->save();
+
+            return $old;
+        });
+        $task->refresh();
+
+        // After the commit: remove the old photo, then settle any open disputes (each in its own short transaction).
+        if ($replaced && $replaced !== $path) {
+            $disk->delete($replaced);
         }
 
-        $task->forceFill(['proof_path' => $path, 'proof_mime_type' => StoredPhoto::typeFor($path), 'proof_uploaded_at' => now()])->save();
         app(Disputes::class)->settleWithProof($task);
 
         $post = $this->share($task, $clean, $validated);

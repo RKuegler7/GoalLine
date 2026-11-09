@@ -1333,3 +1333,47 @@ function openFoldedTarget() {
 
 openFoldedTarget();
 window.addEventListener('hashchange', openFoldedTarget);
+
+/**
+ * No double submits on plain forms (live forms have their own guard in live.js): the second submit is ignored and
+ * the button shows it's working until the next page loads. If another script handles the form itself, this steps
+ * back. Coming back with the Back button re-enables everything.
+ */
+document.addEventListener('submit', (event) => {
+    const form = event.target;
+    const method = (form.getAttribute('method') || 'get').toLowerCase();
+
+    if (event.defaultPrevented || form.hasAttribute('data-live') || method !== 'post' || form.target === '_blank') {
+        return;
+    }
+
+    if (form.dataset.submitting) {
+        event.preventDefault();
+
+        return;
+    }
+
+    form.dataset.submitting = '1';
+    window.setTimeout(() => {
+        if (event.defaultPrevented) {
+            delete form.dataset.submitting;
+
+            return;
+        }
+
+        form.querySelectorAll('button[type="submit"], button:not([type]), input[type="submit"]').forEach((button) => {
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+        });
+    }, 0);
+});
+
+window.addEventListener('pageshow', () => {
+    document.querySelectorAll('form[data-submitting]').forEach((form) => {
+        delete form.dataset.submitting;
+        form.querySelectorAll('[aria-busy="true"]').forEach((button) => {
+            button.disabled = false;
+            button.removeAttribute('aria-busy');
+        });
+    });
+});

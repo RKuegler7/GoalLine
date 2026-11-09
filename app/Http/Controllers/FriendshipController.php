@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Notifications\FriendAccepted;
 use App\Notifications\FriendRequested;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -74,7 +76,13 @@ class FriendshipController extends Controller
             return $this->accept($request, $existing);
         }
 
-        $friendship = Friendship::create(['requester_id' => $me->id, 'addressee_id' => $user->id]);
+        try {
+            Atomic::run(fn () => Friendship::create(['requester_id' => $me->id, 'addressee_id' => $user->id]));
+        } catch (UniqueConstraintViolationException) {
+            // A double tap or a second tab sent it a moment ago.
+            return back()->with('status', "Your request to {$name} is waiting on them.");
+        }
+
         $user->notify(new FriendRequested($me));
 
         return back()->with('status', "Friend request sent to {$name}.");
@@ -85,10 +93,24 @@ class FriendshipController extends Controller
      */
     public function accept(Request $request, Friendship $friendship): RedirectResponse
     {
-        abort_unless($friendship->addressee_id === $request->user()->id && ! $friendship->isAccepted(), 403);
+        abort_unless($friendship->addressee_id === $request->user()->id, 403);
 
-        $friendship->forceFill(['status' => Friendship::ACCEPTED, 'accepted_at' => now()])->save();
-        $friendship->requester->notify(new FriendAccepted($request->user()));
+        // Locked and re-checked, so a double tap accepts (and notifies) once.
+        $accepted = Atomic::run(function () use ($friendship) {
+            $current = Friendship::whereKey($friendship->id)->lockForUpdate()->first();
+
+            if (! $current || $current->isAccepted()) {
+                return false;
+            }
+
+            $current->forceFill(['status' => Friendship::ACCEPTED, 'accepted_at' => now()])->save();
+
+            return true;
+        });
+
+        if ($accepted) {
+            $friendship->requester->notify(new FriendAccepted($request->user()));
+        }
 
         return back()->with('status', "You and {$friendship->requester->name} are friends now.");
     }

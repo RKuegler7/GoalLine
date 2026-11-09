@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\GoalWeekResult;
+use App\Jobs\RescoreCheckIn;
 use App\Models\Dispute;
 use App\Models\Goal;
 use App\Models\League;
@@ -12,10 +13,13 @@ use App\Models\User;
 use App\Notifications\DisputeOpened;
 use App\Notifications\DisputeResolved;
 use App\RoadmapStatus;
+use App\Services\Disputes;
 use App\Services\LeagueTable;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -154,6 +158,70 @@ class DisputeTest extends TestCase
         $this->actingAs($this->avery)->get(route('recap.week'))->assertOk()
             ->assertSee('Fair play')->assertSee('League mates asked about 1 of your check-ins');
         $this->actingAs($this->sam)->get(route('recap.week'))->assertSee('You asked about 1 check-in. Thanks for keeping the league honest.');
+    }
+
+    public function test_a_second_dispute_on_the_same_check_in_gets_a_friendly_message_not_an_error(): void
+    {
+        $task = $this->task(1);
+        $this->actingAs($this->sam)->post(route('disputes.store', $task), ['reason' => 'Route?'])->assertSessionHas('status');
+
+        // A double tap, or the same dispute from a second tab.
+        $this->actingAs($this->sam)->post(route('disputes.store', $task), ['reason' => 'Route?'])
+            ->assertSessionHasErrorsIn('dispute', ['reason' => Disputes::ALREADY_OPEN]);
+
+        $this->assertSame(1, $task->disputes()->count());
+        Notification::assertSentToTimes($this->avery, DisputeOpened::class, 1);
+    }
+
+    public function test_the_database_allows_only_one_open_dispute_per_person_per_check_in(): void
+    {
+        $task = $this->task(1);
+        $first = Dispute::factory()->create(['roadmap_task_id' => $task->id, 'disputer_id' => $this->sam->id]);
+        $this->assertSame(Dispute::openKey($this->sam->id, $task->id), $first->open_key);
+
+        try {
+            Dispute::factory()->create(['roadmap_task_id' => $task->id, 'disputer_id' => $this->sam->id]);
+            $this->fail('A second open dispute should be refused by the unique index.');
+        } catch (UniqueConstraintViolationException) {
+            $this->assertSame(1, Dispute::count());
+        }
+
+        // Once it's settled, the key is freed and a new dispute is allowed.
+        app(Disputes::class)->resolve($first, 'withdrawn', $this->sam);
+        $this->assertNull($first->fresh()->open_key);
+        $this->actingAs($this->sam)->post(route('disputes.store', $task))->assertSessionHas('status');
+        $this->assertSame(1, $task->disputes()->where('status', Dispute::OPEN)->count());
+    }
+
+    public function test_a_race_that_reaches_the_unique_index_still_gets_the_friendly_message(): void
+    {
+        $task = $this->task(1);
+        // Another request's row holds the key at the instant this one checks: the check passes, the insert clashes.
+        Dispute::factory()->create(['roadmap_task_id' => $task->id, 'disputer_id' => $this->sam->id])->forceFill(['status' => Dispute::RESOLVED])->saveQuietly();
+
+        $this->actingAs($this->sam)->post(route('disputes.store', $task))
+            ->assertSessionHasErrorsIn('dispute', ['reason' => Disputes::ALREADY_OPEN]);
+    }
+
+    public function test_re_scoring_waits_for_the_commit_and_running_it_twice_changes_nothing(): void
+    {
+        $dispute = $this->dispute(1);
+        $this->travelTo(Carbon::parse('2026-10-28 10:00', config('app.timezone')));
+        (new LeagueTable($this->league->fresh()))->settle();
+
+        Queue::fake();
+        $this->actingAs($this->sam)->post(route('disputes.withdraw', $dispute));
+        Queue::assertPushed(RescoreCheckIn::class, fn (RescoreCheckIn $job) => $job->taskId === $dispute->roadmap_task_id && $job->afterCommit === true);
+
+        // Idempotent: the same results however many times it runs.
+        $job = new RescoreCheckIn($dispute->roadmap_task_id);
+        app()->call([$job, 'handle']);
+        $once = $this->league->results()->orderBy('user_id')->get(['user_id', 'result', 'result_points', 'outcome', 'matchup_points'])->toArray();
+        app()->call([$job, 'handle']);
+        $twice = $this->league->results()->orderBy('user_id')->get(['user_id', 'result', 'result_points', 'outcome', 'matchup_points'])->toArray();
+
+        $this->assertSame($once, $twice);
+        $this->assertSame(3, $this->league->results()->where('week', 1)->count(), 'One row per member, never duplicated.');
     }
 
     private function task(int $position): RoadmapTask

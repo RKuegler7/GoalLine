@@ -41,7 +41,9 @@ return [
             'table' => env('DB_QUEUE_TABLE', 'jobs'),
             'queue' => env('DB_QUEUE', 'default'),
             'retry_after' => (int) env('DB_QUEUE_RETRY_AFTER', 90),
-            'after_commit' => false,
+            // Jobs and notifications (email, inbox, re-scoring) wait for the surrounding transaction to commit, and
+            // are dropped if it rolls back. Nothing slow or external ever runs inside a transaction.
+            'after_commit' => true,
         ],
 
         'beanstalkd' => [

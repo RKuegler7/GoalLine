@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Clock;
 use App\GoalWeekResult;
 use App\HighlightKind;
@@ -15,6 +16,7 @@ use App\Notifications\FriendHighlight;
 use App\Notifications\HighlightCheered;
 use App\Services\HighlightFeed;
 use App\Services\StoredPhoto;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -166,19 +168,35 @@ class HighlightController extends Controller
      */
     public function cheer(Request $request, Highlight $highlight): RedirectResponse
     {
-        $existing = $highlight->cheers()->where('user_id', $request->user()->id)->first();
-
+        $fan = $request->user();
         // A tap says which state it wants; a double tap changes nothing.
         $intent = $request->input('intent');
 
-        if (($intent === 'add' && $existing) || ($intent === 'remove' && ! $existing)) {
+        // Locked on the post and re-checked, so two taps at once can't both add (or both remove) a cheer.
+        try {
+            $added = Atomic::run(function () use ($highlight, $fan, $intent) {
+                Highlight::whereKey($highlight->id)->lockForUpdate()->first();
+                $existing = $highlight->cheers()->where('user_id', $fan->id)->first();
+
+                if (($intent === 'add' && $existing) || ($intent === 'remove' && ! $existing)) {
+                    return null;
+                }
+
+                $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $fan->id]);
+
+                return ! $existing;
+            });
+        } catch (UniqueConstraintViolationException) {
+            $added = null; // Already cheered a moment ago.
+        }
+
+        if ($added === null) {
             return redirect()->to(url()->previous(route('highlights.index')).'#highlight-'.$highlight->id);
         }
 
-        $existing ? $existing->delete() : $highlight->cheers()->create(['user_id' => $request->user()->id]);
+        $existing = ! $added;
 
         // One notification per fan per highlight, even if they toggle the cheer.
-        $fan = $request->user();
         $alreadyTold = $highlight->user->notifications()->where('type', HighlightCheered::class)
             ->where('data->highlight_id', $highlight->id)->where('data->actor_id', $fan->id)->exists();
 

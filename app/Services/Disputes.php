@@ -2,12 +2,15 @@
 
 namespace App\Services;
 
+use App\Atomic;
+use App\Jobs\RescoreCheckIn;
 use App\Models\Dispute;
 use App\Models\League;
 use App\Models\RoadmapTask;
 use App\Models\User;
 use App\Notifications\DisputeOpened;
 use App\Notifications\DisputeResolved;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -18,6 +21,8 @@ use Illuminate\Validation\ValidationException;
  */
 class Disputes
 {
+    public const ALREADY_OPEN = 'You already have an open dispute on this check-in.';
+
     public function __construct(private FairPlay $fairPlay) {}
 
     /**
@@ -42,30 +47,46 @@ class Disputes
     {
         $week = $task->week;
 
-        if ($task->disputes()->where('disputer_id', $disputer->id)->where('status', Dispute::OPEN)->exists()) {
-            throw ValidationException::withMessages(['reason' => 'You already have an open dispute on this check-in.']);
-        }
-
-        $open = Dispute::query()
-            ->where('disputer_id', $disputer->id)
-            ->where('status', Dispute::OPEN)
-            ->whereIn('roadmap_task_id', $week->tasks()->select('id'))
-            ->count();
-
-        if ($open >= Dispute::MAX_OPEN_PER_MATCHUP) {
-            throw ValidationException::withMessages(['reason' => 'You can have up to '.Dispute::MAX_OPEN_PER_MATCHUP.' open disputes per matchup each GoalWeek. Let one settle first.']);
-        }
-
+        // Read-only lookups happen before the transaction, so it stays short.
         $league = $this->fairPlay->leaguesFor($week)->first(fn (League $league) => $league->commissioner_id === $disputer->id)
             ?? $this->fairPlay->leaguesFor($week)->first(fn (League $league) => $league->members->contains('user_id', $disputer->id));
 
-        $dispute = $task->disputes()->create([
-            'disputer_id' => $disputer->id,
-            'league_id' => $league?->id,
-            'reason' => filled($reason) ? trim($reason) : null,
-        ]);
+        try {
+            $dispute = Atomic::run(function () use ($task, $week, $disputer, $reason, $league) {
+                // Lock order everywhere: the check-in's task row first, then its disputes.
+                RoadmapTask::whereKey($task->id)->lockForUpdate()->first();
 
-        $this->sync($task);
+                if ($task->disputes()->where('disputer_id', $disputer->id)->where('status', Dispute::OPEN)->exists()) {
+                    throw ValidationException::withMessages(['reason' => self::ALREADY_OPEN]);
+                }
+
+                $open = Dispute::query()
+                    ->where('disputer_id', $disputer->id)
+                    ->where('status', Dispute::OPEN)
+                    ->whereIn('roadmap_task_id', $week->tasks()->select('id'))
+                    ->count();
+
+                if ($open >= Dispute::MAX_OPEN_PER_MATCHUP) {
+                    throw ValidationException::withMessages(['reason' => 'You can have up to '.Dispute::MAX_OPEN_PER_MATCHUP.' open disputes per matchup each GoalWeek. Let one settle first.']);
+                }
+
+                $dispute = $task->disputes()->make([
+                    'disputer_id' => $disputer->id,
+                    'league_id' => $league?->id,
+                    'reason' => filled($reason) ? trim($reason) : null,
+                ]);
+                $dispute->forceFill(['open_key' => Dispute::openKey($disputer->id, $task->id)])->save();
+
+                $this->sync($task);
+
+                return $dispute;
+            });
+        } catch (UniqueConstraintViolationException) {
+            // A double tap or a second tab got there first: the database keeps just one open dispute.
+            throw ValidationException::withMessages(['reason' => self::ALREADY_OPEN]);
+        }
+
+        // After the commit: the email and inbox note (queued, never inside the transaction).
         $week->goal->user->notify(new DisputeOpened($dispute));
 
         return $dispute;
@@ -77,25 +98,43 @@ class Disputes
      */
     public function resolve(Dispute $dispute, string $resolution, User $by, ?string $note = null): void
     {
-        if (! $dispute->isOpen()) {
+        $settled = Atomic::run(function () use ($dispute, $resolution, $by, $note) {
+            // Same lock order as opening: the task row, then the dispute.
+            RoadmapTask::whereKey($dispute->roadmap_task_id)->lockForUpdate()->first();
+            $current = Dispute::whereKey($dispute->id)->lockForUpdate()->first();
+
+            // Already settled (by a second tab, or proof a moment earlier): nothing to do.
+            if (! $current?->isOpen()) {
+                return false;
+            }
+
+            $current->forceFill([
+                'status' => match ($resolution) {
+                    'withdrawn' => Dispute::WITHDRAWN,
+                    'ruled_out' => Dispute::UPHELD,
+                    default => Dispute::RESOLVED,
+                },
+                'open_key' => null,
+                'resolution' => $resolution,
+                'owner_note' => $note !== null ? trim($note) : $current->owner_note,
+                'resolved_by' => $by->id,
+                'resolved_at' => now(),
+            ])->save();
+
+            $this->sync($current->task);
+
+            return true;
+        });
+
+        if (! $settled) {
             return;
         }
 
-        $dispute->forceFill([
-            'status' => match ($resolution) {
-                'withdrawn' => Dispute::WITHDRAWN,
-                'ruled_out' => Dispute::UPHELD,
-                default => Dispute::RESOLVED,
-            },
-            'resolution' => $resolution,
-            'owner_note' => $note !== null ? trim($note) : $dispute->owner_note,
-            'resolved_by' => $by->id,
-            'resolved_at' => now(),
-        ])->save();
-
+        $dispute->refresh();
         $task = $dispute->task;
-        $this->sync($task);
-        $this->rescore($task);
+
+        // Re-scoring runs after the commit, as its own idempotent job.
+        RescoreCheckIn::dispatch($task->id);
 
         if (! $dispute->disputer->is($by)) {
             $dispute->disputer->notify(new DisputeResolved($dispute));
@@ -127,17 +166,5 @@ class Disputes
             $statuses->contains(Dispute::OPEN) => RoadmapTask::DISPUTE_OPEN,
             default => null,
         }])->save();
-    }
-
-    /**
-     * Re-score the league weeks this check-in counts in, if they were already final.
-     */
-    private function rescore(RoadmapTask $task): void
-    {
-        $week = $task->week()->first();
-
-        foreach ($this->fairPlay->leaguesFor($week) as $league) {
-            (new LeagueTable($league->fresh()))->rescore($league->weekNumberOn($week->ends_on));
-        }
     }
 }

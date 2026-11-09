@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\Models\GroupTask;
 use App\Models\League;
 use App\Models\LeagueMember;
@@ -124,10 +125,21 @@ class GroupTasks
     public function vote(GroupTask $groupTask, User $voter, bool $approve): void
     {
         $this->settle($groupTask);
-        $groupTask->refresh();
-        abort_unless($groupTask->isVoting(), 422, 'Voting on this group task has closed.');
 
-        $groupTask->votes()->updateOrCreate(['user_id' => $voter->id], ['approve' => $approve]);
+        // Same lock order as settle(): the group task row first, then its votes. A second tap just updates the vote.
+        $open = Atomic::run(function () use ($groupTask, $voter, $approve) {
+            $locked = GroupTask::lockForUpdate()->find($groupTask->id);
+
+            if (! $locked?->isVoting()) {
+                return false;
+            }
+
+            $locked->votes()->updateOrCreate(['user_id' => $voter->id], ['approve' => $approve]);
+
+            return true;
+        });
+        abort_unless($open, 422, 'Voting on this group task has closed.');
+
         $this->settle($groupTask->fresh());
     }
 
@@ -137,7 +149,7 @@ class GroupTasks
      */
     public function settle(GroupTask $groupTask): void
     {
-        DB::transaction(function () use ($groupTask) {
+        Atomic::run(function () use ($groupTask) {
             $groupTask = GroupTask::lockForUpdate()->with('league', 'votes')->find($groupTask->id);
 
             if (! $groupTask?->isVoting()) {

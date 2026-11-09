@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Models\League;
 use App\Models\LeagueInvite;
 use App\Models\LeagueMember;
@@ -9,9 +10,9 @@ use App\Models\User;
 use App\Notifications\LeagueInvited;
 use App\Notifications\LeagueInviteEmail;
 use App\Notifications\LeagueMemberJoined;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
@@ -79,13 +80,30 @@ class LeagueInviteController extends Controller
             'goal_id.exists' => 'Pick one of your active goals.',
         ]);
 
-        DB::transaction(function () use ($invite, $league, $user, $validated) {
-            if (! $invite->claim()) {
-                throw ValidationException::withMessages(['goal_id' => 'This invite was just used up. Ask for a new one.']);
-            }
+        // Lock order: the league row, then the invite and its members. Re-checked inside, so a double submit joins once.
+        try {
+            $joined = Atomic::run(function () use ($invite, $league, $user, $validated) {
+                League::whereKey($league->id)->lockForUpdate()->first();
 
-            $league->members()->create(['user_id' => $user->id, 'goal_id' => $validated['goal_id']]);
-        });
+                if ($league->members()->where('user_id', $user->id)->exists()) {
+                    return false;
+                }
+
+                if (! $invite->claim()) {
+                    throw ValidationException::withMessages(['goal_id' => 'This invite was just used up. Ask for a new one.']);
+                }
+
+                $league->members()->create(['user_id' => $user->id, 'goal_id' => $validated['goal_id']]);
+
+                return true;
+            });
+        } catch (UniqueConstraintViolationException) {
+            $joined = false;
+        }
+
+        if (! $joined) {
+            return redirect()->route('leagues.show', $league);
+        }
 
         $request->session()->forget(['league_invite', 'league_join_return']);
         $league->announce($user->name.' joined the league.');

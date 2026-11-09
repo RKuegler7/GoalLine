@@ -37,6 +37,25 @@ class Dispute extends Model
     public const UPHELD = 'upheld';
 
     /**
+     * The unique key an open dispute holds, so one person can't have two open disputes on the same check-in. It's
+     * cleared when the dispute is settled.
+     */
+    public static function openKey(int $disputerId, int $taskId): string
+    {
+        return $disputerId.':'.$taskId;
+    }
+
+    protected static function booted(): void
+    {
+        // Every open dispute holds its key, however it's made (the app, the demo, or a factory).
+        static::creating(function (Dispute $dispute) {
+            if (($dispute->status ?? self::OPEN) === self::OPEN) {
+                $dispute->open_key ??= self::openKey($dispute->disputer_id, $dispute->roadmap_task_id);
+            }
+        });
+    }
+
+    /**
      * Open disputes one person can have per matchup per GoalWeek.
      */
     public const MAX_OPEN_PER_MATCHUP = 3;

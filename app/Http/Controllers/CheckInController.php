@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use Illuminate\Http\RedirectResponse;
@@ -32,11 +33,23 @@ class CheckInController extends Controller
         }
 
         if ($task->completed_at) {
-            if ($task->proof_path) {
-                Storage::disk(RoadmapTask::proofDisk())->delete($task->proof_path);
-            }
+            // Locked and re-checked inside a short transaction; the photo is removed only after it commits.
+            $removedProof = Atomic::run(function () use ($task) {
+                $current = RoadmapTask::whereKey($task->id)->lockForUpdate()->first();
 
-            $task->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_mime_type' => null, 'proof_uploaded_at' => null])->save();
+                if (! $current->completed_at) {
+                    return false;
+                }
+
+                $proof = $current->proof_path;
+                $current->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_mime_type' => null, 'proof_uploaded_at' => null])->save();
+
+                return $proof;
+            });
+
+            if ($removedProof) {
+                Storage::disk(RoadmapTask::proofDisk())->delete($removedProof);
+            }
 
             return $this->backTo($week)->with('status', 'Check-in undone.');
         }
@@ -53,7 +66,16 @@ class CheckInController extends Controller
             $task->forceFill(['result_value' => $value]);
         }
 
-        $task->forceFill(['completed_at' => now()])->save();
+        // A second tab may have checked it off a moment ago: lock, re-check, and write only if it's still open.
+        $resultValue = $task->result_value;
+        Atomic::run(function () use ($task, $resultValue) {
+            $current = RoadmapTask::whereKey($task->id)->lockForUpdate()->first();
+
+            if (! $current->completed_at) {
+                $current->forceFill(['completed_at' => now(), 'result_value' => $task->result_required ? $resultValue : $current->result_value])->save();
+            }
+        });
+        $task->refresh();
 
         // Offer "Show your work" right where they checked it off.
         return $this->backTo($week)->with('proof_prompt', $task->id)->with('status', self::CHECKED_IN);

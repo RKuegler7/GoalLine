@@ -2,15 +2,16 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\Clock;
 use App\GoalWeekResult;
 use App\LeagueStatus;
 use App\MatchupOutcome;
 use App\Models\League;
 use App\Models\LeagueMember;
+use App\Models\LeagueResult;
 use App\Models\RoadmapWeek;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class LeagueTable
 {
@@ -177,19 +178,23 @@ class LeagueTable
                 continue;
             }
 
-            DB::transaction(function () use ($week) {
-                foreach ($this->matchups($week) as $matchup) {
-                    $this->store($week, $matchup['home'], $matchup['homeResult'], $matchup['away'], $matchup['homeOutcome'], $matchup['away'] === null);
+            // Work out the rows first (reads only), then write them in one short transaction. Pages that settle the
+            // same week at the same moment can't both win: rows already stored are skipped, and only the request that
+            // actually stored the week posts its final results.
+            $rows = $this->rows($week);
+            $stored = Atomic::run(function () use ($rows, $week) {
+                $inserted = LeagueResult::insertOrIgnore($rows);
 
-                    if ($matchup['away']) {
-                        $this->store($week, $matchup['away'], $matchup['awayResult'], $matchup['home'], $matchup['awayOutcome'], false);
-                    }
+                if ($inserted > 0) {
+                    $this->announceFinal($week);
                 }
 
-                $this->announceFinal($week);
+                return $inserted;
             });
 
-            $newlySettled[] = $week;
+            if ($stored > 0) {
+                $newlySettled[] = $week;
+            }
         }
 
         $this->league->load('results');
@@ -215,15 +220,9 @@ class LeagueTable
             return;
         }
 
-        DB::transaction(function () use ($week) {
-            foreach ($this->matchups($week) as $matchup) {
-                $this->store($week, $matchup['home'], $matchup['homeResult'], $matchup['away'], $matchup['homeOutcome'], $matchup['away'] === null, overwrite: true);
-
-                if ($matchup['away']) {
-                    $this->store($week, $matchup['away'], $matchup['awayResult'], $matchup['home'], $matchup['awayOutcome'], false, overwrite: true);
-                }
-            }
-        });
+        // Idempotent: recomputed from the check-ins as they are now and written in one upsert, in a fixed order.
+        $rows = $this->rows($week);
+        Atomic::run(fn () => LeagueResult::upsert($rows, ['league_id', 'user_id', 'week'], ['result', 'result_points', 'opponent_id', 'vs_median', 'outcome', 'matchup_points', 'updated_at']));
 
         $this->league->load('results');
     }
@@ -296,22 +295,50 @@ class LeagueTable
     }
 
     /**
-     * Record one member's settled result for a league week.
+     * Every member's settled result for a league week, as rows ready to store, sorted by member so concurrent
+     * writers always take row locks in the same order.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function rows(int $week): array
+    {
+        $rows = [];
+
+        foreach ($this->matchups($week) as $matchup) {
+            $rows[] = $this->row($week, $matchup['home'], $matchup['homeResult'], $matchup['away'], $matchup['homeOutcome'], $matchup['away'] === null);
+
+            if ($matchup['away']) {
+                $rows[] = $this->row($week, $matchup['away'], $matchup['awayResult'], $matchup['home'], $matchup['awayOutcome'], false);
+            }
+        }
+
+        usort($rows, fn (array $a, array $b) => $a['user_id'] <=> $b['user_id']);
+
+        return $rows;
+    }
+
+    /**
+     * One member's settled result for a league week.
      *
      * @param  array{result: GoalWeekResult|null, points: int}  $result
+     * @return array<string, mixed>
      */
-    private function store(int $week, LeagueMember $member, array $result, ?LeagueMember $opponent, MatchupOutcome $outcome, bool $vsMedian, bool $overwrite = false): void
+    private function row(int $week, LeagueMember $member, array $result, ?LeagueMember $opponent, MatchupOutcome $outcome, bool $vsMedian): array
     {
-        $this->league->results()->{$overwrite ? 'updateOrCreate' : 'firstOrCreate'}(
-            ['user_id' => $member->user_id, 'week' => $week],
-            [
-                'result' => $result['result'] ?? GoalWeekResult::Short,
-                'result_points' => $result['points'],
-                'opponent_id' => $opponent?->user_id,
-                'vs_median' => $vsMedian,
-                'outcome' => $outcome,
-                'matchup_points' => $outcome->points(),
-            ],
-        );
+        $now = now();
+
+        return [
+            'league_id' => $this->league->id,
+            'user_id' => $member->user_id,
+            'week' => $week,
+            'result' => ($result['result'] ?? GoalWeekResult::Short)->value,
+            'result_points' => $result['points'],
+            'opponent_id' => $opponent?->user_id,
+            'vs_median' => $vsMedian,
+            'outcome' => $outcome->value,
+            'matchup_points' => $outcome->points(),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
     }
 }

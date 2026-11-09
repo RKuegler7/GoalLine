@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Models\League;
 use App\Notifications\LeagueMemberJoined;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -71,7 +73,27 @@ class LeagueMembershipController extends Controller
             'goal_id.exists' => 'Pick one of your active goals.',
         ]);
 
-        $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $validated['goal_id']]);
+        // Locked on the league and re-checked, so a double submit joins once (and announces once).
+        try {
+            $joined = Atomic::run(function () use ($league, $request, $validated) {
+                League::whereKey($league->id)->lockForUpdate()->first();
+
+                if ($league->members()->where('user_id', $request->user()->id)->exists()) {
+                    return false;
+                }
+
+                $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $validated['goal_id']]);
+
+                return true;
+            });
+        } catch (UniqueConstraintViolationException) {
+            $joined = false;
+        }
+
+        if (! $joined) {
+            return redirect()->route('leagues.show', $league);
+        }
+
         $league->announce($request->user()->name.' joined the league.');
         if (! $league->commissioner->is($request->user())) {
             $league->commissioner->notify(new LeagueMemberJoined($league->withoutRelations(), $request->user()));
