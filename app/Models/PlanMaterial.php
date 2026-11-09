@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\RoadmapStatus;
+use App\Services\StoredPhoto;
 use Database\Factories\PlanMaterialFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -113,10 +114,13 @@ class PlanMaterial extends Model
     }
 
     /**
-     * The file's contents, base64-encoded for Claude.
+     * The file's contents, base64-encoded for Claude. Null if the file can't be read (for example, it was removed
+     * from storage), so the coach can say so instead of failing.
      */
-    public function base64Contents(): string
+    public function base64Contents(): ?string
     {
-        return base64_encode(Storage::disk(self::DISK)->get($this->path));
+        $bytes = app(StoredPhoto::class)->contents(self::DISK, $this->path);
+
+        return $bytes === null ? null : base64_encode($bytes);
     }
 }

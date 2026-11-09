@@ -8,15 +8,18 @@ use App\Http\Requests\ProfileRequest;
 use App\Models\User;
 use App\Services\ActivityHeatmap;
 use App\Services\ProfileStats;
+use App\Services\StoredPhoto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProfileController extends Controller
 {
+    /** A week of private caching for profile photos. */
+    private const CACHE = ['Cache-Control' => 'private, max-age=604800'];
+
     /**
      * The signed-in person's own profile.
      */
@@ -79,13 +82,13 @@ class ProfileController extends Controller
         $user->save();
 
         if ($request->hasFile('avatar')) {
-            $user->replaceAvatar($request->file('avatar')->store('avatars', User::AVATAR_DISK));
+            $user->replaceAvatar($request->file('avatar')->store('avatars', User::AVATAR_DISK), $request->file('avatar')->getMimeType());
         } elseif ($request->boolean('remove_avatar')) {
             $user->replaceAvatar(null);
         }
 
         if ($request->hasFile('cover')) {
-            $user->replaceCover($request->file('cover')->store('covers', User::AVATAR_DISK));
+            $user->replaceCover($request->file('cover')->store('covers', User::AVATAR_DISK), $request->file('cover')->getMimeType());
         } elseif ($request->boolean('remove_cover')) {
             $user->replaceCover(null);
         }
@@ -100,21 +103,26 @@ class ProfileController extends Controller
     /**
      * Serve a member's profile photo.
      */
-    public function avatar(User $user): StreamedResponse
+    public function avatar(User $user, StoredPhoto $photos): Response
     {
-        abort_unless($user->avatar_path, 404);
+        // A page cached before the photo was removed still asks for it: show the initials, never a broken image.
+        if (! $user->avatar_path) {
+            return response(StoredPhoto::initialsSvg($user->initials()), 200, ['Content-Type' => 'image/svg+xml', 'Cache-Control' => 'no-store']);
+        }
 
-        return $this->photo($user->avatar_path);
+        return $photos->serve(User::AVATAR_DISK, $user->avatar_path, $user->avatar_mime_type, self::CACHE, $user->initials(),
+            fn () => $user->forceFill(['avatar_path' => null, 'avatar_mime_type' => null])->save());
     }
 
     /**
      * Serve a member's cover photo.
      */
-    public function cover(User $user): StreamedResponse
+    public function cover(User $user, StoredPhoto $photos): Response
     {
         abort_unless($user->cover_path, 404);
 
-        return $this->photo($user->cover_path);
+        return $photos->serve(User::AVATAR_DISK, $user->cover_path, $user->cover_mime_type, self::CACHE,
+            forget: fn () => $user->forceFill(['cover_path' => null, 'cover_mime_type' => null])->save());
     }
 
     /**
@@ -132,15 +140,5 @@ class ProfileController extends Controller
             ->all();
 
         return ['Common in the US' => $common] + $all;
-    }
-
-    /**
-     * Stream a stored photo with a week of private caching.
-     */
-    private function photo(string $path): StreamedResponse
-    {
-        return Storage::disk(User::AVATAR_DISK)->response($path, headers: [
-            'Cache-Control' => 'private, max-age=604800',
-        ]);
     }
 }

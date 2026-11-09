@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\NotificationSettings;
 use App\ProfileVisibility;
+use App\Services\StoredPhoto;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -213,15 +214,15 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Replace the profile photo, removing the old file.
+     * Replace the profile photo, removing the old file. The content type is kept so serving it never asks storage.
      */
-    public function replaceAvatar(?string $path): void
+    public function replaceAvatar(?string $path, ?string $mimeType = null): void
     {
         if ($this->avatar_path) {
             Storage::disk(self::AVATAR_DISK)->delete($this->avatar_path);
         }
 
-        $this->forceFill(['avatar_path' => $path])->save();
+        $this->forceFill(['avatar_path' => $path, 'avatar_mime_type' => $path ? ($mimeType ?? StoredPhoto::typeFor($path)) : null])->save();
     }
 
     /**
@@ -268,13 +269,13 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * Replace the cover photo, removing the old file.
      */
-    public function replaceCover(?string $path): void
+    public function replaceCover(?string $path, ?string $mimeType = null): void
     {
         if ($this->cover_path) {
             Storage::disk(self::AVATAR_DISK)->delete($this->cover_path);
         }
 
-        $this->forceFill(['cover_path' => $path])->save();
+        $this->forceFill(['cover_path' => $path, 'cover_mime_type' => $path ? ($mimeType ?? StoredPhoto::typeFor($path)) : null])->save();
     }
 
     /**

@@ -421,7 +421,7 @@ class DemoWorld
         $path = "proofs/{$goal->id}/{$task->id}-demo.svg";
 
         if ($this->store(RoadmapTask::proofDisk(), $path, $this->drawing($title, $subtitle, '#1E2922', '#D4AC58'))) {
-            $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $task->completed_at])->saveQuietly();
+            $task->forceFill(['proof_path' => $path, 'proof_mime_type' => 'image/svg+xml', 'proof_uploaded_at' => $task->completed_at])->saveQuietly();
         }
     }
 
@@ -508,7 +508,7 @@ class DemoWorld
 
         // The photo doubles as the task's proof, so the post shows Verified.
         if ($path) {
-            $task?->forceFill(['proof_path' => $path, 'proof_uploaded_at' => $post->created_at])->saveQuietly();
+            $task?->forceFill(['proof_path' => $path, 'proof_mime_type' => 'image/svg+xml', 'proof_uploaded_at' => $post->created_at])->saveQuietly();
         }
 
         return $post;
@@ -525,7 +525,7 @@ class DemoWorld
             return null;
         }
 
-        $highlight->forceFill(['photo_path' => $path])->saveQuietly();
+        $highlight->forceFill(['photo_path' => $path, 'photo_mime_type' => 'image/svg+xml'])->saveQuietly();
 
         return $path;
     }

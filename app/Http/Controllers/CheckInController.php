@@ -36,7 +36,7 @@ class CheckInController extends Controller
                 Storage::disk(RoadmapTask::proofDisk())->delete($task->proof_path);
             }
 
-            $task->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_uploaded_at' => null])->save();
+            $task->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_mime_type' => null, 'proof_uploaded_at' => null])->save();
 
             return $this->backTo($week)->with('status', 'Check-in undone.');
         }

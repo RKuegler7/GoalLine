@@ -201,6 +201,15 @@ class Highlight extends Model
     }
 
     /**
+     * The photo's file is gone: drop the reference so the post shows without it. A proof check-in keeps its own
+     * reference, so Verified and the score never change because of this.
+     */
+    public function forgetPhoto(): void
+    {
+        $this->forceFill(['photo_path' => null, 'photo_mime_type' => null])->saveQuietly();
+    }
+
+    /**
      * Whether this person has cheered it.
      */
     public function isCheeredBy(User $user): bool

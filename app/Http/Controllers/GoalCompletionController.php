@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Goal;
+use App\Services\StoredPhoto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class GoalCompletionController extends Controller
 {
@@ -36,22 +36,21 @@ class GoalCompletionController extends Controller
             ? $request->file('completion_photo')->store("goal-photos/{$goal->id}", Goal::PHOTO_DISK)
             : null;
 
-        $goal->complete($validated['completion_note'] ?? null, $photoPath);
+        $goal->complete($validated['completion_note'] ?? null, $photoPath, $request->file('completion_photo')?->getMimeType());
 
         return redirect()->route('goals.show', $goal);
     }
 
     /**
-     * Serve the photo from a completed goal.
+     * Serve the photo from a completed goal. If the file is gone, a placeholder shows and the reference is cleared.
      */
-    public function photo(Goal $goal): StreamedResponse
+    public function photo(Goal $goal, StoredPhoto $photos): Response
     {
         // Completion photos show in the trophy case, so anyone who can see the owner's profile can see them.
         abort_unless(Gate::allows('view', $goal) || ($goal->isCompleted() && Gate::allows('viewProfile', $goal->user)), 403);
         abort_unless($goal->completion_photo_path, 404);
 
-        return Storage::disk(Goal::PHOTO_DISK)->response($goal->completion_photo_path, headers: [
-            'Cache-Control' => 'private, max-age=604800',
-        ]);
+        return $photos->serve(Goal::PHOTO_DISK, $goal->completion_photo_path, $goal->completion_photo_mime_type, ['Cache-Control' => 'private, max-age=604800'],
+            forget: fn () => $goal->forceFill(['completion_photo_path' => null, 'completion_photo_mime_type' => null])->save());
     }
 }

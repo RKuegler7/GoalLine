@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Notifications\FriendHighlight;
 use App\Notifications\HighlightCheered;
 use App\Services\HighlightFeed;
+use App\Services\StoredPhoto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -21,7 +22,7 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class HighlightController extends Controller
 {
@@ -97,7 +98,10 @@ class HighlightController extends Controller
             $request->boolean('use_goal_photo') && $draft['goal']->completion_photo_path => $this->copyGoalPhoto($draft['goal'], $highlight),
             default => null,
         };
-        $highlight->forceFill(['photo_path' => $photoPath])->save();
+        $highlight->forceFill([
+            'photo_path' => $photoPath,
+            'photo_mime_type' => $photoPath ? ($request->file('photo')?->getMimeType() ?? $draft['goal']->completion_photo_mime_type ?? StoredPhoto::typeFor($photoPath)) : null,
+        ])->save();
 
         // Let friends who can see it know.
         Notification::send(
@@ -188,25 +192,26 @@ class HighlightController extends Controller
     /**
      * Serve a highlight's photo.
      */
-    public function photo(Highlight $highlight): StreamedResponse
+    public function photo(Highlight $highlight, StoredPhoto $photos): Response
     {
         abort_unless($highlight->photo_path, 404);
 
-        return Storage::disk(Highlight::PHOTO_DISK)->response($highlight->photo_path, headers: [
-            'Cache-Control' => 'private, max-age=604800',
-        ]);
+        return $photos->serve(Highlight::PHOTO_DISK, $highlight->photo_path, $highlight->photo_mime_type, ['Cache-Control' => 'private, max-age=604800'],
+            forget: fn () => $highlight->forgetPhoto());
     }
 
     /**
-     * A branded share card to download and post anywhere.
+     * A branded share card to download and post anywhere. A photo that's gone just leaves the card without one.
      */
-    public function card(Highlight $highlight): View
+    public function card(Highlight $highlight, StoredPhoto $photos): View
     {
+        $bytes = $highlight->photo_path ? $photos->contents(Highlight::PHOTO_DISK, $highlight->photo_path, fn () => $highlight->forgetPhoto()) : null;
+
         return view('highlights.card', [
             'highlight' => $highlight,
             'titleLines' => array_slice(explode("\n", wordwrap($highlight->headline, 20, "\n", true)), 0, 3),
-            'photo' => $highlight->photo_path
-                ? 'data:'.Storage::disk(Highlight::PHOTO_DISK)->mimeType($highlight->photo_path).';base64,'.base64_encode(Storage::disk(Highlight::PHOTO_DISK)->get($highlight->photo_path))
+            'photo' => $bytes !== null
+                ? 'data:'.($highlight->photo_mime_type ?? StoredPhoto::typeFor($highlight->photo_path)).';base64,'.base64_encode($bytes)
                 : null,
         ]);
     }
@@ -282,12 +287,20 @@ class HighlightController extends Controller
     }
 
     /**
-     * Copy the goal's completion photo so the highlight keeps it even if the goal changes.
+     * Copy the goal's completion photo so the highlight keeps it even if the goal changes. If that photo is gone,
+     * the post goes up without one.
      */
-    private function copyGoalPhoto(Goal $goal, Highlight $highlight): string
+    private function copyGoalPhoto(Goal $goal, Highlight $highlight): ?string
     {
+        $bytes = app(StoredPhoto::class)->contents(Goal::PHOTO_DISK, $goal->completion_photo_path,
+            fn () => $goal->forceFill(['completion_photo_path' => null, 'completion_photo_mime_type' => null])->save());
+
+        if ($bytes === null) {
+            return null;
+        }
+
         $path = "highlights/{$highlight->id}/".basename($goal->completion_photo_path);
-        Storage::disk(Highlight::PHOTO_DISK)->copy($goal->completion_photo_path, $path);
+        Storage::disk(Highlight::PHOTO_DISK)->put($path, $bytes);
 
         return $path;
     }

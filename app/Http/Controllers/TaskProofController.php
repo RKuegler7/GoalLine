@@ -12,6 +12,7 @@ use App\Services\CaptionWriter;
 use App\Services\Disputes;
 use App\Services\FairPlay;
 use App\Services\ProofImage;
+use App\Services\StoredPhoto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class TaskProofController extends Controller
@@ -63,7 +64,7 @@ class TaskProofController extends Controller
             $disk->delete($task->proof_path);
         }
 
-        $task->forceFill(['proof_path' => $path, 'proof_uploaded_at' => now()])->save();
+        $task->forceFill(['proof_path' => $path, 'proof_mime_type' => StoredPhoto::typeFor($path), 'proof_uploaded_at' => now()])->save();
         app(Disputes::class)->settleWithProof($task);
 
         $post = $this->share($task, $clean, $validated);
@@ -78,14 +79,13 @@ class TaskProofController extends Controller
     /**
      * The proof photo, for the member, their matchup opponent, and the league owner only.
      */
-    public function show(Request $request, RoadmapTask $task, FairPlay $fairPlay): StreamedResponse
+    public function show(Request $request, RoadmapTask $task, FairPlay $fairPlay, StoredPhoto $photos): Response
     {
         abort_unless($task->proof_path && $fairPlay->canSeeProof($request->user(), $task), 404);
 
-        return Storage::disk(RoadmapTask::proofDisk())->response($task->proof_path, headers: [
-            'Cache-Control' => 'private, max-age=3600',
-            'X-Content-Type-Options' => 'nosniff',
-        ]);
+        // A missing proof file shows a placeholder, but the reference stays: clearing it would quietly change
+        // Verified, disputes and the score.
+        return $photos->serve(RoadmapTask::proofDisk(), $task->proof_path, $task->proof_mime_type, ['Cache-Control' => 'private, max-age=3600']);
     }
 
     /**
@@ -145,7 +145,7 @@ class TaskProofController extends Controller
             $disk->delete($post->photo_path);
         }
 
-        $post->forceFill(['photo_path' => $photoPath])->save();
+        $post->forceFill(['photo_path' => $photoPath, 'photo_mime_type' => StoredPhoto::typeFor($photoPath)])->save();
 
         return $post->load('league');
     }

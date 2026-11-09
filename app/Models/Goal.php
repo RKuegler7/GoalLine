@@ -9,6 +9,7 @@ use App\Jobs\GenerateRoadmap;
 use App\Jobs\ReviewRoadmapChanges;
 use App\PlanVerdict;
 use App\RoadmapStatus;
+use App\Services\StoredPhoto;
 use Carbon\CarbonInterface;
 use Database\Factories\GoalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -151,13 +152,14 @@ class Goal extends Model
     /**
      * Mark the goal as achieved, with an optional reflection and photo.
      */
-    public function complete(?string $note = null, ?string $photoPath = null): void
+    public function complete(?string $note = null, ?string $photoPath = null, ?string $photoMimeType = null): void
     {
         $this->forceFill([
             'status' => GoalStatus::Completed,
             'completed_at' => now(),
             'completion_note' => $note,
             'completion_photo_path' => $photoPath,
+            'completion_photo_mime_type' => $photoPath ? ($photoMimeType ?? StoredPhoto::typeFor($photoPath)) : null,
         ])->save();
     }
 

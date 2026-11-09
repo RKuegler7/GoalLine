@@ -474,7 +474,9 @@ class RoadmapPlanner
             throw new RoadmapPlanningException('The demo coach doesn\'t read uploaded files.');
         }
 
-        $source = ['type' => 'base64', 'mediaType' => $material->mime_type, 'data' => $material->base64Contents()];
+        $data = $material->base64Contents()
+            ?? throw new RoadmapPlanningException("We couldn't open {$material->original_name} any more. Upload it again and the coach will read it.");
+        $source = ['type' => 'base64', 'mediaType' => $material->mime_type, 'data' => $data];
 
         $content = [
             $material->isPdf() ? ['type' => 'document', 'source' => $source] : ['type' => 'image', 'source' => $source],

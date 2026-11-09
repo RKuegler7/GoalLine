@@ -44,7 +44,7 @@ class WelcomeController extends Controller
         $user->update(collect($validated)->except('avatar')->all());
 
         if ($request->hasFile('avatar')) {
-            $user->replaceAvatar($request->file('avatar')->store('avatars', User::AVATAR_DISK));
+            $user->replaceAvatar($request->file('avatar')->store('avatars', User::AVATAR_DISK), $request->file('avatar')->getMimeType());
         }
 
         return redirect()->route('welcome.goal');
