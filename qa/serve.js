@@ -16,6 +16,9 @@ if (migrate.status !== 0) {
     process.exit(migrate.status ?? 1);
 }
 
+// Compile every Blade view up front, so the first profile isn't timed against a cold server.
+spawnSync('php', ['artisan', 'view:cache', '--no-interaction'], { cwd: root, stdio: 'inherit' });
+
 const log = fs.openSync(path.join(root, 'qa', 'server.log'), 'w');
 const server = spawn('php', ['-S', `127.0.0.1:${port}`, path.join(root, 'vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php')], {
     cwd: path.join(root, 'public'),

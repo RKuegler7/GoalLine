@@ -41,6 +41,8 @@ export default defineConfig({
             DEMO_STARTS_PER_HOUR: '1000',
             MAIL_MAILER: 'log',
             QUEUE_CONNECTION: 'sync',
+            // Laravel Boost's dev-only browser log sender isn't part of the app; keep it out of the findings.
+            BOOST_BROWSER_LOGS_WATCHER: 'false',
         },
     },
 });

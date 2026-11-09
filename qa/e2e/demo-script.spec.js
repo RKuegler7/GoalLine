@@ -13,8 +13,11 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
         // The one step everything else needs.
         await test.step('Try the demo', async () => {
             await qa.review('Home', '/');
-            await page.locator('a[href$="/demo"]').first().click();
-            await page.waitForURL('**/dashboard');
+            // Building a demo world takes a few seconds (longer on a slow machine), so allow it more than a click.
+            await Promise.all([
+                page.waitForURL('**/dashboard', { timeout: 90_000 }),
+                page.locator('a[href$="/demo"]').first().click({ timeout: 90_000 }),
+            ]);
         });
 
         await test.step('Dashboard', () => qa.step('Dashboard', () => qa.review('Dashboard')));

@@ -22,7 +22,17 @@ export class Reviewer {
                 this.add('important', 'Console error', message.text().slice(0, 300), 'Fix the script or the resource behind this error.');
             }
         });
-        page.on('pageerror', (error) => this.add('blocker', 'JavaScript crash', error.message.slice(0, 300), 'An uncaught exception stops scripts on this page. Fix it first.'));
+        page.on('pageerror', (error) => {
+            // WebKit reports a same-site request it cancelled because the page navigated away as "due to access
+            // control checks". It's the same as Chromium's ERR_ABORTED (ignored below), not a crash.
+            const host = new URL(testInfo.project.use.baseURL ?? 'http://127.0.0.1').host;
+
+            if (/due to access control checks/i.test(error.message) && error.message.includes(host)) {
+                return;
+            }
+
+            this.add('blocker', 'JavaScript crash', error.message.slice(0, 300), 'An uncaught exception stops scripts on this page. Fix it first.');
+        });
         page.on('response', (response) => {
             const status = response.status();
 

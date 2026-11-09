@@ -49,6 +49,8 @@ function setUpLeagueChat(chat) {
                     scrollToEnd();
                 }
             }
+        } catch {
+            // Offline for a moment, or leaving the page mid-request: the next poll picks it up.
         } finally {
             polling = false;
         }
@@ -73,6 +75,8 @@ function setUpLeagueChat(chat) {
             } else if (response.status === 429) {
                 window.alert('Easy, champ. Give it a moment before sending more.');
             }
+        } catch {
+            // No connection: the message stays in the box so it can be sent again.
         } finally {
             input.disabled = false;
             input.focus();
@@ -100,9 +104,9 @@ function setUpLeagueChat(chat) {
             return;
         }
 
-        const response = await fetch(deleteForm.action, { method: 'POST', headers, body: new FormData(deleteForm) });
+        const response = await fetch(deleteForm.action, { method: 'POST', headers, body: new FormData(deleteForm) }).catch(() => null);
 
-        if (response.ok) {
+        if (response?.ok) {
             deleteForm.closest('[data-message-id]')?.remove();
         }
     });
