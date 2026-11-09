@@ -145,6 +145,15 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
         }));
 
         await test.step('Privacy page', () => qa.step('Privacy page', () => qa.review('Privacy and safety', '/privacy')));
+
+        await test.step('About page', () => qa.step('About page', async () => {
+            await qa.review('About', '/about');
+            // The FAQ opens from the keyboard.
+            const question = page.locator('#faq summary').first();
+            await question.focus();
+            await page.keyboard.press('Enter');
+            await expect(page.locator('#faq details').first()).toHaveAttribute('open', '');
+        }));
     } finally {
         await qa.finish();
     }

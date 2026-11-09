@@ -13,6 +13,7 @@
             <span class="text-xl font-bold" aria-hidden="true">&rarr;</span>
         </a>
     @endif
+    <p class="-mt-3 mb-6 text-center text-sm text-ink/70">New to GoalLine? <a href="{{ route('about') }}" class="font-semibold text-club hover:underline">About GoalLine and how to play</a></p>
 
     <form method="POST" action="{{ route('login') }}" class="space-y-5">
         @csrf

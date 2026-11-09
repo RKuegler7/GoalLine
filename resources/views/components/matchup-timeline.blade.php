@@ -52,7 +52,7 @@
                         @if ($isOpponent && ! $row['goalWeek']->isLocked())
                             <form method="POST" action="{{ route('goalweeks.confirm-smashed', $row['goalWeek']) }}" data-live class="mt-1.5">
                                 @csrf
-                                <button type="submit" class="rounded-full bg-sky-600 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-700">Confirm their Smashed week</button>
+                                <button type="submit" class="rounded-full bg-sky-700 px-3 py-1 text-xs font-semibold text-white hover:bg-sky-700">Confirm their Smashed week</button>
                             </form>
                         @endif
                     </div>

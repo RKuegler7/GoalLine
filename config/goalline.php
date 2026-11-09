@@ -14,6 +14,9 @@ return [
 
     'admin_emails' => array_values(array_filter(array_map('trim', explode(',', (string) env('ADMIN_EMAILS', ''))))),
 
+    // The public "email us" address on the About page. Shown only when set, so no personal address is published.
+    'contact_email' => env('CONTACT_EMAIL'),
+
     /*
     |--------------------------------------------------------------------------
     | AI spend limits

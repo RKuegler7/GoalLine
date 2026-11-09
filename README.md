@@ -6,6 +6,7 @@
 
 - **Live app:** https://ddhxw7holo4vs.cloudfront.net
 - **Try the demo:** open the live app and tap **Try the demo** on the home page or the login page. One click, no username or password. You get your own private copy of a demo world (John Cardinal and friends, two GoalLeagues in GoalWeek 6, a live matchup). Tap **Reset demo** in the banner any time to start fresh.
+- **About GoalLine:** https://ddhxw7holo4vs.cloudfront.net/about: what it is, how to play, scoring (rendered from the same code that scores every week), fair play, the AI coach, privacy and FAQ. Public, no sign-in needed.
 - **Demo video:** *(link coming)*
 
 **Get in line with your goals. We get more done together.** GoalLine is about the process, not just the end result: the goal is what the daily work builds, and doing it with friends makes it stick. Trust the process. Show up today.

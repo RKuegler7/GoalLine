@@ -82,7 +82,12 @@ export class Reviewer {
         const folder = path.join(SCREENSHOTS, this.profile.replace(/[^a-z0-9]+/gi, '-').toLowerCase().replace(/^-+|-+$/g, ''));
         fs.mkdirSync(folder, { recursive: true });
         this.shot += 1;
-        await this.page.screenshot({ path: path.join(folder, `${String(this.shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.png`), fullPage: true });
+        const file = path.join(folder, `${String(this.shot).padStart(2, '0')}-${label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.png`);
+
+        // Browsers cap a screenshot at 32,767 pixels; a long page on a 3× phone can pass that. Fall back to the
+        // screen in view, rather than failing the step.
+        await this.page.screenshot({ path: file, fullPage: true })
+            .catch(() => this.page.screenshot({ path: file }));
     }
 
     async checkLayout() {

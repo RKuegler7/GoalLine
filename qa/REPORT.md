@@ -1,14 +1,14 @@
 # GoalLine QA report
 
-Generated 2026-11-09 18:09 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
+Generated 2026-11-09 18:27 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
 
 | Profile | Demo script | Time |
 | --- | --- | --- |
-| iPhone 14 (WebKit) | Passed | 155s |
-| Small Android (Chromium) | Passed | 70s |
-| Desktop (Chromium) | Passed | 62s |
+| iPhone 14 (WebKit) | Passed | 100s |
+| Small Android (Chromium) | Passed | 58s |
+| Desktop (Chromium) | Passed | 46s |
 
-**0 blockers, 0 important, 29 nice to have.**
+**0 blockers, 0 important, 30 nice to have.**
 
 Checks on every screen: failed requests and 500s, console errors, horizontal overflow, tap targets under 44 px (phones), text under 12 px, axe accessibility (alt text, form labels, contrast, names), and in-place actions that reload the page or jump to the top.
 
@@ -22,12 +22,13 @@ None.
 
 None.
 
-## Nice to have (29)
+## Nice to have (30)
 
 | Screen | Profiles | Finding | Suggested fix |
 | --- | --- | --- | --- |
 | Matchup pager | iPhone 14 (WebKit), Small Android (Chromium) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
 | Task sheet | iPhone 14 (WebKit), Small Android (Chromium) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
+| About | iPhone 14 (WebKit), Small Android (Chromium), Desktop (Chromium) | **Text under 12 px**: "Demo mode" 9.6px; "Short of the line" 10.4px; "· 0 pts" 10.4px; "In line" 10.4px; "· 1 pt" 10.4px; "Past the line" 10.4px; "· 2 pts" 10.4px; "Smashed the line" 10.4px | Use at least 12 px (text-xs) for anything people need to read. |
 | Dashboard | iPhone 14 (WebKit), Small Android (Chromium), Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "This GoalWeek" 9.92px; "Total points" 9.92px; "In-line streak" 9.92px; "GoalLeague record" 9.92px; "Demo mode" 9.6px; "Academic · 62 days to go" 9.92px; "Not started" 10.4px | Use at least 12 px (text-xs) for anything people need to read. |
 | Friends | iPhone 14 (WebKit), Small Android (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "Clubhouse" 10.88px; "GoalLeagues" 10.88px; "7" 9.6px; "Highlights" 10.88px; "My Locker" 10.88px | Use at least 12 px (text-xs) for anything people need to read. |
 | Friends | Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
@@ -38,9 +39,9 @@ None.
 | GoalLeague after a vote | iPhone 14 (WebKit), Small Android (Chromium), Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "Live" 9.6px; "Not started" 10.4px; "Short of the line" 10.4px; "· 0 pts" 10.4px; "Past the line" 10.4px; "· 2 pts" 10.4px | Use at least 12 px (text-xs) for anything people need to read. |
 | GoalLeagues | iPhone 14 (WebKit), Small Android (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "Day 13 of 21" 9.6px; "In season" 10.4px; "Clubhouse" 10.88px; "GoalLeagues" 10.88px; "15" 9.6px; "Highlights" 10.88px | Use at least 12 px (text-xs) for anything people need to read. |
 | GoalLeagues | Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "Day 13 of 21" 9.6px; "In season" 10.4px | Use at least 12 px (text-xs) for anything people need to read. |
-| Highlights | iPhone 14 (WebKit) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:11 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 7:10 am" 9.6px; "Nov 6, 11:10 am" 9.6px; "Nov 8, 12:10 pm" 9.6px; "Nov 7, 10:10 am" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
-| Highlights | Small Android (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:12 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 7:12 am" 9.6px; "Nov 6, 12:12 pm" 9.6px; "Nov 8, 10:12 am" 9.6px; "Nov 7, 10:12 am" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
-| Highlights | Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:14 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 8:13 am" 9.6px; "Nov 6, 11:13 am" 9.6px; "Nov 8, 9:13 am" 9.6px; "Nov 7, 9:13 am" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
+| Highlights | iPhone 14 (WebKit) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:28 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 8:28 am" 9.6px; "Nov 6, 10:28 am" 9.6px; "Nov 8, 10:28 am" 9.6px; "Nov 7, 12:28 pm" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
+| Highlights | Small Android (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:30 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 9:29 am" 9.6px; "Nov 6, 10:29 am" 9.6px; "Nov 8, 8:29 am" 9.6px; "Nov 7, 7:29 am" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
+| Highlights | Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "1:31 pm" 9.6px; "Crossed the GoalLine" 9.6px; "Nov 8, 10:30 am" 9.6px; "Nov 6, 8:30 am" 9.6px; "Nov 8, 7:30 am" 9.6px; "Nov 7, 12:30 pm" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
 | Inbox | iPhone 14 (WebKit), Small Android (Chromium) | **Text under 12 px**: "Demo mode" 9.6px; "Clubhouse" 10.88px; "GoalLeagues" 10.88px; "7" 9.6px; "Highlights" 10.88px; "My Locker" 10.88px | Use at least 12 px (text-xs) for anything people need to read. |
 | Inbox | Desktop (Chromium) | **Text under 12 px**: "Demo mode" 9.6px | Use at least 12 px (text-xs) for anything people need to read. |
 | Matchup after a dispute | iPhone 14 (WebKit), Small Android (Chromium), Desktop (Chromium) | **Text under 12 px**: "9+" 9.92px; "Demo mode" 9.6px; "Your matchup" 9.92px; "Live" 9.6px; "Above minimum pace" 10.4px; "Not started" 10.4px; "Ahead" 10.4px; "Short of the line" 10.4px | Use at least 12 px (text-xs) for anything people need to read. |

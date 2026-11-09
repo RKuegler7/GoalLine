@@ -14,7 +14,7 @@
             'bg-amber-100 text-amber-800' => $result === App\GoalWeekResult::InLine && $closeCall,
             'bg-grass text-ink' => $result === App\GoalWeekResult::InLine && ! $closeCall,
             'bg-gradient-to-r from-gold via-[#f0dca4] to-gold text-ink shadow-sm' => $result === App\GoalWeekResult::Past,
-            'bg-sky-600 text-white shadow-sm' => $result === App\GoalWeekResult::Smashed,
+            'bg-sky-700 text-white shadow-sm' => $result === App\GoalWeekResult::Smashed,
         ])>
             @if ($result === App\GoalWeekResult::Smashed)
                 <svg viewBox="0 0 12 12" class="size-2.5" fill="currentColor" aria-hidden="true"><path d="M6 0.5 11.5 6 6 11.5 0.5 6z" /></svg>

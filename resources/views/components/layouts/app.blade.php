@@ -67,6 +67,7 @@
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-ink hover:bg-mint">Profile settings</a>
                         <a href="{{ route('settings.notifications') }}" class="block px-4 py-2 text-ink hover:bg-mint">Notifications &amp; calendar</a>
                         <a href="{{ route('recap.week') }}" class="block px-4 py-2 text-ink hover:bg-mint">Your week</a>
+                        <a href="{{ route('about') }}" class="block px-4 py-2 text-ink hover:bg-mint">About GoalLine</a>
                         @can('admin')
                             <a href="{{ route('admin.index') }}" class="block px-4 py-2 font-semibold text-ink hover:bg-gold/20"><span class="mr-1.5 inline-block size-2 rounded-full bg-gold align-middle"></span>Admin</a>
                         @endcan
@@ -119,6 +120,14 @@
 
         {{ $slot }}
     </main>
+
+    <footer class="border-t border-line">
+        <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-5 text-sm text-ink/70" aria-label="Footer">
+            <a href="{{ route('about') }}" class="hover:text-club">About</a>
+            <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a>
+            <a href="{{ route('terms') }}" class="hover:text-club">Terms</a>
+        </nav>
+    </footer>
 
     {{-- Phone tab bar, Instagram-style, with "set a goal" in the middle. --}}
     <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Main">
