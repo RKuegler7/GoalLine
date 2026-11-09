@@ -7,7 +7,8 @@
         "dev": "vite",
         "qa": "vite build && playwright test",
         "audit:before": "vite build && playwright test -c qa/audit.config.js",
-        "audit:after": "vite build && playwright test -c qa/audit.config.js"
+        "audit:after": "vite build && playwright test -c qa/audit.config.js",
+        "audit:compare": "node qa/audit/compare.mjs"
     },
     "devDependencies": {
         "@axe-core/playwright": "^4.14.0",
