@@ -27,7 +27,7 @@
                 ] as [$label, $value, $unit])
                     <div class="rounded-lg bg-ivory/10 px-2 py-1.5 ring-1 ring-ivory/15 ring-inset">
                         <dt class="truncate text-[11px] font-semibold text-mint">{{ $label }}</dt>
-                        <dd class="truncate text-[17px] leading-tight font-bold text-ivory tabular-nums">{{ $value }} <span class="text-[11px] font-medium text-ivory/85">{{ $unit }}</span></dd>
+                        <dd class="truncate text-[17px] leading-tight font-bold text-ivory tabular-nums">{{ $value }} <span class="text-[11px] font-medium text-ivory">{{ $unit }}</span></dd>
                     </div>
                 @endforeach
             </dl>

@@ -114,7 +114,7 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
             await dispute.locator('input[name=reason]').fill('Can you show the route?');
             await dispute.locator('button[type=submit]').click();
             await page.waitForLoadState('networkidle');
-            await expect(page.getByText('Disputed').first()).toBeVisible();
+            await expect(firstPage.locator('span:text-is("Disputed"):visible').first()).toBeVisible();
             await qa.review('Matchup after a dispute');
         }));
 

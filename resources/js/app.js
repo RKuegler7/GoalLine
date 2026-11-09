@@ -900,6 +900,12 @@ document.querySelectorAll('[data-pager]').forEach((pager) => {
         }
     };
 
+    // Switching days or opening the check-in log changes a page's height: the track follows.
+    if ('ResizeObserver' in window) {
+        const observer = new ResizeObserver(() => fitHeight());
+        pages().forEach((page) => observer.observe(page));
+    }
+
     const showPlayer = () => {
         const page = pages()[current];
         const names = JSON.parse(page?.dataset.sideNames || '[]');
@@ -1262,3 +1268,51 @@ document.querySelectorAll('[data-checkin-sheet]').forEach((sheet) => {
         }
     });
 });
+
+/**
+ * Matchup day chips: show one day's tasks for both players (today by default), or the whole week.
+ */
+document.addEventListener('click', (event) => {
+    const chip = event.target.closest('[data-day-chip], [data-day-all]');
+    const page = chip?.closest('[data-matchup-days]');
+
+    if (!page) {
+        return;
+    }
+
+    const all = chip.hasAttribute('data-day-all');
+    page.querySelectorAll('[data-day-chip]').forEach((each) => each.setAttribute('aria-selected', String(!all && each === chip)));
+    page.querySelector('[data-day-all]')?.setAttribute('aria-pressed', String(all));
+    page.querySelectorAll('[data-day-group]').forEach((group) => {
+        group.hidden = !all && group.dataset.dayGroup !== chip.dataset.dayChip;
+    });
+});
+
+/**
+ * The floating Check in button tucks away while you scroll down (so it never covers what you're reading or about to
+ * tap) and comes back as soon as you scroll up, or at the top of the page.
+ */
+(() => {
+    const button = document.querySelector('[data-checkin-open]');
+
+    if (!button) {
+        return;
+    }
+
+    let last = window.scrollY;
+    window.addEventListener('scroll', () => {
+        const y = window.scrollY;
+        const down = y > last + 4;
+        const up = y < last - 4;
+
+        if (down && y > 80) {
+            button.setAttribute('data-tucked', '');
+        } else if (up || y <= 80) {
+            button.removeAttribute('data-tucked');
+        }
+
+        if (down || up) {
+            last = y;
+        }
+    }, { passive: true });
+})();

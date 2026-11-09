@@ -30,7 +30,7 @@
                 <span class="rounded-full bg-club px-1.5 py-0.5 text-[11px] font-semibold text-ivory tabular-nums" title="Unread chat messages">{{ $unread }} new</span>
             @endif
             @if ($status === App\LeagueStatus::Active)
-                <x-goalweek-result :result="$result ?? App\GoalWeekResult::Short" :not-started="$result === null || ($mine['percent'] ?? 0) === 0" />
+                <x-goalweek-result :result="$result ?? App\GoalWeekResult::Short" :not-started="$result === null || ($mine['percent'] ?? 0) === 0" compact />
             @else
                 <span @class(['eyebrow rounded-full px-2 py-0.5 text-[11px]', 'bg-mint text-club' => $status === App\LeagueStatus::Forming, 'bg-ivory text-ink/70 ring-1 ring-line' => $status === App\LeagueStatus::Finished])>{{ $status->label() }}</span>
             @endif
