@@ -8,7 +8,7 @@
 <div data-region="people-results">
 @if (mb_strlen($query) >= 2)
     @if ($results->isEmpty())
-        <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-sm text-ink/65">No one found for &ldquo;{{ $query }}&rdquo;. Try their exact username or email, or send an invite by email.</p>
+        <x-empty-state class="mt-3" :message="'No one found for “'.$query.'”. Try their exact username or email, or bring them in with an invite.'" action="Invite a friend" :href="route('friends.index')" />
     @else
         <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
             @foreach ($results as $person)

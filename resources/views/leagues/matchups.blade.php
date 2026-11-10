@@ -42,7 +42,8 @@
     @endif
 
     @if ($pages === [])
-        <x-empty-state message="No matchups this week yet. Invite your people from the league page." action="Open the league" :href="route('leagues.show', $league)" />
+        {{-- (Before kickoff there's no matchup page: the controller sends you to the league with the kickoff date.) --}}
+        <x-empty-state message="No opponent yet this week. Invite your people and the matchups start." action="Invite friends" :href="route('leagues.show', $league).'#invite'" />
     @else
         {{-- The pager: one page per matchup, yours first. Swipe, tap the arrows or dots, or use the arrow keys.
              The top bar and tab bar stay put, and the back link leads to the league. --}}

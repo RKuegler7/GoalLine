@@ -6,6 +6,7 @@
     @include('partials.head')
 </head>
 <body class="flex min-h-dvh flex-col bg-ivory pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased">
+    <x-splash />
     <section class="relative overflow-hidden bg-club">
         <x-field-backdrop class="absolute inset-0 size-full" />
 

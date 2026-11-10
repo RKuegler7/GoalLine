@@ -563,3 +563,190 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* ---------- The GoalLine loader (x-line-loader): the line draws, the dot runs, and the line gets smashed ---------- */
+
+.gl-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-club);
+}
+
+.gl-loader__line {
+    width: 100%;
+    max-width: 14rem;
+    height: 1.25rem;
+    overflow: visible;
+}
+
+.gl-loader__track {
+    stroke: currentColor;
+    stroke-opacity: 0.18;
+}
+
+.gl-loader__draw {
+    stroke: var(--color-grass);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: gl-loader-draw 1.1s ease-in-out infinite;
+}
+
+.gl-loader__tick {
+    stroke: currentColor;
+    stroke-opacity: 0.55;
+}
+
+.gl-loader__dot {
+    fill: var(--color-club);
+    animation: gl-loader-run 1.1s ease-in-out infinite;
+}
+
+.gl-loader__diamond {
+    fill: #0369a1;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.gl-loader__label {
+    font-size: 13px;
+    color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+}
+
+@keyframes gl-loader-draw {
+    0% { stroke-dashoffset: 1; }
+    70%, 100% { stroke-dashoffset: 0; }
+}
+
+@keyframes gl-loader-run {
+    0% { transform: translateX(0); }
+    70%, 100% { transform: translateX(272px); }
+}
+
+/* Done: the dot runs past the end tick and a blue diamond bursts. */
+.gl-loader.is-done .gl-loader__draw {
+    animation: none;
+    stroke-dashoffset: 0;
+}
+
+.gl-loader.is-done .gl-loader__dot {
+    animation: gl-loader-smash 0.32s ease-in forwards;
+}
+
+.gl-loader.is-done .gl-loader__diamond {
+    animation: gl-loader-burst 0.36s ease-out 0.12s forwards;
+}
+
+@keyframes gl-loader-smash {
+    from { transform: translateX(272px); }
+    to { transform: translateX(290px); opacity: 0; }
+}
+
+@keyframes gl-loader-burst {
+    0% { opacity: 0; transform: scale(0.4); }
+    55% { opacity: 1; transform: scale(1.35); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* An inline loader only appears if loading takes more than a moment, so fast loads never flicker. */
+.gl-loader--delayed {
+    animation: gl-loader-appear 0.15s ease-out 0.25s both;
+}
+
+@keyframes gl-loader-appear {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* The splash: the wordmark on Club Green over the whole screen, first page of a visit only. It leaves by itself at
+   1.2 seconds even if the script never runs, and never blocks taps once it starts fading. */
+.gl-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    place-items: center;
+    background: var(--color-club);
+    animation: gl-splash-out 0.2s ease-out 1.2s forwards;
+}
+
+.gl-splash.is-gone {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+}
+
+.gl-splash .gl-loader {
+    width: min(18rem, 72vw);
+    gap: 1rem;
+    color: var(--color-ivory);
+}
+
+.gl-splash .gl-loader__line {
+    max-width: none;
+}
+
+.gl-splash .gl-loader__wordmark {
+    color: var(--color-ivory);
+}
+
+.gl-splash .gl-loader__dot {
+    fill: var(--color-ivory);
+}
+
+@keyframes gl-splash-out {
+    to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* The button size: a button at work shows a tiny line with the dot running along it, after a moment. It sits under
+   the label, drawn in the button's own text color, and never changes the button's size. */
+form[data-live-pending] button[data-busy]:not(.absolute, .fixed, .sticky) {
+    position: relative;
+}
+
+form[data-live-pending] button[data-busy]::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 3px;
+    width: 22px;
+    height: 6px;
+    margin-left: -11px;
+    pointer-events: none;
+    background:
+        radial-gradient(circle, currentColor 2.5px, transparent 3px) 0 50% / 6px 6px no-repeat,
+        linear-gradient(color-mix(in srgb, currentColor 35%, transparent), color-mix(in srgb, currentColor 35%, transparent)) center / 100% 2px no-repeat;
+    opacity: 0;
+    animation:
+        gl-loader-appear 0.15s ease-out 0.25s forwards,
+        gl-button-run 0.9s ease-in-out 0.25s infinite;
+}
+
+@keyframes gl-button-run {
+    from { background-position: 0 50%, center; }
+    to { background-position: 100% 50%, center; }
+}
+
+/* Reduced motion: a still, fully drawn line and simple fades. */
+@media (prefers-reduced-motion: reduce) {
+    .gl-loader__draw,
+    .gl-loader__dot,
+    .gl-loader.is-done .gl-loader__dot,
+    .gl-loader.is-done .gl-loader__diamond {
+        animation: none;
+    }
+
+    .gl-loader__draw {
+        stroke-dashoffset: 0;
+    }
+
+    .gl-loader__dot {
+        transform: translateX(272px);
+    }
+
+    form[data-live-pending] button[data-busy]::after {
+        animation: gl-loader-appear 0.15s ease-out 0.25s forwards;
+    }
+}

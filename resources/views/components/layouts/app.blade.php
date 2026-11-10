@@ -22,6 +22,7 @@
     @include('partials.head')
 </head>
 <body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(8.5rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-16" data-signed-in data-density="compact">
+    <x-splash />
     {{-- Slim top bar: stays put while the page scrolls, and stays the same element from page to page (Turbo keeps it;
          its tabs and badges are synced from each new page). --}}
     <div id="app-topbar" data-turbo-permanent class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)] [view-transition-name:app-topbar]">
@@ -94,11 +95,15 @@
 
     <x-goal-line />
 
-    {{-- Shown over the page while a slow next page loads (after a short wait), so a tap always shows progress. --}}
+    {{-- Shown over the page while a slow next page loads (after a short wait), so a tap always shows progress. If the
+         page can't be reached or takes far too long, it turns into a friendly "Try again". --}}
     <div id="nav-skeleton" data-nav-skeleton data-turbo-permanent hidden class="fixed inset-x-0 top-[calc(3.25rem+env(safe-area-inset-top))] bottom-0 z-30 bg-ivory/95 px-4 pt-4">
         <div class="mx-auto max-w-5xl">
-            <div class="gl-skeleton mb-3 h-6 w-40 rounded-lg"></div>
-            <x-skeleton :rows="6" />
+            <div data-nav-loading>
+                <x-line-loader size="inline" label="Loading the page" :delayed="false" class="mb-3" />
+                <x-skeleton :rows="6" />
+            </div>
+            <x-load-error data-nav-error hidden />
         </div>
     </div>
 
@@ -204,8 +209,17 @@
                 </form>
             </div>
             <div data-checkin-body class="max-h-[75dvh] overflow-y-auto p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                <x-line-loader size="inline" label="Loading today’s list" class="mb-2" />
                 <x-skeleton :rows="4" />
             </div>
+            {{-- What the sheet shows while loading (again), and if today's list can't be reached. --}}
+            <template data-checkin-loading>
+                <x-line-loader size="inline" label="Loading today’s list" class="mb-2" />
+                <x-skeleton :rows="4" />
+            </template>
+            <template data-checkin-error>
+                <x-load-error message="Today’s list didn’t load. Check your connection, then give it another go." />
+            </template>
         </dialog>
     @endif
 </body>

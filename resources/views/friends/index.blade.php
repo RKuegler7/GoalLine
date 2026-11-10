@@ -54,7 +54,7 @@
         <section>
             <h2 class="eyebrow text-club">Your friends</h2>
             @if ($friends->isEmpty())
-                <p class="mt-3 rounded-2xl border border-line bg-white px-4 py-3 text-ink/65">No friends yet. Add someone you trust to keep you honest. The process is easier with company.</p>
+                <x-empty-state class="mt-3" message="Goals stick better with company. Add someone you trust to keep you honest." action="Find people" :href="route('people.search')" />
             @else
                 <ul class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                     @foreach ($friends as $friend)

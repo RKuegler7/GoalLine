@@ -59,7 +59,15 @@ function runPage() {
 
     // Turbo can leave aria-busy on <html> after a redirect; it isn't allowed there and the page is done.
     document.documentElement.removeAttribute('aria-busy');
-    // A signal that the page is fully set up (used by the QA suite).
+    // A signal that the page is fully set up and visible (used by the QA suite): after the splash, if one is showing.
+    if (document.documentElement.dataset.splash) {
+        document.addEventListener('goalline:splash-done', markReady, { once: true });
+    } else {
+        markReady();
+    }
+}
+
+function markReady() {
     document.documentElement.dataset.pageReady = '1';
 }
 
@@ -98,13 +106,49 @@ document.addEventListener('turbo:before-render', (event) => {
     hideSkeleton();
 });
 
-/* ---------- Loading: a skeleton for slow pages ---------- */
+/* ---------- Loading: the line loader and a skeleton for slow pages, "Try again" if it fails ---------- */
+
+// Fast pages never flash a loader: it shows only after this long. Past the timeout, the visit is given up.
+const LOADER_DELAY_MS = 250;
+const VISIT_TIMEOUT_MS = 15000;
 
 let skeletonTimer;
+let timeoutTimer;
+let pendingUrl = null;
+
+function overlay() {
+    return document.querySelector('[data-nav-skeleton]');
+}
 
 function hideSkeleton() {
     window.clearTimeout(skeletonTimer);
-    document.querySelector('[data-nav-skeleton]')?.setAttribute('hidden', '');
+    window.clearTimeout(timeoutTimer);
+    overlay()?.setAttribute('hidden', '');
+}
+
+/**
+ * Show the loader (or, with failed = true, the friendly error with "Try again") over the page.
+ */
+function showOverlay(failed = false) {
+    const element = overlay();
+
+    if (!element) {
+        return;
+    }
+
+    element.querySelector('[data-nav-loading]')?.toggleAttribute('hidden', failed);
+    element.querySelector('[data-nav-error]')?.toggleAttribute('hidden', !failed);
+    element.removeAttribute('hidden');
+
+    if (failed) {
+        element.querySelector('[data-load-retry]')?.focus();
+    }
+}
+
+function visitFailed() {
+    window.clearTimeout(skeletonTimer);
+    window.clearTimeout(timeoutTimer);
+    showOverlay(true);
 }
 
 document.addEventListener('turbo:visit', (event) => {
@@ -112,12 +156,51 @@ document.addEventListener('turbo:visit', (event) => {
         return;
     }
 
+    pendingUrl = event.detail.url;
     window.clearTimeout(skeletonTimer);
-    skeletonTimer = window.setTimeout(() => document.querySelector('[data-nav-skeleton]')?.removeAttribute('hidden'), 350);
+    window.clearTimeout(timeoutTimer);
+    skeletonTimer = window.setTimeout(() => showOverlay(false), LOADER_DELAY_MS);
+    timeoutTimer = window.setTimeout(() => {
+        // Stop waiting: Turbo would otherwise keep the loader up for as long as the network hangs.
+        try {
+            Turbo.session.navigator.stop();
+        } catch {
+            // Nothing to cancel.
+        }
+
+        visitFailed();
+    }, VISIT_TIMEOUT_MS);
 });
 
-document.addEventListener('turbo:load', hideSkeleton);
-document.addEventListener('turbo:fetch-request-error', hideSkeleton);
+document.addEventListener('turbo:load', () => {
+    pendingUrl = null;
+    hideSkeleton();
+});
+document.addEventListener('turbo:fetch-request-error', (event) => {
+    // A page visit that couldn't reach the server: show our calm "Try again" instead of letting Turbo reload into the
+    // browser's own offline page. (Other fetches, like prefetches, fail quietly.)
+    const failed = event.detail.request?.url;
+    const pending = pendingUrl && new URL(pendingUrl, window.location.href);
+
+    if (failed && pending && failed.pathname === pending.pathname && failed.search === pending.search) {
+        event.preventDefault();
+        visitFailed();
+    }
+});
+
+document.addEventListener('click', (event) => {
+    if (!event.target.closest('[data-nav-error] [data-load-retry]')) {
+        return;
+    }
+
+    hideSkeleton();
+
+    if (pendingUrl) {
+        Turbo.visit(pendingUrl);
+    } else {
+        window.location.reload();
+    }
+});
 
 /* ---------- Prefetch tabs on touch (iPhone has no hover) ---------- */
 

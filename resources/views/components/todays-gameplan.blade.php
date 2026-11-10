@@ -128,14 +128,14 @@
         @endforeach
     </ul>
 
-    @if ($total === 0 || $unplanned > 0)
+    @if ($unplanned > 0)
         <p class="border-t border-line px-3 py-2 text-[13px] text-ink/70">
-            @if ($unplanned > 0)
-                {{ $unplanned }} {{ Str::plural('task', $unplanned) }} this GoalWeek {{ $unplanned === 1 ? "isn't" : "aren't" }} on a day yet.
-            @else
-                You're clear for today. Get ahead on tomorrow's work, or rest up.
-            @endif
-            <a href="{{ route('planner.show') }}" class="font-semibold text-club hover:underline">{{ $unplanned > 0 ? 'Plan them' : 'See the week' }}</a>
+            {{ $unplanned }} {{ Str::plural('task', $unplanned) }} this GoalWeek {{ $unplanned === 1 ? "isn't" : "aren't" }} on a day yet.
+            <a href="{{ route('planner.show') }}" class="font-semibold text-club hover:underline">Plan them</a>
         </p>
+    @elseif ($total === 0)
+        <div class="px-3 pb-3">
+            <x-empty-state message="Nothing due today. Rest up, or get ahead on the week. One more day on the line." action="See the week" :href="route('planner.show')" />
+        </div>
     @endif
 </section>

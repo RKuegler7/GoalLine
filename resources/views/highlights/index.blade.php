@@ -8,18 +8,7 @@
     <div class="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div class="min-w-0">
             @if ($highlights->isEmpty())
-                <section class="overflow-hidden rounded-2xl border border-line bg-white">
-                    <div class="relative h-32 overflow-hidden bg-club">
-                        <x-field-backdrop class="absolute inset-0 size-full" />
-                    </div>
-                    <x-goal-line />
-                    <div class="px-8 py-8 text-center">
-                        <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Nothing here yet</h2>
-                        <p class="mx-auto mt-2 max-w-md text-ink/70">
-                            Add friends or join a GoalLeague to see their posts. Show your work on a checked-off task, or share a finished goal, a great GoalWeek, or a milestone, and it shows up here.
-                        </p>
-                    </div>
-                </section>
+                <x-empty-state title="Your Highlights start here" message="Show your work on a checked-off task, or share a great GoalWeek. Friends’ and league mates’ posts land here too." action="Post a highlight" :href="route('highlights.create')" />
             @else
                 <div class="space-y-5">
                     @foreach ($highlights as $highlight)
@@ -60,7 +49,7 @@
                         <span class="truncate font-medium">{{ $friend->name }}</span>
                     </a>
                 @empty
-                    <p class="mt-2 text-sm text-ink/70">Add friends by their exact username or email. They'll see the posts you share with friends, and you'll see theirs.</p>
+                    <x-empty-state class="mt-2" message="Add friends by their exact username or email. They’ll see the posts you share with friends, and you’ll see theirs." action="Find people" :href="route('people.search')" />
                 @endforelse
             </section>
         </aside>

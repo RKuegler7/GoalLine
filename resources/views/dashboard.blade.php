@@ -132,13 +132,11 @@
                             @endif
                         </a>
                     @empty
-                        <p class="px-3 py-2.5 text-[13px] text-ink/70">
-                            @if (auth()->user()->friendIds()->isEmpty() && ! $friendFeed->previousPageUrl())
-                                Goals stick better with company. <a href="{{ route('friends.index') }}" class="font-semibold text-club hover:underline">Add a friend</a> by their username or email, and their check-ins and wins show up here.
-                            @else
-                                Quiet for now. When friends show their work or have a great week, it lands here. Why not go first?
-                            @endif
-                        </p>
+                        @if (auth()->user()->friendIds()->isEmpty() && ! $friendFeed->previousPageUrl())
+                            <x-empty-state class="rounded-none border-0" message="Goals stick better with company. Add a friend, and their check-ins and wins show up here." action="Add a friend" :href="route('friends.index')" />
+                        @else
+                            <x-empty-state class="rounded-none border-0" message="Quiet for now. When friends show their work or have a great week, it lands here. Why not go first?" action="Post a highlight" :href="route('highlights.create')" />
+                        @endif
                     @endforelse
                 </div>
             </section>

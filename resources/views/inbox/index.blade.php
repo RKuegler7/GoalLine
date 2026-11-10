@@ -7,12 +7,7 @@
 
     <div class="mx-auto max-w-2xl">
         @if ($notifications->isEmpty())
-            <section class="rounded-2xl border border-line bg-white px-6 py-10 text-center">
-                <x-icon name="bell" class="mx-auto size-8 text-club/50" />
-                <h2 class="mt-3 font-serif text-2xl font-bold text-club tracking-tight">All quiet</h2>
-                <p class="mx-auto mt-2 max-w-md text-ink/70">When someone cheers you on, sends a friend request, or joins your GoalLeague, you&rsquo;ll hear about it here.</p>
-                <a href="{{ route('friends.index') }}" class="mt-5 inline-block rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Add friends</a>
-            </section>
+            <x-empty-state title="All quiet" message="When someone cheers you on, sends a friend request, or joins your GoalLeague, you’ll hear about it here." action="Add friends" :href="route('friends.index')" />
         @else
             <ul class="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
                 @foreach ($notifications as $notification)

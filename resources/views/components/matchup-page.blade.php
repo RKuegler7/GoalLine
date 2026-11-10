@@ -49,7 +49,7 @@
         </div>
 
         @if ($page['kind'] === 'solo')
-            <p class="mt-2 rounded-lg bg-ivory px-3 py-2 text-center text-[13px] text-ink">It&rsquo;s you against the line this season. Invite someone and the matchups start.</p>
+            <x-empty-state class="mt-2" message="It’s you against the line this season. Invite someone and the matchups start." action="Invite friends" :href="route('leagues.show', $league).'#invite'" />
         @else
             <p class="mt-2 flex flex-wrap items-center justify-center gap-1.5 rounded-lg bg-ivory px-3 py-1.5 text-center text-[13px] font-medium text-ink">
                 @if ($card['home']['outcome']->isPhotoFinish() && ($card['away'] !== null || $card['median'] !== null) && ! Str::startsWith($card['verdict'], 'Photo finish'))

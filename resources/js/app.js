@@ -1,6 +1,7 @@
 import { eachOnPage, onPage } from './shell';
 import { refreshPage, toast } from './live';
 import './celebrate';
+import './loader';
 
 /**
  * League chat: send without a page reload and pick up new messages every few seconds.
@@ -1274,11 +1275,24 @@ document.addEventListener('click', async (event) => {
         return;
     }
 
-    const body = sheet.querySelector('[data-checkin-body]');
     sheet.showModal();
+    loadCheckInSheet(sheet);
+});
+
+/**
+ * Load today's list into the sheet: the branded loader shows only if it takes more than a moment, and if the list
+ * can't be reached (or takes over 12 seconds) the sheet says so calmly, with "Try again".
+ */
+async function loadCheckInSheet(sheet) {
+    const body = sheet.querySelector('[data-checkin-body]');
+    const fill = (selector) => {
+        body.replaceChildren(sheet.querySelector(selector).content.cloneNode(true));
+    };
+
+    fill('template[data-checkin-loading]');
 
     try {
-        const response = await fetch(sheet.dataset.liveSource, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin' });
+        const response = await fetchWithTimeout(sheet.dataset.liveSource, { headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'text/html' }, credentials: 'same-origin' });
 
         if (!response.ok) {
             throw new Error(String(response.status));
@@ -1287,9 +1301,20 @@ document.addEventListener('click', async (event) => {
         body.innerHTML = await response.text();
         body.dispatchEvent(new CustomEvent('goalline:updated', { bubbles: true }));
     } catch {
-        body.innerHTML = '<p class="px-1 py-6 text-center text-sm text-ink/70">Couldn\'t load today\'s list. <a class="font-semibold text-club underline" href="/today">Open Today</a></p>';
+        fill('template[data-checkin-error]');
+        body.querySelector('[data-load-retry]')?.addEventListener('click', () => loadCheckInSheet(sheet), { once: true });
     }
-});
+}
+
+/**
+ * fetch(), given up after a while so a dead connection turns into "Try again" instead of a loader that never ends.
+ */
+function fetchWithTimeout(url, options = {}, milliseconds = 12000) {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), milliseconds);
+
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => window.clearTimeout(timer));
+}
 
 // Tapping the dimmed area outside the sheet closes it.
 document.addEventListener('click', (event) => {

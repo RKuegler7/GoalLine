@@ -98,7 +98,7 @@
                     <span class="shrink-0 text-[13px] font-semibold text-club">Open <span aria-hidden="true">&rarr;</span></span>
                 </a>
             @empty
-                <p class="mb-2 text-[13px] text-ink/70">No invites waiting. Have a code? Join below.</p>
+                <x-empty-state class="mb-2" message="No invites waiting. Have a code from a friend? Join with it below." action="Join with a code" href="#join" />
             @endforelse
 
             <div id="join" class="grid scroll-mt-20 gap-2 sm:grid-cols-2">
