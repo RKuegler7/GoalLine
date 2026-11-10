@@ -36,7 +36,7 @@ class NavigationTest extends TestCase
         $this->actingAs($user)->get(route('matchups'))->assertRedirect(route('leagues.matchups', $league));
         // The tab bar stays on the matchup page, with Matchups marked as the current tab.
         $page = $this->actingAs($user)->get(route('leagues.matchups', $league))->assertOk()->assertSee('aria-label="Main"', false)->getContent();
-        $this->assertMatchesRegularExpression('/href="'.preg_quote(route('matchups'), '/').'"\s+aria-current="page"/', $page);
+        $this->assertMatchesRegularExpression('/href="'.preg_quote(route('matchups'), '/').'"[^>]*aria-current="page"/', $page);
     }
 
     public function test_starting_a_goalleague_or_challenge_is_a_big_obvious_choice(): void
@@ -79,7 +79,7 @@ class NavigationTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('leagues.index'));
 
-        $this->assertMatchesRegularExpression('/href="'.preg_quote(route('leagues.index'), '/').'"\s+aria-current="page"/', $response->getContent());
+        $this->assertMatchesRegularExpression('/href="'.preg_quote(route('leagues.index'), '/').'"[^>]*aria-current="page"/', $response->getContent());
     }
 
     public function test_the_account_menu_holds_your_locker_settings_and_log_out(): void

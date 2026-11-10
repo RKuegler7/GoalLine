@@ -411,3 +411,45 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
         transition: none;
     }
 }
+
+/* ---------- App shell ----------
+   The phone tab bar sits on its own compositor layer, so it never shifts, flickers or changes height when a page
+   swaps in, the Check in button tucks away, or the keyboard opens. */
+.gl-tabbar {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    contain: layout paint;
+    view-transition-name: app-tabbar;
+}
+
+/* Turbo's loading bar, in the brand's grass green, just under the status bar. */
+.turbo-progress-bar {
+    height: 3px;
+    background: var(--color-grass);
+    top: env(safe-area-inset-top);
+}
+
+/* Page changes cross-fade quickly (View Transitions API, where the browser has it). The bars are their own
+   transition groups and don't animate, so they stay perfectly still. */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 160ms;
+    animation-timing-function: ease-out;
+}
+
+::view-transition-group(app-tabbar),
+::view-transition-group(app-topbar),
+::view-transition-old(app-tabbar),
+::view-transition-new(app-tabbar),
+::view-transition-old(app-topbar),
+::view-transition-new(app-topbar) {
+    animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}

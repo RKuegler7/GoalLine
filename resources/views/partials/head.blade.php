@@ -12,6 +12,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GoalLine">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+{{-- Turbo Drive: same-page refreshes morph in place and keep the scroll position; page changes cross-fade where the
+     browser supports view transitions. --}}
+<meta name="turbo-refresh-method" content="morph">
+<meta name="turbo-refresh-scroll" content="preserve">
+<meta name="view-transition" content="same-origin">
 @stack('head')
 @fonts
 @vite(['resources/css/app.css', 'resources/js/app.js'])

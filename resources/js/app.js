@@ -1,3 +1,4 @@
+import { eachOnPage, onPage } from './shell';
 import { refreshPage, toast } from './live';
 
 /**
@@ -112,11 +113,23 @@ function setUpLeagueChat(chat) {
     });
 
     scrollToEnd();
-    window.setInterval(poll, POLL_INTERVAL_MS);
-    document.addEventListener('visibilitychange', poll);
+
+    // Pages swap in place now, so stop polling once this chat is no longer on the page.
+    const whileOnPage = () => {
+        if (!chat.isConnected) {
+            window.clearInterval(timer);
+            document.removeEventListener('visibilitychange', whileOnPage);
+
+            return;
+        }
+
+        poll();
+    };
+    const timer = window.setInterval(whileOnPage, POLL_INTERVAL_MS);
+    document.addEventListener('visibilitychange', whileOnPage);
 }
 
-document.querySelectorAll('[data-league-chat]').forEach(setUpLeagueChat);
+eachOnPage('[data-league-chat]', setUpLeagueChat);
 
 /**
  * Share cards: turn the on-page SVG into a 1080 × 1350 PNG. The page's web fonts are embedded
@@ -160,7 +173,7 @@ async function embeddedFontCss() {
     return css.join('\n');
 }
 
-document.querySelectorAll('[data-download-card]').forEach((button) => {
+eachOnPage('[data-download-card]', (button) => {
     button.addEventListener('click', async () => {
         const original = document.querySelector('[data-share-card]');
         const label = button.textContent;
@@ -200,13 +213,13 @@ document.querySelectorAll('[data-download-card]').forEach((button) => {
  */
 const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-document.querySelectorAll('[data-detect-timezone]').forEach((field) => {
+eachOnPage('[data-detect-timezone]', (field) => {
     if (!field.value) {
         field.value = browserTimezone;
     }
 });
 
-document.querySelectorAll('[data-use-browser-timezone]').forEach((button) => {
+eachOnPage('[data-use-browser-timezone]', (button) => {
     const select = document.getElementById(button.dataset.useBrowserTimezone);
 
     button.hidden = !browserTimezone || select.value === browserTimezone;
@@ -224,7 +237,6 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
     window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
 
-const installCard = document.querySelector('[data-install-card]');
 const isInstalled = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 const DISMISSED_KEY = 'goalline:install-dismissed';
 
@@ -236,20 +248,35 @@ const wasDismissed = () => {
     }
 };
 
-if (installCard && !isInstalled && !wasDismissed()) {
-    const show = (variant) => {
-        installCard.querySelectorAll('[data-install-variant]').forEach((part) => {
-            part.hidden = part.dataset.installVariant !== variant;
-        });
-        installCard.hidden = false;
-    };
-    let deferredPrompt = null;
-
-    window.addEventListener('beforeinstallprompt', (event) => {
-        event.preventDefault();
-        deferredPrompt = event;
-        show('prompt');
+const showInstallVariant = (installCard, variant) => {
+    installCard.querySelectorAll('[data-install-variant]').forEach((part) => {
+        part.hidden = part.dataset.installVariant !== variant;
     });
+    installCard.hidden = false;
+};
+
+// The browser offers its install prompt once per full page load; keep it for whichever page shows the card.
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+
+    if (!wasDismissed()) {
+        document.querySelectorAll('[data-install-card]').forEach((installCard) => showInstallVariant(installCard, 'prompt'));
+    }
+});
+
+eachOnPage('[data-install-card]', (installCard) => {
+    if (isInstalled || wasDismissed()) {
+        return;
+    }
+
+    const show = (variant) => showInstallVariant(installCard, variant);
+
+    if (deferredPrompt) {
+        show('prompt');
+    }
 
     // iPhone and iPad Safari have no install prompt: show how to add it from the Share menu instead.
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -285,7 +312,7 @@ if (installCard && !isInstalled && !wasDismissed()) {
     window.addEventListener('appinstalled', () => {
         installCard.hidden = true;
     });
-}
+});
 
 /**
  * @mentions: while typing "@na", suggest matching people and fill in their username.
@@ -386,15 +413,14 @@ function setUpMentions(input) {
     input.addEventListener('blur', () => setTimeout(close, 100));
 }
 
-document.querySelectorAll('[data-mention-input]').forEach(setUpMentions);
+eachOnPage('[data-mention-input]', setUpMentions);
 
 /**
  * Push notifications on this device: subscribe through the service worker and tell GoalLine where to send.
  * iPhone supports this only when GoalLine is opened from the home screen.
  */
-const pushPanel = document.querySelector('[data-push-panel]');
 
-if (pushPanel) {
+eachOnPage('[data-push-panel]', (pushPanel) => {
     const csrf = document.querySelector('meta[name="csrf-token"]')?.content
         || document.querySelector('input[name="_token"]')?.value;
     const vapidKey = pushPanel.dataset.vapidKey;
@@ -482,12 +508,15 @@ if (pushPanel) {
     });
 
     refresh();
-}
+});
 
-const pushNudge = document.querySelector('[data-push-nudge]');
 const NUDGE_DISMISSED_KEY = 'goalline:push-nudge-dismissed';
 
-if (pushNudge && 'PushManager' in window && 'Notification' in window && Notification.permission === 'default') {
+eachOnPage('[data-push-nudge]', (pushNudge) => {
+    if (!('PushManager' in window && 'Notification' in window && Notification.permission === 'default')) {
+        return;
+    }
+
     let dismissed = false;
 
     try {
@@ -506,7 +535,7 @@ if (pushNudge && 'PushManager' in window && 'Notification' in window && Notifica
             // Fine: it'll show again next time.
         }
     });
-}
+});
 
 /**
  * Opened from the home screen: tell GoalLine once, so the Kickoff checklist can check off "add to home screen".
@@ -644,14 +673,14 @@ function openCropper(input) {
     dialog.showModal();
 }
 
-document.querySelectorAll('input[type="file"][data-crop]').forEach((input) => {
+eachOnPage('input[type="file"][data-crop]', (input) => {
     input.addEventListener('change', () => openCropper(input));
 });
 
 /**
  * The account menu closes when you click anywhere else or press Escape.
  */
-document.querySelectorAll('[data-account-menu]').forEach((menu) => {
+eachOnPage('[data-account-menu]', (menu) => {
     document.addEventListener('click', (event) => {
         if (menu.open && !menu.contains(event.target)) {
             menu.open = false;
@@ -793,7 +822,7 @@ function revealShareButtons(root = document) {
     });
 }
 
-revealShareButtons();
+onPage(() => revealShareButtons());
 document.addEventListener('goalline:updated', (event) => revealShareButtons(event.target));
 
 document.addEventListener('click', (event) => {
@@ -811,7 +840,7 @@ document.addEventListener('click', (event) => {
  * Intake questions, one at a time with a progress bar. "I'm not sure" and "Skip" mark the question and move on;
  * answering clears the mark. Without this script every question shows at once and blank answers count as skipped.
  */
-document.querySelectorAll('[data-intake]').forEach((form) => {
+eachOnPage('[data-intake]', (form) => {
     const questions = [...form.querySelectorAll('[data-intake-question]')];
     const current = form.querySelector('[data-intake-current]');
     const bar = form.querySelector('[data-intake-bar]');
@@ -878,7 +907,7 @@ document.querySelectorAll('[data-intake]').forEach((form) => {
  * the left and right arrow keys. The track is as tall as the page in view, so a short page doesn't leave a gap. On
  * phones, a sticky toggle shows one player's tasks at a time. Without this script, it's a horizontal scroller.
  */
-document.querySelectorAll('[data-pager]').forEach((pager) => {
+eachOnPage('[data-pager]', (pager) => {
     const track = pager.querySelector('[data-pager-track]');
     const pages = () => [...track.querySelectorAll('[data-pager-page]')];
     const dots = [...pager.querySelectorAll('[data-pager-dot]')];
@@ -896,7 +925,7 @@ document.querySelectorAll('[data-pager]').forEach((pager) => {
         const page = pages()[current];
 
         if (page) {
-            track.style.height = `${page.offsetHeight}px`;
+            track.style.height = `${Math.max(page.offsetHeight, page.scrollHeight)}px`; // All of the page, never clipped.
         }
     };
 
@@ -971,6 +1000,11 @@ document.querySelectorAll('[data-pager]').forEach((pager) => {
 
     // Left and right arrow keys flip pages, unless someone is typing or a sheet is open.
     document.addEventListener('keydown', (event) => {
+        // A pager from a page you've left does nothing.
+        if (!pager.isConnected) {
+            return;
+        }
+
         if (!['ArrowLeft', 'ArrowRight'].includes(event.key) || event.altKey || event.metaKey || event.ctrlKey
             || event.target.closest('input, textarea, select, [contenteditable], dialog[open]')) {
             return;
@@ -1002,7 +1036,7 @@ document.querySelectorAll('[data-pager]').forEach((pager) => {
  * Task sheet: tapping a task on the pager opens its details in a bottom sheet (a dialog on wider screens). If the
  * sheet can't load, the link opens the task's own page instead.
  */
-document.querySelectorAll('[data-task-sheet]').forEach((sheet) => {
+eachOnPage('[data-task-sheet]', (sheet) => {
     const body = sheet.querySelector('[data-task-sheet-body]');
     let opener = null;
 
@@ -1080,7 +1114,7 @@ function growTapTargets(root = document) {
     });
 }
 
-growTapTargets();
+onPage(() => growTapTargets());
 document.addEventListener('goalline:updated', (event) => growTapTargets(event.target));
 document.addEventListener('toggle', (event) => growTapTargets(event.target), true);
 coarsePointer.addEventListener('change', () => growTapTargets());
@@ -1154,7 +1188,7 @@ document.addEventListener('change', (event) => {
  * Show extra fields only for one choice of a select, such as "A new goal for this league". Without this script the
  * fields always show.
  */
-document.querySelectorAll('[data-reveal]').forEach((select) => {
+eachOnPage('[data-reveal]', (select) => {
     const target = document.getElementById(select.dataset.reveal);
     const sync = () => {
         const shown = select.value === select.dataset.revealValue;
@@ -1169,7 +1203,7 @@ document.querySelectorAll('[data-reveal]').forEach((select) => {
 /**
  * "Refine your plan" idea chips fill the box, so a change is one tap plus any specifics.
  */
-document.querySelectorAll('[data-refine]').forEach((form) => {
+eachOnPage('[data-refine]', (form) => {
     const box = form.querySelector('textarea');
 
     form.querySelectorAll('[data-refine-idea]').forEach((chip) => chip.addEventListener('click', () => {
@@ -1182,7 +1216,7 @@ document.querySelectorAll('[data-refine]').forEach((form) => {
  * Show fields only for the matching choice, such as the day chips for "Specific days" or the unit for "A number".
  * data-show-for="name:value1,value2". Without this script every field shows.
  */
-document.querySelectorAll('[data-habit-fields]').forEach((fields) => {
+eachOnPage('[data-habit-fields]', (fields) => {
     const sync = () => fields.querySelectorAll('[data-show-for]').forEach((element) => {
         const [name, values] = element.dataset.showFor.split(':');
         const checked = fields.querySelector(`input[name="${name}"]:checked`)?.value;
@@ -1264,7 +1298,7 @@ document.addEventListener('click', (event) => {
 });
 
 // After checking in from the sheet, bring the page underneath up to date when it closes.
-document.querySelectorAll('[data-checkin-sheet]').forEach((sheet) => {
+eachOnPage('[data-checkin-sheet]', (sheet) => {
     sheet.addEventListener('close', () => {
         if (sheet.dataset.changed) {
             delete sheet.dataset.changed;
@@ -1298,14 +1332,15 @@ document.addEventListener('click', (event) => {
  * tap) and comes back as soon as you scroll up, or at the top of the page.
  */
 (() => {
-    const button = document.querySelector('[data-checkin-open]');
-
-    if (!button) {
-        return;
-    }
-
     let last = window.scrollY;
     window.addEventListener('scroll', () => {
+        // Looked up each time: each page has its own button (or none).
+        const button = document.querySelector('[data-checkin-open]');
+
+        if (!button) {
+            return;
+        }
+
         const y = window.scrollY;
         const down = y > last + 4;
         const up = y < last - 4;
@@ -1336,7 +1371,7 @@ function openFoldedTarget() {
     }
 }
 
-openFoldedTarget();
+onPage(openFoldedTarget);
 window.addEventListener('hashchange', openFoldedTarget);
 
 /**

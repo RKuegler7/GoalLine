@@ -23,6 +23,7 @@ use App\Usage;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Minishlink\WebPush\WebPush;
 
@@ -58,6 +59,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Verification emails use path-signed links that a CDN or click-tracker can't break.
         VerifyEmail::createUrlUsing(fn (User $user) => EmailVerificationLink::for($user));
+
+        // After a deploy changes the built CSS or JS, Turbo does one full load so nobody runs old code.
+        Vite::useScriptTagAttributes(['data-turbo-track' => 'reload']);
+        Vite::useStyleTagAttributes(['data-turbo-track' => 'reload']);
 
         Gate::define('admin', fn (User $user) => $user->isAdmin());
 

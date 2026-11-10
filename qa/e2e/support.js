@@ -66,6 +66,8 @@ export class Reviewer {
         }
 
         await this.page.waitForLoadState('networkidle').catch(() => {});
+        // Pages swap in place (Turbo): wait until the new page is in and its scripts have run.
+        await this.page.waitForFunction(() => document.documentElement.dataset.pageReady === '1', null, { timeout: 15_000 }).catch(() => {});
         // A PHP error can come back with a 200, so look at the page itself too.
         const crash = await this.page.evaluate(() => document.body?.innerText.match(/(Fatal error|Parse error|Uncaught [A-Z]\w+|Whoops!|Internal Server Error).{0,160}/)?.[0]);
 

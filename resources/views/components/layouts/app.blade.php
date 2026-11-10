@@ -22,8 +22,9 @@
     @include('partials.head')
 </head>
 <body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(8.5rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-16" data-signed-in data-density="compact">
-    {{-- Slim top bar: stays put while the page scrolls, so you're never stuck on a screen. --}}
-    <div class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)]">
+    {{-- Slim top bar: stays put while the page scrolls, and stays the same element from page to page (Turbo keeps it;
+         its tabs and badges are synced from each new page). --}}
+    <div id="app-topbar" data-turbo-permanent class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)] [view-transition-name:app-topbar]">
         <header class="mx-auto flex h-13 max-w-5xl items-center justify-between gap-2 px-4 lg:gap-4">
             <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint" aria-label="GoalLine, Clubhouse">
                 <x-brand.logo class="h-6" />
@@ -32,7 +33,7 @@
             {{-- Desktop tabs. --}}
             <nav class="hidden items-center md:flex lg:gap-1" aria-label="Main">
                 @foreach ($tabs as $tab)
-                    <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
+                    <a href="{{ route($tab['route']) }}" data-tab data-shell-sync="desktop-{{ $tab['route'] }}" @if ($tab['active']) aria-current="page" @endif @class([
                         'relative flex min-h-11 items-center rounded-full px-2 text-sm font-semibold whitespace-nowrap transition lg:px-4',
                         'bg-ivory/15 text-ivory' => $tab['active'],
                         'text-ivory/85 hover:bg-ivory/10 hover:text-ivory' => ! $tab['active'],
@@ -49,7 +50,7 @@
                 <a href="{{ route('goals.create') }}" class="hidden min-h-9 items-center gap-1.5 rounded-full bg-ivory px-3 text-[13px] font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="Set a new goal">
                     <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
-                <a href="{{ route('inbox') }}" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
+                <a href="{{ route('inbox') }}" data-shell-sync="inbox" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
                     aria-label="Inbox{{ $inboxCount ? ', '.($inboxCount > 9 ? '9+' : $inboxCount).' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
                     @if ($inboxCount)
@@ -92,6 +93,14 @@
     </section>
 
     <x-goal-line />
+
+    {{-- Shown over the page while a slow next page loads (after a short wait), so a tap always shows progress. --}}
+    <div id="nav-skeleton" data-nav-skeleton data-turbo-permanent hidden class="fixed inset-x-0 top-[calc(3.25rem+env(safe-area-inset-top))] bottom-0 z-30 bg-ivory/95 px-4 pt-4">
+        <div class="mx-auto max-w-5xl">
+            <div class="gl-skeleton mb-3 h-6 w-40 rounded-lg"></div>
+            <x-skeleton :rows="6" />
+        </div>
+    </div>
 
     <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6">
         @if ($viewer->isDemo())
@@ -140,12 +149,14 @@
         </nav>
     </footer>
 
-    {{-- Phone tab bar: always there, above the iPhone home indicator, so no screen is a dead end. --}}
-    <nav class="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Main">
+    {{-- Phone tab bar: always there, above the iPhone home indicator, so no screen is a dead end. It's fixed, on its
+         own compositor layer, outside every scrolling area, and the same element from page to page (Turbo keeps it;
+         the active tab and badges are synced from each new page), so it never moves, flickers or changes height. --}}
+    <nav id="app-tabbar" data-turbo-permanent class="gl-tabbar fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden" aria-label="Main">
         <ul class="mx-auto grid max-w-md grid-cols-5">
             @foreach ($tabs as $tab)
                 <li>
-                    <a href="{{ route($tab['route']) }}" @if ($tab['active']) aria-current="page" @endif @class([
+                    <a href="{{ route($tab['route']) }}" data-tab data-shell-sync="tab-{{ $tab['route'] }}" @if ($tab['active']) aria-current="page" @endif @class([
                         'relative flex min-h-13 flex-col items-center justify-center gap-0.5 pt-1.5 pb-1 text-[11px] font-semibold transition',
                         'text-club' => $tab['active'],
                         'text-ink/70 hover:text-ink' => ! $tab['active'],
