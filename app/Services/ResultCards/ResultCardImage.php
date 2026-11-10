@@ -159,7 +159,7 @@ class ResultCardImage
         $y += 150 * $gap;
         $percent = $p['percent'].'%';
         $canvas->text($pad, $y, $percent, 200, 'extrabold', $theme['fg']);
-        $canvas->text($pad + self::estimateWidth($percent, 200) * 0.97 + 28, $y - 18, 'of plan', 40, 'medium', $theme['fg'], 'start', 0.78);
+        $canvas->text($pad + self::estimateWidth($percent, 200) * 1.02 + 30, $y - 18, 'of plan', 40, 'medium', $theme['fg'], 'start', 0.78);
 
         // The band chip.
         $y += 40;
