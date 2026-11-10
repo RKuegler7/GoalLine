@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\User;
 use App\Notifications\Channels\WebPushChannel;
+use App\Outbound;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -38,6 +39,14 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
     }
 
     /**
+     * Which outbound email switch covers it (App\Outbound). Most notifications are "notifications".
+     */
+    public function emailStream(): string
+    {
+        return Outbound::NOTIFICATIONS;
+    }
+
+    /**
      * Get the notification's delivery channels.
      *
      * @return list<string>
@@ -53,12 +62,17 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
 
         $settings = $notifiable->notificationSettings();
 
-        if ($settings->wantsPush($this->category()) && WebPushChannel::isConfigured() && $notifiable->pushSubscriptions()->exists()) {
+        if (Outbound::pushEnabled() && $settings->wantsPush($this->category()) && WebPushChannel::isConfigured() && $notifiable->pushSubscriptions()->exists()) {
             $channels[] = WebPushChannel::class;
         }
 
         if ($notifiable->hasVerifiedEmail() && $settings->wantsEmail($this->category())) {
-            $channels[] = 'mail';
+            if (Outbound::mayEmail($notifiable, $this->emailStream())) {
+                $channels[] = 'mail';
+            } elseif (! in_array('database', $channels, true)) {
+                // Email for this kind is paused: the message lands in the Inbox instead, so nothing is lost.
+                $channels[] = 'database';
+            }
         }
 
         return $channels;

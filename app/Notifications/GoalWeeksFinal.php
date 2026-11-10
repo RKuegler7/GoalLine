@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Outbound;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
@@ -14,6 +15,14 @@ class GoalWeeksFinal extends GoalLineNotification
      * @param  list<array{goal: string, week: string, result: string, points: int, url: string}>  $results
      */
     public function __construct(public array $results) {}
+
+    /**
+     * Paused with the GOALLINE_EMAIL_RECAPS switch.
+     */
+    public function emailStream(): string
+    {
+        return Outbound::RECAPS;
+    }
 
     public function category(): string
     {

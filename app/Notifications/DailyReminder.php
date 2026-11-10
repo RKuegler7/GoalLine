@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Outbound;
 use Illuminate\Notifications\Messages\MailMessage;
 
 /**
@@ -21,6 +22,14 @@ class DailyReminder extends GoalLineNotification
         public array $items,
         public array $notes = [],
     ) {}
+
+    /**
+     * Paused with the GOALLINE_EMAIL_REMINDERS switch.
+     */
+    public function emailStream(): string
+    {
+        return Outbound::REMINDERS;
+    }
 
     public function category(): string
     {

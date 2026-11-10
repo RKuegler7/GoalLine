@@ -19,6 +19,28 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Outbound messaging switches
+    |--------------------------------------------------------------------------
+    |
+    | Pause whole kinds of email (and push) without touching anything else. Off
+    | means the email isn't sent, but the in-app Inbox notification still is.
+    | In production every switch is OFF unless its environment property is set
+    | to true; locally they default to on. Transactional email (verification,
+    | password reset, league invites a member sends by email) is never behind a
+    | switch. Demo accounts never get email at all. See App\Outbound.
+    |
+    */
+
+    'messaging' => [
+        'email_reminders' => (bool) env('GOALLINE_EMAIL_REMINDERS', env('APP_ENV', 'production') !== 'production'),
+        'email_nudges' => (bool) env('GOALLINE_EMAIL_NUDGES', env('APP_ENV', 'production') !== 'production'),
+        'email_recaps' => (bool) env('GOALLINE_EMAIL_RECAPS', env('APP_ENV', 'production') !== 'production'),
+        'email_notifications' => (bool) env('GOALLINE_EMAIL_NOTIFICATIONS', env('APP_ENV', 'production') !== 'production'),
+        'push' => (bool) env('GOALLINE_PUSH', env('APP_ENV', 'production') !== 'production'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | AI spend limits
     |--------------------------------------------------------------------------
     |

@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Clock;
 use App\Models\User;
+use App\Outbound;
 use App\Services\DailyStreak;
 use App\Services\TodaysGameplan;
 
@@ -13,6 +14,14 @@ use App\Services\TodaysGameplan;
 class Nudged extends GoalLineNotification
 {
     public function __construct(public User $sender) {}
+
+    /**
+     * Paused with the GOALLINE_EMAIL_NUDGES switch.
+     */
+    public function emailStream(): string
+    {
+        return Outbound::NUDGES;
+    }
 
     public function category(): string
     {

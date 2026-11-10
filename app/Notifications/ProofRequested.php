@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\RoadmapTask;
 use App\Models\User;
+use App\Outbound;
 
 /**
  * A league mate asked to see the work behind a check-in. It never changes the score; it's a friendly prompt.
@@ -11,6 +12,14 @@ use App\Models\User;
 class ProofRequested extends GoalLineNotification
 {
     public function __construct(public RoadmapTask $task, public User $requester) {}
+
+    /**
+     * Paused with the GOALLINE_EMAIL_NUDGES switch.
+     */
+    public function emailStream(): string
+    {
+        return Outbound::NUDGES;
+    }
 
     public function category(): string
     {

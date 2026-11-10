@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\LeagueInvite;
 use App\Models\User;
+use App\Outbound;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -23,7 +24,8 @@ class LeagueInviteEmail extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        // Transactional (the member chose to send it), so no switch applies; a demo account never sends one.
+        return ! $this->inviter->isDemo() && Outbound::mayEmail($notifiable) ? ['mail'] : [];
     }
 
     public function toMail(object $notifiable): MailMessage

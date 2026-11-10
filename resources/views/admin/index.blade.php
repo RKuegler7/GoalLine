@@ -65,6 +65,27 @@
             @endif
         </section>
 
+        {{-- Outbound messaging switches (GOALLINE_EMAIL_*, GOALLINE_PUSH): what members are emailed right now. --}}
+        <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2" data-messaging-switches>
+            <h2 class="eyebrow text-club">Outbound messages</h2>
+            <ul class="mt-2 grid gap-1 text-sm sm:grid-cols-2">
+                @foreach ([
+                    'GOALLINE_EMAIL_REMINDERS' => [App\Outbound::REMINDERS, 'Daily reminder emails'],
+                    'GOALLINE_EMAIL_NUDGES' => [App\Outbound::NUDGES, 'Nudge and "Show your work" emails'],
+                    'GOALLINE_EMAIL_RECAPS' => [App\Outbound::RECAPS, 'Recap and results emails'],
+                    'GOALLINE_EMAIL_NOTIFICATIONS' => [App\Outbound::NOTIFICATIONS, 'Dispute, group task, friend and league emails'],
+                    'GOALLINE_PUSH' => ['push', 'Push notifications'],
+                ] as $name => [$key, $label])
+                    @php $on = (bool) config('goalline.messaging.'.$key); @endphp
+                    <li class="flex items-center justify-between gap-2">
+                        <span class="text-ink">{{ $label }} <span class="font-mono text-[11px] text-ink/60">{{ $name }}</span></span>
+                        <span @class(['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold', 'bg-mint text-club' => $on, 'bg-ivory text-ink/70 ring-1 ring-line' => ! $on])>{{ $on ? 'On' : 'Paused' }}</span>
+                    </li>
+                @endforeach
+            </ul>
+            <p class="mt-2 text-xs text-ink/70">Paused emails still land in each member’s Inbox. Verification, password reset and emailed invites always send.</p>
+        </section>
+
         {{-- AI spend. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">AI spend</h2>

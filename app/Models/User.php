@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\NotificationSettings;
+use App\Outbound;
 use App\ProfileVisibility;
 use App\Services\StoredPhoto;
 use App\ShareLink;
@@ -119,6 +120,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isDemo(): bool
     {
         return $this->demo_sandbox !== null;
+    }
+
+    /**
+     * Email verification is transactional: always sent, never behind a messaging switch. Demo accounts never get it.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        if (Outbound::mayEmail($this)) {
+            parent::sendEmailVerificationNotification();
+        }
+    }
+
+    /**
+     * Password reset is transactional: always sent, never behind a messaging switch. Demo accounts never get it.
+     *
+     * @param  string  $token
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        if (Outbound::mayEmail($this)) {
+            parent::sendPasswordResetNotification($token);
+        }
     }
 
     /**

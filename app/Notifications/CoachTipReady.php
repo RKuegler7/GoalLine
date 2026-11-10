@@ -4,10 +4,19 @@ namespace App\Notifications;
 
 use App\Models\User;
 use App\Models\WeekReview;
+use App\Outbound;
 
 class CoachTipReady extends GoalLineNotification
 {
     public function __construct(public WeekReview $review) {}
+
+    /**
+     * Paused with the GOALLINE_EMAIL_RECAPS switch.
+     */
+    public function emailStream(): string
+    {
+        return Outbound::RECAPS;
+    }
 
     public function category(): string
     {
