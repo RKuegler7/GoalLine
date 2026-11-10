@@ -13,7 +13,7 @@
         ['label' => 'My Locker', 'route' => 'profile.show', 'active' => request()->routeIs('profile.*') || (request()->routeIs('profiles.show') && request()->route('user')?->is($viewer)), 'icon' => null],
     ];
     // The floating "Check in" button: on every main screen except where today's list is already the page.
-    $showCheckIn = ! request()->routeIs('today', 'goals.create', 'goals.intake*', 'welcome.*');
+    $showCheckIn = ! request()->routeIs('today', 'goals.create', 'goals.intake*', 'welcome.*', 'cards.share');
 @endphp
 
 <!DOCTYPE html>

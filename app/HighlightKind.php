@@ -8,6 +8,7 @@ enum HighlightKind: string
     case GreatWeek = 'great_week';
     case MilestoneHit = 'milestone_hit';
     case CheckIn = 'check_in';
+    case WeekCard = 'week_card';
 
     /**
      * The badge shown on the highlight.
@@ -19,6 +20,7 @@ enum HighlightKind: string
             self::GreatWeek => 'Great GoalWeek',
             self::MilestoneHit => 'Hit a milestone',
             self::CheckIn => 'Showed the work',
+            self::WeekCard => 'Weekly result',
         };
     }
 }

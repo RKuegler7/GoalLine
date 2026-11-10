@@ -44,6 +44,7 @@ use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\PlanRefinementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\ResultCardController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
 use App\Http\Controllers\RoadmapWeekController;
@@ -66,6 +67,11 @@ Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('
 // One click into a demo world: for judges, professors, and the curious. Keeps beta invites for real members.
 Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo')->middleware('throttle:'.config('goalline.demo.starts_per_hour').',60');
 Route::post('/demo/reset', [DemoController::class, 'reset'])->name('demo.reset')->middleware(['auth', 'throttle:10,60']);
+
+// A weekly result card someone chose to share: a read-only page and its picture, by unguessable token.
+Route::get('/c/{token}', [ResultCardController::class, 'public'])->name('cards.public')->middleware('throttle:60,1');
+Route::get('/c/{token}/{size}.{format}', [ResultCardController::class, 'publicImage'])->name('cards.public.image')
+    ->whereIn('size', ['feed', 'story'])->whereIn('format', ['png', 'svg'])->middleware('throttle:60,1');
 
 // League invite links open for anyone; joining needs an account.
 Route::get('/invite/{token}', [LeagueInviteController::class, 'show'])->name('leagues.invite.show')->middleware('throttle:60,1');
@@ -170,6 +176,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/disputes/{dispute}/withdraw', [DisputeController::class, 'withdraw'])->name('disputes.withdraw');
     Route::post('/disputes/{dispute}/rule', [DisputeController::class, 'rule'])->name('disputes.rule');
     Route::post('/goalweeks/{week}/confirm-smashed', [SmashedConfirmationController::class, 'store'])->name('goalweeks.confirm-smashed')->middleware('verified');
+    // "Share your week": the card, posting it, a public link (opt in, revocable), and its images. Rate limited.
+    Route::get('/goalweeks/{week}/share', [ResultCardController::class, 'show'])->name('cards.share')->middleware('throttle:30,1');
+    Route::get('/cards/{card}/{size}.{format}', [ResultCardController::class, 'image'])->name('cards.image')
+        ->whereIn('size', ['feed', 'story'])->whereIn('format', ['png', 'svg'])->middleware('throttle:60,1');
+    Route::post('/cards/{card}/post', [ResultCardController::class, 'post'])->name('cards.post')->middleware(['verified', 'throttle:10,1']);
+    Route::post('/cards/{card}/public', [ResultCardController::class, 'publish'])->name('cards.publish')->middleware('throttle:10,1');
+    Route::delete('/cards/{card}/public', [ResultCardController::class, 'revoke'])->name('cards.revoke');
     Route::get('/goalweeks/{week}/review', [WeekReviewController::class, 'show'])->name('goalweeks.review');
     Route::post('/goalweeks/{week}/review', [WeekReviewController::class, 'store'])->name('goalweeks.review.store')->middleware('throttle:10,1');
 

@@ -15,7 +15,7 @@
         'text-ivory/80 hover:text-ivory' => $tone === 'light',
     ]) aria-label="Post options">&hellip;</summary>
     <div class="absolute right-0 z-10 mt-1 w-60 overflow-hidden rounded-xl border border-line bg-white py-1 text-sm shadow-lg">
-        @if ($mine && ! $post->isPost())
+        @if ($mine && ! $post->isPost() && $post->kind !== App\HighlightKind::WeekCard)
             <a href="{{ route('highlights.card', $post) }}" class="block px-4 py-2 text-ink hover:bg-mint">Get share card</a>
         @endif
         @if ($canRemove)

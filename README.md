@@ -153,8 +153,8 @@ First time only: `npx playwright install chromium webkit`.
 | — | Deadlock fixes, email verification links, persistent app shell, Start flow | Done |
 | P | Live band progression and the band-up celebration | Done |
 | R | Branded loader, skeletons, empty states and error pages | Done |
-| Q | Shareable weekly result cards | Next |
-| S | Reliability, security and accessibility hardening | To do |
+| Q | Shareable weekly result cards | Done |
+| S | Reliability, security and accessibility hardening | Next |
 | T | Final README, architecture and AI docs, repo hygiene | To do |
 
 The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md) (P–U).

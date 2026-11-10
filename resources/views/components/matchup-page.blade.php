@@ -75,6 +75,12 @@
                     </div>
                     @if ($side['goalWeek'])
                         <x-band-track :week="$side['goalWeek']" compact />
+                        @if ($side['member']->user_id === auth()->id() && $side['goalWeek']->isStarted())
+                            <a href="{{ route('cards.share', $side['goalWeek']) }}" data-share-week
+                                class="mt-1 inline-flex min-h-8 items-center gap-1 rounded-full border border-club/30 px-2.5 text-[12px] font-semibold text-club hover:border-club">
+                                <x-icon name="share" class="size-3.5" /> Share your week
+                            </a>
+                        @endif
                     @endif
 
                     @if ($targets)

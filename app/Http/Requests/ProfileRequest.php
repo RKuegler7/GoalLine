@@ -34,6 +34,7 @@ class ProfileRequest extends FormRequest
             'timezone' => ['nullable', 'timezone:all'],
             'profile_visibility' => ['sometimes', Rule::enum(ProfileVisibility::class)],
             'discoverable' => ['sometimes', 'boolean'],
+            'public_cards' => ['sometimes', 'boolean'],
             'featured_goal_id' => [
                 'nullable',
                 Rule::exists('goals', 'id')->where('user_id', $this->user()->id)->whereIn('status', [GoalStatus::Active->value, GoalStatus::Completed->value]),

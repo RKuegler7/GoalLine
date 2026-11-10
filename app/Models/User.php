@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards'])]
 #[Hidden(['password', 'remember_token', 'calendar_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -46,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $attributes = [
         'profile_visibility' => 'leagues',
+        'public_cards' => true,
     ];
 
     /**
@@ -79,6 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'profile_visibility' => ProfileVisibility::class,
             'discoverable' => 'boolean',
+            'public_cards' => 'boolean',
             'notification_settings' => 'array',
         ];
     }
@@ -408,5 +410,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function highlights(): HasMany
     {
         return $this->hasMany(Highlight::class)->latest('id');
+    }
+
+    /**
+     * Weekly result cards this person made.
+     *
+     * @return HasMany<ResultCard, $this>
+     */
+    public function resultCards(): HasMany
+    {
+        return $this->hasMany(ResultCard::class);
     }
 }

@@ -3,6 +3,7 @@
         App\HighlightKind::GoalCompleted => '#d4ac58',
         App\HighlightKind::GreatWeek => '#43b96a',
         App\HighlightKind::MilestoneHit => '#e5f3e8',
+        default => '#43b96a',
     };
     $titleTop = 950;
     $lineHeight = 88;

@@ -35,13 +35,17 @@
                 'bg-gold text-ink' => $highlight->kind === App\HighlightKind::GoalCompleted,
                 'bg-grass text-ink' => $highlight->kind === App\HighlightKind::GreatWeek,
                 'bg-mint text-club' => $highlight->kind === App\HighlightKind::MilestoneHit,
+                'bg-club text-ivory' => $highlight->kind === App\HighlightKind::WeekCard,
             ])>{{ $highlight->kind->label() }}</span>
         </div>
         <x-post-options :post="$highlight" />
     </header>
 
     <div class="mt-4">
-        @if ($highlight->photoUrl())
+        @if ($highlight->kind === App\HighlightKind::WeekCard && $highlight->photoUrl())
+            {{-- A weekly result card: shown whole, never cropped. --}}
+            <img src="{{ $highlight->photoUrl() }}" alt="{{ $highlight->detail }}" class="aspect-[4/5] w-full bg-club object-contain" loading="lazy" width="1080" height="1350">
+        @elseif ($highlight->photoUrl())
             <img src="{{ $highlight->photoUrl() }}" alt="Photo shared with {{ $highlight->headline }}" class="aspect-[4/3] w-full object-cover" loading="lazy">
         @else
             <div class="relative overflow-hidden bg-club px-5 py-8">

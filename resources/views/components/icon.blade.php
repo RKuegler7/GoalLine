@@ -95,5 +95,9 @@
         @case('plus')
             <path d="M12 5v14M5 12h14" />
             @break
+        @case('share')
+            <path d="M12 3.5v11M8 7.5l4-4 4 4" />
+            <path d="M6.5 11H6a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 18 11h-.5" />
+            @break
     @endswitch
 </svg>

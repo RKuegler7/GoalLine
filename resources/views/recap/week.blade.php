@@ -67,6 +67,10 @@
                                 <x-plan-status :week="$row['week']" />
                                 @if ($row['result'])
                                     <x-goalweek-result :result="$row['result']" :close-call="$row['week']->isCloseCall()" />
+                                    <a href="{{ route('cards.share', $row['week']) }}" data-share-week
+                                        class="inline-flex min-h-9 items-center gap-1.5 rounded-full bg-club px-3 text-[13px] font-semibold text-ivory hover:bg-club-dark">
+                                        <x-icon name="share" class="size-4" /> Share your week
+                                    </a>
                                 @endif
                             </span>
                         </li>
