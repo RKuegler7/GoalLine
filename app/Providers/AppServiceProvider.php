@@ -19,9 +19,12 @@ use App\Models\PushSubscription;
 use App\Models\RoadmapTask;
 use App\Models\User;
 use App\Models\WeekReview;
+use App\Services\CaptionWriter;
 use App\Usage;
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -34,8 +37,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(Client::class, fn () => new Client(
-            apiKey: config('services.anthropic.key'),
+        // The Claude client, with a hard timeout and a retry limit. The SDK leaves timeouts to the HTTP client it's
+        // given, so it gets a Guzzle client that enforces them. Planning runs in queued jobs and can take minutes;
+        // the caption helper answers a tap in the browser, so it gets a short one. Every caller has a fallback.
+        $this->app->singleton(Client::class, fn () => self::claudeClient(
+            (float) config('services.anthropic.timeout'), (int) config('services.anthropic.max_retries'),
+        ));
+        $this->app->when(CaptionWriter::class)->needs(Client::class)->give(fn () => self::claudeClient(
+            (float) config('services.anthropic.quick_timeout'), 1,
         ));
 
         $this->app->bind(WebPush::class, fn () => new WebPush(['VAPID' => [
@@ -46,10 +55,29 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
+     * A Claude client that gives up after $timeout seconds per attempt and retries at most $retries times.
+     */
+    public static function claudeClient(float $timeout, int $retries): Client
+    {
+        $transport = new GuzzleClient(['timeout' => $timeout, 'connect_timeout' => 10]);
+
+        return new Client(
+            apiKey: config('services.anthropic.key'),
+            requestOptions: ['timeout' => $timeout, 'maxRetries' => $retries, 'transporter' => $transport],
+        );
+    }
+
+    /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
+        // Never show stack traces in production, even if APP_DEBUG is set by mistake: turn it off and say so in the log.
+        if ($this->app->isProduction() && config('app.debug')) {
+            config(['app.debug' => false]);
+            Log::critical('APP_DEBUG was true in production. It has been turned off for this request; set it to false in the environment properties.');
+        }
+
         // In production GoalLine sits behind CloudFront, which talks to the server over plain HTTP.
         // Build every link from APP_URL, so they're https and use the public address.
         if ($this->app->isProduction() && str_starts_with((string) config('app.url'), 'https://')) {

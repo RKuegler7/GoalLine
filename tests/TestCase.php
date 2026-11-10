@@ -6,6 +6,7 @@ use Anthropic\Client;
 use App\Clock;
 use App\Models\Friendship;
 use App\Models\User;
+use App\Services\CaptionWriter;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\UploadedFile;
 use LogicException;
@@ -21,6 +22,7 @@ abstract class TestCase extends BaseTestCase
 
         // Tests must never make paid API calls. Mock RoadmapPlanner instead.
         $this->app->bind(Client::class, fn () => throw new LogicException('Tests must not call the Claude API.'));
+        $this->app->when(CaptionWriter::class)->needs(Client::class)->give(fn () => throw new LogicException('Tests must not call the Claude API.'));
     }
 
     /**

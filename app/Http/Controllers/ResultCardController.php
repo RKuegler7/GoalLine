@@ -154,7 +154,7 @@ class ResultCardController extends Controller
      */
     public function publicImage(string $token, string $size, string $format): Response
     {
-        return $this->imageResponse($this->publicCard($token), $size, $format, 'public, max-age=3600');
+        return $this->imageResponse($this->publicCard($token), $size, $format, 'public, max-age=300');
     }
 
     /**

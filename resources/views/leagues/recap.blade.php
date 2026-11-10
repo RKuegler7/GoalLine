@@ -8,7 +8,7 @@
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
-            <p class="eyebrow mt-6 {{ $complete ? 'text-gold' : 'text-mint' }}">
+            <p class="eyebrow mt-6 {{ $complete ? 'text-gold-light' : 'text-mint' }}">
                 {{ $complete ? 'Season recap' : 'Weekly recaps' }} &middot; {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }}
             </p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
@@ -134,7 +134,7 @@
                                             <span class="block text-xs font-sans text-ink/70">vs median</span>
                                         @endif
                                         @if ($home->outcome->isPhotoFinish())
-                                            <span class="block text-[11px] font-sans font-semibold text-gold" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>
+                                            <span class="block text-[11px] font-sans font-semibold text-gold-ink" title="Same band: credited percent of plan decided it">Photo finish{{ $home->outcome === App\MatchupOutcome::Tie ? ' · tie' : '' }}</span>
                                         @endif
                                     </span>
                                     <span class="min-w-0 text-right">

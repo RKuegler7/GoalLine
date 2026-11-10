@@ -78,7 +78,7 @@
                 ] as $name => [$key, $label])
                     @php $on = (bool) config('goalline.messaging.'.$key); @endphp
                     <li class="flex items-center justify-between gap-2">
-                        <span class="text-ink">{{ $label }} <span class="font-mono text-[11px] text-ink/60">{{ $name }}</span></span>
+                        <span class="text-ink">{{ $label }} <span class="font-mono text-[11px] text-ink/70">{{ $name }}</span></span>
                         <span @class(['shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold', 'bg-mint text-club' => $on, 'bg-ivory text-ink/70 ring-1 ring-line' => ! $on])>{{ $on ? 'On' : 'Paused' }}</span>
                     </li>
                 @endforeach

@@ -14,7 +14,7 @@
             ->filter(fn ($task) => $task->completed_at && App\Clock::local($task->completed_at)->between($from, $to))
             ->sortByDesc('completed_at')
             ->values();
-        $tasks->load('proofRequests', 'disputes.disputer');
+        $tasks->loadMissing('proofRequests', 'disputes.disputer');
 
         $personal = ($result['goalWeek']?->tasks ?? collect())->where('is_personal', true)->values();
 

@@ -19,6 +19,11 @@
     --color-ink: #1e2922;
     --color-gold: #d4ac58;
 
+    /* Championship Gold for text, at WCAG AA contrast: deeper on white and ivory (5.4:1), lighter on Club Green (4.8:1).
+       Plain gold stays for fills, chips with ink text, and icons. */
+    --color-gold-ink: #85651c;
+    --color-gold-light: #f3dca0;
+
     /* Supporting neutrals. */
     --color-chalk: #ffffff;
     --color-line: #e3e6dc;

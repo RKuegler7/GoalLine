@@ -19,6 +19,19 @@ abstract class GoalLineNotification extends Notification implements ShouldQueue
     use Queueable;
 
     /**
+     * A failed send (mail server down, push service slow) is retried a few times, then given up; the Inbox copy is
+     * already saved separately.
+     */
+    public int $tries = 3;
+
+    /**
+     * Seconds to wait before each retry.
+     *
+     * @var list<int>
+     */
+    public array $backoff = [30, 120];
+
+    /**
      * Which setting controls this notification: one of NotificationSettings::CATEGORIES.
      */
     abstract public function category(): string;

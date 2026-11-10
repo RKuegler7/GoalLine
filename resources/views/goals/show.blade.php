@@ -19,7 +19,7 @@
                 <x-field-backdrop class="absolute inset-0 size-full" />
                 <div class="relative grid gap-6 px-6 py-10 sm:grid-cols-[1fr_auto] sm:items-center sm:px-10">
                     <div>
-                        <p class="eyebrow text-gold">Goal complete</p>
+                        <p class="eyebrow text-gold-light">Goal complete</p>
                         <h2 class="mt-3 font-serif text-3xl font-bold tracking-tight text-ivory sm:text-4xl">You crossed the GoalLine.</h2>
                         <p class="mt-3 text-ivory/85">
                             {{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('point', $goal->points()) }} earned along the way

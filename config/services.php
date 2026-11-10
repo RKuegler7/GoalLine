@@ -38,6 +38,11 @@ return [
     'anthropic' => [
         'key' => env('ANTHROPIC_API_KEY'),
         'model' => env('ANTHROPIC_MODEL', 'claude-opus-5-5'),
+        // Seconds per attempt, and how many times a failed call is retried. Queued planning jobs allow 660s.
+        'timeout' => (float) env('ANTHROPIC_TIMEOUT', 600),
+        'max_retries' => (int) env('ANTHROPIC_MAX_RETRIES', 2),
+        // For calls made while someone waits in the browser (the caption helper).
+        'quick_timeout' => (float) env('ANTHROPIC_QUICK_TIMEOUT', 20),
     ],
 
     // Web push: VAPID keys identify GoalLine to browsers' push services. Make them with `php artisan goalline:vapid-keys`.

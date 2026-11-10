@@ -56,6 +56,8 @@ run config:cache
 run route:cache
 run view:cache
 run event:cache
+# A plain-English settings check in the deploy log (eb-hooks.log). It never stops the deploy.
+run goalline:preflight || echo "GoalLine preflight found settings to fix (see the FAIL lines above)."
 
 # 5. The queue worker, kept running by systemd.
 cat > /etc/systemd/system/goalline-queue.service <<'UNIT'

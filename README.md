@@ -113,6 +113,8 @@ First time only: `npx playwright install chromium webkit`.
 
 **UX reviewer agent.** `.claude/agents/ux-reviewer.md` is a read-only Claude Code reviewer. In Claude Code, ask: *"Use the ux-reviewer agent to review the app."* It runs `npm run qa`, reads the report and screenshots, and replies with prioritized feedback on clarity, flow, visual polish, mobile usability and tone, plus its top 5 fixes. It never edits code.
 
+**Live checks.** `npm run smoke -- --url https://YOUR-ADDRESS` checks a running site end to end (health, home, Try the demo, a check-in, Matchups, privacy) and fails on any 500 or console error; it only uses a fresh demo account, so it's safe on production. On the server, `php artisan goalline:preflight` checks the production settings without printing secrets, and `/health` reports the database, cache, storage and queue for an uptime monitor. See [docs/RELIABILITY.md](docs/RELIABILITY.md).
+
 ## What we chose not to build
 
 - **No AI judging.** The AI never scores, never rules on disputes and never sets the minimum pace.
@@ -154,8 +156,9 @@ First time only: `npx playwright install chromium webkit`.
 | P | Live band progression and the band-up celebration | Done |
 | R | Branded loader, skeletons, empty states and error pages | Done |
 | Q | Shareable weekly result cards | Done |
-| S | Reliability, security and accessibility hardening | Next |
-| T | Final README, architecture and AI docs, repo hygiene | To do |
+| — | Switches to pause outbound email and push | Done |
+| S | Reliability, security and accessibility hardening | Done |
+| T | Final README, architecture and AI docs, repo hygiene | Next |
 
 The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md) (P–U).
 

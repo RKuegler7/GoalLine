@@ -7,6 +7,7 @@ use App\Models\League;
 use App\Models\RoadmapTask;
 use App\Services\LeagueTable;
 use App\Services\MatchupPager;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -30,6 +31,11 @@ class LeagueMatchupController extends Controller
 
         $table = new LeagueTable($league);
         $table->settle();
+
+        // Every player's proof requests and disputes in two queries, not two per player.
+        (new EloquentCollection($league->members->map->goal->filter()->flatMap->weeks->flatMap->tasks->all()))
+            ->loadMissing(['proofRequests', 'disputes.disputer']);
+
         $pager = new MatchupPager($table, $week, $request->user());
         $pages = $pager->pages();
 

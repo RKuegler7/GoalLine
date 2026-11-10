@@ -111,7 +111,7 @@
                                             'bg-grass text-ink' => $state === 'done',
                                             'bg-gold/30 text-ink ring-1 ring-gold' => $state === 'due',
                                             'bg-ivory text-ink/70 ring-1 ring-line' => in_array($state, ['upcoming', 'open'], true),
-                                            'text-ink/40' => $state === 'rest',
+                                            'text-ink/65' => $state === 'rest',
                                         ])><span aria-hidden="true">{{ Str::substr($day['label'], 0, 1) }}</span><span class="sr-only">{{ $day['label'] }} {{ $state }}</span></li>
                                 @endforeach
                             </ol>

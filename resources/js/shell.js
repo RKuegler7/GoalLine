@@ -202,6 +202,18 @@ document.addEventListener('click', (event) => {
     }
 });
 
+/* ---------- Never prefetch links that do something ---------- */
+
+// "Try the demo" (/demo) builds a whole demo world: hovering over it must not start one (or use up the visitor's
+// hourly demo allowance). Same for anything marked data-no-prefetch.
+document.addEventListener('turbo:before-prefetch', (event) => {
+    const link = event.target;
+
+    if (link?.closest?.('[data-no-prefetch]') || new URL(link.href, window.location.href).pathname === '/demo') {
+        event.preventDefault();
+    }
+});
+
 /* ---------- Prefetch tabs on touch (iPhone has no hover) ---------- */
 
 document.addEventListener('touchstart', (event) => {

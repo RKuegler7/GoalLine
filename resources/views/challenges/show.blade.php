@@ -95,7 +95,7 @@
                             $isMe = $row['member']->user_id === $me->id;
                         @endphp
                         <li @class(['flex items-center gap-3 px-5 py-3', 'bg-mint/50' => $isMe])>
-                            <span @class(['w-6 shrink-0 text-center font-serif text-lg tabular-nums', 'text-gold' => $row['rank'] === 1 && $row['days'] > 0, 'text-ink/70' => $row['rank'] !== 1 || $row['days'] === 0])>{{ $row['rank'] }}</span>
+                            <span @class(['w-6 shrink-0 text-center font-serif text-lg tabular-nums', 'text-gold-ink' => $row['rank'] === 1 && $row['days'] > 0, 'text-ink/70' => $row['rank'] !== 1 || $row['days'] === 0])>{{ $row['rank'] }}</span>
                             <x-avatar :user="$row['member']->user" class="size-9 text-xs" />
                             <span class="min-w-0 flex-1">
                                 <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}{{ $isMe ? ' (you)' : '' }}</a>
