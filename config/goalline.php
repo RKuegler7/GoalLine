@@ -60,6 +60,9 @@ return [
 
     'behind_cloudfront' => (bool) env('BEHIND_CLOUDFRONT', false),
 
+    // How long an email verification link works.
+    'verification_link_hours' => (int) env('VERIFICATION_LINK_HOURS', 48),
+
     /*
     | "Suggest a caption" on check-in posts. Shown only when an Anthropic key is set; uses the AI caps above.
     */

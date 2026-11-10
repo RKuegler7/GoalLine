@@ -70,6 +70,12 @@ Route::post('/demo/reset', [DemoController::class, 'reset'])->name('demo.reset')
 // League invite links open for anyone; joining needs an account.
 Route::get('/invite/{token}', [LeagueInviteController::class, 'show'])->name('leagues.invite.show')->middleware('throttle:60,1');
 
+// Email verification links work signed in or out, in any browser. The path-signed format can't lose its signature to a
+// CDN or a click-tracker; the older query-signed links keep working. A bad link gets a friendly page, never a raw 403.
+Route::get('/email/verify/{id}/{hash}/{expires}/{signature}', [EmailVerificationController::class, 'confirm'])->name('verification.confirm')->middleware('throttle:12,1');
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('throttle:12,1');
+Route::post('/email/verify/resend', [EmailVerificationController::class, 'resendByEmail'])->name('verification.resend')->middleware('throttle:3,10');
+
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('throttle:10,1');
@@ -96,7 +102,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [SessionController::class, 'destroy'])->name('logout');
 
     Route::get('/email/verify', [EmailVerificationController::class, 'notice'])->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware(['signed', 'throttle:6,1']);
     Route::post('/email/verification-notification', [EmailVerificationController::class, 'send'])->name('verification.send')->middleware('throttle:6,1');
 
     Route::get('/account/delete', [AccountController::class, 'confirmDelete'])->name('account.delete');

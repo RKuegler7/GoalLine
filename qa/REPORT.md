@@ -1,11 +1,12 @@
 # GoalLine QA report
 
-Generated 2026-11-09 20:28 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
+Generated 2026-11-09 21:48 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
 
 | Profile | Demo script | Time |
 | --- | --- | --- |
-| iPhone 14 (WebKit) | Passed | 235s |
-| Desktop (Chromium) | Passed | 92s |
+| iPhone 14 (WebKit) | Passed | 91s |
+| Small Android (Chromium) | Passed | 40s |
+| Desktop (Chromium) | Passed | 35s |
 
 **0 blockers, 0 important, 2 nice to have.**
 
@@ -25,8 +26,8 @@ None.
 
 | Screen | Profiles | Finding | Suggested fix |
 | --- | --- | --- | --- |
-| Matchup pager | iPhone 14 (WebKit) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
-| Task sheet | iPhone 14 (WebKit) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
+| Matchup pager | iPhone 14 (WebKit), Small Android (Chromium) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
+| Task sheet | iPhone 14 (WebKit), Small Android (Chromium) | **Tap target under 44 px**: input "Why? (optional)" 18×44 | Give it at least 44 × 44 px (padding, min-h-11) or a larger hit area. |
 
 ## Real iPhone checklist
 
