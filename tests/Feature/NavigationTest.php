@@ -39,6 +39,26 @@ class NavigationTest extends TestCase
         $this->assertMatchesRegularExpression('/href="'.preg_quote(route('matchups'), '/').'"\s+aria-current="page"/', $page);
     }
 
+    public function test_starting_a_goalleague_or_challenge_is_a_big_obvious_choice(): void
+    {
+        $user = User::factory()->create();
+
+        // No league yet: a big friendly call to action, and the sheet with both choices explained.
+        $this->actingAs($user)->get(route('leagues.index'))->assertOk()
+            ->assertSee('data-open-sheet="start-sheet"', false)
+            ->assertSee('Play your goal with friends.')
+            ->assertSeeInOrder(['What do you want to start?', 'Start a GoalLeague', 'A season with friends', 'Start a challenge', 'A short sprint together'])
+            ->assertSee(route('leagues.create'))->assertSee(route('challenges.create'));
+
+        // With a league: the list comes first, then a "Start a new GoalLeague" card, on GoalLeagues and the Clubhouse.
+        $league = League::factory()->create(['name' => 'Morning Crew', 'commissioner_id' => $user->id]);
+        $league->members()->create(['user_id' => $user->id]);
+
+        foreach ([route('leagues.index'), route('dashboard')] as $page) {
+            $this->actingAs($user)->get($page)->assertSeeInOrder(['Morning Crew', 'Start a new GoalLeague', 'Join with a code'])->assertSee('id="start-sheet"', false);
+        }
+    }
+
     public function test_check_in_is_one_tap_away_on_main_screens(): void
     {
         $user = User::factory()->create();

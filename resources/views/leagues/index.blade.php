@@ -1,12 +1,10 @@
 <x-layouts.app title="GoalLeagues & Challenges · GoalLine">
     <x-slot:hero>
-        <x-page-header title="GoalLeagues">
-            <x-action-menu label="Start">
-                <a href="{{ route('leagues.create') }}"><x-icon name="leagues" class="size-4 text-club" /> Start a GoalLeague</a>
-                <a href="{{ route('challenges.create') }}"><x-icon name="flag" class="size-4 text-gold" /> Start a challenge</a>
-                <a href="{{ route('leagues.index', ['tab' => 'invites']) }}#join"><x-icon name="users" class="size-4 text-club" /> Join with a code</a>
-            </x-action-menu>
-        </x-page-header>
+        {{-- Title, then the big way to start: beside it on desktop, full width under it on phones. --}}
+        <div class="mx-auto flex max-w-5xl flex-col gap-2.5 px-4 pt-1 pb-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 class="text-[20px] leading-tight font-bold tracking-tight text-ivory md:text-[24px]">GoalLeagues</h1>
+            <x-start-buttons class="w-full sm:w-auto" />
+        </div>
     </x-slot:hero>
 
     @php
@@ -24,12 +22,13 @@
         {{-- Your GoalLeagues: right at the top. --}}
         <section data-segment-panel="leagues" @if ($tab !== 'leagues') hidden @endif aria-label="Your GoalLeagues">
             @if ($snapshots->isEmpty())
-                <x-empty-state message="No GoalLeague yet. They're optional: start one or join with a code." action="Start a GoalLeague" :href="route('leagues.create')" />
+                @include('partials.start-league-cta')
             @else
                 <div class="grid gap-2 sm:grid-cols-2">
                     @foreach ($snapshots as $snapshot)
                         <x-league-card :snapshot="$snapshot" />
                     @endforeach
+                    @include('partials.start-league-card')
                 </div>
             @endif
         </section>

@@ -1377,3 +1377,23 @@ window.addEventListener('pageshow', () => {
         });
     });
 });
+
+/**
+ * Buttons that open a bottom sheet (data-open-sheet="id"), like "Start a GoalLeague". Without this script they're
+ * plain links. Tapping the dimmed area outside a sheet closes it.
+ */
+document.addEventListener('click', (event) => {
+    const opener = event.target.closest('[data-open-sheet]');
+    const sheet = opener && document.getElementById(opener.dataset.openSheet);
+
+    if (sheet && typeof sheet.showModal === 'function' && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        sheet.showModal();
+
+        return;
+    }
+
+    if (event.target.matches?.('dialog[data-start-sheet]')) {
+        event.target.close();
+    }
+});
