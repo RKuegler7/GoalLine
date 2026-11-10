@@ -316,6 +316,28 @@ class MatchupPagerTest extends TestCase
             ->assertDontSee('My miles');
     }
 
+    public function test_each_player_sees_plain_targets_that_never_promise_more_tasks_than_are_left(): void
+    {
+        $league = $this->league(2);
+        $member = $league->members->first();
+        // 20 tasks, 15 done, plus the 2-point milestone: 22 planned, 15 earned.
+        $week = $this->week($member, collect(range(1, 20))->map(fn (int $index) => [$index % 7, $index <= 15])->all());
+
+        $targets = MatchupBoard::targets($week);
+        $this->assertSame(['points' => 5, 'tasks' => 5, 'more' => false], $targets['inLine'], '90% of 22 is 19.8: 5 more points, and the 5 open tasks cover it.');
+        $this->assertSame(['points' => 8, 'tasks' => 5, 'more' => true], $targets['past'], 'Past needs 8: all 5 tasks plus habit days or the milestone.');
+        $this->assertSame([15, 5], [$targets['done'], $targets['left']]);
+        $this->assertSame(MatchupBoard::nextBand($week)['points'], $targets['inLine']['points'], 'Same numbers as the scoreboard.');
+
+        $this->actingAs($member->user)->get(route('leagues.matchups', $league))->assertOk()
+            ->assertSee('data-pager-sticky', false)
+            ->assertSee('data-day-controls', false)
+            ->assertSeeText('5 more points to In line')
+            ->assertSeeText('(about 5 tasks)')
+            ->assertSeeText('To reach Past the line: 8 points')
+            ->assertSeeText('15 done');
+    }
+
     private function pager(League $league, User $viewer, int $week = 1): MatchupPager
     {
         return new MatchupPager(new LeagueTable($league->fresh()), $week, $viewer);

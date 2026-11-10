@@ -1,7 +1,8 @@
-{{-- One page of the matchup pager, compact like a fantasy scoreboard. Up top: both players side by side with their
-     record, goal, live percent (bold), band, projection and points if the week ended now. Below: both players' tasks
-     in aligned rows, grouped by day, with day chips (today first) and a Today/Week toggle. Tapping a task opens the
-     task sheet. Every number comes from MatchupPager; this view only shows them. --}}
+{{-- One page of the matchup pager. The live numbers stick to the top in the strip above the pager (matchup-strip);
+     this page grows naturally so the whole document scrolls. Here: the verdict, each player's plain-language targets
+     ("To reach In line: 3 more points, about 3 tasks"), tasks done and left, a week timeline, both players' tasks side
+     by side by day (the sticky day chips choose the day), and the check-in log. Every number comes from MatchupPager
+     and the scoring code; this view only shows them. Encouraging, never shaming. --}}
 @props(['page', 'league', 'week', 'index', 'count'])
 
 @php
@@ -15,96 +16,36 @@
         'bye' => $page['mine'] ? 'Your bye week: you vs the league median' : 'Bye week: vs the league median',
         default => $page['mine'] ? 'Your matchup' : 'Matchup',
     };
-    // Days, aligned across both players: Monday to Sunday.
     $dayList = collect($sides)->pluck('days')->first(fn ($days) => ! empty($days)) ?? [];
     $todayIndex = collect($dayList)->search(fn ($day) => $day['isToday']);
     $showWeek = $final || $todayIndex === false;
     $columns = count($sides) > 1 ? 'grid-cols-2' : 'grid-cols-1';
+    $pts = fn ($points) => App\Points::format((float) $points).' '.Str::plural('point', (int) ceil((float) $points));
+    $opponent = $page['mine'] && $card['away']
+        ? ($card['home']['member']->user->is($viewer) ? $card['away']['member'] : $card['home']['member'])
+        : null;
+    // Each day as done, due, upcoming, rest, or (neutral) not done.
+    $dayState = function (array $day) {
+        $rows = collect($day['rows']);
+
+        return match (true) {
+            $rows->isEmpty() => 'rest',
+            $rows->every(fn ($row) => $row['status'] === App\Services\MatchupPager::STATUS_DONE) => 'done',
+            $day['isToday'] => 'due',
+            $day['date']->isFuture() => 'upcoming',
+            default => 'open',
+        };
+    };
 @endphp
 
-<article id="matchup-{{ $index + 1 }}" data-pager-page data-matchup-days
-    aria-roledescription="slide" aria-label="{{ $index + 1 }} of {{ $count }}"
-    class="w-full shrink-0 snap-center snap-always px-4 sm:px-1">
+<article id="matchup-{{ $index + 1 }}" data-pager-page aria-roledescription="slide" aria-label="{{ $index + 1 }} of {{ $count }}"
+    class="w-full shrink-0 snap-center px-4 sm:px-1">
 
-    {{-- The scoreboard. --}}
+    {{-- The verdict, and each player's targets. --}}
     <section data-region="matchup-{{ $card['home']['member']->id }}" @class(['rounded-xl border bg-white p-3', 'border-club/50' => $page['mine'], 'border-line' => ! $page['mine']])>
-        <div class="flex items-center justify-between gap-2 text-[11px]">
-            <p class="eyebrow text-ink/70">{{ $eyebrow }}</p>
-            <p class="flex items-center gap-1.5">
-                @if (! $final && $page['daysLeft'] > 0)
-                    <span class="font-semibold text-ink">{{ $page['daysLeft'] }} {{ Str::plural('day', $page['daysLeft']) }} left</span>
-                @endif
-                <span @class(['eyebrow rounded-full px-1.5 py-0.5', 'bg-ink/5 text-ink/70' => $final, 'bg-mint text-club' => ! $final])>{{ $final ? 'Final' : 'Live' }}</span>
-            </p>
-        </div>
-
-        <div @class(['mt-2 grid items-start gap-2', 'grid-cols-[1fr_auto_1fr]' => $page['kind'] !== 'solo', 'grid-cols-1' => $page['kind'] === 'solo'])>
-            @foreach ($sides as $sideIndex => $side)
-                @if ($sideIndex === 1)
-                    <span class="self-center pt-1 text-[11px] font-semibold text-ink/70">vs</span>
-                @endif
-                @php
-                    $record = $side['record'];
-                    $projection = $side['projection'];
-                    $right = $sideIndex === 1;
-                @endphp
-                <div @class(['min-w-0', 'text-right' => $right])>
-                    <div @class(['flex items-center gap-1.5', 'flex-row-reverse' => $right])>
-                        <x-avatar :user="$side['member']->user" class="size-7 shrink-0 text-[11px]" />
-                        <a href="{{ $side['highlightsUrl'] }}" class="min-w-0 truncate text-[13px] font-semibold text-ink hover:text-club hover:underline" title="{{ $side['member']->user->name }}'s posts in {{ $league->name }}">{{ $first($side) }}</a>
-                    </div>
-                    <p class="mt-0.5 truncate text-[11px] text-ink/70"><span class="tabular-nums" title="Wins, ties and losses this season">{{ $record['wins'] }}&ndash;{{ $record['ties'] }}&ndash;{{ $record['losses'] }}</span> &middot; {{ $side['member']->goal?->title ?? 'No goal selected' }}</p>
-
-                    <p class="mt-1 text-[20px] leading-tight font-bold text-club tabular-nums">@if ($side['percent'] === null)&ndash;@else<span data-countup="{{ $side['percent'] }}" data-key="share-{{ $side['member']->id }}">{{ $side['percent'] }}</span>%@endif</p>
-                    <p class="text-[11px] text-ink/70 tabular-nums">{{ $side['earned'] }} of {{ $side['planned'] }} pts</p>
-                    <div @class(['mt-1 flex', 'justify-end' => $right])>
-                        @if ($side['result'])
-                            <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" :needs-proof="$side['needsProof']" compact />
-                        @else
-                            <span class="text-[11px] text-ink/70">No GoalWeek</span>
-                        @endif
-                    </div>
-                    <div @class(['mt-1 flex', 'justify-end' => $right])>
-                        <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
-                    </div>
-                    @if ($side['held'] > 0)
-                        <p class="mt-0.5 text-[11px] text-ink/70">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
-                    @endif
-                </div>
-            @endforeach
-
-            @if ($page['kind'] === 'bye')
-                <span class="self-center pt-1 text-[11px] font-semibold text-ink/70">vs</span>
-                <div class="min-w-0 text-right">
-                    <div class="flex flex-row-reverse items-center gap-1.5"><span class="grid size-7 place-items-center rounded-full bg-ivory text-[11px] font-semibold text-ink/70 ring-1 ring-line">M</span><span class="text-[13px] font-semibold text-ink">League median</span></div>
-                    <p class="mt-0.5 truncate text-[11px] text-ink/70">The middle score this week</p>
-                    <p class="mt-1 text-[20px] leading-tight font-bold text-ink/70 tabular-nums">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
-                    <p class="text-[11px] text-ink/70">line pts{{ $card['medianPercent'] === null ? '' : ' · '.round($card['medianPercent'], 1).'%' }}</p>
-                </div>
-            @endif
-        </div>
-
-        {{-- Projected band and points if it ended now, in one compact row per player. --}}
-        <div @class(['mt-2 grid gap-2 border-t border-line pt-2 text-[11px] text-ink/70', 'grid-cols-2' => count($sides) > 1])>
-            @foreach ($sides as $sideIndex => $side)
-                <div @class(['min-w-0', 'text-right' => $sideIndex === 1])>
-                    @if (! $final)
-                        <p class="truncate">Projected, on current pace</p>
-                        <p class="truncate">
-                            @if ($side['projection']['band'])
-                                <span class="font-semibold text-ink">{{ $side['projection']['band']->label() }}</span> <span class="tabular-nums">{{ $side['projection']['percent'] }}%</span>
-                            @else
-                                Too early to tell
-                            @endif
-                        </p>
-                    @endif
-                    <p class="mt-1 truncate font-semibold text-ink">{{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('pt', $side['total']) }}</p>
-                    <p class="truncate tabular-nums">{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match &middot; {{ $side['outcome']->label() }}</p>
-                    @if (! $final && $side['next'])
-                        <p class="truncate text-club">{{ $side['next']['points'] }} more {{ Str::plural('point', $side['next']['points']) }} to {{ $side['next']['band']->label() }}</p>
-                    @endif
-                </div>
-            @endforeach
+        <div class="flex items-center justify-between gap-2">
+            <p class="eyebrow text-[11px] text-ink/70">{{ $eyebrow }}</p>
+            <p class="truncate text-[11px] text-ink/70">@if (! $final && $page['daysLeft'] > 0)<span class="font-semibold text-ink">{{ $page['daysLeft'] }} {{ Str::plural('day', $page['daysLeft']) }} left</span> &middot; @endif{{ $page['status'] }}</p>
         </div>
 
         @if ($page['kind'] === 'solo')
@@ -118,36 +59,86 @@
             </p>
         @endif
 
-        @php
-            $opponent = $page['mine'] && $card['away']
-                ? ($card['home']['member']->user->is($viewer) ? $card['away']['member'] : $card['home']['member'])
-                : null;
-        @endphp
-        <div class="mt-1.5 flex items-center justify-between gap-2 text-[11px] text-ink/70">
-            <span class="truncate">{{ $page['status'] }}</span>
-            @if ($opponent && ! $final)
-                <x-nudge-button :user="$opponent->user" />
-            @endif
-        </div>
-    </section>
+        <div @class(['mt-2 grid gap-3', $columns])>
+            @foreach ($sides as $sideIndex => $side)
+                @php
+                    $right = $sideIndex === 1;
+                    $targets = $side['targets'];
+                @endphp
+                <div @class(['min-w-0 text-[12px] text-ink/80', 'text-right' => $right]) data-player-detail>
+                    <p class="truncate text-[13px] font-semibold text-ink">
+                        <a href="{{ $side['highlightsUrl'] }}" class="hover:text-club hover:underline" title="{{ $side['member']->user->name }}'s posts in {{ $league->name }}">{{ $first($side) }}</a>
+                        <span class="font-normal text-ink/70">&middot; {{ $side['earned'] }} of {{ $side['planned'] }} pts</span>
+                    </p>
+                    <div @class(['mt-1 flex', 'justify-end' => $right])>
+                        <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
+                    </div>
 
-    {{-- Both players' tasks, side by side, by day. --}}
-    <section class="mt-2 rounded-xl border border-line bg-white" aria-label="This week's tasks">
-        @if ($dayList !== [])
-            <div class="flex items-center gap-1.5 border-b border-line px-2 py-1.5">
-                <div class="flex flex-1 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Day">
-                    @foreach ($dayList as $dayIndex => $day)
-                        <button type="button" data-day-chip="{{ $dayIndex }}" role="tab" aria-selected="{{ ! $showWeek && $dayIndex === $todayIndex ? 'true' : 'false' }}"
-                            class="min-h-8 shrink-0 rounded-full px-2 text-[11px] font-semibold text-ink/70 ring-1 ring-line ring-inset aria-selected:bg-club aria-selected:text-ivory aria-selected:ring-club">
-                            {{ $day['isToday'] ? 'Today' : $day['label'] }}
-                        </button>
-                    @endforeach
+                    @if ($targets)
+                        {{-- Plain-language targets, from the scoring code. --}}
+                        <ul class="mt-1.5 space-y-0.5">
+                            @if (! $final && $side['next'])
+                                @php
+                                    $goal = $side['next']['band'] === App\GoalWeekResult::InLine ? $targets['inLine'] : ($side['next']['band'] === App\GoalWeekResult::Past ? $targets['past'] : null);
+                                @endphp
+                                <li class="font-semibold text-club">{{ $side['next']['points'] }} more {{ Str::plural('point', $side['next']['points']) }} to {{ $side['next']['band']->label() }}@if ($goal && $targets['left'] > 0) <span class="font-normal text-ink/70">({{ $goal['more'] ? 'all '.$targets['left'].' '.Str::plural('task', $targets['left']).', plus habit days or the milestone' : 'about '.$goal['tasks'].' '.Str::plural('task', $goal['tasks']) }})</span>@endif</li>
+                                @if ($side['next']['band'] === App\GoalWeekResult::InLine)
+                                    <li>To reach Past the line: {{ $pts($targets['past']['points']) }}</li>
+                                @endif
+                            @elseif (! $final && $side['result'] === App\GoalWeekResult::Smashed)
+                                <li class="font-semibold text-club">Top band. Keep the streak going.</li>
+                            @endif
+                            <li><span class="font-semibold text-ink">{{ $targets['done'] }} done</span> &middot; {{ $targets['left'] }} to go</li>
+                        </ul>
+
+                        {{-- The week at a glance: done, due, upcoming, rest. --}}
+                        @if (! empty($side['days']))
+                            <ol @class(['mt-1.5 flex gap-1', 'justify-end' => $right]) aria-label="{{ $first($side) }}'s week">
+                                @foreach ($side['days'] as $day)
+                                    @php $state = $dayState($day); @endphp
+                                    <li title="{{ $day['label'] }}: {{ ['done' => 'done', 'due' => 'due today', 'upcoming' => 'upcoming', 'rest' => 'rest day', 'open' => 'not done'][$state] }}"
+                                        @class([
+                                            'grid size-5 place-items-center rounded-full text-[10px] font-bold',
+                                            'bg-grass text-ink' => $state === 'done',
+                                            'bg-gold/30 text-ink ring-1 ring-gold' => $state === 'due',
+                                            'bg-ivory text-ink/70 ring-1 ring-line' => in_array($state, ['upcoming', 'open'], true),
+                                            'text-ink/40' => $state === 'rest',
+                                        ])><span aria-hidden="true">{{ Str::substr($day['label'], 0, 1) }}</span><span class="sr-only">{{ $day['label'] }} {{ $state }}</span></li>
+                                @endforeach
+                            </ol>
+                        @endif
+                    @else
+                        <p class="mt-1.5 text-ink/70">No GoalWeek this week.</p>
+                    @endif
+
+                    @if (! $final)
+                        <p class="mt-1.5 text-[11px] text-ink/70">Projected, on current pace</p>
+                        <p class="text-[12px]">
+                            @if ($side['projection']['band'])
+                                <span class="font-semibold text-ink">{{ $side['projection']['band']->label() }}</span> <span class="tabular-nums">{{ $side['projection']['percent'] }}%</span>
+                            @else
+                                Too early to tell
+                            @endif
+                        </p>
+                    @endif
+                    <p class="mt-1 font-semibold text-ink">{{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('pt', $side['total']) }}</p>
+                    <p class="tabular-nums text-ink/70">{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match &middot; {{ $side['outcome']->label() }}</p>
+                    @if ($side['held'] > 0)
+                        <p class="mt-0.5 text-[11px] text-ink/70">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
+                    @endif
                 </div>
-                <button type="button" data-day-all aria-pressed="{{ $showWeek ? 'true' : 'false' }}"
-                    class="min-h-8 shrink-0 rounded-full px-2.5 text-[11px] font-semibold text-club ring-1 ring-club/30 ring-inset aria-pressed:bg-club aria-pressed:text-ivory">Week</button>
+            @endforeach
+        </div>
+
+        @if ($opponent && ! $final)
+            <div class="mt-2 flex justify-end">
+                <x-nudge-button :user="$opponent->user" />
             </div>
         @endif
+    </section>
 
+    {{-- Both players' tasks, side by side, by day. The sticky day chips above choose the day. --}}
+    <section class="mt-2 rounded-xl border border-line bg-white" aria-label="This week's tasks">
         @if (count($sides) > 1)
             <div class="grid grid-cols-2 gap-2 border-b border-line px-2 py-1 text-[11px] font-semibold text-ink/70">
                 @foreach ($sides as $sideIndex => $side)

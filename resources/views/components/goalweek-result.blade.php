@@ -21,7 +21,13 @@
             @if ($result === App\GoalWeekResult::Smashed)
                 <svg viewBox="0 0 12 12" class="size-2.5" fill="currentColor" aria-hidden="true"><path d="M6 0.5 11.5 6 6 11.5 0.5 6z" /></svg>
             @endif
-            {{ $result->label() }}{{ $closeCall ? ', close call' : '' }}
+            @if ($compact)
+                {{-- Tight spaces show the short name; the full one is there for screen readers (and the colour says it). --}}
+                <span aria-hidden="true">{{ match ($result) { App\GoalWeekResult::Short => 'Short', App\GoalWeekResult::InLine => 'In line', App\GoalWeekResult::Past => 'Past', App\GoalWeekResult::Smashed => 'Smashed' } }}</span>
+                <span class="sr-only">{{ $result->label() }}{{ $closeCall ? ', close call' : '' }}</span>
+            @else
+                {{ $result->label() }}{{ $closeCall ? ', close call' : '' }}
+            @endif
             <span @class(["sr-only" => $compact])>&middot; {{ $result->points() }} {{ Str::plural("pt", $result->points()) }}</span>
         </span>
         @if ($needsProof)

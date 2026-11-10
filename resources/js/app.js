@@ -932,6 +932,10 @@ document.querySelectorAll('[data-pager]').forEach((pager) => {
         count.textContent = `${index + 1} of ${pages().length}`;
         prev.disabled = index === 0;
         next.disabled = index === pages().length - 1;
+        // The sticky scoreboard strip follows the page in view.
+        document.querySelectorAll('[data-pager-strip]').forEach((strip) => {
+            strip.hidden = Number(strip.dataset.pagerStrip) !== index;
+        });
         showPlayer();
     };
 
@@ -1274,16 +1278,17 @@ document.querySelectorAll('[data-checkin-sheet]').forEach((sheet) => {
  */
 document.addEventListener('click', (event) => {
     const chip = event.target.closest('[data-day-chip], [data-day-all]');
-    const page = chip?.closest('[data-matchup-days]');
+    const controls = chip?.closest('[data-day-controls]');
 
-    if (!page) {
+    if (!controls) {
         return;
     }
 
+    // One set of chips (in the sticky strip) chooses the day on every matchup page.
     const all = chip.hasAttribute('data-day-all');
-    page.querySelectorAll('[data-day-chip]').forEach((each) => each.setAttribute('aria-selected', String(!all && each === chip)));
-    page.querySelector('[data-day-all]')?.setAttribute('aria-pressed', String(all));
-    page.querySelectorAll('[data-day-group]').forEach((group) => {
+    controls.querySelectorAll('[data-day-chip]').forEach((each) => each.setAttribute('aria-selected', String(!all && each === chip)));
+    controls.querySelector('[data-day-all]')?.setAttribute('aria-pressed', String(all));
+    document.querySelectorAll('[data-day-group]').forEach((group) => {
         group.hidden = !all && group.dataset.dayGroup !== chip.dataset.dayChip;
     });
 });

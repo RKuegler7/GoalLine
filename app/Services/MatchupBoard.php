@@ -68,6 +68,7 @@ class MatchupBoard
             'earned' => $goalWeek ? round($goalWeek->earnedPoints(), 1) : 0,
             'planned' => $goalWeek?->plannedPoints() ?? 0,
             'next' => $goalWeek ? self::nextBand($goalWeek) : null,
+            'targets' => $goalWeek ? self::targets($goalWeek) : null,
             'notStarted' => $goalWeek?->isNotStarted() ?? false,
             'needsProof' => $goalWeek?->needsProofForSmashed() ?? false,
             'held' => $goalWeek ? round($goalWeek->heldPoints(), 1) : 0,
@@ -94,6 +95,40 @@ class MatchupBoard
             $share < GoalWeekResult::SMASHED_AT => ['band' => GoalWeekResult::Smashed, 'points' => $week->pointsTo(GoalWeekResult::SMASHED_AT)],
             default => null,
         };
+    }
+
+    /**
+     * Plain-language targets for one player's week, from the same scoring rules as nextBand(): points still needed
+     * for In line and for Past the line (0 once there), each as "about N tasks" from the points of the tasks still
+     * open, plus how many planned tasks are done and left.
+     *
+     * The task estimate never promises more tasks than are left: when the open tasks can't cover it alone, "more" says
+     * habit days or the milestone are part of the way there.
+     *
+     * @return array{inLine: array{points: int, tasks: int, more: bool}, past: array{points: int, tasks: int, more: bool}, done: int, left: int}
+     */
+    public static function targets(RoadmapWeek $week): array
+    {
+        $share = round($week->completionShare(), 4);
+        $planned = $week->tasks->reject->is_bonus;
+        $open = $planned->whereNull('completed_at');
+        $openPoints = (float) $open->sum('points');
+        $perTask = $open->isEmpty() ? 1.0 : max(0.5, $openPoints / $open->count());
+        $inLine = $share >= GoalWeekResult::IN_LINE_AT ? 0 : $week->pointsTo(GoalWeekResult::IN_LINE_AT);
+        // Past the line means more than the plan: one point beyond 100%, as in nextBand().
+        $past = $share > GoalWeekResult::PAST_ABOVE ? 0 : max(1, (int) floor($week->plannedPoints() - $week->earnedPoints() + 0.0001) + 1);
+        $estimate = fn (int $points) => [
+            'points' => $points,
+            'tasks' => (int) min($open->count(), ceil($points / $perTask)),
+            'more' => $points > $openPoints,
+        ];
+
+        return [
+            'inLine' => $estimate($inLine),
+            'past' => $estimate($past),
+            'done' => $planned->whereNotNull('completed_at')->count(),
+            'left' => $open->count(),
+        ];
     }
 
     /**

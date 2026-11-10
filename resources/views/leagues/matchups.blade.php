@@ -64,7 +64,37 @@
                 <button type="button" data-pager-next class="gl-tap relative grid size-9 shrink-0 place-items-center rounded-full border border-line bg-white text-club hover:border-club/40 disabled:opacity-40" aria-label="Next matchup"><x-icon name="chevron-right" class="size-4" /></button>
             </div>
 
-            <div data-pager-track class="relative mt-2 flex snap-x snap-mandatory items-start overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" tabindex="0" aria-label="Matchup pages">
+            @php
+                $dayList = collect($pages)->flatMap(fn ($page) => collect($page['sides'])->pluck('days'))->first(fn ($days) => ! empty($days)) ?? [];
+                $todayIndex = collect($dayList)->search(fn ($day) => $day['isToday']);
+                $showWeek = $final || $todayIndex === false;
+            @endphp
+
+            {{-- Live numbers that stay in view while you scroll: the strip for the matchup on screen, and the day chips
+                 (they choose the day on every page). Outside the pager, so they can stick under the top bar. --}}
+            <div data-pager-sticky class="sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 mt-2 border-y border-line bg-ivory/95 px-4 py-1.5 backdrop-blur sm:rounded-xl sm:border sm:px-3">
+                @foreach ($pages as $index => $page)
+                    <x-matchup-strip :page="$page" :index="$index" />
+                @endforeach
+
+                @if ($dayList !== [])
+                    <div class="mt-1.5 flex items-center gap-1" data-day-controls>
+                        <div class="flex flex-1 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Day">
+                            @foreach ($dayList as $dayIndex => $day)
+                                <button type="button" data-day-chip="{{ $dayIndex }}" role="tab" aria-selected="{{ ! $showWeek && $dayIndex === $todayIndex ? 'true' : 'false' }}"
+                                    class="min-h-8 shrink-0 rounded-full px-2 text-[11px] font-semibold text-ink/70 ring-1 ring-line ring-inset aria-selected:bg-club aria-selected:text-ivory aria-selected:ring-club">
+                                    {{ $day['isToday'] ? 'Today' : $day['label'] }}
+                                </button>
+                            @endforeach
+                        </div>
+                        <button type="button" data-day-all aria-pressed="{{ $showWeek ? 'true' : 'false' }}"
+                            class="min-h-8 shrink-0 rounded-full px-2.5 text-[11px] font-semibold text-club ring-1 ring-club/30 ring-inset aria-pressed:bg-club aria-pressed:text-ivory">Week</button>
+                    </div>
+                @endif
+            </div>
+
+            {{-- The pager scrolls sideways only; each page grows to its own height, so the page itself scrolls down. --}}
+            <div data-pager-track class="relative mt-2 flex snap-x snap-mandatory items-start overflow-x-auto overflow-y-clip overscroll-x-contain [touch-action:pan-x_pan-y_pinch-zoom] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" tabindex="0" aria-label="Matchup pages">
                 @foreach ($pages as $index => $page)
                     <x-matchup-page :page="$page" :league="$league" :week="$week" :index="$index" :count="count($pages)" />
                 @endforeach
