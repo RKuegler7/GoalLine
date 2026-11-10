@@ -130,6 +130,21 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 - Only before the week starts or until Tuesday 11:59 p.m. of it.
 - The league sees each one labeled "Added by [name]". They count in planned points.
 
+## Live band and the band-up moment
+
+- Checking a task off (or un-checking it) updates the percent of plan, the band chip, the points if the week ended now and the projected band in place, from the scoring code's values. The browser only animates between server numbers (`BandProgress`).
+- The band track marks 90%, 100% and 150%. Moving **up** a band plays a short celebration (under 1.5 seconds, tap to skip), once per crossing per GoalWeek: "You're on the line.", "Past the Line.", "Smashed it." (with "Add proof to lock it in" when proof is still needed). Going down changes quietly. Reduced motion gets a simple fade, and screen readers hear the new band.
+
+## Weekly result cards
+
+- "Share your week" (weekly recap, your own matchup) makes a card from the scoring code's results: week, first name and initials, goal, percent of plan, band, match result (Win 3, Close win 2, Close loss 1, Tie 1, Loss 0, "Photo finish" in the same band), week points out of 6 (3 without a league), weeks on the line, and league name. Smashed is blue with a diamond, Past gold, In line green; a Short week is a calm ivory card: "Showed up. Back on the line next week."
+- Sizes: feed 1080×1350 and story 1080×1920, as PNG (GD with the bundled Plus Jakarta Sans fonts) or SVG.
+- Share, Download, and Post to Highlights (a "Weekly result" post with the usual League or League + friends audience). A public link (`/c/{token}`, 48 random characters) is off until the owner turns it on, can be turned off any time, and stops working for everyone who turns off "Allow public links to my weekly cards". A card is a snapshot: only the owner's own summary, never email, last name, notes, proof photos or the opponent's name.
+
+## Outbound messages
+
+Each kind of email can be paused on its own with an environment switch, off in production unless set to `true`: `GOALLINE_EMAIL_REMINDERS`, `GOALLINE_EMAIL_NUDGES` (nudges and "Show your work"), `GOALLINE_EMAIL_RECAPS` (the weekly recap, GoalWeek results, league and challenge recaps, coach tips), `GOALLINE_EMAIL_NOTIFICATIONS` (everything else) and `GOALLINE_PUSH`. A paused email still lands in the Inbox. Verification, password reset and league invites sent by email always go. Demo accounts never get email. The rules live in `App\Outbound`.
+
 ## Invites and people search
 
 - After setting a goal: "Play it with friends?" with Create a league (prefilled from the goal), Join a league (invite code) or Keep it solo.
