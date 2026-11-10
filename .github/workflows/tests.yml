@@ -1,0 +1,44 @@
+# Runs the PHP test suite on every push and pull request. (The Playwright browser suite stays local: `npm run qa`
+# needs real WebKit and a long-running server, and would be slow and flaky here.)
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          # gd draws the PNG share cards, so their test runs here too.
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, exif, fileinfo, intl, bcmath, zip
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ hashFiles('composer.lock') }}
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Prepare the app
+        run: |
+          cp .env.example .env
+          php artisan key:generate --no-interaction
+
+      - name: Run the tests
+        run: php artisan test --compact
