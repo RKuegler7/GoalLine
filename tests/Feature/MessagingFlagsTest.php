@@ -130,19 +130,38 @@ class MessagingFlagsTest extends TestCase
 
     public function test_production_defaults_every_switch_to_off(): void
     {
-        foreach (['GOALLINE_EMAIL_REMINDERS', 'GOALLINE_EMAIL_NUDGES', 'GOALLINE_EMAIL_RECAPS', 'GOALLINE_EMAIL_NOTIFICATIONS', 'GOALLINE_PUSH'] as $name) {
-            $this->assertArrayNotHasKey($name, $_ENV, "{$name} must not be set for this test.");
+        // Read the config as production would with none of the switches set, then put everything back.
+        $names = ['GOALLINE_EMAIL_REMINDERS', 'GOALLINE_EMAIL_NUDGES', 'GOALLINE_EMAIL_RECAPS', 'GOALLINE_EMAIL_NOTIFICATIONS', 'GOALLINE_PUSH', 'APP_ENV'];
+        $saved = [];
+
+        foreach ($names as $name) {
+            $saved[$name] = [$_ENV[$name] ?? null, $_SERVER[$name] ?? null, getenv($name)];
+            unset($_ENV[$name], $_SERVER[$name]);
+            putenv($name);
         }
 
-        $original = $_SERVER['APP_ENV'] ?? null;
-        $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'production';
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'production';
         putenv('APP_ENV=production');
 
         try {
             $config = require config_path('goalline.php');
         } finally {
-            $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $original ?? 'testing';
-            putenv('APP_ENV='.($original ?? 'testing'));
+            foreach ($saved as $name => [$env, $server, $process]) {
+                unset($_ENV[$name], $_SERVER[$name]);
+                putenv($name);
+
+                if ($env !== null) {
+                    $_ENV[$name] = $env;
+                }
+
+                if ($server !== null) {
+                    $_SERVER[$name] = $server;
+                }
+
+                if ($process !== false) {
+                    putenv("{$name}={$process}");
+                }
+            }
         }
 
         $this->assertSame([

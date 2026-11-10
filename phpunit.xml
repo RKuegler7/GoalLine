@@ -34,5 +34,11 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Outbound messaging is on in tests (tests that need it off switch it off themselves), whatever .env says. -->
+        <env name="GOALLINE_EMAIL_REMINDERS" value="true"/>
+        <env name="GOALLINE_EMAIL_NUDGES" value="true"/>
+        <env name="GOALLINE_EMAIL_RECAPS" value="true"/>
+        <env name="GOALLINE_EMAIL_NOTIFICATIONS" value="true"/>
+        <env name="GOALLINE_PUSH" value="true"/>
     </php>
 </phpunit>
