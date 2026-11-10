@@ -59,21 +59,52 @@ export function toast(message, { tone = 'success', retry = null, action = null }
     line.innerHTML = '<span class="gl-toast__fill"></span><span class="gl-toast__dot"></span>';
     item.appendChild(line);
 
+    // A full page swap can take the toast area with it: put it back.
+    if (!toastRegion.isConnected) {
+        document.body.appendChild(toastRegion);
+    }
+
     toastRegion.appendChild(item);
     window.setTimeout(() => item.classList.add('is-leaving'), next ? 8000 : 3200);
     window.setTimeout(() => item.remove(), next ? 8400 : 3600);
 }
 
-// A message carried over from a live action that moved to another page.
-try {
-    const carried = sessionStorage.getItem('goalline:toast');
+// A message carried over from a live action that moved to another page (first load and after each page swap).
+function showCarriedToast() {
+    try {
+        const carried = sessionStorage.getItem('goalline:toast');
 
-    if (carried) {
-        sessionStorage.removeItem('goalline:toast');
-        toast(carried);
+        if (carried) {
+            sessionStorage.removeItem('goalline:toast');
+            toast(carried);
+        }
+    } catch {
+        // Storage can be off; the page's own status message still shows.
     }
-} catch {
-    // Storage can be off; the page's own status message still shows.
+}
+
+showCarriedToast();
+document.addEventListener('turbo:load', showCarriedToast);
+
+/**
+ * Show the page the server answered with, without a full reload: Turbo renders the HTML we already have. Staying on
+ * the same page morphs it in place and keeps the scroll position; a new page is pushed so Back works. Without Turbo,
+ * the browser goes there the ordinary way.
+ */
+function visitWith(url, html, action) {
+    const turbo = window.Turbo;
+
+    if (!turbo?.visit) {
+        if (action === 'replace') {
+            window.location.reload();
+        } else {
+            window.location.assign(url);
+        }
+
+        return;
+    }
+
+    turbo.visit(url, { action, response: { statusCode: 200, redirected: true, responseHTML: html } });
 }
 
 // Back where you were after a live action that had to reload the page.
@@ -390,7 +421,8 @@ async function submit(form, submitter) {
             throw new Error(String(response.status));
         }
 
-        const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
         const landed = new URL(response.url);
 
         // A form inside a sheet with its own source (the Check in sheet): refresh from that source, wherever the
@@ -421,26 +453,21 @@ async function submit(form, submitter) {
                 // Fine without it.
             }
 
-            window.location.assign(response.url);
+            // No full reload: Turbo shows the page the server already sent.
+            visitWith(response.url, html, 'advance');
 
             return;
         }
 
-        // A form outside any refreshable region: reload the page, but keep the scroll position and show the toast.
+        // A form outside any refreshable region: refresh this page in place (morphed, scroll kept), with the toast.
         if (!form.closest('[data-region]')) {
-            try {
-                const message = flashFrom(doc);
+            optimistic(form, false);
+            visitWith(response.url, html, 'replace');
+            const message = flashFrom(doc);
 
-                if (message) {
-                    sessionStorage.setItem('goalline:toast', message);
-                }
-
-                sessionStorage.setItem('goalline:scroll', JSON.stringify({ path: window.location.pathname, y: window.scrollY }));
-            } catch {
-                // Fine without it.
+            if (message) {
+                document.addEventListener('turbo:load', () => toast(message), { once: true });
             }
-
-            window.location.reload();
 
             return;
         }
@@ -468,14 +495,43 @@ async function submit(form, submitter) {
     }
 }
 
+/**
+ * Every POST form is live unless it opts out with data-live="false": it's sent with fetch and the answer is shown in
+ * place (regions swapped, or the page morphed with its scroll kept, or the next page shown by Turbo), never a full
+ * reload. GET forms (search) go through Turbo too. Without JavaScript all of them are ordinary forms.
+ */
+function isLive(form) {
+    const method = (form.getAttribute('method') || 'get').toLowerCase();
+
+    if (form.dataset.live === 'false' || form.target || method === 'dialog' || form.dataset.turbo === 'false') {
+        return false;
+    }
+
+    return form.hasAttribute('data-live') || method === 'post';
+}
+
 document.addEventListener('submit', (event) => {
-    const form = event.target.closest('form[data-live]');
+    const form = event.target.closest('form');
 
     // Forms with their own confirm() that was declined arrive here already cancelled.
     if (!form || event.defaultPrevented || !window.fetch || !window.DOMParser) {
         return;
     }
 
-    event.preventDefault();
-    submit(form, event.submitter);
+    if (isLive(form)) {
+        event.preventDefault();
+        submit(form, event.submitter);
+
+        return;
+    }
+
+    // A search: let Turbo show the results without a full reload.
+    const method = (form.getAttribute('method') || 'get').toLowerCase();
+
+    if (method === 'get' && !form.target && window.Turbo?.visit && form.dataset.turbo !== 'false') {
+        event.preventDefault();
+        const url = new URL(form.action || window.location.href, window.location.href);
+        url.search = new URLSearchParams(new FormData(form, event.submitter)).toString();
+        window.Turbo.visit(url.toString());
+    }
 });

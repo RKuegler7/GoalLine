@@ -60,7 +60,7 @@
 @endif
 
 @if ($canDispute && ! $mine && $task->dispute_status !== App\Models\RoadmapTask::DISPUTE_UPHELD)
-    <details class="ml-1 inline-block">
+    <details class="ml-1 inline-block open:mt-1 open:ml-0 open:block open:w-full">
         <summary class="cursor-pointer list-none font-semibold text-ink/70 hover:text-club [&::-webkit-details-marker]:hidden">Dispute</summary>
         <form method="POST" action="{{ route('disputes.store', $task) }}" data-live class="mt-1 flex gap-1.5">
             @csrf

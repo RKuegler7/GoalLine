@@ -1,12 +1,21 @@
 # GoalLine QA report
 
-Generated 2026-11-09 21:48 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
+Generated 2026-11-10 03:06 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
 
 | Profile | Demo script | Time |
 | --- | --- | --- |
-| iPhone 14 (WebKit) | Passed | 91s |
-| Small Android (Chromium) | Passed | 40s |
-| Desktop (Chromium) | Passed | 35s |
+| iPhone 14 (WebKit) | Passed | 87s |
+| iPhone 14 (WebKit) | Passed | 7s |
+| iPhone 14 (WebKit) | Passed | 6s |
+| iPhone 14 (WebKit) | Passed | 5s |
+| Small Android (Chromium) | Passed | 38s |
+| Small Android (Chromium) | Passed | 7s |
+| Small Android (Chromium) | Passed | 6s |
+| Small Android (Chromium) | Passed | 5s |
+| Desktop (Chromium) | Passed | 33s |
+| Desktop (Chromium) | Passed | 7s |
+| Desktop (Chromium) | Passed | 5s |
+| Desktop (Chromium) | Passed | 5s |
 
 **0 blockers, 0 important, 2 nice to have.**
 
