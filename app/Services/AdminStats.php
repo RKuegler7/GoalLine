@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Usage;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -121,6 +122,36 @@ class AdminStats
         }
 
         return ['s3' => $s3, 'bucket' => $s3 ? config('filesystems.disks.uploads.bucket') : null, 'working' => $working, 'problem' => $problem];
+    }
+
+    /**
+     * The background queue (emails, re-scoring after disputes and proof, the coach): how it runs, what's waiting and
+     * for how long, and what failed. A worker that's running keeps "waiting" near zero.
+     *
+     * @return array{connection: string, waiting: int|null, oldestMinutes: int|null, failed: int|null, healthy: bool}
+     */
+    public function queue(): array
+    {
+        $connection = (string) config('queue.default');
+
+        if ($connection !== 'database') {
+            return ['connection' => $connection, 'waiting' => null, 'oldestMinutes' => null, 'failed' => null, 'healthy' => true];
+        }
+
+        $table = (string) config('queue.connections.database.table', 'jobs');
+        $waiting = DB::table($table)->whereNull('reserved_at')->count();
+        $oldest = DB::table($table)->whereNull('reserved_at')->min('available_at');
+        $oldestMinutes = $oldest ? (int) floor((now()->getTimestamp() - (int) $oldest) / 60) : null;
+        $failed = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->where('failed_at', '>=', now()->subDay())->count() : null;
+
+        return [
+            'connection' => $connection,
+            'waiting' => $waiting,
+            'oldestMinutes' => $oldestMinutes,
+            'failed' => $failed,
+            // Anything waiting more than five minutes means no worker is picking jobs up.
+            'healthy' => $oldestMinutes === null || $oldestMinutes < 5,
+        ];
     }
 
     /**

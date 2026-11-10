@@ -53,6 +53,18 @@
             @endif
         </section>
 
+        {{-- Background jobs: emails and re-scoring after disputes and proof run here, after each save. --}}
+        <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2" data-queue-health>
+            <h2 class="eyebrow text-club">Background jobs</h2>
+            @if ($queue['waiting'] === null)
+                <p class="mt-2 text-sm text-ink">Jobs run right away (<span class="font-mono">{{ $queue['connection'] }}</span> queue).</p>
+            @elseif ($queue['healthy'])
+                <p class="mt-2 text-sm text-ink"><span class="font-semibold text-club">&check; Worker running.</span> {{ $queue['waiting'] }} waiting{{ $queue['failed'] !== null ? ' · '.$queue['failed'].' failed in the last day' : '' }}.</p>
+            @else
+                <p class="mt-2 text-sm text-red-700"><span class="font-semibold">Jobs are piling up:</span> {{ $queue['waiting'] }} waiting, the oldest for {{ $queue['oldestMinutes'] }} minutes. The queue worker isn't running. Redeploy, or restart the <span class="font-mono">goalline-queue</span> service.</p>
+            @endif
+        </section>
+
         {{-- AI spend. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">AI spend</h2>
