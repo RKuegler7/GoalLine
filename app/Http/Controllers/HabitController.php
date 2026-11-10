@@ -6,6 +6,7 @@ use App\Clock;
 use App\Models\Goal;
 use App\Models\Habit;
 use App\Models\RoadmapWeek;
+use App\Services\BandProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -94,24 +95,24 @@ class HabitController extends Controller
                 return $this->back($request, $habit->goal, "Log a number for \"{$habit->title}\": it counts at {$habit->ruleLabel()}.");
             }
 
-            $existing ? $existing->delete() : $habit->logs()->create(['logged_on' => $day]);
+            $bandUp = BandProgress::around($week, fn () => $existing ? $existing->delete() : $habit->logs()->create(['logged_on' => $day]));
 
-            return $this->back($request, $habit->goal, $existing ? 'Check-in undone.' : CheckInController::CHECKED_IN);
+            return $this->back($request, $habit->goal, $existing ? 'Check-in undone.' : CheckInController::CHECKED_IN)->with('band_up', $bandUp);
         }
 
         $value = (float) $request->validate(['value' => ['numeric', 'min:0', 'max:100000']], [
             'value.numeric' => 'Enter a number, like 2.5.',
         ])['value'];
         $met = $habit->meets($value);
-        $existing
+        $bandUp = BandProgress::around($week, fn () => $existing
             ? $existing->update(['value' => $value, 'met' => $met])
-            : $habit->logs()->create(['logged_on' => $day, 'value' => $value, 'met' => $met]);
+            : $habit->logs()->create(['logged_on' => $day, 'value' => $value, 'met' => $met]));
 
         $logged = $habit->formatNumber($value).' '.$habit->unitLabel();
 
         return $this->back($request, $habit->goal, $met
             ? "Logged {$logged}. It counts: one more day on the line."
-            : "Logged {$logged}. Your rule is {$habit->ruleLabel()}, so it doesn't count yet. Update it if you do more today.");
+            : "Logged {$logged}. Your rule is {$habit->ruleLabel()}, so it doesn't count yet. Update it if you do more today.")->with('band_up', $bandUp);
     }
 
     /**

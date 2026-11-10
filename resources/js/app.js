@@ -1,5 +1,6 @@
 import { eachOnPage, onPage } from './shell';
 import { refreshPage, toast } from './live';
+import './celebrate';
 
 /**
  * League chat: send without a page reload and pick up new messages every few seconds.

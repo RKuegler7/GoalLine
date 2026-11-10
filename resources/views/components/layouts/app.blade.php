@@ -138,6 +138,13 @@
             </p>
         @endif
 
+        @if (session('band_up'))
+            {{-- A check-in just moved a GoalWeek up a band (worked out by the scoring code): celebrate.js plays it. --}}
+            <span data-band-up hidden data-band="{{ session('band_up')['band'] }}" data-label="{{ session('band_up')['label'] }}"
+                data-percent="{{ session('band_up')['percent'] }}" data-needs-proof="{{ session('band_up')['needsProof'] ? '1' : '' }}"
+                data-goal-url="{{ session('band_up')['goalUrl'] }}"></span>
+        @endif
+
         {{ $slot }}
     </main>
 
@@ -178,6 +185,8 @@
             @endforeach
         </ul>
     </nav>
+
+    <x-band-celebration />
 
     @if ($showCheckIn)
         {{-- Check in from anywhere: a floating button that opens today's list as a bottom sheet over the page. --}}

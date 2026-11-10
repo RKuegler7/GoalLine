@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Atomic;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
+use App\Services\BandProgress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -68,17 +69,18 @@ class CheckInController extends Controller
 
         // A second tab may have checked it off a moment ago: lock, re-check, and write only if it's still open.
         $resultValue = $task->result_value;
-        Atomic::run(function () use ($task, $resultValue) {
+        // The band before and after, from the scoring code: a step up earns the celebration (once per band a week).
+        $bandUp = BandProgress::around($week, fn () => Atomic::run(function () use ($task, $resultValue) {
             $current = RoadmapTask::whereKey($task->id)->lockForUpdate()->first();
 
             if (! $current->completed_at) {
                 $current->forceFill(['completed_at' => now(), 'result_value' => $task->result_required ? $resultValue : $current->result_value])->save();
             }
-        });
+        }));
         $task->refresh();
 
         // Offer "Show your work" right where they checked it off.
-        return $this->backTo($week)->with('proof_prompt', $task->id)->with('status', self::CHECKED_IN);
+        return $this->backTo($week)->with('proof_prompt', $task->id)->with('status', self::CHECKED_IN)->with('band_up', $bandUp);
     }
 
     /**
@@ -135,9 +137,10 @@ class CheckInController extends Controller
             return $this->backTo($week);
         }
 
-        $week->forceFill(['milestone_hit_at' => $week->milestone_hit_at ? null : now()])->save();
+        $bandUp = BandProgress::around($week, fn () => $week->forceFill(['milestone_hit_at' => $week->milestone_hit_at ? null : now()])->save());
+        $week->refresh();
 
-        return $this->backTo($week)->with('status', $week->milestone_hit_at ? 'Milestone hit. That\'s the process paying off.' : 'Milestone unmarked.');
+        return $this->backTo($week)->with('status', $week->milestone_hit_at ? 'Milestone hit. That\'s the process paying off.' : 'Milestone unmarked.')->with('band_up', $bandUp);
     }
 
     /**

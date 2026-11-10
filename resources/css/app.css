@@ -453,3 +453,113 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
         animation: none !important;
     }
 }
+
+/* ---------- Band-up celebration ---------- */
+.gl-celebrate [data-celebration-line] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+}
+
+.gl-celebrate [data-celebration-diamond] {
+    opacity: 0;
+    transform-origin: 286px 12px;
+}
+
+.gl-celebrate.is-playing .gl-celebrate__card {
+    animation: gl-celebrate-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.gl-celebrate.is-playing [data-celebration-line] {
+    animation: gl-celebrate-fill 650ms ease-out both;
+}
+
+.gl-celebrate.is-leaving .gl-celebrate__card {
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+
+/* In line: the dot pulses once the line is full. */
+.gl-celebrate[data-band='in_line'].is-playing [data-celebration-dot] {
+    animation: gl-celebrate-pulse 500ms 600ms ease-out both;
+    transform-origin: 278px 12px;
+}
+
+/* Past the line: a golden shine sweeps across the card. */
+.gl-celebrate[data-band='past'] .gl-celebrate__card {
+    background-image: linear-gradient(110deg, transparent 35%, rgb(212 172 88 / 0.55) 50%, transparent 65%);
+    background-size: 250% 100%;
+    background-repeat: no-repeat;
+}
+
+.gl-celebrate[data-band='past'].is-playing .gl-celebrate__card {
+    animation: gl-celebrate-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1), gl-celebrate-shine 900ms 200ms ease-out both;
+}
+
+.gl-celebrate[data-band='past'] [data-celebration-line] {
+    stroke: var(--color-gold);
+}
+
+/* Smashed: the dot runs past the end tick and a blue diamond bursts. */
+.gl-celebrate[data-band='smashed'] [data-celebration-line] {
+    stroke: #0369a1;
+}
+
+.gl-celebrate[data-band='smashed'].is-playing [data-celebration-dot] {
+    animation: gl-celebrate-run 600ms 300ms ease-in both;
+}
+
+.gl-celebrate[data-band='smashed'].is-playing [data-celebration-diamond] {
+    animation: gl-celebrate-burst 520ms 750ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+@keyframes gl-celebrate-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+@keyframes gl-celebrate-fill {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes gl-celebrate-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+@keyframes gl-celebrate-shine {
+    from { background-position: 120% 0; }
+    to { background-position: -60% 0; }
+}
+
+@keyframes gl-celebrate-run {
+    from { transform: translateX(-272px); }
+    to { transform: translateX(10px); opacity: 0; }
+}
+
+@keyframes gl-celebrate-burst {
+    0% { opacity: 0; transform: scale(0.2); }
+    60% { opacity: 1; transform: scale(1.5); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Reduced motion: no movement, just the card and the band's colour, fading in and out. */
+@media (prefers-reduced-motion: reduce) {
+    .gl-celebrate.is-playing .gl-celebrate__card,
+    .gl-celebrate.is-playing [data-celebration-line],
+    .gl-celebrate.is-playing [data-celebration-dot],
+    .gl-celebrate.is-playing [data-celebration-diamond] {
+        animation: gl-celebrate-fade 200ms ease-out both !important;
+    }
+
+    .gl-celebrate[data-band='smashed'] [data-celebration-diamond] {
+        opacity: 1;
+    }
+}
+
+@keyframes gl-celebrate-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}

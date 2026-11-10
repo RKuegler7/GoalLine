@@ -250,6 +250,24 @@ export async function refreshPage() {
 /**
  * The toast after a live action. Checking off a task offers "Add proof", which opens its Show your work panel.
  */
+/**
+ * A check-in that moved a GoalWeek up a band (the server says so, from its scoring code): pass it to celebrate.js.
+ */
+function playBandUp(doc) {
+    const marker = doc.querySelector('[data-band-up]');
+
+    if (marker) {
+        document.dispatchEvent(new CustomEvent('goalline:band-up', {
+            detail: {
+                band: marker.dataset.band,
+                percent: marker.dataset.percent,
+                needsProof: marker.dataset.needsProof === '1',
+                goalUrl: marker.dataset.goalUrl,
+            },
+        }));
+    }
+}
+
 function announce(form, message, regions, sent) {
     const checked = form.dataset.optimistic === 'check' && sent?.get('intent') === 'done';
     const taskId = form.dataset.liveKey?.replace('task-', '');
@@ -437,6 +455,7 @@ async function submit(form, submitter) {
             celebrate(form, regions);
             form.closest('[data-live-source]').dataset.changed = '1';
             announce(form, flashFrom(doc), regions, typed);
+            playBandUp(doc);
 
             return;
         }
@@ -484,6 +503,7 @@ async function submit(form, submitter) {
 
         if (message) {
             announce(form, message, regions, typed);
+            playBandUp(doc);
         } else if (hasErrors) {
             toast('Almost: check the note next to the field.', { tone: 'warning' });
         }

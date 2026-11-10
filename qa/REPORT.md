@@ -1,21 +1,30 @@
 # GoalLine QA report
 
-Generated 2026-11-10 03:06 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
+Generated 2026-11-10 04:03 UTC by `npm run qa`. Screenshots are in `qa/screenshots/` (not committed).
 
 | Profile | Demo script | Time |
 | --- | --- | --- |
-| iPhone 14 (WebKit) | Passed | 87s |
-| iPhone 14 (WebKit) | Passed | 7s |
+| iPhone 14 (WebKit) | Passed | 19s |
+| iPhone 14 (WebKit) | Passed | 8s |
 | iPhone 14 (WebKit) | Passed | 6s |
-| iPhone 14 (WebKit) | Passed | 5s |
-| Small Android (Chromium) | Passed | 38s |
-| Small Android (Chromium) | Passed | 7s |
+| iPhone 14 (WebKit) | Passed | 96s |
+| iPhone 14 (WebKit) | Passed | 10s |
+| iPhone 14 (WebKit) | Passed | 8s |
+| iPhone 14 (WebKit) | Passed | 7s |
 | Small Android (Chromium) | Passed | 6s |
+| Small Android (Chromium) | Passed | 8s |
 | Small Android (Chromium) | Passed | 5s |
-| Desktop (Chromium) | Passed | 33s |
+| Small Android (Chromium) | Passed | 51s |
+| Small Android (Chromium) | Passed | 9s |
+| Small Android (Chromium) | Passed | 8s |
+| Small Android (Chromium) | Passed | 8s |
+| Desktop (Chromium) | Passed | 6s |
 | Desktop (Chromium) | Passed | 7s |
 | Desktop (Chromium) | Passed | 5s |
-| Desktop (Chromium) | Passed | 5s |
+| Desktop (Chromium) | Passed | 44s |
+| Desktop (Chromium) | Passed | 9s |
+| Desktop (Chromium) | Passed | 8s |
+| Desktop (Chromium) | Passed | 7s |
 
 **0 blockers, 0 important, 2 nice to have.**
 

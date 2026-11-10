@@ -73,6 +73,9 @@
                     <div @class(['mt-1 flex', 'justify-end' => $right])>
                         <x-plan-status :week="$side['goalWeek']" :href="route('leagues.members.plan', [$league, $side['member']])" />
                     </div>
+                    @if ($side['goalWeek'])
+                        <x-band-track :week="$side['goalWeek']" compact />
+                    @endif
 
                     @if ($targets)
                         {{-- Plain-language targets, from the scoring code. --}}

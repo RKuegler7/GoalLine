@@ -3,6 +3,16 @@
         <x-page-header title="Today" :back="route('dashboard')" back-label="Clubhouse" :eyebrow="$gameplan->today->format('l, F j')" subtitle="Trust the process. Show up today." />
     </x-slot:hero>
 
+    {{-- Each goal's live band: it moves the moment you check something off below. --}}
+    @php $bandWeeks = collect($gameplan->entries)->pluck('week')->filter()->unique('id'); @endphp
+    @if ($bandWeeks->isNotEmpty())
+        <section data-region="today-bands" aria-label="This GoalWeek's bands" class="mb-4 space-y-3 rounded-xl border border-line bg-white px-3 pt-3 pb-1">
+            @foreach ($bandWeeks as $bandWeek)
+                <x-band-track :week="$bandWeek" :label="$bandWeek->goal->title" />
+            @endforeach
+        </section>
+    @endif
+
     <x-on-the-line :streak="$streak" />
 
     <x-todays-gameplan :gameplan="$gameplan" return="today" class="mt-6" />

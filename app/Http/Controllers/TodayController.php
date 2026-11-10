@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\BandProgress;
 use App\Services\DailyStreak;
 use App\Services\TodaysGameplan;
 use Illuminate\Http\RedirectResponse;
@@ -32,13 +33,17 @@ class TodayController extends Controller
         $gameplan = $this->gameplan($request);
         $open = $gameplan->simpleOpen();
 
-        foreach ($open['tasks'] as $task) {
-            $task->forceFill(['completed_at' => now()])->save();
-        }
+        // Every GoalWeek this touches, before and after: the biggest band-up is celebrated.
+        $weeks = collect($gameplan->entries)->pluck('week')->filter()->unique('id');
+        $bandUp = BandProgress::aroundMany($weeks, function () use ($open, $gameplan) {
+            foreach ($open['tasks'] as $task) {
+                $task->forceFill(['completed_at' => now()])->save();
+            }
 
-        foreach ($open['habits'] as $habit) {
-            $habit->logs()->create(['logged_on' => $gameplan->today]);
-        }
+            foreach ($open['habits'] as $habit) {
+                $habit->logs()->create(['logged_on' => $gameplan->today]);
+            }
+        });
 
         $count = $open['tasks']->count() + $open['habits']->count();
         $status = $count > 0
@@ -47,7 +52,7 @@ class TodayController extends Controller
 
         return ($request->input('return') === 'gameplan'
             ? redirect()->to(route('dashboard').'#gameplan')
-            : redirect()->route('today'))->with('status', $status);
+            : redirect()->route('today'))->with('status', $status)->with('band_up', $bandUp);
     }
 
     private function gameplan(Request $request): TodaysGameplan

@@ -79,11 +79,18 @@
                             @endphp
                             <details class="group rounded-xl border border-line bg-white">
                                 <summary class="flex min-h-12 cursor-pointer list-none items-center gap-3 px-3 py-2 [&::-webkit-details-marker]:hidden">
-                                    <span class="min-w-0 flex-1">
-                                        <span class="block truncate text-[15px] font-bold text-club">{{ $goal->title }}</span>
-                                        <x-progress-bar :percent="$percent" class="mt-1.5" label="{{ $goal->title }}: {{ $percent }}% of plan" />
+                                    {{-- Its own region, so a check-in updates the band here without closing the details. --}}
+                                    <span class="min-w-0 flex-1" data-region="goal-band-{{ $goal->id }}">
+                                        <span class="flex items-center justify-between gap-2">
+                                            <span class="truncate text-[15px] font-bold text-club">{{ $goal->title }}</span>
+                                            <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $percent }}%</span>
+                                        </span>
+                                        @if ($week)
+                                            <x-band-track :week="$week" compact />
+                                        @else
+                                            <x-progress-bar :percent="$percent" class="mt-1.5" label="{{ $goal->title }}: {{ $percent }}% of plan" />
+                                        @endif
                                     </span>
-                                    <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $percent }}%</span>
                                     <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
                                 </summary>
                                 <div class="border-t border-line">
