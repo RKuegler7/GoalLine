@@ -165,7 +165,7 @@ Judges never type a username or password.
   - a friend outside the leagues, a friend request, a group task waiting on John's vote, and a challenge;
   - a Smashed week with proof that counts in full (Red), and one without proof credited as Past with "Needs proof" (Kate);
   - a disputed check-in for John to settle, and a lighter week ("Midterms week").
-- **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips and captions), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. Demo starts and resets are limited to 10 an hour.
+- **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips, captions and recap summaries), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. Demo starts and resets are limited to 10 an hour.
 - **Demo mode banner** with "Reset demo", which rebuilds that visitor's copy.
 - **Cleanup:** demo worlds are deleted after `DEMO_TTL_HOURS` (24). Cleanup runs whenever a new demo starts or resets, so it never depends on the scheduler (an hourly scheduled cleanup also runs).
 - `php artisan db:seed` builds the same world locally (see the README).
@@ -198,6 +198,7 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | plan_refinements | Proposed plan changes from the coach or a restore, waiting for the member's preview |
 | goal_intakes | The intake questions for a goal (coach-written or built-in) and the member's answers |
 | week_reviews | End-of-week reflections and the coach's tip |
+| recap_narrations | The saved summary of a member's finished week (AI, demo sample or template) and a hash of the numbers it was written from |
 | leagues | GoalLeagues: name, category, season dates, invite code, owner |
 | league_members | Who plays which goal in a league |
 | league_results | Each member's weekly band, line points, opponent and match points |

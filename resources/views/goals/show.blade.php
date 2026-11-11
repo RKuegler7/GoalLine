@@ -74,6 +74,12 @@
 
     <x-roadmap :goal="$goal" />
 
+    @can('update', $goal)
+        @if ($goal->weeks->isNotEmpty())
+            <x-ai-code-split :goal="$goal" collapsed class="mt-6" />
+        @endif
+    @endcan
+
     @if ($goal->isActive())
         <div class="mt-6 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
             <p class="text-ink/70">

@@ -46,13 +46,24 @@ Every AI call runs in the background queue (except the optional caption helper),
 - **Out:** one short caption the member edits or ignores.
 - **Fallback:** "Couldn't suggest one right now. Write your own!"
 
+### 7. Weekly recap narrator
+- **When:** the first time a member opens a finished week's recap (`RecapNarrator`, queued as `NarrateRecap`). It's saved once per member and week, and written again only if that week's numbers change (for example, after a dispute re-scores it).
+- **In:** only numbers code already computed: check-ins, active days, best day, line points, streak, badges, cheers, and each goal's result and percent of plan. No notes, reflections or intake answers.
+- **Out:** two or three warm, process-focused sentences.
+- **Checked:** 2 to 3 sentences, a sensible length, and **no number (in digits or words) that code didn't hand it**. So it can't invent a total or do arithmetic on a score.
+- **Fallback:** a plain template written by code from the same numbers. The page always says which one you're reading.
+
+## You can see who did what
+
+Each goal page has a **"What the AI did, what code did"** panel, built from that goal's real history: how many intake questions the coach wrote, that it drafted the GoalWeeks, each refinement you approved, and on the code side which weeks were raised to the minimum pace ("We raised GoalWeek 3 to your minimum pace."), how many weeks are locked, and the points scored so far. The About page shows the general version (`AiCodeSplit`, `x-ai-code-split`).
+
 ## What the AI never does
 
 - **Score anything.** Points, bands, credited percent, match results, photo finishes, byes and league tables are plain PHP (`GoalWeekResult`, `MatchupOutcome`, `LeagueTable`), with tests for every boundary.
 - **Rule on disputes.** People settle disputes: proof, an explanation, a withdrawal, or the league owner's ruling (`Disputes`).
 - **Set the minimum pace.** Code does (`PlanFloor`), and it can only make a plan harder.
 - **Give medical advice.** Plans are general guidance, physical goals get conservative progression and rest days, and the app says to check with a doctor about health concerns.
-- **Write share cards or recaps' numbers.** Weekly result cards are drawn by code from the scoring code's results (`ResultCardData`).
+- **Write share cards or recaps' numbers.** Weekly result cards are drawn by code from the scoring code's results (`ResultCardData`). The recap narrator only words numbers code gives it, and any answer with a new number is thrown away.
 
 ## Cost and safety controls
 

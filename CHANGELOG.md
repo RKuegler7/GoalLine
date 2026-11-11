@@ -14,6 +14,8 @@ How GoalLine was built, week by week, from the real commit history (`git log`). 
 - **Messaging switches** to pause each kind of email or push without breaking sign-up.
 - **Phase S:** `/health`, `goalline:preflight`, a live smoke test, security headers, AI and mail timeouts, query-count tests, WCAG AA text contrast, and the reliability checklist.
 - **Phase T:** the MIT license, a complete `.env.example`, CI on GitHub Actions, and the architecture, AI and decisions docs.
+- **Security update:** Laravel 13.42 and Symfony 8.1.11, for the Symfony advisories published Nov 4.
+- **Phase U:** a "What the AI did, what code did" panel on each goal and in About, and a recap narrator that words a finished week only from numbers code computed, with a template fallback.
 
 ## Week of Nov 2, 2026: plan honesty, the demo and smooth interactions
 

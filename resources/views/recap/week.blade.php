@@ -29,6 +29,22 @@
     </x-slot:hero>
 
     <div class="mx-auto max-w-3xl space-y-6">
+        {{-- The finished week in a few sentences. Code counted every number; the narrator only wrote the words. --}}
+        @if ($narration ?? null)
+            <section class="rounded-2xl border border-club/30 bg-white px-4 py-3" aria-labelledby="recap-summary-title">
+                <h2 id="recap-summary-title" class="eyebrow text-club">Your week in a sentence or three</h2>
+                <p class="mt-2 font-serif text-lg leading-relaxed text-ink tracking-tight">{{ $narration->body }}</p>
+                <p class="mt-2 flex items-center gap-1.5 text-xs text-ink/70">
+                    <x-icon name="info" class="size-3.5 shrink-0 text-club" />
+                    <span class="min-w-0">{{ match ($narration->source) {
+                        App\Models\RecapNarration::AI => 'Written by the AI coach from numbers GoalLine\'s code counted. The AI can\'t change a score.',
+                        App\Models\RecapNarration::SAMPLE => 'A saved demo sample, so the demo never calls the live AI. The numbers come from code.',
+                        default => 'A plain summary written by code from your numbers.',
+                    } }}</span>
+                </p>
+            </section>
+        @endif
+
         {{-- Day by day. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">Day by day</h2>

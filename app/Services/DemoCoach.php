@@ -81,6 +81,23 @@ class DemoCoach
         return 'Demo coach: your best days started early. Put tomorrow\'s hardest task first, and protect that slot like a meeting.';
     }
 
+    /**
+     * A sample recap summary that only uses the numbers code computed, like the real narrator must.
+     *
+     * @param  array{check_ins: int, active_days: int, streak_days: int, line_points: int}  $facts
+     */
+    public static function recap(array $facts): string
+    {
+        if ($facts['check_ins'] === 0) {
+            return 'Demo coach: a quiet week is still part of the process. Plan the new GoalWeek and step back on the line.';
+        }
+
+        return "Demo coach: {$facts['check_ins']} ".Str::plural('check-in', $facts['check_ins'])
+            ." across {$facts['active_days']} ".Str::plural('day', $facts['active_days']).' is what showing up looks like. '
+            .($facts['line_points'] > 0 ? "Those reps earned {$facts['line_points']} line ".Str::plural('point', $facts['line_points']).'. ' : '')
+            .'Keep stacking days, one more on the line.';
+    }
+
     public static function caption(RoadmapTask $task): string
     {
         return Str::limit("Showing the process: {$task->description}. One more day on the line.", 280);

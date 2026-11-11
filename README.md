@@ -63,7 +63,10 @@ GoalLine uses **Anthropic's Claude API**. The AI:
 - **drafts the roadmap** from the goal, the answers and any uploaded study or training plan;
 - **refines the plan** when you ask in your own words ("Make weeks lighter, I have finals"), as a preview you accept or discard;
 - checks your edits and gives an end-of-week **coach's tip**;
+- **narrates your finished week** in two or three sentences, using only numbers code counted (any answer with a new number is replaced by a plain template);
 - optionally **suggests a caption** for a post, which you edit.
+
+Every goal page shows **what the AI did and what code did** for that plan, with live examples like "We raised GoalWeek 3 to your minimum pace."
 
 The AI **never scores** a week, **never decides a dispute**, **never sets the minimum pace**, and **never gives medical advice**. Scoring and fairness are plain, tested PHP.
 
@@ -192,6 +195,7 @@ The full reasoning, including why things were built the way they were, is in [do
 | — | Switches to pause outbound email and push | Done |
 | S | Reliability, security and accessibility hardening | Done |
 | T | Final README, architecture and AI docs, repo hygiene | Done |
+| U | AI you can see: the AI/code panel and the recap narrator | Done |
 
 Week by week, from the commit history: [CHANGELOG.md](CHANGELOG.md). The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md) (P–U).
 

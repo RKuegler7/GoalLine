@@ -80,6 +80,8 @@ sequenceDiagram
 | Refining a plan from the member's own words | **AI**, as a preview to accept or discard | `RefinePlan`, `PlanRefinement` |
 | Checking manual plan edits, weekly coach tip | **AI** | `ReviewRoadmapChanges`, `CoachWeekReview` |
 | Caption suggestion for a post (optional) | **AI**, edited by the member | `CaptionWriter` |
+| Finished-week recap summary | **AI** words code's numbers; rejected if it adds a number (template if so) | `RecapNarrator`, `NarrateRecap` |
+| "What the AI did, what code did" panel | **Code**, from the goal's history | `AiCodeSplit` |
 | Minimum pace for each week (plan floor) | **Code** | `PlanFloor` |
 | Plan lock, plan history, what can still change | **Code** | `PlanEditor`, `PlanVersion` |
 | Points, bands, credited percent, Smashed proof rule | **Code** | `GoalWeekResult`, `RoadmapWeek` |

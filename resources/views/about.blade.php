@@ -303,7 +303,8 @@
                             <li>Draft your plan, and refine it when you ask. You preview every change and tap Accept.</li>
                             <li>Check edits to your plan and suggest a fix you can take or leave</li>
                             <li>Read plan files you upload, like a syllabus</li>
-                            <li>Write a tip after your weekly review, and suggest a caption if you ask</li>
+                            <li>Write a tip after your weekly review, and a short summary of your finished week from numbers code counted</li>
+                            <li>Suggest a caption if you ask</li>
                         </ul>
                     </div>
                     <div class="rounded-2xl border border-line bg-white px-4 py-4 text-sm">
@@ -316,6 +317,7 @@
                         </ul>
                     </div>
                 </div>
+                <x-ai-code-split class="mt-3" />
                 <p class="mt-3 text-sm text-ink/70">GoalLine plans are general guidance, not medical advice. Check with a doctor if you have health concerns.</p>
             </section>
 
