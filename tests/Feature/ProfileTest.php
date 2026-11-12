@@ -36,7 +36,7 @@ class ProfileTest extends TestCase
             ->assertSee('@jordan.rivera')
             ->assertSee('Chasing the CPA.')
             ->assertSee('Washington, DC')
-            ->assertSee('In-line streak')
+            ->assertSee('Weeks on the line')
             ->assertSee('League record')
             ->assertSee('Trophy case');
     }

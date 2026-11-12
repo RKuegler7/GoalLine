@@ -57,7 +57,7 @@
         @foreach ([
             ['Points', $stats->points(), 'From GoalWeek results'],
             ['Goals completed', $stats->completedGoals()->count(), 'Of '.$stats->goalsStarted().' '.Str::plural('goal', $stats->goalsStarted()).' started'],
-            ['In-line streak', $stats->currentStreak(), 'Best: '.$stats->bestStreak().' '.Str::plural('GoalWeek', $stats->bestStreak())],
+            ['Weeks on the line', $stats->weeksOnTheLine(), $stats->weeksOnTheLine() === 0 ? 'Start your line this week. Best: '.$stats->bestStreak() : 'In a row at In line or better. Best: '.$stats->bestStreak()],
             ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, ties, losses. Join a GoalLeague to start.' : 'Wins, ties, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
         ] as [$label, $value, $note])
             <div class="border-line px-4 py-3 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">

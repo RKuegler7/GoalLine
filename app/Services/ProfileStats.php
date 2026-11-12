@@ -88,6 +88,17 @@ class ProfileStats
     }
 
     /**
+     * Weeks on the line: consecutive finished GoalWeeks that ended In line or better (GoalWeekResult::IN_LINE_AT, 90%
+     * of plan, or more), counting
+     * back from the latest finished one across all goals. A week in progress doesn't count until it's final, so this
+     * week can't break the run before it's over.
+     */
+    public function weeksOnTheLine(): int
+    {
+        return $this->currentStreak();
+    }
+
+    /**
      * Consecutive finished GoalWeeks at In line or better, counting back from the latest.
      */
     public function currentStreak(): int

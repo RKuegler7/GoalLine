@@ -7,6 +7,7 @@ use App\Models\League;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\RoadmapStatus;
+use App\Services\ProfileStats;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -30,7 +31,45 @@ class ClubhouseTest extends TestCase
             ->get(route('dashboard'))
             ->assertSee('Good morning, Jordan.')
             ->assertSee('GoalWeek ends Sunday, 4 days left')
-            ->assertSeeInOrder(['This week', 'Total', 'In line', 'Record']);
+            ->assertSeeInOrder(['This week', 'Total', 'Record', 'Start your line this week'])
+            ->assertDontSee(' wks');
+    }
+
+    public function test_weeks_on_the_line_counts_finished_weeks_in_line_or_better_in_a_row(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->for($user)->create(['target_date' => '2026-12-31']);
+        $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
+
+        // Three finished weeks, oldest first: Short, then two at In line or better. This week is in progress and empty.
+        // Twenty 1-point tasks plus the 2-point milestone make 22 planned points: 20 of 22 is 90.9% (In line), all 22 is 100%.
+        $weeks = [];
+        foreach ([['2026-09-28', 0, false], ['2026-10-05', 20, false], ['2026-10-12', 20, true]] as $index => [$monday, $done, $milestone]) {
+            $week = $goal->weeks()->create(['position' => $index + 1, 'starts_on' => $monday, 'ends_on' => Carbon::parse($monday)->addDays(6), 'focus' => 'Work', 'milestone' => 'Done']);
+            foreach (range(1, 20) as $position) {
+                $task = $week->tasks()->create(['position' => $position, 'description' => "Task {$position}"]);
+                if ($position <= $done) {
+                    $task->forceFill(['completed_at' => Carbon::parse($monday)->addDay()->setTime(9, 0)])->saveQuietly();
+                }
+            }
+            if ($milestone) {
+                $week->forceFill(['milestone_hit_at' => Carbon::parse($monday)->addDays(5)])->save();
+            }
+            $weeks[] = $week;
+        }
+        $this->assertSame(['short', 'in_line', 'in_line'], collect($weeks)->map(fn (RoadmapWeek $week) => $week->fresh()->load('goal.weeks', 'goal.habits.logs', 'tasks')->result()->value)->all());
+        $goal->weeks()->create(['position' => 4, 'starts_on' => '2026-10-19', 'ends_on' => '2026-10-25', 'focus' => 'Now', 'milestone' => 'Done'])
+            ->tasks()->create(['position' => 1, 'description' => 'Not yet']);
+
+        $stats = new ProfileStats($user);
+        $this->assertSame(2, $stats->weeksOnTheLine(), '90% and 100% weeks count; the Short week before them ends the run.');
+
+        $this->actingAs($user)->get(route('dashboard'))
+            ->assertSeeText('2 weeks on the line')
+            ->assertSee('In line or better: 90% of your plan or more')
+            ->assertDontSee('Start your line this week');
+
+        $this->actingAs($user)->get(route('profile.show'))->assertSee('Weeks on the line');
     }
 
     public function test_tasks_can_be_checked_off_right_from_the_clubhouse(): void

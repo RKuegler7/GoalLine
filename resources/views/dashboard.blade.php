@@ -18,11 +18,10 @@
 
         {{-- Progress at a glance: one row of small stats and the streak. --}}
         <div class="mx-auto -mt-1 max-w-5xl px-4 pb-3">
-            <dl class="grid grid-cols-4 gap-1.5">
+            <dl class="grid grid-cols-3 gap-1.5">
                 @foreach ([
                     ['This week', $weekPoints, 'pts'],
                     ['Total', $stats->points(), 'pts'],
-                    ['In line', $stats->currentStreak(), Str::plural('wk', $stats->currentStreak())],
                     ['Record', $record['wins'].'–'.$record['ties'].'–'.$record['losses'], ''],
                 ] as [$label, $value, $unit])
                     <div class="rounded-lg bg-ivory/10 px-2 py-1.5 ring-1 ring-ivory/15 ring-inset">
@@ -31,7 +30,10 @@
                     </div>
                 @endforeach
             </dl>
-            <x-daily-streak :streak="$streak" class="mt-2" />
+            <div class="mt-2 flex flex-wrap items-center gap-2">
+                <x-weeks-on-the-line :weeks="$stats->weeksOnTheLine()" :best="$stats->bestStreak()" />
+                <x-daily-streak :streak="$streak" />
+            </div>
         </div>
     </x-slot:hero>
 
