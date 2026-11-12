@@ -24,6 +24,7 @@ class AdminController extends Controller
             'ai' => $stats->aiSpend(),
             'storage' => $stats->photoStorage(),
             'queue' => $stats->queue(),
+            'goalDay' => $stats->goalDay(),
             'invites' => Invite::withCount('members')->latest()->get(),
             'inviteOnly' => config('goalline.beta.invite_only'),
             'feedback' => DB::table('feedback')

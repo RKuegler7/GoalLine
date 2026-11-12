@@ -79,6 +79,24 @@ class DemoWorld
         ['Plan next week\'s study blocks', 1, null, null],
     ];
 
+    /**
+     * A week of CPA exam prep, Monday to Sunday.
+     */
+    private const CPA_WEEK = [
+        ['Practice questions, 40', 1, 40, 'questions'],
+        ['Read and outline one chapter', 1, null, null],
+        ['Timed simulation', 2, null, null],
+        ['Flashcards', 1, null, null],
+        ['Review missed questions', 1, null, null],
+        ['Mock exam block', 2, null, null],
+        ['Plan next week', 1, null, null],
+    ];
+
+    /**
+     * How long the finished CPA season ran.
+     */
+    private const FINISHED_SEASON_WEEKS = 6;
+
     private string $sandbox;
 
     private CarbonImmutable $today;
@@ -152,6 +170,9 @@ class DemoWorld
             (new LeagueTable($running->fresh()))->settle();
             (new LeagueTable($study->fresh()))->settle();
 
+            // Last term's finished season: Goal Day answered, medals awarded, ready for the finale preview.
+            $this->finishedSeason($you, $mary, $pat, $kate, $seasonStart);
+
             $this->friends($you, [$red, $mary, $pat, $fran]);
             $this->friends($red, [$tim, $steph]);
             Friendship::create(['requester_id' => $steph->id, 'addressee_id' => $you->id]);
@@ -168,6 +189,77 @@ class DemoWorld
         });
 
         return $visitor;
+    }
+
+    /**
+     * A finished season for History and the finale preview: "CPA Prep League · Season 1", six weeks that ended before
+     * this season began. Goal Day is answered (the visitor passed FAR, verified by Mary's confirm), medals are
+     * awarded by code from the settled table, and two Goal Day results are in the league's news.
+     */
+    private function finishedSeason(User $you, User $mary, User $pat, User $kate, CarbonImmutable $before): League
+    {
+        $endsOn = $before->subWeek()->endOfWeek(CarbonImmutable::SUNDAY)->startOfDay();
+        $startsOn = $endsOn->subWeeks(self::FINISHED_SEASON_WEEKS)->addDay();
+        $league = $this->league('CPA Prep League · Season 1', 'Four friends, four CPA sections, six weeks of study blocks.', GoalCategory::Career, $you, $startsOn, $endsOn);
+
+        // [person, goal, weekly history [tasks done, milestone, bonus], Goal Day answer]
+        $season = [
+            [$you, 'Pass the FAR section of the CPA exam', [[6, true, 0], [7, true, 0], [7, true, 1], [5, true, 0], [7, true, 6], [7, true, 1]], ['achieved', 'Passed FAR with an 84', 'Mock exams under a timer', 'Sunday study blocks with the league']],
+            [$mary, 'Pass the AUD section of the CPA exam', [[7, true, 0], [6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 0]], ['achieved', 'Passed AUD with an 81', 'Simulations', 'Office hours, every week']],
+            [$pat, 'Pass the REG section of the CPA exam', [[5, true, 0], [6, true, 0], [4, false, 0], [6, true, 0], [6, true, 0], [5, true, 0]], ['partly', 'Exam moved to next month', 'Tax law memorization', 'Flashcards on the train']],
+            [$kate, 'Pass the BAR section of the CPA exam', [[6, true, 0], [5, false, 0], [6, true, 0], [7, true, 1], [5, true, 0], [6, true, 0]], ['short', null, null, null]],
+        ];
+
+        $goals = [];
+
+        foreach ($season as [$person, $title, $history]) {
+            $goal = $person->goals()->create(['title' => $title, 'category' => GoalCategory::Career, 'target_date' => $endsOn, 'target_result' => 'A 75 or higher', 'why' => 'The last steps to a CPA license.']);
+            $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready, 'plan_source' => 'coach', 'plan_accepted_at' => $startsOn->subDays(3), 'created_at' => $startsOn->subDays(3)])->saveQuietly();
+
+            foreach ($history as $index => [$done, $milestone, $bonus]) {
+                $starts = $startsOn->addWeeks($index);
+                $week = $goal->weeks()->create([
+                    'position' => $index + 1,
+                    'starts_on' => $starts,
+                    'ends_on' => $starts->addDays(6),
+                    'focus' => 'Study blocks and practice questions',
+                    'milestone' => 'Score 75%+ on a timed practice set',
+                ]);
+                $this->playPastWeek($week, $this->tasksFor($week, self::CPA_WEEK, $index, 0), $done, $milestone, $bonus);
+            }
+
+            app(PlanFloor::class)->setFloors($goal->fresh());
+            $league->members()->create(['user_id' => $person->id, 'goal_id' => $goal->id]);
+            $goals[$person->id] = $goal;
+        }
+
+        (new LeagueTable($league->fresh()))->settle();
+
+        // Goal Day answers. Kate keeps hers private, so it never shows in the league's news.
+        $goalDay = app(GoalDay::class);
+
+        foreach ($season as [$person, , , [$outcome, $actual, $hardest, $helped]]) {
+            $goalDay->record($goals[$person->id], [
+                'outcome' => $outcome,
+                'actual_result' => $actual,
+                'hardest_part' => $hardest,
+                'helped_most' => $helped,
+                'shared' => $person->isNot($kate),
+            ]);
+        }
+
+        $goalDay->confirm($goals[$you->id]->fresh()->result, $mary);
+
+        // League mates cheered the shared results.
+        foreach ([[$you, [$mary, $pat, $kate]], [$mary, [$you, $pat]], [$pat, [$you, $mary]]] as [$author, $fans]) {
+            $post = $author->highlights()->where('kind', HighlightKind::GoalDay)->first();
+
+            foreach ($fans as $fan) {
+                $post?->cheers()->create(['user_id' => $fan->id]);
+            }
+        }
+
+        return $league;
     }
 
     /**

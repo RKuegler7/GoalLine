@@ -40,6 +40,23 @@
             </ol>
         </section>
 
+        {{-- Goal Day and medals: counts only, never names or notes. --}}
+        <section class="rounded-2xl border border-line bg-white px-4 py-3" data-admin-goal-day>
+            <h2 class="eyebrow text-club">Goal Day and medals</h2>
+            <dl class="mt-3 grid grid-cols-3 gap-2 text-sm">
+                @foreach (['Answered' => $goalDay['answered'], 'Achieved' => $goalDay['achieved'], 'Partly' => $goalDay['partly'], 'Short' => $goalDay['short'], 'Verified' => $goalDay['verified'], 'Shared' => $goalDay['shared']] as $label => $value)
+                    <div><dt class="text-ink/70">{{ $label }}</dt><dd class="text-lg font-bold text-ink tabular-nums">{{ $value }}</dd></div>
+                @endforeach
+            </dl>
+            <p class="mt-3 text-sm text-ink/75">
+                @forelse ($goalDay['medals'] as $medal => $count)
+                    {{ $medal }}: <span class="font-semibold tabular-nums">{{ $count }}</span>@if (! $loop->last) &middot; @endif
+                @empty
+                    No medals awarded yet.
+                @endforelse
+            </p>
+        </section>
+
         {{-- Photo storage: S3 keeps uploads through deploys. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2">
             <h2 class="eyebrow text-club">Photo storage</h2>

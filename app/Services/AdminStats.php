@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\GoalOutcome;
+use App\MedalType;
+use App\Models\GoalResult;
+use App\Models\Medal;
 use App\Models\User;
 use App\Usage;
 use Carbon\CarbonImmutable;
@@ -186,6 +190,28 @@ class AdminStats
                 ->get()
                 ->map(fn ($row) => ['name' => $row->name, 'requests' => (int) $row->requests])
                 ->all(),
+        ];
+    }
+
+    /**
+     * Goal Day and medals, in aggregate only (no names, goals or notes), real members only.
+     *
+     * @return array{answered: int, achieved: int, partly: int, short: int, verified: int, shared: int, medals: array<string, int>}
+     */
+    public function goalDay(): array
+    {
+        $results = GoalResult::whereHas('user', fn ($users) => $users->whereNull('demo_sandbox'));
+
+        return [
+            'answered' => (clone $results)->count(),
+            'achieved' => (clone $results)->where('outcome', GoalOutcome::Achieved)->count(),
+            'partly' => (clone $results)->where('outcome', GoalOutcome::Partly)->count(),
+            'short' => (clone $results)->where('outcome', GoalOutcome::Short)->count(),
+            'verified' => (clone $results)->whereNotNull('verified_at')->count(),
+            'shared' => (clone $results)->where('shared', true)->count(),
+            'medals' => Medal::whereHas('user', fn ($users) => $users->whereNull('demo_sandbox'))
+                ->selectRaw('type, count(*) as total')->groupBy('type')->pluck('total', 'type')
+                ->mapWithKeys(fn ($total, $type) => [(MedalType::tryFrom((string) $type)?->label() ?? $type) => (int) $total])->all(),
         ];
     }
 }

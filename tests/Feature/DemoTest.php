@@ -56,7 +56,7 @@ class DemoTest extends TestCase
         $this->assertSame(DemoWorld::VISITOR_NAME, $visitor->name);
         $this->assertTrue($visitor->isDemo());
         $this->assertSame(8, User::where('demo_sandbox', $visitor->demo_sandbox)->count());
-        $this->assertEqualsCanonicalizing(['Marathon by March', '4.0 This Fall'], $visitor->leagues()->pluck('name')->all());
+        $this->assertEqualsCanonicalizing(['Marathon by March', '4.0 This Fall', 'CPA Prep League · Season 1'], $visitor->leagues()->pluck('name')->all());
         $this->assertSame(1, $visitor->challenges()->count());
         $this->assertCount(4, $visitor->friends());
         $this->assertSame(4, $visitor->notifications()->count());
@@ -142,7 +142,7 @@ class DemoTest extends TestCase
 
         $this->assertSame(8, User::where('demo_sandbox', DemoWorld::SEEDED_SANDBOX)->count());
         $this->assertSame(1, User::where('email', 'test@example.com')->count());
-        $this->assertSame(2, League::count());
+        $this->assertSame(3, League::count());
 
         $this->post('/login', ['email' => DemoSeeder::EMAIL, 'password' => DemoSeeder::PASSWORD])->assertRedirect();
         $this->assertSame(DemoWorld::VISITOR_NAME, auth()->user()->name);
@@ -235,7 +235,7 @@ class DemoTest extends TestCase
         $this->get(route('demo'));
 
         $this->assertTrue(User::where('demo_sandbox', auth()->user()->demo_sandbox)->get()
-            ->every(fn (User $person) => $person->goals()->get()->every(fn ($goal) => $goal->weeks()->whereDate('starts_on', '2026-11-09')->sole()->tasks()->whereNotNull('completed_at')->doesntExist())));
+            ->every(fn (User $person) => $person->goals()->get()->every(fn ($goal) => $goal->weeks()->whereDate('starts_on', '2026-11-09')->first()?->tasks()->whereNotNull('completed_at')->doesntExist() ?? true)));
     }
 
     public function test_the_demo_coach_uses_saved_samples_and_never_calls_the_api(): void
@@ -357,5 +357,24 @@ class DemoTest extends TestCase
         }
 
         $this->assertStringContainsString('The demo includes a few AI coaching requests', $budget->blockedReason($visitor));
+    }
+
+    public function test_the_demo_has_a_finished_season_with_a_finale_to_preview(): void
+    {
+        $this->get(route('demo'));
+
+        $this->get(route('dashboard', ['tab' => 'history']))->assertOk()->assertSee('CPA Prep League · Season 1')->assertSee('Preview season finale');
+        $this->get(route('help'))->assertSee('Preview season finale');
+
+        $response = $this->get(route('finale.preview'));
+        $response->assertRedirect();
+        $this->get($response->headers->get('Location'))->assertOk()
+            ->assertSee('You did it.')->assertSee('Verified')->assertSee('Passed FAR with an 84')
+            ->assertSee('Goal Day news')->assertSee('Passed AUD with an 81')
+            ->assertDontSee('Pass the BAR section')
+            ->assertSee('data-medal-shelf', false);
+
+        // The live season stays at Week 6.
+        $this->assertSame(6, auth()->user()->leagues()->where('name', 'Marathon by March')->sole()->currentWeek());
     }
 }
