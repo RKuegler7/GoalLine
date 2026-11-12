@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Clock;
+use App\Exceptions\RoadmapPlanningException;
 use App\Models\Goal;
 use App\RoadmapStatus;
 use App\Services\RoadmapPlanner;
@@ -69,7 +70,15 @@ class ReviewRoadmapChanges implements ShouldBeUniqueUntilProcessing, ShouldQueue
             return;
         }
 
-        $review = $planner->review($this->goal, $changes);
+        // The coach check is optional: if the coach can't answer (no AI configured, a spend cap, an unusable reply),
+        // the edits stand and the check is simply marked as not done, instead of failing whatever saved them.
+        try {
+            $review = $planner->review($this->goal, $changes);
+        } catch (RoadmapPlanningException) {
+            $this->goal->forceFill(['plan_check_status' => RoadmapStatus::Failed])->save();
+
+            return;
+        }
 
         // Keep any edits made during the review for the next one.
         $remaining = array_slice($this->goal->fresh()->pending_changes ?? [], count($changes));

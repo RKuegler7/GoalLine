@@ -113,6 +113,26 @@
     display: none;
 }
 
+/* The tour's coach mark points at a real control: a Championship Gold ring that gently pulses (still with reduced
+   motion). */
+.gl-tour-target {
+    position: relative;
+    z-index: 55;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 0 3px var(--color-gold), 0 0 0 7px rgb(212 172 88 / 0.35);
+    animation: gl-tour-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes gl-tour-pulse {
+    50% { box-shadow: 0 0 0 3px var(--color-gold), 0 0 0 11px rgb(212 172 88 / 0.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gl-tour-target {
+        animation: none;
+    }
+}
+
 /* Photo upload progress: the GoalLine line filling across. */
 .gl-upload {
     margin-top: 0.5rem;

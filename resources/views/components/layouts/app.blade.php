@@ -72,6 +72,10 @@
                 <a href="{{ route('goals.create') }}" class="hidden min-h-9 items-center gap-1.5 rounded-full bg-ivory px-3 text-[13px] font-semibold whitespace-nowrap text-club transition hover:bg-white md:flex" aria-label="Set a new goal">
                     <x-icon name="plus" class="size-4" /> <span class="hidden lg:inline">New goal</span>
                 </a>
+                {{-- Help: opens the Help sheet at the answer that fits this screen (help.js); a plain link without scripts. --}}
+                <a href="{{ route('help') }}" data-open-help class="relative grid size-11 place-items-center rounded-full text-ivory/80 transition hover:bg-ivory/10 hover:text-ivory focus-visible:outline-2 focus-visible:outline-mint" aria-label="Help">
+                    <x-icon name="help" class="size-6" />
+                </a>
                 <a href="{{ route('inbox') }}" data-shell-sync="inbox" @class(['relative grid size-11 place-items-center rounded-full transition hover:bg-ivory/10', 'text-ivory' => request()->routeIs('inbox'), 'text-ivory/80 hover:text-ivory' => ! request()->routeIs('inbox')])
                     aria-label="Inbox{{ $inboxCount ? ', '.($inboxCount > 9 ? '9+' : $inboxCount).' new' : '' }}">
                     <x-icon name="bell" class="size-6" />
@@ -145,7 +149,8 @@
         </div>
     </div>
 
-    <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6">
+    <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6" data-help-context="{{ App\Http\Controllers\HelpController::CONTEXTS[request()->route()?->getName()] ?? '' }}"
+        @if ($viewer->onboarded_at && $viewer->tour_completed_at === null) data-tour-pending @endif>
         @if ($viewer->isDemo())
             {{-- One slim line, so the page starts right under it. --}}
             <div class="mb-3 flex items-center justify-between gap-2 rounded-xl border border-club/25 bg-mint px-3 py-1.5 text-[13px]">
@@ -263,5 +268,34 @@
 
     {{-- Sheets a page asked for (for example the scoring sheet behind "How is GoalLine scored?"). --}}
     @stack('sheets')
+
+    {{-- Help, from the ? in the top bar: filled with the Help center when opened (help.js). --}}
+    <dialog id="help-sheet" data-help-sheet aria-labelledby="help-sheet-title"
+        class="gl-sheet m-0 mt-auto w-full max-w-none rounded-t-2xl bg-ivory p-0 text-ink shadow-2xl backdrop:bg-ink/40 sm:m-auto sm:max-w-lg sm:rounded-2xl">
+        <div class="flex items-center justify-between gap-3 border-b border-line bg-white px-4 py-1.5">
+            <h2 id="help-sheet-title" class="text-[18px] font-bold text-club">Help</h2>
+            <form method="dialog">
+                <button type="submit" class="grid size-11 place-items-center rounded-full text-ink/70 hover:bg-ivory" aria-label="Close"><x-icon name="x" class="size-5" /></button>
+            </form>
+        </div>
+        <div data-help-body data-sheet-scroll class="max-h-[78dvh] overflow-y-auto px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <x-line-loader size="inline" label="Loading help" />
+        </div>
+    </dialog>
+
+    {{-- The first-run tour's coach mark (tour.js). --}}
+    <div data-tour hidden role="dialog" aria-modal="false" aria-labelledby="tour-title"
+        class="fixed z-[60] w-[min(20rem,calc(100vw-2rem))] rounded-2xl bg-white p-4 text-ink shadow-2xl ring-1 ring-line">
+        <p class="text-[11px] font-semibold text-ink/70" data-tour-count></p>
+        <h2 id="tour-title" class="mt-0.5 text-[16px] font-bold text-club" data-tour-title tabindex="-1"></h2>
+        <p class="mt-1 text-[14px] text-ink/80" data-tour-text></p>
+        <div class="mt-3 flex items-center justify-between gap-2">
+            <button type="button" data-tour-skip class="min-h-11 rounded-full px-3 text-[13px] font-semibold text-ink/70 hover:text-ink">Skip tour</button>
+            <span class="flex gap-2">
+                <button type="button" data-tour-back class="min-h-11 rounded-full border border-line px-4 text-[13px] font-semibold text-club hover:border-club/40">Back</button>
+                <button type="button" data-tour-next class="min-h-11 rounded-full bg-club px-4 text-[13px] font-semibold text-ivory hover:bg-club-dark">Next</button>
+            </span>
+        </div>
+    </div>
 </body>
 </html>

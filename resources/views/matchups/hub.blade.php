@@ -50,6 +50,13 @@
             </div>
         </section>
 
+        @if ($state === 'no-league')
+            <p class="flex items-center gap-2 rounded-xl bg-mint/60 px-3 py-2 text-[13px] text-ink/80" data-tip>
+                <x-icon name="help" class="size-4 shrink-0 text-club" />
+                <span><span class="font-semibold text-club">Tip:</span> tap the ? at the top any time for how leagues and scoring work, or to take the tour.</span>
+            </p>
+        @endif
+
         {{-- Their own week, against the line: the same live band as a matchup, just one side. --}}
         @if ($goals->isNotEmpty())
             <section id="solo" class="scroll-mt-24" aria-labelledby="solo-title">

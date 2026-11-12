@@ -88,6 +88,11 @@
         @case('flame')
             <path d="M12 21c-3.9 0-6.5-2.7-6.5-6 0-4 4-5.5 3.5-10.5 3 1.8 4.7 4.2 4.7 7 1.2-.6 1.8-1.8 1.8-3 2.4 1.8 3 4 3 6.5 0 3.3-2.6 6-6.5 6z" />
             @break
+        @case('help')
+            <circle cx="12" cy="12" r="8.5" />
+            <path d="M9.6 9.4a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.1-2.4 3.6" />
+            <circle cx="12" cy="16.9" r="0.6" fill="currentColor" />
+            @break
         @case('line')
             {{-- The GoalLine mark: a line, a dot on it, and the end tick. --}}
             <path d="M2.5 12h15" />

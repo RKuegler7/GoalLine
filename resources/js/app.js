@@ -2,6 +2,8 @@
 // closes a sheet never reaches Turbo as a page visit.
 import { openSheet } from './sheets';
 import { eachOnPage, onPage } from './shell';
+import './help';
+import './tour';
 import { refreshPage, toast } from './live';
 import './celebrate';
 import './loader';

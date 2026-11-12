@@ -43,6 +43,8 @@ export default defineConfig({
             // The navigation spec signs up a brand-new member (with no GoalLeague) on this throwaway database.
             BETA_INVITE_ONLY: 'false',
             QUEUE_CONNECTION: 'sync',
+            // New QA accounts aren't demo accounts: no live AI (the built-in questions and starter plan stand in), no spend.
+            ANTHROPIC_API_KEY: '',
             // Laravel Boost's dev-only browser log sender isn't part of the app; keep it out of the findings.
             BOOST_BROWSER_LOGS_WATCHER: 'false',
         },

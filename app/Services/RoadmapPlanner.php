@@ -515,6 +515,11 @@ class RoadmapPlanner
      */
     private function ask(string $kind, ?User $user, string $system, string|array $brief, array $schema, string $effort = 'medium'): mixed
     {
+        // No AI configured: say so plainly, without a call (every caller has a fallback for this).
+        if (blank(config('services.anthropic.key'))) {
+            throw new RoadmapPlanningException('No AI key is configured.');
+        }
+
         // Spend limits come first: no call is made once a cap is reached.
         $this->budget->ensureAvailable($user);
 

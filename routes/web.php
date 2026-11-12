@@ -25,6 +25,7 @@ use App\Http\Controllers\GoalIntakeController;
 use App\Http\Controllers\GoalNextStepController;
 use App\Http\Controllers\GroupTaskController;
 use App\Http\Controllers\HabitController;
+use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\HistoryWeekController;
@@ -102,6 +103,8 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/help', [HelpController::class, 'show'])->name('help')->middleware('throttle:60,1');
+    Route::post('/tour', [HelpController::class, 'tourDone'])->name('tour.done')->middleware('throttle:20,1');
     Route::get('/history/weeks/{week}', HistoryWeekController::class)->name('history.weeks.show');
 
     Route::get('/welcome', [WelcomeController::class, 'you'])->name('welcome.show');

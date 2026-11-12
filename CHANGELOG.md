@@ -16,6 +16,8 @@ How GoalLine was built, week by week, from the real commit history (`git log`). 
 - **Phase T:** the MIT license, a complete `.env.example`, CI on GitHub Actions, and the architecture, AI and decisions docs.
 - **Security update:** Laravel 13.42 and Symfony 8.1.11, for the Symfony advisories published Nov 4.
 - **Phase U:** a "What the AI did, what code did" panel on each goal and in About, and a recap narrator that words a finished week only from numbers code computed, with a template fallback.
+- **Navigation round:** Clubhouse Now and History, "Weeks on the line", a Matchups tab that always opens, a people-first matchup scoreboard with the line on a green field, standings with stats and player seasons, and a Back arrow everywhere.
+- **Join and help round:** league goal templates, joining with the goal pre-filled (and late joins), invites that survive sign-up and verification, owner goal status with Remind, the "How is GoalLine scored?" sheet, and a Help center with a searchable FAQ, feedback and a first-run tour.
 
 ## Week of Nov 2, 2026: plan honesty, the demo and smooth interactions
 

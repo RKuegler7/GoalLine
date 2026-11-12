@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Notifications\AdminAlert;
+use App\Notifications\FeedbackReceived;
 use App\Usage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,6 +34,10 @@ class FeedbackController extends Controller
             'updated_at' => now(),
         ]);
         Usage::track($user, 'feedback');
+
+        // The app owners hear about it in the app too.
+        $owners = User::query()->whereIn('email', config('goalline.admin_emails'))->whereKeyNot($user->id)->get();
+        Notification::send($owners, new FeedbackReceived($user, trim($validated['body']), $validated['page'] ?? null));
 
         if (config('goalline.admin_emails') !== []) {
             Notification::route('mail', config('goalline.admin_emails'))->notify(new AdminAlert(
