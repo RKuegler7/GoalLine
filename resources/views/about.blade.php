@@ -278,7 +278,7 @@
                         ['Range checks', 'A tracked number has to make sense: 0 to 3× the plan. Over 1.5× the plan, or a new personal best, asks "Are you sure?" once.'],
                         ['No backfilling', 'Check-ins are for today or yesterday. A week locks one day after it ends, and future weeks can\'t be checked off early.'],
                         ['Open matchups', 'Your opponent sees your check-ins as a timeline, with times, numbers and Verified checks.'],
-                        ['Proof', 'Add a photo to any check-in. A Smashed week counts in full only with proof or your opponent\'s confirmation.'],
+                        ['Proof', 'Add a photo, details (a caption, where and when), or both to any check-in. Photos earn the Verified check; details help your league see your process. A Smashed week counts in full only with a photo or your opponent\'s confirmation.'],
                         ['Dispute button', 'Your opponent or the league owner can calmly question a check-in. You settle it with proof or a note; the league owner can rule.'],
                         ['Plan floor and plan lock', 'Code sets a minimum pace for every week, so an easy plan can\'t Smash every week. A week\'s plan locks when it starts.'],
                     ] as [$term, $detail])

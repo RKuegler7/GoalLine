@@ -43,7 +43,8 @@ class CheckInController extends Controller
                 }
 
                 $proof = $current->proof_path;
-                $current->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_mime_type' => null, 'proof_uploaded_at' => null])->save();
+                $current->forceFill(['completed_at' => null, 'result_value' => null, 'proof_path' => null, 'proof_mime_type' => null, 'proof_uploaded_at' => null,
+                    'proof_caption' => null, 'proof_location' => null, 'proof_window' => null, 'proof_starts_at' => null, 'proof_ends_at' => null, 'proof_visibility' => null, 'details_added_at' => null])->save();
 
                 return $proof;
             });

@@ -71,6 +71,9 @@
                                 @if ($task->isGroupTask() || $task->is_personal)
                                     <x-task-tags :task="$task" />
                                 @endif
+                                @if ($task->detailsVisibleTo($viewer))
+                                    <x-proof-details :task="$task" class="mt-0.5" />
+                                @endif
                                 @if ($task->result_required && $task->result_value !== null)
                                     <span class="text-ink/70 tabular-nums">&middot; {{ $task->formatNumber($task->result_value) }}</span>
                                 @endif

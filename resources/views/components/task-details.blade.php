@@ -9,7 +9,7 @@
     $confirming = $confirm && (int) $confirm['task'] === $task->id;
     $hasError = $errors->has('result') && (int) old('task_id') === $task->id;
     $justChecked = (int) session('proof_prompt') === $task->id;
-    $proofError = $errors->hasAny(['proof', 'visibility', 'caption', 'location']) && (int) old('proof_task_id') === $task->id;
+    $proofError = $errors->hasAny(['proof', 'visibility', 'caption', 'location', 'window', 'start_time', 'end_time']) && (int) old('proof_task_id') === $task->id;
     // A disputed check-in can get proof even after its GoalWeek closes.
     $disputed = $task->dispute_status === App\Models\RoadmapTask::DISPUTE_OPEN;
     $canProve = $checkable || $disputed;
@@ -40,10 +40,16 @@
             <svg viewBox="0 0 16 16" class="size-3" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" /></svg>
             Verified
         </a>
-    @elseif ($done && $mine && $canProve && ! $justChecked)
-        <a href="#proof-{{ $context }}-{{ $task->id }}" data-open-proof="proof-{{ $context }}-{{ $task->id }}" class="font-semibold text-club hover:underline">Show your work (optional)</a>
+    @endif
+    @if ($done && $mine && $canProve && ! $justChecked && (! $task->isVerified() || ! $task->hasDetails()))
+        <a href="#proof-{{ $context }}-{{ $task->id }}" data-open-proof="proof-{{ $context }}-{{ $task->id }}" class="font-semibold text-club hover:underline">{{ $task->isVerified() ? 'Add details (optional)' : 'Show your work (optional)' }}</a>
     @endif
 </div>
+
+{{-- "Details added": the caption, place and time, for the same people who can see the proof. --}}
+@if (auth()->check() && $task->detailsVisibleTo(auth()->user()))
+    <x-proof-details :task="$task" class="mt-1" />
+@endif
 
 {{-- Log a number. --}}
 @if ($checkable && $mine && ! $done && $task->result_required)
@@ -86,11 +92,11 @@
 @endif
 
 {{-- Show your work: opens right after checking off, or from the link above. --}}
-@if ($done && $mine && $canProve && ! $task->isVerified())
+@if ($done && $mine && $canProve && (! $task->isVerified() || ! $task->hasDetails()))
     <div id="proof-{{ $context }}-{{ $task->id }}" data-proof-panel @if (! $justChecked && ! $proofError) hidden @endif
         class="mt-2 rounded-xl border border-club/25 bg-mint/50 px-3 py-2.5 text-sm">
         <p class="font-semibold text-club">Show your work (optional)</p>
-        <p class="mt-0.5 text-xs text-ink/70">Add a photo or screenshot. It earns a Verified check, shows your league the process behind your goal, earns cheers, and keeps scoring fair. A Smashed week needs proof or your opponent's OK to count in full.</p>
+        <p class="mt-0.5 text-xs text-ink/70"><span class="font-semibold text-ink/80">Photos earn the Verified check. Details help your league see your process.</span> Add a photo or screenshot, a few details, or both. A Smashed week needs a photo or your opponent's OK to count in full.</p>
         @php
             $postLeagues = $task->week->goal->postingLeagues();
             $inLeague = $postLeagues->isNotEmpty();
@@ -106,8 +112,8 @@
                 <input type="hidden" name="return" value="{{ $return }}">
             @endif
             <div>
-                <label for="proof-file-{{ $fieldId }}" class="sr-only">Photo or screenshot</label>
-                <input id="proof-file-{{ $fieldId }}" name="proof" type="file" accept="image/jpeg,image/png,image/webp" required
+                <label for="proof-file-{{ $fieldId }}" class="text-xs font-semibold text-ink/75">Photo or screenshot <span class="font-normal text-ink/70">(optional)</span></label>
+                <input id="proof-file-{{ $fieldId }}" name="proof" type="file" accept="image/jpeg,image/png,image/webp"
                     class="w-full text-xs text-ink/70 file:mr-3 file:rounded-full file:border-0 file:bg-club file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-ivory hover:file:bg-club-dark">
                 <p class="mt-1 text-[11px] text-ink/70">JPG, PNG, or WebP, up to 5 MB. Location data is removed.</p>
             </div>
@@ -150,10 +156,31 @@
                 <p class="mt-0.5 text-[11px] text-ink/70">Crop out maps that show your home.</p>
             </div>
 
-            <button type="submit" class="rounded-full bg-club px-4 py-1.5 text-xs font-semibold text-ivory hover:bg-club-dark">Add proof</button>
+            <fieldset>
+                <legend class="text-xs font-semibold text-ink/75">When? <span class="font-normal text-ink/70">(optional, Eastern time)</span></legend>
+                <div class="mt-1 flex flex-wrap gap-1.5">
+                    @foreach (App\Models\RoadmapTask::WINDOWS as $value => $label)
+                        <label class="cursor-pointer">
+                            <input type="radio" name="window" value="{{ $value }}" class="peer sr-only" @checked($proofError && old('window') === $value)>
+                            <span class="block rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold text-ink/70 peer-checked:border-club peer-checked:bg-club peer-checked:text-ivory peer-focus-visible:ring-4 peer-focus-visible:ring-club/20">{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                <div class="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-ink/70">
+                    <label for="proof-start-{{ $fieldId }}">Or exactly from</label>
+                    <input id="proof-start-{{ $fieldId }}" name="start_time" type="time" value="{{ $proofError ? old('start_time') : '' }}"
+                        class="rounded-lg border border-line bg-white px-2 py-1 text-sm outline-none focus:border-club">
+                    <label for="proof-end-{{ $fieldId }}">to</label>
+                    <input id="proof-end-{{ $fieldId }}" name="end_time" type="time" value="{{ $proofError ? old('end_time') : '' }}"
+                        class="rounded-lg border border-line bg-white px-2 py-1 text-sm outline-none focus:border-club">
+                </div>
+                <p class="mt-0.5 text-[11px] text-ink/70">Times and places can reveal your routine, so share what you're comfortable with. They're seen by the same people as your proof.</p>
+            </fieldset>
+
+            <button type="submit" class="rounded-full bg-club px-4 py-1.5 text-xs font-semibold text-ivory hover:bg-club-dark">Save</button>
         </form>
         @if ($proofError)
-            @foreach (['proof', 'visibility', 'caption', 'location'] as $field)
+            @foreach (['proof', 'visibility', 'caption', 'location', 'window', 'start_time', 'end_time'] as $field)
                 @error($field)
                     <p class="mt-1 text-xs text-red-700">{{ $message }}</p>
                 @enderror

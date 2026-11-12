@@ -29,6 +29,9 @@
             @if ($row['group'] || $row['personal'])
                 <x-task-tags :task="$task" />
             @endif
+            @if ($task->detailsVisibleTo($viewer))
+                <x-proof-details :task="$task" />
+            @endif
             @if ($row['verified'])
                 <span class="rounded-full bg-mint px-2 py-0.5 font-semibold text-club">&check; Verified</span>
             @endif

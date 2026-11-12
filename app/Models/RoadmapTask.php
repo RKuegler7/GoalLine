@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Clock;
+use App\Services\FairPlay;
+use Carbon\CarbonInterface;
 use Database\Factories\RoadmapTaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -70,6 +72,9 @@ class RoadmapTask extends Model
             'result_max' => 'float',
             'result_value' => 'float',
             'proof_uploaded_at' => 'datetime',
+            'proof_starts_at' => 'datetime',
+            'proof_ends_at' => 'datetime',
+            'details_added_at' => 'datetime',
         ];
     }
 
@@ -200,11 +205,75 @@ class RoadmapTask extends Model
     }
 
     /**
-     * Whether a check-in has a photo behind it.
+     * Whether a check-in has a photo behind it. Details (caption, place, time) never make a check-in Verified.
      */
     public function isVerified(): bool
     {
         return $this->proof_path !== null;
+    }
+
+    /**
+     * The quick time-of-day choices for "Show your work", besides an exact start and end.
+     */
+    public const WINDOWS = ['morning' => 'Morning', 'afternoon' => 'Afternoon', 'evening' => 'Evening'];
+
+    /**
+     * The longest an exact time window can be.
+     */
+    public const MAX_WINDOW_HOURS = 12;
+
+    /**
+     * Whether the check-in has "Show your work" details: a caption, a place or a time.
+     */
+    public function hasDetails(): bool
+    {
+        return $this->details_added_at !== null && ($this->proof_caption || $this->proof_location || $this->proof_window);
+    }
+
+    /**
+     * The time and place in one line: "6:30 to 7:15 a.m. at Rock Creek Park", "Morning", "At the library".
+     */
+    public function detailsLine(): ?string
+    {
+        $when = match (true) {
+            $this->proof_window === 'exact' && $this->proof_starts_at && $this->proof_ends_at => self::timeRange(Clock::local($this->proof_starts_at), Clock::local($this->proof_ends_at)),
+            isset(self::WINDOWS[$this->proof_window ?? '']) => self::WINDOWS[$this->proof_window],
+            default => null,
+        };
+
+        return match (true) {
+            $when && $this->proof_location => "{$when} at {$this->proof_location}",
+            (bool) $when => $when,
+            (bool) $this->proof_location => 'At '.$this->proof_location,
+            default => null,
+        };
+    }
+
+    /**
+     * "6:30 to 7:15 a.m." in the same half of the day, "11:30 a.m. to 12:15 p.m." across noon.
+     */
+    public static function timeRange(CarbonInterface $from, CarbonInterface $to): string
+    {
+        $clock = fn (CarbonInterface $time) => $time->format($time->minute === 0 ? 'g' : 'g:i');
+        $half = fn (CarbonInterface $time) => $time->format('a') === 'am' ? 'a.m.' : 'p.m.';
+
+        return $half($from) === $half($to)
+            ? $clock($from).' to '.$clock($to).' '.$half($to)
+            : $clock($from).' '.$half($from).' to '.$clock($to).' '.$half($to);
+    }
+
+    /**
+     * Who can see the details: the member, anyone who can see the proof (opponent, league owner), and, when the
+     * check-in was posted, whoever can see the post. Same audience as the photo.
+     */
+    public function detailsVisibleTo(User $viewer): bool
+    {
+        if (! $this->hasDetails()) {
+            return false;
+        }
+
+        return app(FairPlay::class)->canSeeProof($viewer, $this)
+            || ($this->post !== null && $viewer->can('view', $this->post));
     }
 
     /**

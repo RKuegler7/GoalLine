@@ -233,7 +233,7 @@ class FairPlayTest extends TestCase
         $this->actingAs($this->avery)
             ->get(route('goals.show', $task->week->goal))
             ->assertSee('Show your work (optional)')
-            ->assertSee('It earns a Verified check, shows your league the process behind your goal');
+            ->assertSee('Photos earn the Verified check. Details help your league see your process.');
     }
 
     public function test_the_jpeg_fallback_keeps_the_image_and_drops_metadata(): void

@@ -53,7 +53,7 @@ return [
         'items' => [
             ['id' => 'when-check-in', 'q' => 'When can I check in?', 'a' => "For today or yesterday, from kickoff on. A GoalLeague's season starts Monday at 12:00 a.m. Eastern (or the Monday of the week you joined, if you joined late); a solo goal starts on its plan's first day. Before kickoff you can see and edit your whole plan, but check-ins open at kickoff, and each task opens on its own day. Check-ins close {$grace} day after a GoalWeek ends, then its result is final."],
             ['id' => 'results', 'q' => 'What about tasks with a number?', 'a' => 'Some tasks ask for a result, like miles or pages. Doing more than planned counts extra, and that\'s one way past the line.'],
-            ['id' => 'show-your-work', 'q' => 'What is "Show your work"?', 'a' => 'Add a photo to a check-in to show the work behind it. You choose who sees it. A check-in with a photo gets a Verified check.'],
+            ['id' => 'show-your-work', 'q' => 'What is "Show your work"?', 'a' => 'Add a photo or screenshot, a few details (a caption, where, and when: morning, afternoon, evening or an exact time), or both. Photos earn the Verified check, and a Smashed week counts in full only with a photo or your opponent\x27s OK. Details help your league see your process. You choose who sees them, the same as the photo: proof only (your opponent and the league owner), your league, or your league and friends. Times and places can reveal your routine, so share what you\x27re comfortable with.'],
         ],
     ],
     [

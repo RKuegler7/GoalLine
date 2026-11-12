@@ -23,7 +23,9 @@
                 @endif
             </p>
             <p class="truncate text-xs text-ink/70">{{ $post->headline }}</p>
-            @if ($post->location)
+            @if ($post->task?->proof_window && $post->task->detailsLine())
+                <p class="truncate text-xs text-ink/70" data-post-when>{{ $post->task->detailsLine() }}</p>
+            @elseif ($post->location)
                 <p class="truncate text-xs text-ink/70">&#x1F4CD; {{ $post->location }}</p>
             @endif
         </div>
