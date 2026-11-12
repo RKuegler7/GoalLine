@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Clock;
 use App\GoalCategory;
 use App\GoalStatus;
+use App\GoalVisibility;
 use App\Jobs\GenerateRoadmap;
 use App\Jobs\ReviewRoadmapChanges;
 use App\PlanVerdict;
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['title', 'category', 'why', 'target_date', 'target_result', 'context'])]
+#[Fillable(['title', 'category', 'why', 'target_date', 'target_result', 'context', 'visibility'])]
 class Goal extends Model
 {
     /** @use HasFactory<GoalFactory> */
@@ -79,6 +80,7 @@ class Goal extends Model
         return [
             'category' => GoalCategory::class,
             'status' => GoalStatus::class,
+            'visibility' => GoalVisibility::class,
             'target_date' => 'date',
             'completed_at' => 'datetime',
             'retired_at' => 'datetime',
@@ -101,6 +103,19 @@ class Goal extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Whether this goal shows on its owner's profile for the viewer (title, kind, date, progress and league only).
+     */
+    public function isVisibleOnProfileTo(User $viewer): bool
+    {
+        return match (true) {
+            $viewer->id === $this->user_id => true,
+            $this->visibility === GoalVisibility::Everyone => true,
+            $this->visibility === GoalVisibility::FriendsAndLeagues => $viewer->isFriendsWith($this->user) || $viewer->sharesLeagueWith($this->user),
+            default => false,
+        };
     }
 
     /**

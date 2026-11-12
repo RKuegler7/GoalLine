@@ -67,6 +67,16 @@
         hint="We'll remind you of this on the hard days."
     />
 
+    <div>
+        <label for="visibility" class="mb-1.5 block text-sm font-medium text-ink/80">Who can see this goal on your profile</label>
+        <select id="visibility" name="visibility" class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+            @foreach (App\GoalVisibility::cases() as $choice)
+                <option value="{{ $choice->value }}" @selected(old('visibility', $goal?->visibility?->value ?? App\GoalVisibility::FriendsAndLeagues->value) === $choice->value)>{{ $choice->label() }}</option>
+            @endforeach
+        </select>
+        <p class="mt-1.5 text-sm text-ink/70">Its title, date, progress and league. Your plan, notes and answers are never shown.</p>
+    </div>
+
     @unless ($goal)
         <x-material-upload-fields />
     @endunless

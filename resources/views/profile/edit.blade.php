@@ -20,7 +20,7 @@
                     <label for="avatar" class="mb-1.5 block text-sm font-medium text-ink/80">Profile photo</label>
                     <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" data-crop="avatar"
                         class="block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                    <p class="mt-1.5 text-sm text-ink/70">JPG, PNG, or WebP, up to 2 MB.</p>
+                    <p class="mt-1.5 text-sm text-ink/70">JPG, PNG, or WebP, up to 5 MB. Camera and location data are removed.</p>
                     @error('avatar')
                         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                     @enderror
@@ -45,7 +45,7 @@
                 <label for="cover" class="sr-only">Cover photo</label>
                 <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" data-crop="cover"
                     class="mt-3 block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                <p class="mt-1.5 text-sm text-ink/70">A wide photo works best: a finish line, your desk, your team. Up to 4 MB.</p>
+                <p class="mt-1.5 text-sm text-ink/70">A wide photo works best: a finish line, your desk, your team. JPG, PNG, or WebP, up to 5 MB. Camera and location data are removed.</p>
                 @error('cover')
                     <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                 @enderror
@@ -66,7 +66,33 @@
             <x-form.input name="username" label="Username" :value="$user->username" maxlength="30" required
                 hint="Lowercase letters, numbers, dots, and underscores. Your profile lives at {{ route('profiles.show', $user) }}." />
             <x-form.textarea name="bio" label="Bio (optional)" :value="$user->bio" maxlength="160" hint="Up to 160 characters." />
-            <x-form.input name="location" label="Location (optional)" :value="$user->location" maxlength="80" placeholder="Washington, DC" />
+            <x-form.input name="location" label="Location (optional)" :value="$user->location" maxlength="80" placeholder="Washington, DC" hint="A city or area you type. Never GPS." />
+            <x-form.input name="why_here" label="Why I'm here (optional)" :value="old('why_here', $user->why_here)" maxlength="80" placeholder="Training for my first marathon" hint="One line, up to 80 characters." />
+
+            @php
+                $chosenInterests = collect(old('interests', $user->interests ?? []));
+                $customInterests = $chosenInterests->reject(fn ($tag) => in_array($tag, App\Models\User::INTEREST_CHOICES, true));
+            @endphp
+            <fieldset data-interests>
+                <legend class="mb-1.5 block text-sm font-medium text-ink/80">Interests (up to {{ App\Models\User::MAX_INTERESTS }}, optional)</legend>
+                <input type="hidden" name="interests_present" value="1">
+                <div class="flex flex-wrap gap-1.5">
+                    @foreach (App\Models\User::INTEREST_CHOICES as $choice)
+                        <label class="cursor-pointer">
+                            <input type="checkbox" name="interests[]" value="{{ $choice }}" class="peer sr-only" @checked($chosenInterests->contains($choice))>
+                            <span class="block rounded-full border border-line bg-white px-3 py-1.5 text-[13px] font-semibold text-ink/75 peer-checked:border-club peer-checked:bg-club peer-checked:text-ivory peer-focus-visible:ring-4 peer-focus-visible:ring-club/20">{{ $choice }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                <label for="interests_other" class="mt-2 block text-sm text-ink/70">Add your own, separated by commas</label>
+                <input id="interests_other" name="interests_other" value="{{ old('interests_other', $customInterests->join(', ')) }}" maxlength="120"
+                    class="mt-1 block w-full rounded-lg border border-line bg-white px-3.5 py-2 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10" placeholder="Chess, Gardening">
+                @foreach (['interests', 'interests.0', 'interests.1', 'interests.2', 'interests.3', 'interests.4', 'why_here'] as $field)
+                    @error($field)
+                        <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
+                    @enderror
+                @endforeach
+            </fieldset>
 
             <div>
                 <label for="featured_goal_id" class="mb-1.5 block text-sm font-medium text-ink/80">Featured goal (optional)</label>
@@ -111,7 +137,7 @@
             </div>
 
             <fieldset>
-                <legend class="mb-2 block text-sm font-medium text-ink/80">Who can see your profile?</legend>
+                <legend class="mb-2 block text-sm font-medium text-ink/80">Who can see my profile details</legend>
                 <div class="space-y-2.5">
                     @foreach (App\ProfileVisibility::cases() as $visibility)
                         <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3 transition hover:border-club/40 has-checked:border-club has-checked:bg-mint">

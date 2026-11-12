@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards', 'friends_list_visibility'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards', 'friends_list_visibility', 'why_here', 'interests'])]
 #[Hidden(['password', 'remember_token', 'calendar_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -35,6 +35,18 @@ class User extends Authenticatable implements MustVerifyEmail
      * Profile photos are kept on the private disk and served through a route.
      */
     public const AVATAR_DISK = 'uploads';
+
+    /**
+     * Profile interest tags: at most this many, each at most this long.
+     */
+    public const MAX_INTERESTS = 5;
+
+    public const MAX_INTEREST_LENGTH = 24;
+
+    /**
+     * Suggested interest tags (people can add their own).
+     */
+    public const INTEREST_CHOICES = ['Running', 'Lifting', 'Cycling', 'Swimming', 'Yoga', 'Studying', 'Exams', 'Reading', 'Writing', 'Languages', 'Music', 'Art', 'Coding', 'Career', 'Faith', 'Cooking', 'Mindfulness', 'Outdoors'];
 
     /**
      * How long before the same person can be nudged again.
@@ -84,6 +96,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'profile_visibility' => ProfileVisibility::class,
             'discoverable' => 'boolean',
             'friends_list_visibility' => FriendsListVisibility::class,
+            'interests' => 'array',
             'public_cards' => 'boolean',
             'notification_settings' => 'array',
         ];

@@ -5,18 +5,25 @@ namespace App\Http\Controllers;
 use App\Clock;
 use App\GoalStatus;
 use App\Http\Requests\ProfileRequest;
+use App\MedalType;
+use App\Models\Challenge;
 use App\Models\Goal;
+use App\Models\GoalResult;
 use App\Models\League;
 use App\Models\User;
 use App\Services\ActivityHeatmap;
 use App\Services\LeagueStats;
 use App\Services\LeagueTable;
 use App\Services\ProfileStats;
+use App\Services\ProofImage;
 use App\Services\StoredPhoto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -56,8 +63,53 @@ class ProfileController extends Controller
             // GoalLeagues you both play in, with the goal they play there (titles only).
             'mutualLeagues' => $viewer->is($user) ? collect() : $user->leagues()->whereIn('leagues.id', $viewer->leagues()->select('leagues.id'))->get()
                 ->map(fn ($league) => ['league' => $league, 'goal' => Goal::find($league->pivot->goal_id)?->title]),
-            'highlights' => $user->highlights()->visibleTo($viewer)->with(['user', 'cheers.user', 'comments.user', 'task', 'league'])->limit(2)->get(),
+            'highlights' => $user->highlights()->visibleTo($viewer)->with(['user', 'cheers.user', 'comments.user', 'task', 'league'])->limit(9)->get(),
+            // Current goals the viewer may see (each goal's own visibility), never plan details, notes or answers.
+            'currentGoals' => $user->goals()->inPlay()->with(['weeks', 'leagues'])->orderBy('target_date')->get()
+                ->filter(fn (Goal $goal) => $goal->isVisibleOnProfileTo($viewer))->values(),
+            // A Goal Achieved medal from a private Goal Day answer stays private.
+            'medals' => $user->medals()->with('league', 'goal.result')->get()
+                ->reject(fn ($medal) => ! $viewer->is($user) && $medal->type === MedalType::GoalAchieved && ! $medal->goal?->result?->shared)
+                ->sortBy(fn ($medal) => $medal->rank())->values(),
+            'history' => $this->history($viewer, $user),
         ]);
+    }
+
+    /**
+     * Past GoalLeagues (finish and, if they shared it, their Goal Day result) and Challenges (place and whether they
+     * hit the target). Only leagues the viewer could see the person in are named: shared leagues, or all of them on
+     * your own locker.
+     *
+     * @return array{leagues: Collection<int, array<string, mixed>>, challenges: Collection<int, array<string, mixed>>}
+     */
+    private function history(User $viewer, User $user): array
+    {
+        $own = $viewer->is($user);
+        $leagues = $user->leagues()->whereDate('ends_on', '<', Clock::today()->toDateString())
+            ->when(! $own, fn ($query) => $query->whereIn('leagues.id', $viewer->leagues()->select('leagues.id')))
+            ->orderByDesc('ends_on')->limit(5)->get()
+            ->map(function (League $league) use ($user, $own) {
+                $standings = (new LeagueTable($league))->standings()->values();
+                $rank = $standings->search(fn (array $row) => $row['member']->user_id === $user->id);
+                $result = GoalResult::where('goal_id', $league->pivot->goal_id)->first();
+
+                return [
+                    'league' => $league,
+                    'rank' => $rank === false ? null : $rank + 1,
+                    'size' => $standings->count(),
+                    'outcome' => $result && ($own || $result->shared) ? $result->outcome->label() : null,
+                ];
+            });
+
+        $challenges = $user->challenges()->whereDate('ends_on', '<', Clock::today()->toDateString())
+            ->orderByDesc('ends_on')->limit(5)->with('members', 'checkIns')->get()
+            ->map(function (Challenge $challenge) use ($user) {
+                $row = $challenge->standings()->first(fn (array $row) => $row['member']->user_id === $user->id);
+
+                return ['challenge' => $challenge, 'rank' => $row['rank'] ?? null, 'size' => $challenge->members->count(), 'finished' => $row['finished'] ?? false];
+            });
+
+        return ['leagues' => $leagues, 'challenges' => $challenges];
     }
 
     /**
@@ -80,7 +132,10 @@ class ProfileController extends Controller
     public function update(ProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards', 'friends_list_visibility']));
+        $user->fill($request->safe()->only(['name', 'username', 'email', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards', 'friends_list_visibility', 'why_here']));
+        if ($request->has('interests') || $request->filled('interests_other') || $request->boolean('interests_present')) {
+            $user->interests = $request->validated('interests') ?: null;
+        }
         if ($user->isDemo()) {
             $user->email = $user->getOriginal('email');
         }
@@ -92,14 +147,28 @@ class ProfileController extends Controller
         $user->featured_goal_id = $request->validated('featured_goal_id');
         $user->save();
 
+        // Photos are re-encoded (or stripped) so camera and location data never leave the device's file, and they're
+        // served only through the profile's own routes.
         if ($request->hasFile('avatar')) {
-            $user->replaceAvatar($request->file('avatar')->store('avatars', User::AVATAR_DISK), $request->file('avatar')->getMimeType());
+            $path = $this->storeClean($request->file('avatar'), 'avatars');
+
+            if (! $path) {
+                return back()->withErrors(['avatar' => "That file doesn't look like a JPG, PNG, or WebP image."])->withInput();
+            }
+
+            $user->replaceAvatar($path, StoredPhoto::typeFor($path));
         } elseif ($request->boolean('remove_avatar')) {
             $user->replaceAvatar(null);
         }
 
         if ($request->hasFile('cover')) {
-            $user->replaceCover($request->file('cover')->store('covers', User::AVATAR_DISK), $request->file('cover')->getMimeType());
+            $path = $this->storeClean($request->file('cover'), 'covers');
+
+            if (! $path) {
+                return back()->withErrors(['cover' => "That file doesn't look like a JPG, PNG, or WebP image."])->withInput();
+            }
+
+            $user->replaceCover($path, StoredPhoto::typeFor($path));
         } elseif ($request->boolean('remove_cover')) {
             $user->replaceCover(null);
         }
@@ -109,6 +178,23 @@ class ProfileController extends Controller
         }
 
         return redirect()->route('profile.show')->with('status', $emailChanged ? 'Profile updated. Check your new email for a verification link.' : 'Profile updated.');
+    }
+
+    /**
+     * Store an uploaded photo with its metadata (EXIF, GPS) removed, or null if it isn't a usable image.
+     */
+    private function storeClean(UploadedFile $file, string $folder): ?string
+    {
+        try {
+            $clean = app(ProofImage::class)->clean($file);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        $path = $folder.'/'.Str::random(32).'.'.$clean['extension'];
+        Storage::disk(User::AVATAR_DISK)->put($path, $clean['bytes']);
+
+        return $path;
     }
 
     /**

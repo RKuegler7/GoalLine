@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Clock;
 use App\GoalCategory;
+use App\GoalVisibility;
 use App\Models\PlanMaterial;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,6 +32,7 @@ class GoalRequest extends FormRequest
             'category' => ['required', Rule::enum(GoalCategory::class)],
             'target_date' => ['required', 'date', 'after:'.Clock::today()->toDateString()],
             'why' => ['nullable', 'string', 'max:1000'],
+            'visibility' => ['sometimes', Rule::enum(GoalVisibility::class)],
             'league_id' => ['nullable', 'integer'],
             ...PlanMaterial::rules(required: false),
         ];
