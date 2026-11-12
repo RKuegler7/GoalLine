@@ -62,7 +62,7 @@ class BrandedStatesTest extends TestCase
             'not found' => [404, 'This page is off the field'],
             'forbidden' => [403, 'isn’t yours to open'],
             'expired form' => [419, 'sat a little too long'],
-            'too many tries' => [429, 'you’re moving fast'],
+            'too many tries' => [429, 'Lots of people are trying GoalLine right now'],
             'down for a tune-up' => [503, 'quick tune-up'],
         ];
     }

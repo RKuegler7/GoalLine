@@ -74,6 +74,12 @@ During judging:
 7. **Don't pause, stop or terminate the Beanstalk environment or the RDS database until judging is finished (after Nov 20).** A stopped database means a broken live demo.
 8. **No redeploys after the freeze** (Monday Nov 16, 11:59 p.m. ET).
 
+## Rate limits behind CloudFront
+
+Every limit needs the visitor's real address, not CloudFront's. `App\Http\Middleware\TrustCloudFront` trusts only the server's direct caller (`TRUSTED_PROXIES=REMOTE_ADDR`, the default), which on the single-instance setup is CloudFront, so the address CloudFront appended to `X-Forwarded-For` is the visitor's and a visitor can't fake it. Check it on the Admin page: "Your address as GoalLine sees it" should be your own device's public address. If a load balancer is ever added in front of the server, set `TRUSTED_PROXIES` to its private range (for example `172.31.0.0/16`), add the `CloudFront-Viewer-Address` header to the CloudFront origin request policy, and set `CLOUDFRONT_VIEWER_ADDRESS=true`.
+
+Signed-out limits are per account plus address (sign in: 10 a minute per email, 100 per address; password reset: 5 per email; sign up: 30 per address), and signed-in limits are per member, so a classroom or a judging session on one network doesn't trip them. "Try the demo" opens the visitor's own demo again when they have one (a cookie remembers it for its 24 hours) and only counts new demos: 30 an hour per address, 10 per browser, 400 in total (`DEMO_STARTS_PER_HOUR`, `DEMO_STARTS_PER_BROWSER`, `DEMO_STARTS_PER_HOUR_TOTAL`). Over a limit, people see a calm "Lots of people are trying GoalLine right now" page with a countdown, and no error email is sent.
+
 ## Deploy steps the server does by itself
 
 `.platform/hooks/postdeploy/01-goalline.sh` runs on every deploy (and `confighooks` on every settings change): it saves the environment for command-line tasks, checks that the database answers, runs `migrate --force`, then caches the config, routes, views and events (`config:cache`, `route:cache`, `view:cache`, `event:cache`), runs `goalline:preflight`, restarts the queue worker, and installs the scheduler. After changing an environment property, Beanstalk re-runs it, so the cached config picks up the change.

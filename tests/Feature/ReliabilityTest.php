@@ -208,7 +208,8 @@ class ReliabilityTest extends TestCase
 
     public function test_login_signup_and_password_reset_are_rate_limited(): void
     {
-        foreach (range(1, 5) as $attempt) {
+        // Per account and address: 10 tries a minute (people sharing a network each get their own).
+        foreach (range(1, 10) as $attempt) {
             $this->post('/login', ['email' => 'nobody@example.com', 'password' => 'wrong'])->assertStatus(302);
         }
         $this->post('/login', ['email' => 'nobody@example.com', 'password' => 'wrong'])->assertTooManyRequests();

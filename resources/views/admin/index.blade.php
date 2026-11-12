@@ -8,6 +8,8 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-10">
             <p class="eyebrow text-mint">{{ $inviteOnly ? 'Private beta' : 'Open signup' }}</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Admin</h1>
+            {{-- To check the proxy setup: this should be your own device's public address, not a CloudFront one. --}}
+            <p class="mt-2 text-[13px] text-ivory/85" data-seen-address>Your address as GoalLine sees it: <span class="font-semibold tabular-nums">{{ request()->ip() }}</span></p>
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([
                     ['Members', $members['total'], '+'.$members['lastWeek'].' this week'],

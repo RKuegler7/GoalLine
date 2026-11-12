@@ -333,6 +333,8 @@ class DemoTest extends TestCase
     {
         $this->get(route('demo'));
         $first = auth()->user()->demo_sandbox;
+        // A second visitor (another browser, no demo cookie) gets their own world.
+        auth()->logout();
         $this->get(route('demo'));
         $this->assertNotSame($first, auth()->user()->demo_sandbox);
         $this->assertSame(16, User::whereNotNull('demo_sandbox')->count());

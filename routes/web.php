@@ -74,7 +74,8 @@ Route::view('/terms', 'legal.terms')->name('terms');
 Route::get('/calendar/{token}.ics', [CalendarController::class, 'feed'])->name('calendar.feed')->middleware('throttle:60,1');
 
 // One click into a demo world: for judges, professors, and the curious. Keeps beta invites for real members.
-Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo')->middleware('throttle:'.config('goalline.demo.starts_per_hour').',60');
+// Demo limits live in DemoController: per network, per browser and in total, and coming back to your demo never counts.
+Route::match(['get', 'post'], '/demo', [DemoController::class, 'start'])->name('demo');
 Route::post('/demo/reset', [DemoController::class, 'reset'])->name('demo.reset')->middleware(['auth', 'throttle:10,60']);
 
 // A weekly result card someone chose to share: a read-only page and its picture, by unguessable token.
@@ -94,19 +95,19 @@ Route::get('/invite/{token}', [LeagueInviteController::class, 'show'])->name('le
 // CDN or a click-tracker; the older query-signed links keep working. A bad link gets a friendly page, never a raw 403.
 Route::get('/email/verify/{id}/{hash}/{expires}/{signature}', [EmailVerificationController::class, 'confirm'])->name('verification.confirm')->middleware('throttle:12,1');
 Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify')->middleware('throttle:12,1');
-Route::post('/email/verify/resend', [EmailVerificationController::class, 'resendByEmail'])->name('verification.resend')->middleware('throttle:3,10');
+Route::post('/email/verify/resend', [EmailVerificationController::class, 'resendByEmail'])->name('verification.resend')->middleware('throttle:verification-resend');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('throttle:10,1');
+    Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('throttle:register');
 
     Route::get('/login', [SessionController::class, 'create'])->name('login');
-    Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:5,1');
+    Route::post('/login', [SessionController::class, 'store'])->middleware('throttle:login');
 
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
-    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:5,1');
+    Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email')->middleware('throttle:password');
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
-    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store')->middleware('throttle:5,1');
+    Route::post('/reset-password', [NewPasswordController::class, 'store'])->name('password.store')->middleware('throttle:password');
 });
 
 Route::middleware('auth')->group(function () {

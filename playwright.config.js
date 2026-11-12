@@ -39,6 +39,8 @@ export default defineConfig({
             APP_URL: `http://127.0.0.1:${port}`,
             QA_PORT: String(port),
             DEMO_STARTS_PER_HOUR: '1000',
+            DEMO_STARTS_PER_BROWSER: '1000',
+            DEMO_STARTS_PER_HOUR_TOTAL: '1000',
             MAIL_MAILER: 'log',
             // The navigation spec signs up a brand-new member (with no GoalLeague) on this throwaway database.
             BETA_INVITE_ONLY: 'false',

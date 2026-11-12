@@ -23,11 +23,15 @@ use App\Services\CaptionWriter;
 use App\Usage;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use Minishlink\WebPush\WebPush;
 
 class AppServiceProvider extends ServiceProvider
@@ -77,6 +81,8 @@ class AppServiceProvider extends ServiceProvider
             config(['app.debug' => false]);
             Log::critical('APP_DEBUG was true in production. It has been turned off for this request; set it to false in the environment properties.');
         }
+
+        $this->rateLimits();
 
         // In production GoalLine sits behind CloudFront, which talks to the server over plain HTTP.
         // Build every link from APP_URL, so they're https and use the public address.
@@ -138,5 +144,31 @@ class AppServiceProvider extends ServiceProvider
                 Usage::track($message->user, 'chat-message');
             }
         });
+    }
+
+    /**
+     * Rate limits for signed-out pages, keyed so people sharing one network (a campus, a judging session, a phone
+     * carrier) don't block each other: by the account being used plus the address, with a roomier cap for the address
+     * alone. Signed-in limits are already per member.
+     */
+    private function rateLimits(): void
+    {
+        $who = fn (Request $request) => Str::lower((string) $request->input('email')).'|'.$request->ip();
+
+        RateLimiter::for('login', fn (Request $request) => [
+            Limit::perMinute(10)->by('login:'.$who($request)),
+            Limit::perMinute(100)->by('login-ip:'.$request->ip()),
+        ]);
+        RateLimiter::for('register', fn (Request $request) => [
+            Limit::perMinute(30)->by('register-ip:'.$request->ip()),
+        ]);
+        RateLimiter::for('password', fn (Request $request) => [
+            Limit::perMinute(5)->by('password:'.$who($request)),
+            Limit::perMinute(60)->by('password-ip:'.$request->ip()),
+        ]);
+        RateLimiter::for('verification-resend', fn (Request $request) => [
+            Limit::perMinutes(10, 3)->by('resend:'.$who($request)),
+            Limit::perHour(100)->by('resend-ip:'.$request->ip()),
+        ]);
     }
 }

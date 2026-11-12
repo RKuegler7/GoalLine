@@ -4,12 +4,14 @@ use App\Http\Controllers\HealthController;
 use App\Http\Middleware\EnsureOnboarded;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackActivity;
+use App\Http\Middleware\TrustCloudFront;
 use App\Http\Middleware\UsePublicAddress;
 use App\Http\Middleware\UseViewerTimezone;
 use App\Services\ErrorAlerts;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,9 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [UseViewerTimezone::class, EnsureOnboarded::class, TrackActivity::class]);
 
-        // CloudFront sits in front in production: trust its forwarded client address, and treat every
-        // request as arriving at the public https address so signed links validate.
-        $middleware->trustProxies(at: '*');
+        // CloudFront sits in front in production: find the real visitor behind it (TRUSTED_PROXIES, see
+        // TrustCloudFront), and treat every request as arriving at the public https address so signed links validate.
+        $middleware->replace(TrustProxies::class, TrustCloudFront::class);
         $middleware->prepend(UsePublicAddress::class);
 
         // Security headers (CSP, HSTS, nosniff…) on every response, error pages included.
