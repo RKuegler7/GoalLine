@@ -1,7 +1,7 @@
 <x-layouts.app :title="'Feed · '.$league->name.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
+            <x-back-to :href="route('leagues.show', $league)" label="{{ $league->name }}" />
             <p class="eyebrow mt-6 text-mint">League feed</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">The work behind the wins</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Every photo here is a check-in someone showed. Cheer the process, not just the result.</p>

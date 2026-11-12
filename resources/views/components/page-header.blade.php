@@ -5,10 +5,9 @@
 
 <div {{ $attributes->class('mx-auto flex min-h-12 max-w-5xl items-center justify-between gap-3 px-4 pt-0.5 pb-3') }}>
     <div class="min-w-0">
+        {{-- Back lives in the top bar now (see BackNavigation); a page that names its parent here overrides the default. --}}
         @if ($back)
-            <a href="{{ $back }}" class="gl-tap relative -ml-1 inline-flex min-h-8 max-w-full items-center gap-0.5 rounded-full pr-2 text-xs font-semibold text-ivory/85 hover:text-ivory">
-                <x-icon name="chevron-left" class="size-4 shrink-0" /> <span class="truncate">{{ $backLabel }}</span>
-            </a>
+            @php(request()->attributes->set('page_back', ['url' => $back, 'label' => $backLabel]))
         @endif
         @if ($eyebrow)
             <p class="eyebrow truncate text-[11px] text-mint">{{ $eyebrow }}</p>

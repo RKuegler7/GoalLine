@@ -1,7 +1,7 @@
 <x-layouts.app title="Notifications · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('profile.edit') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Edit profile</a>
+            <x-back-to :href="route('profile.edit')" label="Edit profile" />
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Notifications, reminders &amp; calendar</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Daily reminders keep you in line. Everything social always lands in your Inbox; choose what also comes by email.</p>
         </div>

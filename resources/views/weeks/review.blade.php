@@ -15,7 +15,7 @@
 <x-layouts.app :title="'Review '.$week->label().' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('goals.show', $goal) }}#goalweek-{{ $week->position }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $goal->title }}</a>
+            <x-back-to :href="route('goals.show', $goal).'#goalweek-'.$week->position" :label="$goal->title" />
             <p class="eyebrow mt-6 text-mint">{{ $week->label() }} review &middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">How did it go?</h1>
             <p class="mt-3 max-w-xl text-ivory/85">Two minutes to look back, and your coach turns it into a tip for the week ahead.</p>

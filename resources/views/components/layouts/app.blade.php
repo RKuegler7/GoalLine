@@ -12,6 +12,13 @@
         ['label' => 'Highlights', 'route' => 'highlights.index', 'active' => request()->routeIs('highlights.*', 'people.*', 'friends.*'), 'icon' => 'highlights'],
         ['label' => 'My Locker', 'route' => 'profile.show', 'active' => request()->routeIs('profile.*') || (request()->routeIs('profiles.show') && request()->route('user')?->is($viewer)), 'icon' => null],
     ];
+    // Back: none on the five main tabs; otherwise the page's own parent (x-page-header back) or BackNavigation's.
+    $backNav = in_array(request()->route()?->getName(), App\BackNavigation::TOP_LEVEL, true)
+        ? null
+        : (request()->attributes->get('page_back') ?? App\BackNavigation::parent(request()));
+    $screenTitle = App\BackNavigation::title($title);
+    $activeTab = collect($tabs)->firstWhere('active', true);
+    $crumbs = $backNav ? App\BackNavigation::crumbs($activeTab['label'] ?? null, isset($activeTab['route']) ? route($activeTab['route']) : null, $backNav, $screenTitle) : [];
     // The floating "Check in" button: on every main screen except where today's list is already the page.
     $showCheckIn = ! request()->routeIs('today', 'goals.create', 'goals.intake*', 'welcome.*', 'cards.share');
 @endphp
@@ -27,9 +34,23 @@
          its tabs and badges are synced from each new page). --}}
     <div id="app-topbar" data-turbo-permanent class="sticky top-0 z-40 bg-club pt-[env(safe-area-inset-top)] [view-transition-name:app-topbar]">
         <header class="mx-auto flex h-13 max-w-5xl items-center justify-between gap-2 px-4 lg:gap-4">
-            <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint" aria-label="GoalLine, Clubhouse">
-                <x-brand.logo class="h-6" />
-            </a>
+            {{-- The left of the bar: the logo on the main tabs; elsewhere Back and the screen's title (the logo too on
+                 desktop). Synced from each new page, since the bar itself stays put. --}}
+            <div data-shell-sync="topbar-start" class="flex min-w-0 flex-1 items-center gap-1 md:flex-none">
+                @if ($backNav)
+                    <a href="{{ $backNav['url'] }}" data-back class="-ml-2.5 grid size-11 shrink-0 place-items-center rounded-full text-ivory hover:bg-ivory/10 focus-visible:outline-2 focus-visible:outline-mint" aria-label="Back to {{ $backNav['label'] }}">
+                        <x-icon name="chevron-left" class="size-6" />
+                    </a>
+                    <span class="min-w-0 truncate text-[17px] font-bold text-ivory md:hidden" data-screen-title>{{ $screenTitle }}</span>
+                    <a href="{{ route('dashboard') }}" class="hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint md:block" aria-label="GoalLine, Clubhouse">
+                        <x-brand.logo class="h-6" />
+                    </a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-mint" aria-label="GoalLine, Clubhouse">
+                        <x-brand.logo class="h-6" />
+                    </a>
+                @endif
+            </div>
 
             {{-- Desktop tabs. --}}
             <nav class="hidden items-center md:flex lg:gap-1" aria-label="Main">
@@ -90,6 +111,23 @@
     </div>
 
     <section class="bg-club">
+        @if ($crumbs !== [])
+            {{-- Desktop: where you are, as a short trail. --}}
+            <nav aria-label="Breadcrumb" class="mx-auto hidden max-w-5xl px-4 pt-2 md:block" data-breadcrumbs>
+                <ol class="flex items-center gap-1.5 text-xs text-ivory/85">
+                    @foreach ($crumbs as $crumb)
+                        <li class="flex min-w-0 items-center gap-1.5">
+                            @if (! $loop->first)<span aria-hidden="true" class="text-ivory/60">/</span>@endif
+                            @if ($crumb['url'])
+                                <a href="{{ $crumb['url'] }}" class="truncate hover:text-ivory hover:underline">{{ $crumb['label'] }}</a>
+                            @else
+                                <span class="truncate font-semibold text-ivory" aria-current="page">{{ $crumb['label'] }}</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ol>
+            </nav>
+        @endif
         <div class="gl-hero">{{ $hero ?? '' }}</div>
     </section>
 
@@ -208,7 +246,7 @@
                     <button type="submit" class="grid size-11 place-items-center rounded-full text-ink/70 hover:bg-ivory" aria-label="Close"><x-icon name="x" class="size-5" /></button>
                 </form>
             </div>
-            <div data-checkin-body class="max-h-[75dvh] overflow-y-auto p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div data-checkin-body data-sheet-scroll class="max-h-[75dvh] overflow-y-auto p-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
                 <x-line-loader size="inline" label="Loading today’s list" class="mb-2" />
                 <x-skeleton :rows="4" />
             </div>

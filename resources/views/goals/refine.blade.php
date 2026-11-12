@@ -7,7 +7,7 @@
 
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('goals.show', $goal) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $goal->title }}</a>
+            <x-back-to :href="route('goals.show', $goal)" label="{{ $goal->title }}" />
             <p class="eyebrow mt-6 text-mint">{{ $refinement->kind === App\Models\PlanRefinement::RESTORE ? 'Plan history' : 'Refine your plan' }}</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">
                 {{ $refinement->status === App\Models\PlanRefinement::PENDING ? 'Working on it…' : 'Preview the change' }}

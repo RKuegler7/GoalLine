@@ -1,3 +1,6 @@
+// Sheets first: their Back handler must be registered before Turbo's (shell.js starts Turbo), so a Back that
+// closes a sheet never reaches Turbo as a page visit.
+import { openSheet } from './sheets';
 import { eachOnPage, onPage } from './shell';
 import { refreshPage, toast } from './live';
 import './celebrate';
@@ -1096,7 +1099,7 @@ eachOnPage('[data-task-sheet]', (sheet) => {
             }
 
             body.innerHTML = await response.text();
-            sheet.showModal();
+            openSheet(sheet);
             body.scrollTop = 0;
             body.dispatchEvent(new CustomEvent('goalline:updated', { bubbles: true }));
         } catch {
@@ -1311,7 +1314,7 @@ document.addEventListener('click', async (event) => {
         return;
     }
 
-    sheet.showModal();
+    openSheet(sheet);
     loadCheckInSheet(sheet);
 });
 
@@ -1490,7 +1493,7 @@ document.addEventListener('click', (event) => {
 
     if (sheet && typeof sheet.showModal === 'function' && !event.metaKey && !event.ctrlKey) {
         event.preventDefault();
-        sheet.showModal();
+        openSheet(sheet);
 
         return;
     }

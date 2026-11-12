@@ -160,4 +160,57 @@ class NavigationTest extends TestCase
         $this->assertSame(2, $user->unreadLeagueMessages());
         $this->actingAs($user)->get(route('dashboard'))->assertSee('2 unread');
     }
+
+    public function test_the_five_main_tabs_have_no_back_arrow(): void
+    {
+        $user = User::factory()->create();
+
+        foreach (['dashboard', 'leagues.index', 'matchups', 'highlights.index', 'profile.show'] as $route) {
+            $this->actingAs($user)->get(route($route))->assertOk()->assertDontSee('data-back', false)->assertDontSee('aria-label="Breadcrumb"', false);
+        }
+    }
+
+    public function test_every_other_screen_has_a_labelled_back_arrow_to_a_sensible_parent(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->for($user)->create(['title' => 'Learn to swim']);
+        $league = League::factory()->create(['commissioner_id' => $user->id, 'name' => 'Swim Club']);
+        $member = $league->members()->create(['user_id' => $user->id, 'goal_id' => $goal->id]);
+
+        $cases = [
+            [route('leagues.show', $league), route('leagues.index'), 'GoalLeagues'],
+            [route('leagues.standings', $league), route('leagues.show', $league), 'Swim Club'],
+            [route('leagues.standings.player', [$league, $member]), route('leagues.standings', $league), 'Standings'],
+            [route('leagues.feed', $league), route('leagues.show', $league), 'Swim Club'],
+            [route('goals.show', $goal), route('dashboard'), 'Clubhouse'],
+            [route('profile.edit'), route('profile.show'), 'Profile'],
+            [route('friends.index'), route('highlights.index'), 'Highlights'],
+            [route('today'), route('dashboard'), 'Clubhouse'],
+        ];
+
+        foreach ($cases as [$url, $parent, $label]) {
+            $page = $this->actingAs($user)->get($url)->assertOk()->getContent();
+            $this->assertMatchesRegularExpression('/<a href="'.preg_quote(e($parent), '/').'" data-back[^>]*aria-label="Back to '.preg_quote(e($label), '/').'"/', $page, "Back on {$url}");
+        }
+    }
+
+    public function test_the_screen_title_sits_next_to_back_and_desktop_gets_breadcrumbs(): void
+    {
+        $user = User::factory()->create();
+        $league = League::factory()->create(['commissioner_id' => $user->id, 'name' => 'CPA Prep League']);
+        $league->members()->create(['user_id' => $user->id]);
+
+        $this->actingAs($user)->get(route('leagues.standings', $league))->assertOk()
+            ->assertSee('data-screen-title>Standings<', false)
+            ->assertSeeInOrder(['aria-label="Breadcrumb"', 'GoalLeagues', 'CPA Prep League', 'aria-current="page">Standings<'], false);
+    }
+
+    public function test_the_old_in_hero_back_links_are_gone(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->for($user)->create();
+
+        $this->actingAs($user)->get(route('profile.edit'))->assertOk()->assertDontSee('&larr; Profile', false);
+        $this->actingAs($user)->get(route('goals.show', $goal))->assertOk()->assertDontSee('back-label', false);
+    }
 }

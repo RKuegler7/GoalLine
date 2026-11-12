@@ -7,7 +7,7 @@
 <x-layouts.app :title="($complete ? 'Season recap' : 'Recaps').' · '.$league->name">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('leagues.show', $league) }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; {{ $league->name }}</a>
+            <x-back-to :href="route('leagues.show', $league)" label="{{ $league->name }}" />
             <p class="eyebrow mt-6 {{ $complete ? 'text-gold-light' : 'text-mint' }}">
                 {{ $complete ? 'Season recap' : 'Weekly recaps' }} &middot; {{ $league->starts_on->format('M j') }} to {{ $league->ends_on->format('M j, Y') }}
             </p>

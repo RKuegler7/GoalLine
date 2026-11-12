@@ -77,29 +77,45 @@ document.addEventListener('turbo:visit', () => delete document.documentElement.d
 
 /* ---------- The permanent bars stay current ---------- */
 
-document.addEventListener('turbo:before-render', (event) => {
-    const incoming = event.detail.newBody;
+// The incoming page's versions are read before the swap and applied right after it (turbo:render). Not sooner:
+// Turbo copies the page you're leaving into its back cache a tick after the visit starts, and the bars are shared, so
+// changing them early would put the next page's Back arrow and active tab into the cached copy of this one.
+let pendingSync = [];
 
-    incoming.querySelectorAll('[data-shell-sync]').forEach((fresh) => {
-        const current = document.querySelector(`[data-shell-sync="${CSS.escape(fresh.dataset.shellSync)}"]`);
+function applySync() {
+    pendingSync.forEach(({ key, attributes, html }) => {
+        const current = document.querySelector(`[data-shell-sync="${CSS.escape(key)}"]`);
 
         if (!current) {
             return;
         }
 
-        // The active tab's look, its label, and badges: exactly as the server drew them for the new page.
-        ['class', 'aria-current', 'aria-label'].forEach((name) => {
-            if (fresh.hasAttribute(name)) {
-                current.setAttribute(name, fresh.getAttribute(name));
-            } else {
+        // The active tab's look, its label, badges and Back: exactly as the server drew them for the new page.
+        Object.entries(attributes).forEach(([name, value]) => {
+            if (value === null) {
                 current.removeAttribute(name);
+            } else {
+                current.setAttribute(name, value);
             }
         });
 
-        if (current.innerHTML !== fresh.innerHTML) {
-            current.innerHTML = fresh.innerHTML;
+        if (current.innerHTML !== html) {
+            current.innerHTML = html;
         }
     });
+    pendingSync = [];
+}
+
+document.addEventListener('turbo:render', applySync);
+
+document.addEventListener('turbo:before-render', (event) => {
+    const incoming = event.detail.newBody;
+
+    pendingSync = [...incoming.querySelectorAll('[data-shell-sync]')].map((fresh) => ({
+        key: fresh.dataset.shellSync,
+        attributes: Object.fromEntries(['class', 'aria-current', 'aria-label'].map((name) => [name, fresh.getAttribute(name)])),
+        html: fresh.innerHTML,
+    }));
 
     // Menus in the bars close on navigation.
     document.querySelectorAll('[data-turbo-permanent] details[open]').forEach((menu) => menu.removeAttribute('open'));
@@ -223,6 +239,54 @@ document.addEventListener('touchstart', (event) => {
         link.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }));
     }
 }, { passive: true, capture: true });
+
+/* ---------- Back ---------- */
+
+// The top bar's Back: to the page you came from when it's inside GoalLine (Turbo numbers this tab's history; 0 is
+// where you arrived from outside), so scroll position and tab state come back with it. With nothing earlier, like
+// after a link from an email or a shared invite, it follows its link to the sensible parent instead.
+document.addEventListener('click', (event) => {
+    const back = event.target.closest('a[data-back]');
+
+    if (!back || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) {
+        return;
+    }
+
+    if ((window.history.state?.turbo?.restorationIndex ?? 0) > 0) {
+        event.preventDefault();
+        window.history.back();
+    }
+});
+
+/* ---------- Tapping the tab you're on ---------- */
+
+// Like Instagram and Strava: on a tab's own page, tapping it scrolls to the top; already at the top, it resets the
+// page to the tab's top level (for example, from Clubhouse > History back to Now). From deeper inside the tab, the
+// link simply goes to the tab's top level.
+document.addEventListener('click', (event) => {
+    const tab = event.target.closest('a[data-tab]');
+
+    if (!tab || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey) {
+        return;
+    }
+
+    const target = new URL(tab.href);
+    const here = new URL(window.location.href);
+
+    if (target.pathname !== here.pathname) {
+        return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation(); // Not a tab switch: don't remember or restore a scroll position.
+
+    if (window.scrollY > 4) {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+    } else if (here.search || here.hash) {
+        Turbo.visit(target.href);
+    }
+}, true);
 
 /* ---------- Each tab remembers its scroll position ---------- */
 

@@ -109,8 +109,12 @@ test('the matchup page scrolls down from anywhere, including over the pager', as
         expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(before + 100);
     }
 
-    // The live numbers stay in view while scrolling: the sticky strip sits just under the top bar.
-    await page.evaluate(() => window.scrollBy(0, 500));
+    // The live numbers stay in view while scrolling: once the page scrolls past the scoreboard, the sticky strip sits
+    // just under the top bar.
+    await page.evaluate(() => {
+        const sticky = document.querySelector('[data-pager-sticky]').getBoundingClientRect().top + window.scrollY;
+        window.scrollTo(0, sticky + 300);
+    });
     await page.waitForTimeout(200);
     const strip = await page.locator('[data-pager-sticky]').boundingBox();
     const topbar = await page.locator('#app-topbar').boundingBox();

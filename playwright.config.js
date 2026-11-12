@@ -40,6 +40,8 @@ export default defineConfig({
             QA_PORT: String(port),
             DEMO_STARTS_PER_HOUR: '1000',
             MAIL_MAILER: 'log',
+            // The navigation spec signs up a brand-new member (with no GoalLeague) on this throwaway database.
+            BETA_INVITE_ONLY: 'false',
             QUEUE_CONNECTION: 'sync',
             // Laravel Boost's dev-only browser log sender isn't part of the app; keep it out of the findings.
             BOOST_BROWSER_LOGS_WATCHER: 'false',

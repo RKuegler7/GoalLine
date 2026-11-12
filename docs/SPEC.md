@@ -147,6 +147,13 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 
 Each kind of email can be paused on its own with an environment switch, off in production unless set to `true`: `GOALLINE_EMAIL_REMINDERS`, `GOALLINE_EMAIL_NUDGES` (nudges and "Show your work"), `GOALLINE_EMAIL_RECAPS` (the weekly recap, GoalWeek results, league and challenge recaps, coach tips), `GOALLINE_EMAIL_NOTIFICATIONS` (everything else) and `GOALLINE_PUSH`. A paused email still lands in the Inbox. Verification, password reset and league invites sent by email always go. Demo accounts never get email. The rules live in `App\Outbound`.
 
+## Moving around
+
+- **Five main tabs** (Clubhouse, GoalLeagues, Matchups, Highlights, My Locker) never show Back, and are always tappable. Tapping the tab you're on scrolls to the top, then resets it to its top level (Clubhouse > History goes back to Now).
+- **Clubhouse** has two views in the URL: Now (`/dashboard`: goals in play, this week's work, GoalLeagues forming or in season) and History (`?tab=history`: finished seasons, past goals and past GoalWeeks, each read-only).
+- **Matchups** opens this week's matchups in season; otherwise its own page (no league yet, kickoff coming, or season over), never a bounce to another tab.
+- **Back** sits at the top left of the top bar on every other screen, with the screen's title (`BackNavigation`). It returns to the previous GoalLine page (browser history, so scroll and the chosen view come back), or, when you arrived from outside, to a set parent: a league goes to GoalLeagues, a player's season to the standings, a past week to History. Desktop also shows a breadcrumb trail. Sheets close on Back, a swipe down, a tap outside or the X, without leaving the page.
+
 ## Invites and people search
 
 - After setting a goal: "Play it with friends?" with Create a league (prefilled from the goal), Join a league (invite code) or Keep it solo.

@@ -1,7 +1,7 @@
 <x-layouts.app title="Edit profile · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <a href="{{ route('profile.show') }}" class="text-sm font-medium text-ivory/85 hover:text-ivory">&larr; Profile</a>
+            <x-back-to :href="route('profile.show')" label="Profile" />
             <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Edit profile</h1>
         </div>
     </x-slot:hero>
