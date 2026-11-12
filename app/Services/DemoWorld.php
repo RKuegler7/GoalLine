@@ -126,6 +126,16 @@ class DemoWorld
             $kate = $this->person('Kate Gibbons', 'Dean\'s list or bust.');
             $fran = $this->person('Fran Flather', 'Writing a novel, one page at a time.');
 
+            // Rich profiles for the people judges will open.
+            $this->identity($you, 'First marathon and a 4.0, one GoalWeek at a time', ['Running', 'Studying', 'Exams', 'Faith'], '#176B45', '#43B96A');
+            $this->identity($red, 'Sub-3:45 or bust', ['Running', 'Cycling', 'Outdoors'], '#1E2922', '#176B45');
+            $this->identity($tim, 'Proving couch to marathon works', ['Running', 'Cooking'], '#43B96A', '#176B45');
+            $this->identity($steph, 'Trails, hills and long Saturdays', ['Running', 'Outdoors', 'Yoga'], '#176B45', '#1E2922');
+            $this->identity($mary, 'Med school, here I come', ['Studying', 'Exams', 'Reading'], '#D4AC58', '#176B45');
+            $this->identity($pat, 'Straight A\'s and a CPA by summer', ['Studying', 'Career', 'Lifting'], '#1E2922', '#D4AC58');
+            $this->identity($kate, 'Dean\'s List, then the world', ['Studying', 'Languages', 'Music'], '#176B45', '#D4AC58');
+            $this->identity($fran, 'A page a day until it\'s a book', ['Writing', 'Reading', 'Art'], '#D4AC58', '#1E2922');
+
             // Two GoalLeagues, three weeks played, this week's matchup live.
             $running = $this->league('Marathon by March', 'Everyone training for a spring marathon. Long runs on Saturdays.', GoalCategory::Fitness, $red, $seasonStart, $seasonStart->addWeeks(20)->subDay());
             $study = $this->league('4.0 This Fall', 'Straight A\'s this semester. Show the work, not just the grade.', GoalCategory::Academic, $you, $seasonStart, $seasonStart->addWeeks(14)->subDay());
@@ -260,6 +270,34 @@ class DemoWorld
         }
 
         return $league;
+    }
+
+    /**
+     * A demo person's profile: "Why I'm here", interests and a generated cover, so judges see a full profile.
+     *
+     * @param  list<string>  $interests
+     */
+    private function identity(User $person, string $why, array $interests, string $from, string $to): void
+    {
+        $person->forceFill(['why_here' => $why, 'interests' => $interests])->save();
+
+        $svg = <<<SVG
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" width="1600" height="500">
+              <defs><linearGradient id="c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{$from}"/><stop offset="1" stop-color="{$to}"/></linearGradient></defs>
+              <rect width="1600" height="500" fill="url(#c)"/>
+              <g stroke="#FAFAF5" stroke-opacity="0.14" stroke-width="5" fill="none">
+                <path d="M0 360 C 400 280, 800 440, 1600 320"/><path d="M0 420 C 440 340, 840 500, 1600 380"/>
+              </g>
+              <line x1="1180" y1="80" x2="1180" y2="420" stroke="#FAFAF5" stroke-opacity="0.25" stroke-width="6"/>
+              <circle cx="980" cy="250" r="16" fill="#FAFAF5" fill-opacity="0.35"/>
+            </svg>
+            SVG;
+
+        $path = "covers/demo-{$person->id}-".Str::lower(Str::random(8)).'.svg';
+
+        if ($this->store(User::AVATAR_DISK, $path, $svg)) {
+            $person->forceFill(['cover_path' => $path, 'cover_mime_type' => 'image/svg+xml'])->save();
+        }
     }
 
     /**
