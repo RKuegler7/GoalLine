@@ -6,24 +6,36 @@ use App\LeagueStatus;
 use App\Models\League;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class MatchupHubController extends Controller
 {
     /**
-     * The Matchups tab: straight to this week's matchups in the member's in-season GoalLeague (the one with the most
-     * recent activity first), or to GoalLeagues when they don't have one yet.
+     * The Matchups tab. In season: straight to this week's matchups (bye weeks and one-member leagues have their own
+     * pages there). Otherwise a real page, never a bounce to another tab: the season that's about to kick off, the
+     * one that just ended, or no GoalLeague yet, each with a clear next step and the member's week against the line.
      */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request): View|RedirectResponse
     {
-        $leagues = $request->user()->leagues()->with('members')->get();
-        $league = $leagues->first(fn (League $league) => $league->status() === LeagueStatus::Active)
-            ?? $leagues->first(fn (League $league) => $league->status() === LeagueStatus::Finished);
+        $user = $request->user();
+        $leagues = $user->leagues()->with('members')->orderByDesc('starts_on')->get();
 
-        if (! $league) {
-            return redirect()->route('leagues.index')
-                ->with('status', 'Matchups start when your GoalLeague kicks off. Start one or join with a code.');
+        if ($active = $leagues->first(fn (League $league) => $league->status() === LeagueStatus::Active)) {
+            return redirect()->route('leagues.matchups', $active);
         }
 
-        return redirect()->route('leagues.matchups', $league);
+        $forming = $leagues->filter(fn (League $league) => $league->status() === LeagueStatus::Forming)->sortBy('starts_on')->first();
+        $finished = $leagues->first(fn (League $league) => $league->status() === LeagueStatus::Finished);
+
+        return view('matchups.hub', [
+            'state' => match (true) {
+                $forming !== null => 'kickoff',
+                $finished !== null => 'season-over',
+                default => 'no-league',
+            },
+            'forming' => $forming,
+            'finished' => $finished,
+            'goals' => $user->goals()->inPlay()->with(['weeks.tasks', 'habits.logs'])->orderBy('target_date')->get(),
+        ]);
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Goal;
 use App\Models\League;
 use App\Models\User;
+use App\RoadmapStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,7 +30,15 @@ class NavigationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)->get(route('matchups'))->assertRedirect(route('leagues.index'));
+        // No league: the tab opens its own page (never a bounce to another tab), with Matchups still current.
+        $page = $this->actingAs($user)->get(route('matchups'))->assertOk()
+            ->assertSee('No matchup yet.')
+            ->assertSee('A matchup is your week against a friend, scored against your own plans.')
+            ->assertSee('Start a GoalLeague')
+            ->assertSee('Join with a code')
+            ->assertDontSee('Go solo against the line')
+            ->getContent();
+        $this->assertMatchesRegularExpression('/href="'.preg_quote(route('matchups'), '/').'"[^>]*aria-current="page"/', $page);
 
         $league = League::factory()->create(['commissioner_id' => $user->id, 'starts_on' => now()->subWeek()->startOfWeek(), 'ends_on' => now()->addWeeks(6)->endOfWeek()]);
         $league->members()->create(['user_id' => $user->id]);
@@ -37,6 +47,37 @@ class NavigationTest extends TestCase
         // The tab bar stays on the matchup page, with Matchups marked as the current tab.
         $page = $this->actingAs($user)->get(route('leagues.matchups', $league))->assertOk()->assertSee('aria-label="Main"', false)->getContent();
         $this->assertMatchesRegularExpression('/href="'.preg_quote(route('matchups'), '/').'"[^>]*aria-current="page"/', $page);
+    }
+
+    public function test_the_matchups_tab_explains_kickoff_season_over_and_solo(): void
+    {
+        $user = User::factory()->create();
+        $goal = Goal::factory()->for($user)->create(['title' => 'Learn to swim', 'target_date' => now()->addMonths(2)]);
+        $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
+        $goal->weeks()->create(['position' => 1, 'starts_on' => now()->startOfWeek(), 'ends_on' => now()->endOfWeek(), 'focus' => 'Pool', 'milestone' => 'One length'])
+            ->tasks()->create(['position' => 1, 'description' => 'Swim lesson']);
+
+        // Solo: their own week against the line, with a way into a league.
+        $this->actingAs($user)->get(route('matchups'))->assertOk()
+            ->assertSee('Go solo against the line')
+            ->assertSee('This week against the line')
+            ->assertSee('Learn to swim');
+
+        // Finished season: a link to History.
+        $past = League::factory()->create(['commissioner_id' => $user->id, 'name' => 'Spring Swim', 'starts_on' => now()->subWeeks(6)->startOfWeek(), 'ends_on' => now()->subWeeks(2)->endOfWeek()]);
+        $past->members()->create(['user_id' => $user->id, 'goal_id' => $goal->id]);
+        $this->actingAs($user)->get(route('matchups'))->assertOk()
+            ->assertSee('Season over')
+            ->assertSee('Spring Swim is in the books.')
+            ->assertSee(route('dashboard', ['tab' => 'history']), false);
+
+        // A season about to kick off.
+        $next = League::factory()->create(['commissioner_id' => $user->id, 'name' => 'Summer Swim', 'starts_on' => now()->addWeek()->startOfWeek(), 'ends_on' => now()->addWeeks(6)->endOfWeek()]);
+        $next->members()->create(['user_id' => $user->id, 'goal_id' => $goal->id]);
+        $this->actingAs($user)->get(route('matchups'))->assertOk()
+            ->assertSee('Season not started')
+            ->assertSee('Summer Swim kicks off')
+            ->assertSee('Invite friends');
     }
 
     public function test_starting_a_goalleague_or_challenge_is_a_big_obvious_choice(): void
