@@ -16,7 +16,7 @@
         <div class="flex flex-wrap items-center gap-2 px-3 py-2.5">
             @switch($setup['state'])
                 @case('needs_goal')
-                    <p class="w-full text-[13px] text-ink/75">Your matchups are scored on your own plan, so pick the goal you'll play.{{ $league->hasGoal() ? ' The league goal is ready to use: '.$league->goalSummary().'.' : '' }}</p>
+                    <p class="w-full text-[13px] text-ink/75">Your Matchups are scored on your own plan, so pick the goal you'll play.{{ $league->hasGoal() ? ' The league goal is ready to use: '.$league->goalSummary().'.' : '' }}</p>
                     <a href="{{ route('leagues.my-goal', $league) }}" class="inline-flex min-h-11 items-center rounded-full bg-club px-4 text-[14px] font-semibold text-ivory hover:bg-club-dark">Set my goal</a>
                     @if ($setup['spare'])
                         <form method="POST" action="{{ route('leagues.membership.update', $league) }}">

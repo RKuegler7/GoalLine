@@ -30,7 +30,7 @@
         </form>
     </div>
     <div data-sheet-scroll class="max-h-[75dvh] space-y-4 overflow-y-auto px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] text-[14px]">
-        <p class="text-[15px] text-ink">Every week, your percent of your own plan sets your band, and bands decide your matchup.</p>
+        <p class="text-[15px] text-ink">Every week, your percent of your own plan sets your band, and bands decide your Matchup.</p>
 
         <section aria-labelledby="scoring-bands">
             <h3 id="scoring-bands" class="eyebrow text-[11px] text-club">Bands</h3>
@@ -67,7 +67,7 @@
 
         <section aria-labelledby="scoring-week">
             <h3 id="scoring-week" class="eyebrow text-[11px] text-club">Your week</h3>
-            <p class="mt-1" data-week-range>Line stars plus matchup stars: {{ $range['min'] }} to {{ $range['max'] }} stars a week. More stars wins the matchup; equal stars is a draw. Byes earn line stars only.</p>
+            <p class="mt-1" data-week-range>Line stars plus matchup stars: {{ $range['min'] }} to {{ $range['max'] }} stars a week. More stars wins the Matchup; equal stars is a draw. Byes earn line stars only.</p>
             <p class="mt-1 text-ink/80"><span class="font-semibold">The table:</span> {{ implode(', ', array_map('lcfirst', $rules->tableOrder())) }}.</p>
             @if ($latest && $latest->outcome)
                 <p class="mt-2 rounded-lg bg-white px-3 py-2 text-[13px] ring-1 ring-line" data-scoring-example>
@@ -81,7 +81,7 @@
 
         <p class="flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3 text-[13px] font-semibold">
             <a href="{{ route('about') }}#fair-play" class="text-club hover:underline">Why proof matters</a>
-            <a href="{{ route('about') }}#faq" data-open-help="scoring" class="text-club hover:underline">Open the full Help center</a>
+            <a href="{{ route('about') }}#faq" data-open-help="scoring" class="text-club hover:underline">Open the full Help Center</a>
         </p>
     </div>
 </dialog>

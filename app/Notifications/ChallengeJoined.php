@@ -17,7 +17,7 @@ class ChallengeJoined extends GoalLineNotification
     protected function message(User $notifiable): array
     {
         return [
-            'text' => "{$this->member->name} joined your challenge “{$this->challenge->title}”.",
+            'text' => "{$this->member->name} joined your Challenge “{$this->challenge->title}”.",
             'url' => route('challenges.show', $this->challenge),
             'actor_id' => $this->member->id,
         ];

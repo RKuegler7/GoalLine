@@ -1,8 +1,8 @@
-<x-layouts.app title="Start a challenge · GoalLine">
+<x-layouts.app title="Start a Challenge · GoalLine">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <x-back-to :href="route('leagues.index')" label="GoalLeagues" />
-            <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Start a challenge</h1>
+            <h1 class="mt-6 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">Start a Challenge</h1>
             <p class="mt-3 max-w-xl text-ivory/85">A short sprint with friends: one thing, every day. Check in each day you do it and climb the leaderboard.</p>
         </div>
     </x-slot:hero>
@@ -41,11 +41,11 @@
                 @enderror
             </div>
         </div>
-        <p class="-mt-3 text-sm text-ink/70">Everyone who checks in on that many days finishes the challenge and earns the Challenge Finisher badge. Use fewer than the length for things like &ldquo;run 20 days this month&rdquo;.</p>
+        <p class="-mt-3 text-sm text-ink/70">Everyone who checks in on that many days finishes the Challenge and earns the Challenge Finisher badge. Use fewer than the length for things like &ldquo;run 20 days this month&rdquo;.</p>
 
         <div class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
             <a href="{{ route('leagues.index') }}" class="rounded-lg px-4 py-3 text-center font-semibold text-ink/70 transition hover:text-ink">Cancel</a>
-            <x-form.button class="sm:w-auto sm:px-8">Start the challenge</x-form.button>
+            <x-form.button class="sm:w-auto sm:px-8">Start the Challenge</x-form.button>
         </div>
     </form>
 </x-layouts.app>

@@ -143,7 +143,7 @@
             @error('team_name', 'teamName')
                 <p class="mt-1 text-sm text-red-700">{{ $message }}</p>
             @enderror
-            <p class="mt-2 text-xs text-ink/70">Up to {{ App\Models\LeagueMember::MAX_TEAM_NAME }} characters, shown on the matchup scoreboard and standings. Leave it blank to use your name.</p>
+            <p class="mt-2 text-xs text-ink/70">Up to {{ App\Models\LeagueMember::MAX_TEAM_NAME }} characters, shown on the Matchup scoreboard and standings. Leave it blank to use your name.</p>
         </details>
     </section>
 

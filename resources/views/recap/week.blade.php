@@ -13,7 +13,7 @@
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $isThisWeek ? 'Your process this week' : 'Your process that week' }}</h1>
             <dl class="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
                 @foreach ([
-                    ['Check-ins', $recap->checkIns(), 'tasks, habits, and challenges'],
+                    ['Check-ins', $recap->checkIns(), 'tasks, habits, and Challenges'],
                     ['Active days', $recap->activeDays().'/7', $best ? 'best: '.$best['date']->format('l').' ('.$best['count'].')' : 'every day counts'],
                     ['Stars', $points, 'from your GoalWeeks'],
                     ['Streak', $recap->streak(), Str::plural('day', $recap->streak()).' in a row'],

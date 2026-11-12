@@ -216,7 +216,7 @@
                 <p class="mt-3 text-sm">The photo finish compares credited percents exactly (to the hundredth), so 100.4% beats 99.6%; a tie only when they&rsquo;re truly equal. Plan points held in an open dispute are left out, and a Smashed week still waiting on proof is capped at {{ $rules->unverifiedSmashedCap() }}%. A bye week (no opponent) earns line stars only and isn&rsquo;t a win, draw or loss.</p>
 
                 <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Your weekly total</h3>
-                <p class="mt-2"><strong class="text-ink">Line stars + matchup stars</strong>, so a GoalWeek is worth <strong class="text-ink" data-week-range>{{ $range['min'] }} to {{ $range['max'] }} stars</strong>. More stars wins the matchup; equal stars is a draw.</p>
+                <p class="mt-2"><strong class="text-ink">Line stars + matchup stars</strong>, so a GoalWeek is worth <strong class="text-ink" data-week-range>{{ $range['min'] }} to {{ $range['max'] }} stars</strong>. More stars wins the Matchup; equal stars is a draw.</p>
 
                 {{-- Weekly stars explained: run through the real scoring functions. --}}
                 <div class="mt-5 rounded-2xl border border-club/30 bg-white shadow-sm" data-example>
@@ -248,7 +248,7 @@
                         <li>{{ $rule }}</li>
                     @endforeach
                 </ol>
-                <p class="mt-2 text-sm">Your W&ndash;D&ndash;L record: more stars in a matchup is a win (photo finish wins included), equal stars is a draw, and byes don&rsquo;t count. Results go final one day after the GoalWeek ends.</p>
+                <p class="mt-2 text-sm">Your W&ndash;D&ndash;L record: more stars in a Matchup is a win (photo finish wins included), equal stars is a draw, and byes don&rsquo;t count. Results go final one day after the GoalWeek ends.</p>
 
                 <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Two ways to win a season</h3>
                 <div class="mt-3 grid gap-3 sm:grid-cols-2">
@@ -310,7 +310,7 @@
                     <div class="rounded-2xl border border-line bg-white px-4 py-4 text-sm">
                         <p class="font-semibold text-red-700">It never</p>
                         <ul class="mt-2 list-disc space-y-1 pl-5">
-                            <li>Scores a week or a matchup</li>
+                            <li>Scores a week or a Matchup</li>
                             <li>Decides a dispute</li>
                             <li>Gives medical advice</li>
                             <li>Posts anything for you</li>
@@ -386,7 +386,7 @@
         @unless ($viewer)
             <div class="mt-14 rounded-2xl bg-club px-6 py-8 text-center">
                 <p class="font-serif text-2xl font-bold tracking-tight text-ivory">See it for yourself.</p>
-                <p class="mt-2 text-ivory/90">One click, no sign-up: a pretend world with friends and a live matchup.</p>
+                <p class="mt-2 text-ivory/90">One click, no sign-up: a pretend world with friends and a live Matchup.</p>
                 @if (config('goalline.demo.enabled'))
                     <a href="{{ route('demo') }}" class="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-gold px-6 py-2.5 font-semibold text-ink transition hover:brightness-105">Try the demo <span aria-hidden="true">&rarr;</span></a>
                 @endif

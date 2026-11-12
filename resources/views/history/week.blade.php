@@ -36,7 +36,7 @@
             @if ($match)
                 <p class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
                     <span class="text-ink/80">{{ $match->league?->name }} &middot; <span class="font-semibold text-ink">{{ App\Services\History::matchLabel($match) }}</span> &middot; {{ $match->matchup_points }} matchup {{ Str::plural('star', $match->matchup_points) }}</span>
-                    <a href="{{ $matchupUrl }}" class="font-semibold text-club hover:underline">See the matchup &rarr;</a>
+                    <a href="{{ $matchupUrl }}" class="font-semibold text-club hover:underline">See the Matchup &rarr;</a>
                 </p>
             @endif
         </section>

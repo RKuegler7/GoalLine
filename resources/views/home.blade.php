@@ -21,7 +21,7 @@
             <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
                 @auth
                     <a href="{{ route('dashboard') }}" class="rounded-full bg-ivory px-7 py-3 font-semibold text-club shadow-lg shadow-black/10 transition hover:bg-chalk">
-                        Go to your clubhouse
+                        Go to your Clubhouse
                     </a>
                 @else
                     <a href="{{ route('register') }}" class="rounded-full bg-ivory px-7 py-3 font-semibold text-club shadow-lg shadow-black/10 transition hover:bg-chalk">
@@ -37,7 +37,7 @@
                 <a href="{{ route('demo') }}" class="mt-5 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 font-semibold text-ink shadow-lg shadow-black/10 transition hover:brightness-105">
                     Try the demo &rarr;
                 </a>
-                <p class="mt-2 text-sm text-ivory/85">One click. A pretend account with friends, two GoalLeagues mid-season, and a live matchup. No sign-up.</p>
+                <p class="mt-2 text-sm text-ivory/85">One click. A pretend account with friends, two GoalLeagues mid-season, and a live Matchup. No sign-up.</p>
             @endif
         </div>
     </x-slot:hero>

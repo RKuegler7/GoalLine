@@ -17,7 +17,7 @@
     {{-- A shared season: just the card someone chose to share, and a way in. Read only. --}}
     <div class="mx-auto max-w-md px-4 py-8" data-public-season-card>
         <div class="overflow-hidden rounded-2xl shadow-lg [&>svg]:block [&>svg]:h-auto [&>svg]:w-full">{!! $svg !!}</div>
-        <p class="mt-4 text-center text-sm text-ink/75">Stars and standings on GoalLine are scored by plain code against each player's own plan. Goal Day results are self-reported.</p>
+        <p class="mt-4 text-center text-sm text-ink/75">Stars and Standings on GoalLine are scored by plain code against each player's own plan. Goal Day results are self-reported.</p>
         <div class="mt-4 flex flex-wrap justify-center gap-2">
             <a href="{{ route('home') }}" class="inline-flex min-h-11 items-center rounded-full bg-club px-5 text-sm font-semibold text-ivory hover:bg-club-dark">Join GoalLine</a>
             <a href="{{ route('demo') }}" class="inline-flex min-h-11 items-center rounded-full border border-club/30 px-5 text-sm font-semibold text-club hover:border-club">Try the demo</a>

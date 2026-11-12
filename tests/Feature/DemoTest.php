@@ -80,7 +80,7 @@ class DemoTest extends TestCase
             $this->get($page)->assertOk();
         }
 
-        $this->get(route('leagues.matchups', $running))->assertOk()->assertSee('Your matchup')->assertSee('Scoreboard');
+        $this->get(route('leagues.matchups', $running))->assertOk()->assertSee('Your Matchup')->assertSee('Scoreboard');
         $this->get(route('leagues.feed', $running))->assertSee('Rock Creek Park trail')->assertSee('Verified');
         $this->get(Highlight::whereNotNull('photo_path')->first()->photoUrl())->assertOk();
     }

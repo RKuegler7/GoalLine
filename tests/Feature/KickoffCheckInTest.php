@@ -302,8 +302,8 @@ class KickoffCheckInTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->get(route('dashboard'))->assertOk()
-            ->assertSee('Start a GoalLeague')->assertSee('Start a challenge')->assertSee('data-start-choices', false);
-        $this->get(route('leagues.index'))->assertSee('Start a challenge');
+            ->assertSee('Start a GoalLeague')->assertSee('Start a Challenge')->assertSee('data-start-choices', false);
+        $this->get(route('leagues.index'))->assertSee('Start a Challenge');
     }
 
     public function test_kickoff_respects_the_end_of_daylight_saving_time(): void

@@ -29,7 +29,7 @@
         @if ($summary['played'] === 0)
             <x-empty-state title="Standings fill in after week 1"
                 message="Results go final a day after each GoalWeek ends. Until then, everyone's tied at zero and it's all to play for."
-                action="This week's matchups" :href="route('matchups')" />
+                action="This week's Matchups" :href="route('matchups')" />
         @else
             {{-- League highlights. --}}
             <section aria-labelledby="league-stats" class="rounded-xl border border-line bg-white">

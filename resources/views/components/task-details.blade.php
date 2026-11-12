@@ -21,7 +21,7 @@
         <span class="rounded-full bg-ivory px-2 py-0.5 font-semibold text-ink/70 ring-1 ring-inset ring-line" title="Added so this week meets the minimum pace your deadline needs">Minimum pace</span>
     @endif
     @if ($disputed)
-        <span class="rounded-full bg-gold/20 px-2 py-0.5 font-semibold text-ink">Disputed: add a photo or explain it in your matchup</span>
+        <span class="rounded-full bg-gold/20 px-2 py-0.5 font-semibold text-ink">Disputed: add a photo or explain it in your Matchup</span>
     @elseif ($task->dispute_status === App\Models\RoadmapTask::DISPUTE_UPHELD)
         <span class="rounded-full bg-ink/10 px-2 py-0.5 font-semibold text-ink/70">Ruled out by the league owner</span>
     @endif

@@ -32,8 +32,8 @@ class NavigationTest extends TestCase
 
         // No league: the tab opens its own page (never a bounce to another tab), with Matchups still current.
         $page = $this->actingAs($user)->get(route('matchups'))->assertOk()
-            ->assertSee('No matchup yet.')
-            ->assertSee('A matchup is your week against a friend, scored against your own plans.')
+            ->assertSee('No Matchup yet.')
+            ->assertSee('A Matchup is your week against a friend, scored against your own plans.')
             ->assertSee('Start a GoalLeague')
             ->assertSee('Join with a code')
             ->assertDontSee('Go solo against the line')
@@ -88,7 +88,7 @@ class NavigationTest extends TestCase
         $this->actingAs($user)->get(route('leagues.index'))->assertOk()
             ->assertSee('data-open-sheet="start-sheet"', false)
             ->assertSee('Play your goal with friends.')
-            ->assertSeeInOrder(['What do you want to start?', 'Start a GoalLeague', 'A season with friends', 'Start a challenge', 'A short sprint together'])
+            ->assertSeeInOrder(['What do you want to start?', 'Start a GoalLeague', 'A season with friends', 'Start a Challenge', 'A short sprint together'])
             ->assertSee(route('leagues.create'))->assertSee(route('challenges.create'));
 
         // With a league: the list comes first, then GoalLeague and challenge side by side, on GoalLeagues and the Clubhouse.
@@ -96,7 +96,7 @@ class NavigationTest extends TestCase
         $league->members()->create(['user_id' => $user->id]);
 
         foreach ([route('leagues.index'), route('dashboard')] as $page) {
-            $this->actingAs($user)->get($page)->assertSeeInOrder(['Morning Crew', 'New GoalLeague', 'New challenge', 'Join with a code']);
+            $this->actingAs($user)->get($page)->assertSeeInOrder(['Morning Crew', 'New GoalLeague', 'New Challenge', 'Join with a code']);
         }
     }
 
@@ -136,7 +136,7 @@ class NavigationTest extends TestCase
         $this->actingAs(User::factory()->create())
             ->get(route('leagues.index'))
             ->assertSee('GoalLeagues &amp; Challenges', false)
-            ->assertSeeInOrder(['Start a GoalLeague', 'Start a challenge', 'Join with a code']);
+            ->assertSeeInOrder(['Start a GoalLeague', 'Start a Challenge', 'Join with a code']);
     }
 
     public function test_highlights_tab_has_a_feed(): void

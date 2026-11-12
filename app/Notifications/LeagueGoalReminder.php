@@ -21,7 +21,7 @@ class LeagueGoalReminder extends GoalLineNotification
     protected function message(User $notifiable): array
     {
         return [
-            'text' => "Your spot in {$this->league->name} is waiting. Set your goal and you're ready for the next matchup.",
+            'text' => "Your spot in {$this->league->name} is waiting. Set your goal and you're ready for the next Matchup.",
             'url' => route('leagues.my-goal', $this->league),
             'actor_id' => $this->league->commissioner_id,
         ];

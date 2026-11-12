@@ -1,7 +1,7 @@
 <x-layouts.app :title="'Join '.$challenge->title.' · GoalLine'">
     <x-slot:hero>
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
-            <p class="eyebrow text-mint">You&rsquo;re invited to a challenge</p>
+            <p class="eyebrow text-mint">You&rsquo;re invited to a Challenge</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $challenge->title }}</h1>
             @if ($challenge->description)
                 <p class="mt-3 max-w-xl whitespace-pre-line text-ivory/85">{{ $challenge->description }}</p>
@@ -17,7 +17,7 @@
             {{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }} so far
         </p>
         @if ($challenge->isOver())
-            <p class="mt-5 font-semibold text-ink/70">This challenge is over.</p>
+            <p class="mt-5 font-semibold text-ink/70">This Challenge is over.</p>
         @else
             <form method="POST" action="{{ route('challenges.join.store', $challenge->invite_code) }}" data-live class="mt-6">
                 @csrf

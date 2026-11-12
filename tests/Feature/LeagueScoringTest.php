@@ -163,7 +163,7 @@ class LeagueScoringTest extends TestCase
 
         $response = $this->actingAs($first->user)->get(route('leagues.matchups', $league))->assertOk()
             ->assertSee('GoalWeek 1 Matchup')
-            ->assertSee('Your matchup')
+            ->assertSee('Your Matchup')
             ->assertSee('Live')
             ->assertSee("{$first->user->name} leads: Past the line beats In line.")
             ->assertSeeText('125%')

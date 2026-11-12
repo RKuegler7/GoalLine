@@ -36,7 +36,7 @@
         {{-- Challenges: short sprints with a daily check-in. --}}
         <section data-segment-panel="challenges" @if ($tab !== 'challenges') hidden @endif aria-label="Challenges">
             @if ($challenges->isEmpty())
-                <x-empty-state message="No challenges yet. Try “Run 20 days this month.”" action="Start a challenge" :href="route('challenges.create')" />
+                <x-empty-state message="No Challenges yet. Try “Run 20 days this month.”" action="Start a Challenge" :href="route('challenges.create')" />
             @else
                 <ul class="grid gap-2 sm:grid-cols-2">
                     @foreach ($challenges as $challenge)
@@ -118,7 +118,7 @@
                     @csrf
                     <label for="challenge_code" class="text-xs font-semibold text-ink/80">Challenge code</label>
                     <div class="mt-1 flex gap-2">
-                        <input id="challenge_code" name="code" required placeholder="Have a challenge code?" autocomplete="off" autocapitalize="characters"
+                        <input id="challenge_code" name="code" required placeholder="Have a Challenge code?" autocomplete="off" autocapitalize="characters"
                             class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 font-mono text-sm tracking-widest uppercase outline-none placeholder:font-sans placeholder:tracking-normal placeholder:normal-case focus:border-club focus:ring-4 focus:ring-club/10">
                         <button type="submit" class="min-h-10 rounded-lg border border-club/30 px-4 text-sm font-semibold text-club hover:border-club">Join</button>
                     </div>

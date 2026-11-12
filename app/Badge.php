@@ -87,7 +87,7 @@ enum Badge: string
             self::HypeSquad => 'Cheered '.self::HYPE_SQUAD_CHEERS.' posts.',
             self::WeekWarrior => 'A '.self::WEEK_WARRIOR_DAYS.'-day check-in streak.',
             self::Unstoppable => 'A '.self::UNSTOPPABLE_DAYS.'-day check-in streak.',
-            self::ChallengeFinisher => 'Finished a challenge.',
+            self::ChallengeFinisher => 'Finished a Challenge.',
             self::Champion => 'Finished first in a GoalLeague season.',
             self::Mvp => 'Most stars in a GoalLeague season.',
             self::ComebackPlayer => 'Biggest climb in the standings over the second half of a season.',

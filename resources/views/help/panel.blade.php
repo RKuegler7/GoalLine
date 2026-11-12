@@ -1,4 +1,4 @@
-{{-- The Help center's content: search, the FAQ (from resources/help/faq.php) as expandable groups, the tour, scoring,
+{{-- The Help Center's content: search, the FAQ (from resources/help/faq.php) as expandable groups, the tour, scoring,
      and feedback. Fetched into the Help sheet, or shown on its own page without scripts. $focus opens the answer that
      fits the screen Help was opened from. --}}
 <div data-help-panel class="space-y-4 text-[14px]">

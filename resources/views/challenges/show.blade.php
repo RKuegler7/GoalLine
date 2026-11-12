@@ -20,8 +20,8 @@
             @if ($challenge->description)
                 <p class="mb-2 line-clamp-2 text-[13px] whitespace-pre-line text-ivory/85">{{ $challenge->description }}</p>
             @endif
-            {{-- The challenge track: one square per day, gold where you checked in. --}}
-            <ol class="flex flex-wrap gap-1" aria-label="Your days in this challenge">
+            {{-- The Challenge track: one square per day, gold where you checked in. --}}
+            <ol class="flex flex-wrap gap-1" aria-label="Your days in this Challenge">
                 @for ($day = $challenge->starts_on->copy(); $day->lte($challenge->ends_on); $day->addDay())
                     @php
                         $done = $myDays->has($day->toDateString());
@@ -117,7 +117,7 @@
                     <h2 class="eyebrow text-club">Bring people in</h2>
                     <p class="mt-2 font-mono text-2xl font-semibold tracking-widest text-ink">{{ $challenge->invite_code }}</p>
                     <x-share-link id="challenge-link" label="Or share this link" :url="$challenge->joinUrl()" class="mt-3"
-                        :share-title="'Join '.$challenge->title.' on GoalLine'" :share-message="'Join my GoalLine challenge, '.$challenge->title.': '.$challenge->joinUrl()" />
+                        :share-title="'Join '.$challenge->title.' on GoalLine'" :share-message="'Join my GoalLine Challenge, '.$challenge->title.': '.$challenge->joinUrl()" />
                     <p class="mt-2 text-xs text-ink/70">Anyone can join until the last day.</p>
                 </section>
             @endunless
@@ -125,16 +125,16 @@
             <section class="text-sm text-ink/70">
                 <p>Started by {{ $challenge->creator->name }}.</p>
                 @can('delete', $challenge)
-                    <form method="POST" action="{{ route('challenges.destroy', $challenge) }}" onsubmit="return confirm('Call off this challenge for everyone?')" class="mt-2">
+                    <form method="POST" action="{{ route('challenges.destroy', $challenge) }}" onsubmit="return confirm('Call off this Challenge for everyone?')" class="mt-2">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="font-semibold text-ink/70 hover:text-red-700">Call off the challenge</button>
+                        <button type="submit" class="font-semibold text-ink/70 hover:text-red-700">Call off the Challenge</button>
                     </form>
                 @elseif (! $challenge->isOver())
-                    <form method="POST" action="{{ route('challenges.leave', $challenge) }}" onsubmit="return confirm('Leave this challenge? Your check-ins go with you.')" class="mt-2">
+                    <form method="POST" action="{{ route('challenges.leave', $challenge) }}" onsubmit="return confirm('Leave this Challenge? Your check-ins go with you.')" class="mt-2">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="font-semibold text-ink/70 hover:text-red-700">Leave the challenge</button>
+                        <button type="submit" class="font-semibold text-ink/70 hover:text-red-700">Leave the Challenge</button>
                     </form>
                 @endcan
             </section>

@@ -13,7 +13,7 @@ use Illuminate\View\View;
 class ChallengeController extends Controller
 {
     /**
-     * Start a challenge.
+     * Start a Challenge.
      */
     public function create(): View
     {
@@ -30,9 +30,9 @@ class ChallengeController extends Controller
             'length' => ['required', 'integer', Rule::in(Challenge::LENGTHS)],
             'target_days' => ['required', 'integer', 'min:1', 'lte:length'],
         ], [
-            'title.required' => 'Name the challenge, like "No sugar for 30 days".',
+            'title.required' => 'Name the Challenge, like "No sugar for 30 days".',
             'starts_on.after_or_equal' => 'Start today or later.',
-            'target_days.lte' => 'The target can be at most the number of days in the challenge.',
+            'target_days.lte' => 'The target can be at most the number of days in the Challenge.',
         ]);
 
         $startsOn = Clock::today()->setDateFrom($request->date('starts_on'));
@@ -51,7 +51,7 @@ class ChallengeController extends Controller
     }
 
     /**
-     * The challenge: today's check-in, your progress, and the leaderboard.
+     * The Challenge: today's check-in, your progress, and the leaderboard.
      */
     public function show(Request $request, Challenge $challenge): View
     {
@@ -66,7 +66,7 @@ class ChallengeController extends Controller
     }
 
     /**
-     * Look up a challenge by the code someone shared.
+     * Look up a Challenge by the code someone shared.
      */
     public function find(Request $request): RedirectResponse
     {
@@ -75,7 +75,7 @@ class ChallengeController extends Controller
 
         return $challenge
             ? redirect()->route('challenges.join', $challenge->invite_code)
-            : back()->withErrors(['challenge_code' => 'No challenge with that code. Check it and try again.'])->withInput();
+            : back()->withErrors(['challenge_code' => 'No Challenge with that code. Check it and try again.'])->withInput();
     }
 
     /**
@@ -97,7 +97,7 @@ class ChallengeController extends Controller
     {
         $challenge = Challenge::findByCode($code) ?? abort(404);
         abort_unless($challenge->creator->sharesWorldWith($request->user()), 404);
-        abort_if($challenge->isOver(), 403, 'This challenge is over.');
+        abort_if($challenge->isOver(), 403, 'This Challenge is over.');
 
         $member = $challenge->members()->firstOrCreate(['user_id' => $request->user()->id]);
 
@@ -128,7 +128,7 @@ class ChallengeController extends Controller
     }
 
     /**
-     * Leave a challenge. Your check-ins leave with you.
+     * Leave a Challenge. Your check-ins leave with you.
      */
     public function leave(Request $request, Challenge $challenge): RedirectResponse
     {
@@ -139,7 +139,7 @@ class ChallengeController extends Controller
     }
 
     /**
-     * Call off a challenge before it starts.
+     * Call off a Challenge before it starts.
      */
     public function destroy(Challenge $challenge): RedirectResponse
     {

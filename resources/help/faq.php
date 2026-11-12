@@ -1,7 +1,7 @@
 <?php
 
 /*
- * The Help center's FAQ: groups of short questions and plain answers, rendered by resources/views/help/panel.blade.php.
+ * The Help Center's FAQ: groups of short questions and plain answers, rendered by resources/views/help/panel.blade.php.
  * Edit the words here. Scoring numbers are read from the scoring code (ScoringRules, RoadmapWeek), never typed in, so
  * the answers can't drift from the real rules. Each item has a stable id, used to open Help at the right answer.
  */
@@ -62,7 +62,7 @@ return [
         'items' => [
             ['id' => 'bands', 'q' => 'How do bands and line stars work?', 'a' => "Your percent of your own plan sets your band: {$bands}."],
             ['id' => 'reading-matchup', 'q' => 'How do I read my matchup?', 'a' => 'The scoreboard shows each player\'s percent of plan, band and stars if the week ended now. On the line below it, each player\'s puck sits at their percent, and a dashed ring shows where their current pace is heading. Tap a puck for details.'],
-            ['id' => 'match-points', 'q' => 'How do matchup stars and a Photo finish work?', 'a' => "A higher band wins the matchup. In the same band it's a Photo finish: the higher credited percent of plan takes it, compared exactly, and only truly equal percents tie. Matchup stars: {$outcomes}. A week is worth {$range['min']} to {$range['max']} stars, and the player with more stars wins the matchup; equal stars is a draw. A bye earns line stars only."],
+            ['id' => 'match-points', 'q' => 'How do matchup stars and a Photo finish work?', 'a' => "A higher band wins the Matchup. In the same band it's a Photo finish: the higher credited percent of plan takes it, compared exactly, and only truly equal percents tie. Matchup stars: {$outcomes}. A week is worth {$range['min']} to {$range['max']} stars, and the player with more stars wins the Matchup; equal stars is a draw. A bye earns line stars only."],
             ['id' => 'weeks-on-the-line', 'q' => 'What are weeks on the line?', 'a' => "Finished GoalWeeks in a row at In line or better ({$inLine}% of plan or more). The current week counts once it's final."],
             ['id' => 'table', 'q' => 'How is the league table sorted?', 'a' => implode(', ', array_map('lcfirst', $rules->tableOrder())).'.'],
         ],
@@ -74,7 +74,7 @@ return [
             ['id' => 'smashed-proof', 'q' => 'Why does Smashed need proof?', 'a' => "A {$smashed}%+ week is big. It counts as Smashed once a check-in that week has a photo or your opponent taps Confirm. Until then it counts as Past the line."],
             ['id' => 'disputes', 'q' => 'How do disputes work?', 'a' => 'Your opponent or the league owner can ask about a check-in. You answer with a photo or a note, or they withdraw it, or the owner decides. People settle disputes, never the AI.'],
             ['id' => 'held-points', 'q' => 'What are held points?', 'a' => 'Points from a check-in under an open dispute after the week closed. They\'re left out until it\'s settled, then the week re-scores on its own.'],
-            ['id' => 'ai-role', 'q' => 'What does the AI do, and never do?', 'a' => 'It writes your intake questions, drafts and refines plans, gives weekly tips and short recap summaries. It never scores a week, decides a matchup or a dispute, or gives medical advice. Scoring is plain, tested code.'],
+            ['id' => 'ai-role', 'q' => 'What does the AI do, and never do?', 'a' => 'It writes your intake questions, drafts and refines plans, gives weekly tips and short recap summaries. It never scores a week, decides a Matchup or a dispute, or gives medical advice. Scoring is plain, tested code.'],
         ],
     ],
     [
@@ -85,7 +85,7 @@ return [
             ['id' => 'goal-day-scoring', 'q' => 'Does my Goal Day answer change my stars?', 'a' => 'No. It\'s self-reported, so it never changes stars, standings or the table. The table measures your weeks; Goal Day is about you. Finishing last while hitting your goal is still a win.'],
             ['id' => 'goal-day-verified', 'q' => 'What does Verified mean?', 'a' => 'An achieved goal is Verified when you add proof (a finish photo, score report or certificate, cleaned of location data) or a league mate confirms it with one tap. You can\'t confirm your own.'],
             ['id' => 'goal-day-privacy', 'q' => 'Who sees my Goal Day result?', 'a' => '"Share with my league" is on by default: your result shows in your league\'s Goal Day news, where league mates can cheer it. Choose "Keep private" and only you see it. Nothing is ever posted for you; the season card is shared only if you share it.'],
-            ['id' => 'season-finale', 'q' => 'What is the season finale?', 'a' => 'A few cards after Goal Day: your result, your table finish next to your goal, a week-by-week replay, your highlights, league news, medals, a card to share, and ideas for your next goal. Skip any of it, and replay it from History or your goal.'],
+            ['id' => 'season-finale', 'q' => 'What is the season finale?', 'a' => 'A few cards after Goal Day: your result, your table finish next to your goal, a week-by-week replay, your Highlights, league news, medals, a card to share, and ideas for your next goal. Skip any of it, and replay it from History or your goal.'],
             ['id' => 'medals', 'q' => 'How do medals work?', 'a' => 'Code awards medals from settled results once a season is complete, and checks them again only if a dispute changes a week. They never change stars. '.collect(MedalType::cases())->map(fn (MedalType $medal) => $medal->label().': '.$medal->rule())->implode(' ')],
             ['id' => 'next-goal', 'q' => 'What happens after Goal Day?', 'a' => 'Pick a next goal (up to three ideas; after a goal you reached, the first is a step up, never a step down), run it back, start a new season with the same friends, join a league, or take a break.'],
         ],

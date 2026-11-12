@@ -8,7 +8,7 @@
         <a href="{{ route('demo') }}" class="mb-6 flex items-center justify-between gap-3 rounded-2xl bg-gold px-4 py-3 text-ink shadow-sm transition hover:brightness-105">
             <span>
                 <span class="block font-serif text-lg font-bold tracking-tight">Try the demo</span>
-                <span class="block text-sm text-ink/75">One click, no sign-up. Your own pretend world with friends and a live matchup.</span>
+                <span class="block text-sm text-ink/75">One click, no sign-up. Your own pretend world with friends and a live Matchup.</span>
             </span>
             <span class="text-xl font-bold" aria-hidden="true">&rarr;</span>
         </a>

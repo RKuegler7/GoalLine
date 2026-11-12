@@ -7,7 +7,7 @@ use App\Models\Challenge;
 use App\Notifications\ChallengeFinished;
 
 /**
- * Once a challenge's last check-in window closes: tell everyone where they finished, and give finishers the badge.
+ * Once a Challenge's last check-in window closes: tell everyone where they finished, and give finishers the badge.
  */
 class ChallengeWrapUp
 {

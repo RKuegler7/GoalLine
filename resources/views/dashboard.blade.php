@@ -11,7 +11,7 @@
             <x-action-menu label="New">
                 <a href="{{ route('goals.create') }}"><x-icon name="plus" class="size-4 text-club" /> Set a new goal</a>
                 <a href="{{ route('leagues.create') }}"><x-icon name="leagues" class="size-4 text-club" /> Start a GoalLeague</a>
-                <a href="{{ route('challenges.create') }}"><x-icon name="flag" class="size-4 text-gold" /> Start a challenge</a>
+                <a href="{{ route('challenges.create') }}"><x-icon name="flag" class="size-4 text-gold" /> Start a Challenge</a>
                 <a href="{{ route('leagues.index', ['tab' => 'invites']) }}#join"><x-icon name="users" class="size-4 text-club" /> Join with a code</a>
             </x-action-menu>
         </x-page-header>

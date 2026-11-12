@@ -145,7 +145,7 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 
 ## Outbound messages
 
-Each kind of email can be paused on its own with an environment switch, off in production unless set to `true`: `GOALLINE_EMAIL_REMINDERS`, `GOALLINE_EMAIL_NUDGES` (nudges and "Show your work"), `GOALLINE_EMAIL_RECAPS` (the weekly recap, GoalWeek results, league and challenge recaps, coach tips), `GOALLINE_EMAIL_NOTIFICATIONS` (everything else) and `GOALLINE_PUSH`. A paused email still lands in the Inbox. Verification, password reset and league invites sent by email always go. Demo accounts never get email. The rules live in `App\Outbound`.
+Each kind of email can be paused on its own with an environment switch, off in production unless set to `true`: `GOALLINE_EMAIL_REMINDERS`, `GOALLINE_EMAIL_NUDGES` (nudges and "Show your work"), `GOALLINE_EMAIL_RECAPS` (the weekly recap, GoalWeek results, league and Challenge recaps, coach tips), `GOALLINE_EMAIL_NOTIFICATIONS` (everything else) and `GOALLINE_PUSH`. A paused email still lands in the Inbox. Verification, password reset and league invites sent by email always go. Demo accounts never get email. The rules live in `App\Outbound`.
 
 ## Moving around
 
@@ -179,7 +179,7 @@ Judges never type a username or password.
 - **The world:** John Cardinal (with DC and Catholic University touches) and 7 friends, in two GoalLeagues in GoalWeek 6 (Marathon by March, of 20, and 4.0 This Fall, of 14), with a live matchup. It includes:
   - intake answers behind John's plans, every plan at or above its minimum pace, and a plan-floor note on next week's study plan;
   - check-ins with and without proof (drawn placeholder images, no downloads) and posts with cheers;
-  - a friend outside the leagues, a friend request, a group task waiting on John's vote, and a challenge;
+  - a friend outside the leagues, a friend request, a group task waiting on John's vote, and a Challenge;
   - a Smashed week with proof that counts in full (Red), and one without proof credited as Past with "Needs proof" (Kate);
   - a disputed check-in for John to settle, and a lighter week ("Midterms week").
 - **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips, captions and recap summaries), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. Demo starts and resets are limited to 10 an hour.

@@ -53,10 +53,10 @@
     @if ($row['proofUrl'])
         <figure>
             <img src="{{ $row['proofUrl'] }}" alt="Proof for {{ $task->description }}" loading="lazy" decoding="async" class="max-h-80 w-full rounded-2xl bg-ivory object-contain ring-1 ring-line">
-            <figcaption class="mt-1 text-xs text-ink/70">Proof photos open for {{ Str::before($owner->name, ' ') }}, their matchup opponent and the league owner.</figcaption>
+            <figcaption class="mt-1 text-xs text-ink/70">Proof photos open for {{ Str::before($owner->name, ' ') }}, their Matchup opponent and the league owner.</figcaption>
         </figure>
     @elseif ($row['verified'])
-        <p class="rounded-xl bg-mint/50 px-4 py-3 text-sm text-ink/75">This check-in has proof. The photo opens for {{ Str::before($owner->name, ' ') }}, their matchup opponent and the league owner.</p>
+        <p class="rounded-xl bg-mint/50 px-4 py-3 text-sm text-ink/75">This check-in has proof. The photo opens for {{ Str::before($owner->name, ' ') }}, their Matchup opponent and the league owner.</p>
     @endif
 
     {{-- The post shared from this check-in. --}}

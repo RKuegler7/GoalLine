@@ -21,8 +21,8 @@
                         @break
                     @default
                         <p class="eyebrow text-mint">No matchup yet</p>
-                        <h2 class="mt-1 text-[22px] leading-tight font-bold text-ivory">No matchup yet.</h2>
-                        <p class="mt-1 text-[14px] text-ivory/90">A matchup is your week against a friend, scored against your own plans.</p>
+                        <h2 class="mt-1 text-[22px] leading-tight font-bold text-ivory">No Matchup yet.</h2>
+                        <p class="mt-1 text-[14px] text-ivory/90">A Matchup is your week against a friend, scored against your own plans.</p>
                 @endswitch
             </div>
 

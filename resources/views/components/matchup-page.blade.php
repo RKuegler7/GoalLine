@@ -14,7 +14,7 @@
     $eyebrow = match ($page['kind']) {
         'solo' => 'Solo: against the line',
         'bye' => $page['mine'] ? 'Your bye week: you vs the league median' : 'Bye week: vs the league median',
-        default => $page['mine'] ? 'Your matchup' : 'Matchup',
+        default => $page['mine'] ? 'Your Matchup' : 'Matchup',
     };
     $dayList = collect($sides)->pluck('days')->first(fn ($days) => ! empty($days)) ?? [];
     $todayIndex = collect($dayList)->search(fn ($day) => $day['isToday']);

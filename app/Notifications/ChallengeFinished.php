@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Outbound;
 
 /**
- * A challenge ended: where you placed and whether you hit the target.
+ * A Challenge ended: where you placed and whether you hit the target.
  */
 class ChallengeFinished extends GoalLineNotification
 {

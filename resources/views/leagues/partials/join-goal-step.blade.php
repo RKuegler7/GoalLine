@@ -58,7 +58,7 @@
                     </div>
                     <label class="flex items-start gap-2 rounded-lg bg-ivory px-3 py-2 text-[13px] text-ink/80">
                         <input type="checkbox" name="past_season" value="1" class="mt-0.5 accent-club" @checked(old('past_season'))>
-                        <span>Keep my later date. If my date is after {{ $league->ends_on->format('M j') }}, my matchups end with the season and I keep going against the line after it.</span>
+                        <span>Keep my later date. If my date is after {{ $league->ends_on->format('M j') }}, my Matchups end with the season and I keep going against the line after it.</span>
                     </label>
                     <div>
                         <label for="join-description" class="{{ $label }}">A short description <span class="font-normal text-ink/70">(optional)</span></label>

@@ -33,7 +33,7 @@ class HelpController extends Controller
     ];
 
     /**
-     * The Help center: a searchable FAQ, the tour, scoring, and feedback. Inside the app it's fetched into the Help
+     * The Help Center: a searchable FAQ, the tour, scoring, and feedback. Inside the app it's fetched into the Help
      * sheet; opened directly (no scripts) it's a page of its own. ?context= opens the most relevant answer.
      */
     public function show(Request $request): View

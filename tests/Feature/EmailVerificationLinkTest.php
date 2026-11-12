@@ -103,6 +103,8 @@ class EmailVerificationLinkTest extends TestCase
         $this->post(route('verification.resend'), ['email' => 'nobody@example.com'])->assertRedirect(route('login'))->assertSessionHas('status');
         Notification::assertSentToTimes($user, VerifyEmail::class, 1);
 
+        // Three per address and email every 10 minutes (someone else on the same network has their own).
+        $this->post(route('verification.resend'), ['email' => $user->email]);
         $this->post(route('verification.resend'), ['email' => $user->email]);
         $this->post(route('verification.resend'), ['email' => $user->email])->assertStatus(429);
     }

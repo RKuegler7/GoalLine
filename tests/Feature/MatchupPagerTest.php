@@ -51,7 +51,7 @@ class MatchupPagerTest extends TestCase
         );
 
         $response = $this->actingAs($viewer->user)->get(route('leagues.matchups', $league))->assertOk()
-            ->assertSee('Your matchup')
+            ->assertSee('Your Matchup')
             ->assertSeeText('1 of 2')
             ->assertDontSee($other->members->first()->user->name);
         $this->assertSame(2, substr_count($response->getContent(), 'data-pager-page '));

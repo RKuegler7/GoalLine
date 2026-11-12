@@ -86,7 +86,7 @@ class KickoffChecklist
             [
                 'key' => 'crew',
                 'label' => 'Bring in your crew',
-                'hint' => 'Join a GoalLeague or challenge, or add a friend.',
+                'hint' => 'Join a GoalLeague or Challenge, or add a friend.',
                 'done' => $user->leagues()->exists() || $user->challenges()->exists() || $user->friendships()->exists(),
                 'url' => route('leagues.index'),
             ],
