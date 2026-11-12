@@ -260,5 +260,8 @@
             </template>
         </dialog>
     @endif
+
+    {{-- Sheets a page asked for (for example the scoring sheet behind "How is GoalLine scored?"). --}}
+    @stack('sheets')
 </body>
 </html>

@@ -74,9 +74,7 @@
             <a href="{{ route('leagues.standings', $league) }}" class="gl-tap relative text-[13px] font-semibold text-club hover:underline">Stats &amp; details &rarr;</a>
         </div>
         <x-standings-table :rows="$standings" :league="$league" :me="$me" />
-        <p class="mt-2 text-xs text-ink/70">
-            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to line points, then wins. Tap a player for their season.
-        </p>
+        <x-scoring-help class="mt-1" />
     </section>
 
     {{-- Your goal in this league: edit it, switch to another, or set a new one for this league. --}}

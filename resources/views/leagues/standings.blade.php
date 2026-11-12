@@ -91,12 +91,10 @@
                 </nav>
             </div>
             <x-standings-table :rows="$rows" :league="$league" :me="$me" />
-            <p class="mt-2 text-xs text-ink/70">
-                @if ($sort !== 'points')
-                    Sorted by {{ Str::lower(App\Services\LeagueStats::SORTS[$sort]) }} for a look around. The official order is by points.
-                @endif
-                Official order: total points, then line points, then wins. A week is worth 0 to 6 points: line points for your band (0&ndash;3) plus match points (Win 3, Close win 2, Close loss 1, Tie 1, Loss 0). Tap a player for their season.
-            </p>
+            @if ($sort !== 'points')
+                <p class="mt-2 text-xs text-ink/70">Sorted by {{ Str::lower(App\Services\LeagueStats::SORTS[$sort]) }} for a look around. The official order is by points.</p>
+            @endif
+            <x-scoring-help class="mt-1" />
         </section>
     </div>
 </x-layouts.app>

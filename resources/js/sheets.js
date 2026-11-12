@@ -76,6 +76,13 @@ export function openSheet(sheet) {
     }
 }
 
+// A tap on the dimmed backdrop (the dialog itself, outside its content) closes any sheet.
+document.addEventListener('click', (event) => {
+    if (event.target instanceof HTMLDialogElement && event.target.classList.contains('gl-sheet') && event.target.open) {
+        event.target.close();
+    }
+});
+
 // Leaving the page with a sheet open (a link inside it): forget the entry; it stays in history as the page itself.
 document.addEventListener('turbo:before-visit', () => {
     entryFor = null;

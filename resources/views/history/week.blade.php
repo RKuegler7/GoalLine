@@ -55,6 +55,7 @@
             <p class="mt-3 text-[13px] text-ink/70">{{ $done->count() }} of {{ $week->tasks->count() }} {{ Str::plural('task', $week->tasks->count()) }} done. Every week on the record is a week you showed up for.</p>
         </section>
 
+        <x-scoring-help />
         <a href="{{ route('goals.show', $week->goal) }}#goalweek-{{ $week->position }}" class="inline-flex min-h-11 items-center font-semibold text-club hover:underline">Open the whole plan &rarr;</a>
     </div>
 </x-layouts.app>

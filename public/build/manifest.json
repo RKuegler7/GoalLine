@@ -44,7 +44,7 @@
     "src": "_plus-jakarta-sans-800-normal-CusIZhrK.woff2"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CNtJ24yM.css",
+    "file": "assets/app-DU8LWzOj.css",
     "name": "app",
     "names": [
       "app.css"
@@ -53,7 +53,7 @@
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-BaTK9LJS.js",
+    "file": "assets/app-DgVh16wz.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,

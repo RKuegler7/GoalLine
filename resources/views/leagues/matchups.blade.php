@@ -141,16 +141,7 @@
         </section>
     @endif
 
-    <details class="group mt-3 rounded-xl border border-line bg-white text-[13px] text-ink/70">
-        <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 [&::-webkit-details-marker]:hidden"><h2 class="eyebrow text-club">How a matchup is scored</h2><x-icon name="chevron-down" class="size-4 transition group-open:rotate-180" /></summary>
-        <ul class="space-y-1.5 border-t border-line px-3 py-2">
-            <li><span class="font-semibold text-ink">Your band</span> comes from the share of your own plan you finish: under 90% is Short of the line (0 pts), 90&ndash;100% In line (1), over 100% Past the line (2), 150% and up Smashed (3).</li>
-            <li><span class="font-semibold text-ink">The matchup</span> compares bands first: a higher band is a Win, 3 match points to 0.</li>
-            <li><span class="font-semibold text-ink">Photo finish</span>: in the same band, the higher credited percent of plan (a whole number) takes a Close win for 2 and the other a Close loss for 1. Exactly the same percent is a Tie, 1 each. Held disputed points don&rsquo;t count, and an unproven Smashed week is capped at 149%.</li>
-            <li><span class="font-semibold text-ink">Your week</span> is line points + match points, 0 to 6. Results go final a day after the GoalWeek ends.</li>
-            <li><span class="font-semibold text-ink">Projected, on current pace</span> divides the points you&rsquo;ve earned by the points due so far. It&rsquo;s a guide, not a score.</li>
-        </ul>
-    </details>
+    <x-scoring-help class="mt-3" />
 
     {{-- The task sheet: a bottom sheet on phones, a dialog on wider screens. Filled when a task is tapped. --}}
     <dialog data-task-sheet aria-labelledby="task-sheet-title" class="gl-sheet m-0 mt-auto w-full max-w-none rounded-t-3xl bg-white p-0 text-ink shadow-2xl backdrop:bg-ink/40 sm:m-auto sm:max-w-lg sm:rounded-3xl">

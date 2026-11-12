@@ -74,6 +74,8 @@
 
     <x-roadmap :goal="$goal" />
 
+    <x-scoring-help class="mt-2" />
+
     @can('update', $goal)
         @if ($goal->weeks->isNotEmpty())
             <x-ai-code-split :goal="$goal" collapsed class="mt-6" />

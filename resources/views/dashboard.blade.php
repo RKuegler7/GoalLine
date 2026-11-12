@@ -158,7 +158,7 @@
                 </div>
             </section>
 
-            <x-scoring-explainer />
+            <x-scoring-help />
 
             <x-install-app />
             <x-push-nudge />

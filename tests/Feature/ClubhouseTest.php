@@ -141,10 +141,10 @@ class ClubhouseTest extends TestCase
     {
         $this->actingAs(User::factory()->create())
             ->get(route('dashboard'))
-            ->assertSee('How scoring works')
-            ->assertSee('Win: 3 match points', false)
+            ->assertSee('How is GoalLine scored?')
+            ->assertSee('data-open-sheet="scoring-sheet"', false)
             ->assertSee('Photo finish')
-            ->assertSee('0 to 6 a GoalWeek');
+            ->assertSee('0 to 6 points a week');
     }
 
     /**

@@ -110,7 +110,7 @@ class LeagueStandingsTest extends TestCase
 
         $this->actingAs($avery->user)->get(route('leagues.standings', $this->league))->assertOk()
             ->assertSee('Season so far')
-            ->assertSee('Official order: total points, then line points, then wins.')
+            ->assertSee('total points (line points plus match points), then line points, then wins.')
             ->assertSee('data-season-chart', false)
             ->assertSeeInOrder(['Blake Moss', 'Avery Lane', 'Casey Ruiz']);
 
