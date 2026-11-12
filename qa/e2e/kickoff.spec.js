@@ -91,7 +91,6 @@ test('a league before kickoff locks check-ins and keeps the plan editable', asyn
     // A league kicking off on the second Monday from now (never today), with a new goal.
     await page.goto('/leagues/create');
     await expect(page.getByText('Week 1 starts Monday at 12:00 a.m. Eastern.')).toBeVisible();
-    await expect(page.locator('[data-season-length]')).toContainText('Season:');
     await page.getByLabel('GoalLeague name').fill('Kickoff Crew');
     await page.locator('#category').selectOption('fitness');
     await page.locator('#starts_on').selectOption({ index: 1 });
@@ -100,6 +99,7 @@ test('a league before kickoff locks check-ins and keeps the plan editable', asyn
     const target = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
     await page.locator('#goal_target_date').fill(target);
     await page.locator('#ends_on').fill(target);
+    await expect(page.locator('[data-season-length]')).toContainText('Season:');
     await page.locator('form[action$="/leagues"] button[type="submit"]').last().click();
     await page.waitForURL(/\/goals\/\d+\/intake/);
     const goalUrl = page.url().replace(/\/intake.*$/, '');

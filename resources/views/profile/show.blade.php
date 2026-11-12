@@ -55,9 +55,13 @@
             </div>
 
             @unless ($isOwn)
-                <div class="mt-3 flex flex-wrap items-center gap-2" data-profile-actions>
-                    <x-friend-button :user="$user" tone="light" note />
-                    <x-nudge-button :user="$user" tone="light" />
+                {{-- Compact: the relationship button and Nudge side by side under the name, one short line below. --}}
+                <div class="mt-3" data-profile-actions>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <x-friend-button :user="$user" tone="light" />
+                        <x-nudge-button :user="$user" tone="light" />
+                    </div>
+                    <p class="mt-1 text-[11px] text-ivory/80" data-friend-note>Friends can see your League + friends posts.</p>
                 </div>
             @endunless
         </div>
@@ -71,7 +75,8 @@
             ['Medals', $medals->count(), '#trophy-case', 'medals'],
             ['On the line', $stats->weeksOnTheLine(), '#stats', 'weeks-on-the-line'],
         ] as [$label, $value, $href, $key])
-            <a href="{{ $href }}" @if ($key === 'friends') data-open-friends @endif data-count="{{ $key }}"
+            {{-- In-page links: just a scroll, never a page visit (a visit would redraw the page and close what's open). --}}
+            <a href="{{ $href }}" data-turbo="false" @if ($key === 'friends') data-open-friends @endif data-count="{{ $key }}"
                 class="flex min-h-14 flex-col items-center justify-center rounded-xl border border-line bg-white px-1 py-1.5 text-center hover:border-club/40">
                 <span class="text-[18px] leading-tight font-bold text-ink tabular-nums">{{ $value }}</span>
                 <span class="text-[11px] leading-tight font-semibold text-ink/70">{{ $label }}</span>
@@ -85,7 +90,7 @@
     {{-- Section chips: stay at the top while scrolling. --}}
     <nav aria-label="Profile sections" class="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mt-3 flex gap-1.5 overflow-x-auto bg-ivory/95 px-4 py-2 backdrop-blur [scrollbar-width:none] md:top-16" data-profile-chips>
         @foreach ($sections as [$id, $label])
-            <a href="#{{ $id }}" class="inline-flex min-h-9 shrink-0 items-center rounded-full bg-white px-3 text-[13px] font-semibold text-club ring-1 ring-line hover:ring-club/40">{{ $label }}</a>
+            <a href="#{{ $id }}" data-turbo="false" class="inline-flex min-h-9 shrink-0 items-center rounded-full bg-white px-3 text-[13px] font-semibold text-club ring-1 ring-line hover:ring-club/40">{{ $label }}</a>
         @endforeach
     </nav>
 
