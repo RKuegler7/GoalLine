@@ -50,6 +50,7 @@ use App\Http\Controllers\PeopleSearchController;
 use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\PlanRefinementController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileFriendsController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ResultCardController;
 use App\Http\Controllers\RoadmapController;
@@ -134,7 +135,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/avatars/{user}', [ProfileController::class, 'avatar'])->name('avatars.show');
     Route::get('/covers/{user}', [ProfileController::class, 'cover'])->name('covers.show');
-    Route::get('/u/{user}', [ProfileController::class, 'showUser'])->name('profiles.show');
+    Route::get('/u/{user}', [ProfileController::class, 'showUser'])->name('profiles.show')->middleware('throttle:60,1');
+    Route::get('/u/{user}/friends', ProfileFriendsController::class)->name('profiles.friends')->middleware('throttle:60,1');
 
     Route::get('/highlights', [HighlightController::class, 'index'])->name('highlights.index');
     Route::get('/highlights/new', [HighlightController::class, 'create'])->name('highlights.create');

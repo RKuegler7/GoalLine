@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\FriendsListVisibility;
 use App\GoalStatus;
 use App\ProfileVisibility;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -34,6 +35,7 @@ class ProfileRequest extends FormRequest
             'timezone' => ['nullable', 'timezone:all'],
             'profile_visibility' => ['sometimes', Rule::enum(ProfileVisibility::class)],
             'discoverable' => ['sometimes', 'boolean'],
+            'friends_list_visibility' => ['sometimes', Rule::enum(FriendsListVisibility::class)],
             'public_cards' => ['sometimes', 'boolean'],
             'featured_goal_id' => [
                 'nullable',

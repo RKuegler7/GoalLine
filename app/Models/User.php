@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\FriendsListVisibility;
 use App\NotificationSettings;
 use App\Outbound;
 use App\ProfileVisibility;
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards'])]
+#[Fillable(['name', 'email', 'password', 'username', 'bio', 'location', 'timezone', 'profile_visibility', 'discoverable', 'public_cards', 'friends_list_visibility'])]
 #[Hidden(['password', 'remember_token', 'calendar_token'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -82,6 +83,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'profile_visibility' => ProfileVisibility::class,
             'discoverable' => 'boolean',
+            'friends_list_visibility' => FriendsListVisibility::class,
             'public_cards' => 'boolean',
             'notification_settings' => 'array',
         ];

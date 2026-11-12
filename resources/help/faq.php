@@ -94,6 +94,7 @@ return [
         'id' => 'friends',
         'title' => 'Friends and leagues',
         'items' => [
+            ['id' => 'friends-mutual', 'q' => 'How do friends work?', 'a' => 'Friends are mutual: you both agree. Send a request from someone\'s locker (Add friend), and they Accept or Decline. Friends can see your League + friends posts. There\'s one Friends list, not Followers and Following, because those would be the same people. Choose who can see your list in Profile settings: friends and league mates, friends only, or only you.'],
             ['id' => 'inviting', 'q' => 'How do I invite people?', 'a' => 'Share the league link or code, or invite by email or username from the league page. Links can expire or have a use limit, and the owner can switch one off.'],
             ['id' => 'team-names', 'q' => 'Can I have a team name?', 'a' => 'Yes, one per league, up to '.LeagueMember::MAX_TEAM_NAME.' characters. Set it on the league page. It shows on the scoreboard and standings.'],
             ['id' => 'owner', 'q' => 'What does the league owner do?', 'a' => 'Sets the season and the league goal, invites people, can remind members to set their goal, removes members if needed, and makes the final call on disputes. A league can have up to '.League::MAX_MEMBERS.' members.'],

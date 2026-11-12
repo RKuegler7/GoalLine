@@ -77,7 +77,7 @@ class FriendshipTest extends TestCase
         $this->actingAs($this->jordan)->get($this->sam->profileUrl())->assertSee('Add friend');
         $this->actingAs($this->jordan)->post(route('friends.request', $this->sam));
         $this->actingAs($this->jordan)->get($this->sam->profileUrl())->assertSee('Request sent');
-        $this->actingAs($this->sam)->get($this->jordan->profileUrl())->assertSee('Accept friend request');
+        $this->actingAs($this->sam)->get($this->jordan->profileUrl())->assertSee('>Accept</button>', false)->assertSee('Decline');
 
         $this->actingAs($this->sam)->post(route('friends.request', $this->jordan)); // Asking back accepts.
         $this->actingAs($this->jordan)->get($this->sam->profileUrl())->assertSee('Friends');

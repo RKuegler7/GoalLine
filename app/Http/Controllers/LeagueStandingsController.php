@@ -21,11 +21,20 @@ class LeagueStandingsController extends Controller
         $sort = array_key_exists((string) $request->query('sort'), LeagueStats::SORTS) ? $request->query('sort') : 'points';
         $me = $league->memberFor($request->user());
 
+        // Standings (the table) or Stats (every number, sortable, with presets).
+        $view = $request->query('view') === 'stats' ? 'stats' : 'standings';
+        $preset = array_key_exists((string) $request->query('preset'), LeagueStats::PRESETS) ? $request->query('preset') : 'stars';
+        $column = array_key_exists((string) $request->query('col'), LeagueStats::columns()) ? $request->query('col') : null;
+
         return view('leagues.standings', [
             'league' => $league,
             'stats' => $stats,
             'rows' => $stats->standings($sort),
             'sort' => $sort,
+            'view' => $view,
+            'preset' => $preset,
+            'column' => $column,
+            'statRows' => $view === 'stats' ? $stats->statsRows($column) : collect(),
             'summary' => $stats->summary(),
             'series' => $stats->series($me),
             'me' => $me,

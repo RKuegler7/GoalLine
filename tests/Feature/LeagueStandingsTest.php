@@ -116,7 +116,7 @@ class LeagueStandingsTest extends TestCase
 
         $this->actingAs($avery->user)->get(route('leagues.standings', [$this->league, 'sort' => 'streak']))->assertOk()
             ->assertSeeInOrder(['Blake Moss', 'Casey Ruiz', 'Avery Lane'])
-            ->assertSee('The official order is by points.');
+            ->assertSee('The official order is total stars, then line stars, then Past-the-Line weeks.');
 
         $this->actingAs($avery->user)->get(route('leagues.standings.player', [$this->league, $this->members['Blake']]))->assertOk()
             ->assertSee('1&ndash;1&ndash;1', false)

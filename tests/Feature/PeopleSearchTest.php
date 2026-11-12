@@ -66,7 +66,7 @@ class PeopleSearchTest extends TestCase
 
         $this->actingAs($this->me)->post(route('friends.request', $priya))->assertSessionHas('status', 'Friend request sent to Priya.');
         $this->actingAs($this->me)->get(route('people.search', ['q' => 'priya']))->assertSee('Request sent');
-        $this->actingAs($priya)->get(route('people.search', ['q' => 'avery']))->assertSee('Accept friend request');
+        $this->actingAs($priya)->get(route('people.search', ['q' => 'avery']))->assertSee('>Accept</button>', false);
     }
 
     public function test_search_is_on_friends_and_highlights_with_people_in_your_leagues(): void

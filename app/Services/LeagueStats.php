@@ -23,6 +23,58 @@ class LeagueStats
     public const FORM_WEEKS = 5;
 
     /**
+     * The Stats view's column presets: which columns each shows.
+     */
+    public const PRESETS = [
+        'stars' => ['label' => 'Stars', 'columns' => ['total', 'line', 'match', 'record', 'best_week', 'form']],
+        'consistency' => ['label' => 'Consistency', 'columns' => ['streak', 'best_streak', 'smashed', 'past', 'in_line', 'short', 'form']],
+        'performance' => ['label' => 'Performance', 'columns' => ['total', 'avg', 'record', 'photo_wins', 'best_week', 'form']],
+    ];
+
+    /**
+     * Every Stats column: its heading and how a row sorts by it (null: not sortable). All from LeagueTable and member().
+     *
+     * @return array<string, array{label: string, title: string, value: (callable(array<string, mixed>): int|null)|null}>
+     */
+    public static function columns(): array
+    {
+        $band = fn (string $key) => fn (array $row) => $row['stats']['bands'][$key] ?? 0;
+
+        return [
+            'total' => ['label' => 'Stars', 'title' => 'Total stars: line stars plus matchup stars', 'value' => fn (array $row) => $row['total']],
+            'line' => ['label' => 'Line ★', 'title' => 'Line stars, from your band each week', 'value' => fn (array $row) => $row['resultPoints']],
+            'match' => ['label' => 'Matchup ★', 'title' => 'Matchup stars', 'value' => fn (array $row) => $row['matchupPoints']],
+            'record' => ['label' => 'W–D–L', 'title' => 'Wins, draws (equal stars) and losses', 'value' => fn (array $row) => $row['wins'] * 2 + $row['ties']],
+            'photo_wins' => ['label' => 'Photo wins', 'title' => 'Photo finish wins', 'value' => fn (array $row) => $row['stats']['photoFinishWins']],
+            'avg' => ['label' => 'Avg %', 'title' => 'Average percent of plan', 'value' => fn (array $row) => $row['stats']['avgPercent'] ?? -1],
+            'streak' => ['label' => 'On the line', 'title' => 'Weeks on the line now (In line or better, in a row)', 'value' => fn (array $row) => $row['stats']['weeksOnLine']],
+            'best_streak' => ['label' => 'Best run', 'title' => 'Best run on the line', 'value' => fn (array $row) => $row['stats']['bestWeeksOnLine']],
+            'smashed' => ['label' => 'Smashed', 'title' => 'Smashed weeks', 'value' => $band(GoalWeekResult::Smashed->value)],
+            'past' => ['label' => 'Past', 'title' => 'Past the line weeks', 'value' => $band(GoalWeekResult::Past->value)],
+            'in_line' => ['label' => 'In line', 'title' => 'In line weeks', 'value' => $band(GoalWeekResult::InLine->value)],
+            'short' => ['label' => 'Short', 'title' => 'Short weeks', 'value' => $band(GoalWeekResult::Short->value)],
+            'best_week' => ['label' => 'Best week', 'title' => 'Most stars in one week', 'value' => fn (array $row) => $row['stats']['bestWeek']['weeklyPoints'] ?? 0],
+            'form' => ['label' => 'Last '.self::FORM_WEEKS, 'title' => 'The last five weeks\' bands', 'value' => null],
+        ];
+    }
+
+    /**
+     * The Stats view's rows: the official order, or sorted by one column (highest first) with the official order
+     * breaking ties.
+     *
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function statsRows(?string $column = null): Collection
+    {
+        $official = $this->standings();
+        $value = self::columns()[$column ?? '']['value'] ?? null;
+
+        return $value === null
+            ? $official
+            : $official->sort(fn (array $a, array $b) => [$value($b), $a['rank']] <=> [$value($a), $b['rank']])->values();
+    }
+
+    /**
      * Per-member stats, keyed by member id, worked out once.
      *
      * @var Collection<int, array<string, mixed>>|null

@@ -135,6 +135,15 @@
                 </span>
             </label>
 
+            <div id="friends-list-visibility">
+                <label for="friends_list_visibility" class="mb-1.5 block text-sm font-medium text-ink/80">Who can see my friends list</label>
+                <select id="friends_list_visibility" name="friends_list_visibility" class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                    @foreach (App\FriendsListVisibility::cases() as $choice)
+                        <option value="{{ $choice->value }}" @selected(old('friends_list_visibility', $user->friends_list_visibility?->value) === $choice->value)>{{ $choice->label() }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1.5 text-sm text-ink/70">Anyone else who can see your locker sees only how many friends you have in common.</p>
+            </div>
             <label id="public-cards" class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3 transition hover:border-club/40 has-checked:border-club has-checked:bg-mint">
                 <input type="hidden" name="public_cards" value="0">
                 <input type="checkbox" name="public_cards" value="1" class="mt-1 accent-club" @checked(old('public_cards', $user->public_cards))>

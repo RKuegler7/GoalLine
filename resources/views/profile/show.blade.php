@@ -45,7 +45,7 @@
                 @else
                     <div class="flex shrink-0 flex-col items-end gap-1.5 sm:flex-row sm:items-center">
                         <x-nudge-button :user="$user" tone="light" />
-                        <x-friend-button :user="$user" tone="light" />
+                        <x-friend-button :user="$user" tone="light" note />
                     </div>
                 @endif
             </div>
@@ -55,7 +55,7 @@
     {{-- Headline stats. --}}
     <dl class="grid grid-cols-2 overflow-hidden rounded-2xl border border-line bg-white lg:grid-cols-4">
         @foreach ([
-            ['Points', $stats->points(), 'From GoalWeek results'],
+            ['Stars', $stats->points(), 'From GoalWeek results'],
             ['Goals completed', $stats->completedGoals()->count(), 'Of '.$stats->goalsStarted().' '.Str::plural('goal', $stats->goalsStarted()).' started'],
             ['Weeks on the line', $stats->weeksOnTheLine(), $stats->weeksOnTheLine() === 0 ? 'Start your line this week. Best: '.$stats->bestStreak() : 'In a row at In line or better. Best: '.$stats->bestStreak()],
             ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, draws, losses. Join a GoalLeague to start.' : 'Wins, draws, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
@@ -254,7 +254,9 @@
         @endif
     </section>
 
-    {{-- Leagues and friends arrive next. --}}
+    @include('profile.partials.league-stats')
+
+    {{-- Leagues and friends. --}}
     <section class="mt-6 grid gap-4 sm:grid-cols-2">
         <div class="rounded-2xl border border-line bg-white px-4 py-3">
             <div class="flex items-baseline justify-between">
@@ -272,28 +274,56 @@
                 <p class="mt-2 text-ink/70">Not in a GoalLeague yet.@if ($isOwn) <a href="{{ route('leagues.index') }}" class="font-semibold text-club hover:underline">Start or join one</a>.@endif</p>
             @endforelse
         </div>
-        <div class="rounded-2xl border border-line bg-white px-4 py-3">
+        <div class="rounded-2xl border border-line bg-white px-4 py-3" data-profile-friends>
             <div class="flex items-baseline justify-between">
                 <h2 class="eyebrow text-club">Friends</h2>
                 @if ($isOwn)
                     <a href="{{ route('friends.index') }}" class="text-sm font-semibold text-club hover:underline">Add friends</a>
                 @endif
             </div>
-            @if ($friends->isEmpty())
-                <p class="mt-2 text-ink/70">{{ $isOwn ? 'Add friends by their exact username or email.' : 'No friends to show yet.' }}</p>
-            @else
-                <ul class="mt-3 flex flex-wrap gap-2">
-                    @foreach ($friends as $friend)
-                        <li>
-                            <a href="{{ $friend->profileUrl() }}" class="flex items-center gap-2 rounded-full bg-ivory py-1 pr-3 pl-1 text-sm text-ink/80 hover:text-club">
-                                <x-avatar :user="$friend" class="size-6 text-[11px]" /> {{ $friend->name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
+            @if (! $isOwn && $mutualFriends > 0)
+                <p class="mt-1 text-[13px] text-ink/75" data-mutual-friends>{{ $mutualFriends }} mutual {{ Str::plural('friend', $mutualFriends) }}</p>
             @endif
+            @if ($canSeeFriends)
+                {{-- Expands in place: the first page loads when opened, then "Show more" and search, no page reload. --}}
+                <details class="mt-2" data-friends-expand data-src="{{ route('profiles.friends', ['user' => $user, 'partial' => 1]) }}">
+                    <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between rounded-lg px-1 font-semibold text-ink hover:bg-mint/40 [&::-webkit-details-marker]:hidden">
+                        <span>Friends ({{ $friendCount }})</span>
+                        <x-icon name="chevron-down" class="size-4 text-ink/60" />
+                    </summary>
+                    @if ($friendCount > App\Http\Controllers\ProfileFriendsController::PER_PAGE)
+                        <label for="profile-friend-search" class="sr-only">Search friends</label>
+                        <input id="profile-friend-search" type="search" data-friends-search placeholder="Search by name or username"
+                            class="mt-1 w-full rounded-lg border border-line bg-ivory px-3 py-2 text-base outline-none focus:border-club">
+                    @endif
+                    <div data-friends-body class="mt-1"><x-line-loader size="inline" label="Loading friends" /></div>
+                    <a href="{{ route('profiles.friends', $user) }}" class="mt-1 inline-flex min-h-10 items-center text-[13px] font-semibold text-club hover:underline">Open the full list</a>
+                </details>
+            @elseif ($mutualFriends === 0)
+                <p class="mt-2 text-[14px] text-ink/70">{{ $user->name }} keeps their friends list private.</p>
+            @endif
+            <p class="mt-2 text-[12px] text-ink/70">Friends are mutual: you both agree.</p>
         </div>
     </section>
+
+    {{-- GoalLeagues you both play in. --}}
+    @if ($mutualLeagues->isNotEmpty())
+        <section class="mt-4 rounded-2xl border border-line bg-white px-4 py-3" data-mutual-leagues>
+            <h2 class="eyebrow text-club">GoalLeagues you share</h2>
+            <ul class="mt-1 divide-y divide-line">
+                @foreach ($mutualLeagues as $row)
+                    <li>
+                        <a href="{{ route('leagues.show', $row['league']) }}" class="flex min-h-11 items-center justify-between gap-3 py-1 hover:text-club">
+                            <span class="truncate font-medium text-ink">{{ $row['league']->name }}</span>
+                            @if ($row['goal'])
+                                <span class="truncate text-[13px] text-ink/70">Playing &ldquo;{{ $row['goal'] }}&rdquo;</span>
+                            @endif
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 
     {{-- Recent highlights. --}}
     @if ($highlights->isNotEmpty())

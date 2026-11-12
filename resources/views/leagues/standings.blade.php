@@ -17,6 +17,15 @@
     </x-slot:hero>
 
     <div class="space-y-4" data-first-content>
+        {{-- The big switch: Standings or Stats. --}}
+        <x-segmented label="Standings or Stats" class="mx-auto w-full max-w-sm [&_a]:min-h-12 [&_a]:text-[16px] [&_a]:font-bold" data-standings-switch :options="[
+            ['label' => 'Standings', 'href' => route('leagues.standings', $league), 'active' => $view === 'standings'],
+            ['label' => 'Stats', 'href' => route('leagues.standings', [$league, 'view' => 'stats']), 'active' => $view === 'stats'],
+        ]" />
+
+        @if ($view === 'stats')
+            @include('leagues.partials.stats-view')
+        @else
         @if ($summary['played'] === 0)
             <x-empty-state title="Standings fill in after week 1"
                 message="Results go final a day after each GoalWeek ends. Until then, everyone's tied at zero and it's all to play for."
@@ -92,9 +101,10 @@
             </div>
             <x-standings-table :rows="$rows" :league="$league" :me="$me" />
             @if ($sort !== 'points')
-                <p class="mt-2 text-xs text-ink/70">Sorted by {{ Str::lower(App\Services\LeagueStats::SORTS[$sort]) }} for a look around. The official order is by points.</p>
+                <p class="mt-2 text-xs text-ink/70">Sorted by {{ Str::lower(App\Services\LeagueStats::SORTS[$sort]) }} for a look around. The official order is total stars, then line stars, then Past-the-Line weeks.</p>
             @endif
             <x-scoring-help class="mt-1" />
         </section>
+        @endif
     </div>
 </x-layouts.app>

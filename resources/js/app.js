@@ -1571,3 +1571,78 @@ eachOnPage('[data-season-start]', (select) => {
     end.addEventListener('input', update);
     update();
 });
+
+/**
+ * A profile's "Friends (N)" row: the first page loads in place when it's opened, "Show more" adds the next page, and
+ * search narrows the list, all without leaving the profile.
+ */
+eachOnPage('[data-friends-expand]', (details) => {
+    const body = details.querySelector('[data-friends-body]');
+    const search = details.querySelector('[data-friends-search]');
+    let loaded = false;
+    let timer = null;
+
+    const fetchPage = async (url) => {
+        const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' });
+
+        if (!response.ok) {
+            throw new Error(String(response.status));
+        }
+
+        return new DOMParser().parseFromString(await response.text(), 'text/html').querySelector('[data-friends-page]');
+    };
+
+    const load = async (url, append = false) => {
+        try {
+            const page = await fetchPage(url);
+
+            if (append) {
+                body.querySelector('[data-friends-more]')?.remove();
+                const list = body.querySelector('[data-friends-items]');
+                page.querySelectorAll('[data-friends-items] > li').forEach((item) => list?.append(item));
+                const more = page.querySelector('[data-friends-more]');
+
+                if (more) {
+                    body.querySelector('[data-friends-page]').append(more);
+                }
+            } else {
+                body.replaceChildren(page);
+            }
+        } catch {
+            body.textContent = 'Friends didn’t load. Try again in a moment.';
+        }
+    };
+
+    const withQuery = (query) => {
+        const url = new URL(details.dataset.src, window.location.origin);
+
+        if (query) {
+            url.searchParams.set('q', query);
+        }
+
+        return url.toString();
+    };
+
+    details.addEventListener('toggle', () => {
+        if (details.open && !loaded) {
+            loaded = true;
+            load(withQuery(''));
+        }
+    });
+
+    body.addEventListener('click', (event) => {
+        const more = event.target.closest('[data-friends-more]');
+
+        if (more) {
+            event.preventDefault();
+            const url = new URL(more.href);
+            url.searchParams.set('partial', '1');
+            load(url.toString(), true);
+        }
+    });
+
+    search?.addEventListener('input', () => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => load(withQuery(search.value.trim())), 250);
+    });
+});

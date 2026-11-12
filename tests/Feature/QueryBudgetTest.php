@@ -31,7 +31,7 @@ class QueryBudgetTest extends TestCase
         return [
             'clubhouse' => ['dashboard', 70],
             'plan my week' => ['planner.show', 15],
-            'my locker' => ['profile.show', 30],
+            'my locker' => ['profile.show', 35], // +5: one league's table for the Stats section, and friend counts. Fixed, not per row.
             'highlights' => ['highlights.index', 40],
             'goalleague' => ['leagues.show', 31], // +1: the goal's leagues, for when check-ins open (kickoff).
             'challenge' => ['challenges.show', 15],
