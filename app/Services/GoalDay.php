@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\Clock;
 use App\GoalOutcome;
 use App\GoalStatus;
@@ -101,6 +102,17 @@ class GoalDay
      * @param  array{outcome: string, finished_early?: bool, actual_result?: ?string, hardest_part?: ?string, helped_most?: ?string, shared?: bool}  $answer
      */
     public function record(Goal $goal, array $answer, ?UploadedFile $proof = null): GoalResult
+    {
+        // One answer per goal (goal_id is unique): a double tap or a second tab waits its turn and then updates the
+        // same row instead of racing to insert a second one.
+        return Atomic::exclusively('goal-day:'.$goal->id, fn () => $this->write($goal->fresh(['result', 'user']), $answer, $proof), wait: 10)
+            ?? $goal->fresh('result')->result;
+    }
+
+    /**
+     * @param  array{outcome: string, finished_early?: bool, actual_result?: ?string, hardest_part?: ?string, helped_most?: ?string, shared?: bool}  $answer
+     */
+    private function write(Goal $goal, array $answer, ?UploadedFile $proof): GoalResult
     {
         $league = $this->league($goal);
         $result = $goal->result ?? new GoalResult(['user_id' => $goal->user_id]);

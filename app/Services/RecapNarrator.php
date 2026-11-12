@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Anthropic\Client;
+use App\Atomic;
 use App\Jobs\NarrateRecap;
 use App\Models\RecapNarration;
 use App\Models\User;
@@ -148,10 +149,15 @@ class RecapNarrator
      */
     public static function save(User $user, CarbonImmutable $monday, string $hash, array $written): RecapNarration
     {
-        $narration = RecapNarration::query()->where('user_id', $user->id)->whereDate('week_starts_on', $monday->toDateString())->first() ?? new RecapNarration;
-        $narration->forceFill(['user_id' => $user->id, 'week_starts_on' => $monday->toDateString(), 'facts_hash' => $hash, ...$written])->save();
+        // One row per member and week (unique), written in one upsert: the first open of a recap can queue this twice.
+        $now = now();
+        Atomic::run(fn () => RecapNarration::upsert(
+            [['user_id' => $user->id, 'week_starts_on' => $monday->toDateString(), 'facts_hash' => $hash, ...$written, 'created_at' => $now, 'updated_at' => $now]],
+            ['user_id', 'week_starts_on'],
+            ['facts_hash', ...array_keys($written), 'updated_at'],
+        ));
 
-        return $narration;
+        return RecapNarration::query()->where('user_id', $user->id)->whereDate('week_starts_on', $monday->toDateString())->firstOrFail();
     }
 
     /**

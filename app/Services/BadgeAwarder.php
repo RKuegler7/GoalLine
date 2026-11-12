@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\Badge;
 use App\GoalWeekResult;
 use App\Models\Cheer;
@@ -66,18 +67,24 @@ class BadgeAwarder
      */
     public function award(User $user, Badge $badge, ?League $league = null, ?string $detail = null): ?UserBadge
     {
-        $exists = $user->badges()->where('badge', $badge->value)->where('league_id', $league?->id)->exists();
+        // Two requests (or a request and the badge job) can award the same badge at once: one at a time per badge,
+        // checked inside the lock, so it's awarded and announced once.
+        $earned = Atomic::exclusively("badge:{$user->id}:{$badge->value}:".($league?->id ?? 0), function () use ($user, $badge, $league, $detail) {
+            if ($user->badges()->where('badge', $badge->value)->where('league_id', $league?->id)->exists()) {
+                return null;
+            }
 
-        if ($exists) {
+            return $user->badges()->create([
+                'badge' => $badge,
+                'league_id' => $league?->id,
+                'detail' => $detail,
+                'earned_at' => now(),
+            ]);
+        }, wait: 5);
+
+        if (! $earned) {
             return null;
         }
-
-        $earned = $user->badges()->create([
-            'badge' => $badge,
-            'league_id' => $league?->id,
-            'detail' => $detail,
-            'earned_at' => now(),
-        ]);
 
         $user->notify(new BadgeEarned($earned));
 
