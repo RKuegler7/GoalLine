@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\PendingInvite;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +34,12 @@ class SessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard'));
+        // Signing in from a league invite: remember it with the account, in case the email still needs verifying.
+        if ($request->session()->has('league_invite')) {
+            PendingInvite::remember($request->user(), $request->session()->get('league_join_return'));
+        }
+
+        return redirect()->intended(PendingInvite::url($request->user()) ?? route('dashboard'));
     }
 
     /**

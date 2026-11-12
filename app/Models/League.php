@@ -202,11 +202,26 @@ class League extends Model
     }
 
     /**
-     * Whether people can still join: before kickoff and while there is room.
+     * Whether people can still join: until the season is over, while there is room. Someone joining after kickoff
+     * plays from the current week on (see joinedWeekForNewMember()).
      */
     public function isJoinable(): bool
     {
-        return $this->status() === LeagueStatus::Forming && $this->members->count() < self::MAX_MEMBERS;
+        return $this->status() !== LeagueStatus::Finished && ! $this->isFull();
+    }
+
+    public function isFull(): bool
+    {
+        return $this->members->count() >= self::MAX_MEMBERS;
+    }
+
+    /**
+     * The league week a member joining now starts in: null before kickoff (they play the whole season), otherwise
+     * the current week. Weeks before it never count for or against them.
+     */
+    public function joinedWeekForNewMember(): ?int
+    {
+        return $this->status() === LeagueStatus::Active ? $this->currentWeek() : null;
     }
 
     /**

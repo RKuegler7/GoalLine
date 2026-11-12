@@ -46,7 +46,7 @@ class LeagueInviteTest extends TestCase
         $this->assertTrue($invite->expires_at->equalTo(now()->addDays(14)));
         $this->assertSame($invite->id, $this->league->shareableInvite()->id); // Reused, not made again.
 
-        $this->get(route('leagues.invite.show', 'not-a-real-token'))->assertNotFound();
+        $this->get(route('leagues.invite.show', 'not-a-real-token'))->assertOk()->assertSee('find that invite');
     }
 
     public function test_joining_through_a_link(): void
@@ -77,15 +77,13 @@ class LeagueInviteTest extends TestCase
         $dave = User::where('email', 'dave@example.com')->sole();
         $dave->forceFill(['email_verified_at' => now()])->save();
 
-        // No goal yet: set one right on the invite page, then come back to join with it.
-        $this->actingAs($dave)->get($invite->url())->assertSee("Set the goal you'll play", false)->assertSee('name="from" value="league"', false);
-        $response = $this->actingAs($dave)->post(route('goals.store'), ['from' => 'league', 'title' => 'Pass FAR', 'category' => 'academic', 'target_date' => '2026-12-15']);
+        // No goal yet: set one right on the invite page; joining goes straight into the intake questions.
+        $this->actingAs($dave)->get($invite->url())->assertSee("Set the goal you'll play", false)->assertSee('data-join-goal="custom"', false);
+        $response = $this->actingAs($dave)->post(route('leagues.invite.goal', $invite->token), ['title' => 'Pass FAR', 'category' => 'academic', 'target_date' => '2026-12-15']);
         $goal = $dave->goals()->sole();
-        $response->assertRedirect(route('goals.intake', ['goal' => $goal, 'from' => 'league']));
-        $this->actingAs($dave)->post(route('goals.intake.store', $goal), ['from' => 'league', 'skip' => 1])->assertRedirect($invite->url().'?goal='.$goal->id);
-
-        $this->actingAs($dave)->post(route('leagues.invite.join', $invite->token), ['goal_id' => $goal->id])->assertRedirect(route('welcome.crew'));
-        $this->assertNotNull($this->league->memberFor($dave));
+        $response->assertRedirect(route('goals.intake', ['goal' => $goal, 'from' => 'joined']));
+        $this->assertSame($goal->id, $this->league->memberFor($dave)->goal_id);
+        $this->assertNotNull($dave->fresh()->onboarded_at);
     }
 
     public function test_signing_in_from_an_invite_comes_back_to_it(): void
@@ -107,20 +105,20 @@ class LeagueInviteTest extends TestCase
         $this->travel(15)->days();
         $this->assertFalse($invite->fresh()->isUsable());
         $this->actingAs($sam)->get($invite->url())->assertSee('This invite has expired or was turned off.');
-        $this->actingAs($sam)->post(route('leagues.invite.join', $invite->token), ['goal_id' => $samGoal->id])->assertStatus(410);
+        $this->actingAs($sam)->post(route('leagues.invite.join', $invite->token), ['goal_id' => $samGoal->id])->assertRedirect(route('leagues.invite.show', $invite->token));
         $this->travelBack();
         $this->travelTo(Carbon::parse('2026-10-28 12:00', config('app.timezone')));
 
         // Revoked.
         $revoked = $this->league->invites()->create(['kind' => LeagueInvite::LINK]);
         $this->actingAs($this->owner)->delete(route('leagues.invites.revoke', $revoked))->assertRedirect();
-        $this->actingAs($sam)->post(route('leagues.invite.join', $revoked->token), ['goal_id' => $samGoal->id])->assertStatus(410);
+        $this->actingAs($sam)->post(route('leagues.invite.join', $revoked->token), ['goal_id' => $samGoal->id])->assertRedirect(route('leagues.invite.show', $revoked->token));
 
         // Capped at one use.
         $capped = $this->league->invites()->create(['kind' => LeagueInvite::LINK, 'max_uses' => 1]);
         $this->actingAs($sam)->post(route('leagues.invite.join', $capped->token), ['goal_id' => $samGoal->id])->assertRedirect();
         $dave = User::factory()->create();
-        $this->actingAs($dave)->post(route('leagues.invite.join', $capped->token), ['goal_id' => $this->goalFor($dave)->id])->assertStatus(410);
+        $this->actingAs($dave)->post(route('leagues.invite.join', $capped->token), ['goal_id' => $this->goalFor($dave)->id])->assertRedirect(route('leagues.invite.show', $capped->token));
         $this->assertNull($this->league->memberFor($dave));
     }
 

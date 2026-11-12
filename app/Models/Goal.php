@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 
-#[Fillable(['title', 'category', 'why', 'target_date'])]
+#[Fillable(['title', 'category', 'why', 'target_date', 'target_result', 'context'])]
 class Goal extends Model
 {
     /** @use HasFactory<GoalFactory> */

@@ -33,6 +33,7 @@ use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueGoalController;
 use App\Http\Controllers\LeagueInviteController;
+use App\Http\Controllers\LeagueJoinGoalController;
 use App\Http\Controllers\LeagueMatchupController;
 use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
@@ -266,6 +267,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
     Route::get('/join/{code}', [LeagueMembershipController::class, 'create'])->name('leagues.join')->middleware('throttle:20,1');
     Route::post('/invite/{token}', [LeagueInviteController::class, 'join'])->name('leagues.invite.join')->middleware('verified');
+    Route::post('/invite/{token}/goal', [LeagueJoinGoalController::class, 'invite'])->name('leagues.invite.goal')->middleware(['verified', 'throttle:20,1']);
     Route::post('/leagues/{league}/invites', [LeagueInviteController::class, 'store'])->name('leagues.invites.store')->can('view', 'league')->middleware(['verified', 'throttle:20,60']);
     Route::post('/leagues/{league}/invite-link', [LeagueInviteController::class, 'regenerate'])->name('leagues.invites.regenerate');
     Route::delete('/league-invites/{invite}', [LeagueInviteController::class, 'revoke'])->name('leagues.invites.revoke');
@@ -276,6 +278,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/goals/{goal}/next', [GoalNextStepController::class, 'show'])->name('goals.next')->can('update', 'goal');
     Route::post('/goals/{goal}/next', [GoalNextStepController::class, 'choose'])->name('goals.next.choose')->can('update', 'goal');
     Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware(['verified', 'throttle:20,1']);
+    Route::post('/join/{code}/goal', [LeagueJoinGoalController::class, 'code'])->name('leagues.join.goal')->middleware(['verified', 'throttle:20,1']);
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
     Route::put('/leagues/{league}/team-name', [LeagueMembershipController::class, 'teamName'])->name('leagues.team-name.update')->can('view', 'league')->middleware('throttle:20,1');
     Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');

@@ -316,7 +316,8 @@ class DemoTest extends TestCase
         // And real members can't see into a demo.
         $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Red Dufour')->sole()->profileUrl())->assertViewIs('profile.private');
         $this->actingAs($real)->get(route('people.search', ['q' => 'dufour']))->assertDontSee('Red Dufour');
-        $this->actingAs($real)->get(route('leagues.join', $study->invite_code))->assertNotFound();
+        // A friendly "not found" that reveals nothing about the demo league.
+        $this->actingAs($real)->get(route('leagues.join', $study->invite_code))->assertOk()->assertSee('find that invite')->assertDontSee($study->name);
     }
 
     public function test_a_signed_in_member_is_not_switched_into_the_demo(): void

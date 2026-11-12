@@ -70,8 +70,8 @@ class ShareLinksTest extends TestCase
         $tokens->each(fn (string $token) => $this->assertMatchesRegularExpression('/^[A-Za-z0-9]{40}$/', $token));
 
         // A sequential id never opens an invite.
-        $this->get('/invite/'.$this->league->invites()->first()->id)->assertNotFound();
-        $this->get('/invite/1')->assertNotFound();
+        $this->get('/invite/'.$this->league->invites()->first()->id)->assertOk()->assertSee('find that invite');
+        $this->get('/invite/1')->assertOk()->assertSee('find that invite');
     }
 
     public function test_the_join_page_has_a_friendly_summary_and_link_previews(): void
@@ -98,11 +98,11 @@ class ShareLinksTest extends TestCase
         $revoked = $this->league->invites()->create(['kind' => LeagueInvite::LINK]);
         $revoked->forceFill(['revoked_at' => now()])->save();
         $this->get($revoked->url())->assertOk()->assertSee('This invite has expired or was turned off.');
-        $this->actingAs($sam)->post(route('leagues.invite.join', $revoked->token), ['goal_id' => $goal->id])->assertStatus(410);
+        $this->actingAs($sam)->post(route('leagues.invite.join', $revoked->token), ['goal_id' => $goal->id])->assertRedirect(route('leagues.invite.show', $revoked->token));
 
         $expired = $this->league->invites()->create(['kind' => LeagueInvite::LINK, 'expires_at' => now()->subMinute()]);
         $this->actingAs($sam)->get($expired->url())->assertSee('This invite has expired or was turned off.');
-        $this->actingAs($sam)->post(route('leagues.invite.join', $expired->token), ['goal_id' => $goal->id])->assertStatus(410);
+        $this->actingAs($sam)->post(route('leagues.invite.join', $expired->token), ['goal_id' => $goal->id])->assertRedirect(route('leagues.invite.show', $expired->token));
 
         $this->assertNull($this->league->memberFor($sam));
     }

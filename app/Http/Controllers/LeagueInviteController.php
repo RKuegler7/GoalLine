@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Atomic;
+use App\Models\Goal;
 use App\Models\League;
 use App\Models\LeagueInvite;
 use App\Models\LeagueMember;
 use App\Models\User;
 use App\Notifications\LeagueInvited;
 use App\Notifications\LeagueInviteEmail;
-use App\Notifications\LeagueMemberJoined;
-use Illuminate\Database\UniqueConstraintViolationException;
+use App\PendingInvite;
+use App\Services\LeagueJoin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -22,28 +22,34 @@ use Illuminate\View\View;
 class LeagueInviteController extends Controller
 {
     /**
-     * The page an invite link opens: the league, who runs it, and how many are in. Visitors sign in or create an
-     * account first (the invite lets them past the private beta), then pick or set the goal they'll play.
+     * The page an invite link opens: the league, its goal, who runs it, and how many are in. Visitors sign in or
+     * create an account first (the invite lets them past the private beta), then land on the goal step with the league
+     * goal ready to use. A link that's unknown, expired, used up, or for a full or finished league gets a friendly
+     * page with somewhere to go next, never a raw error.
      */
     public function show(Request $request, string $token): View|RedirectResponse
     {
         $invite = LeagueInvite::where('token', $token)->with('league.members.user', 'league.commissioner', 'creator')->first();
-        abort_unless($invite, 404);
-        $league = $invite->league;
         $user = $request->user();
-        abort_if($user && ! $league->commissioner->sharesWorldWith($user), 404);
+
+        if (! $invite || ($user && ! $invite->league->commissioner->sharesWorldWith($user))) {
+            return view('leagues.invite-problem', ['reason' => 'missing', 'league' => null]);
+        }
+
+        $league = $invite->league;
 
         if ($user && $league->memberFor($user)) {
             return redirect()->route('leagues.show', $league);
         }
 
-        if ($invite->isUsable()) {
-            // Signing in from here comes straight back.
+        if ($invite->isUsable() && LeagueJoin::blocker($league) === null) {
+            // Signing in from here comes straight back; so does verifying the email, even later.
             if (! $user) {
                 $request->session()->put('url.intended', $invite->url());
+            } else {
+                PendingInvite::remember($user, $invite->url());
             }
 
-            // Remembered through sign-up and sign-in, and for coming back after setting a goal.
             $request->session()->put('league_invite', $token);
             $request->session()->put('league_join_return', $invite->url());
         }
@@ -52,26 +58,31 @@ class LeagueInviteController extends Controller
             'league' => $league,
             'invite' => $invite,
             'joinAction' => route('leagues.invite.join', $token),
-            'goals' => $user?->goals()->active()->orderBy('target_date')->get() ?? collect(),
+            'goalAction' => route('leagues.invite.goal', $token),
+            'goals' => $user?->goals()->inPlay()->orderBy('target_date')->get() ?? collect(),
         ]);
     }
 
     /**
      * Join through an invite with one of your active goals.
      */
-    public function join(Request $request, string $token): RedirectResponse
+    public function join(Request $request, string $token, LeagueJoin $joiner): RedirectResponse
     {
         $invite = LeagueInvite::findUsable($token);
-        abort_unless($invite, 410, 'This invite has expired or been turned off. Ask for a new one.');
-        $league = $invite->league->load('members');
+        $league = $invite?->league->load('members', 'commissioner');
         $user = $request->user();
-        abort_unless($league->commissioner->sharesWorldWith($user), 404);
+
+        if (! $invite || ! $league->commissioner->sharesWorldWith($user)) {
+            return redirect()->route('leagues.invite.show', $token);
+        }
 
         if ($league->memberFor($user)) {
             return redirect()->route('leagues.show', $league);
         }
 
-        abort_unless($league->isJoinable(), 403, 'This league has already kicked off or is full.');
+        if (LeagueJoin::blocker($league) !== null) {
+            return redirect()->route('leagues.invite.show', $token);
+        }
 
         $validated = $request->validate([
             'goal_id' => ['required', Rule::exists('goals', 'id')->where('user_id', $user->id)->where('status', 'active')],
@@ -80,42 +91,14 @@ class LeagueInviteController extends Controller
             'goal_id.exists' => 'Pick one of your active goals.',
         ]);
 
-        // Lock order: the league row, then the invite and its members. Re-checked inside, so a double submit joins once.
-        try {
-            $joined = Atomic::run(function () use ($invite, $league, $user, $validated) {
-                League::whereKey($league->id)->lockForUpdate()->first();
-
-                if ($league->members()->where('user_id', $user->id)->exists()) {
-                    return false;
-                }
-
-                if (! $invite->claim()) {
-                    throw ValidationException::withMessages(['goal_id' => 'This invite was just used up. Ask for a new one.']);
-                }
-
-                $league->members()->create(['user_id' => $user->id, 'goal_id' => $validated['goal_id']]);
-
-                return true;
-            });
-        } catch (UniqueConstraintViolationException) {
-            $joined = false;
-        }
-
-        if (! $joined) {
+        if (! $joiner->join($league, $user, Goal::find($validated['goal_id']), $invite)) {
             return redirect()->route('leagues.show', $league);
         }
 
         $request->session()->forget(['league_invite', 'league_join_return']);
-        $league->announce($user->name.' joined the league.');
-        if (! $league->commissioner->is($user)) {
-            $league->commissioner->notify(new LeagueMemberJoined($league->withoutRelations(), $user));
-        }
+        $user->onboarded_at ?? $user->forceFill(['onboarded_at' => now()])->save();
 
-        $status = "You're in {$league->name}. Kickoff is {$league->starts_on->format('l, F j')}.";
-
-        return $user->onboarded_at
-            ? redirect()->route('leagues.show', $league)->with('status', $status)
-            : redirect()->route('welcome.crew')->with('status', $status);
+        return redirect()->route('leagues.show', $league)->with('status', LeagueJoin::welcome($league));
     }
 
     /**

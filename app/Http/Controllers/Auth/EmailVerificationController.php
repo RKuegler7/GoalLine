@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\EmailVerificationLink;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\PendingInvite;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -94,6 +95,17 @@ class EmailVerificationController extends Controller
                 $message = 'Email verified. GoalLeagues, Highlights, and friends are unlocked.';
             } else {
                 $message = 'Your email is already verified. You\'re all set.';
+            }
+
+            // From a league invite: back to the same join step (after logging in, if this is another device).
+            $invite = PendingInvite::url($user);
+
+            if ($invite && $signedIn?->is($user)) {
+                return redirect()->to($invite)->with('status', 'Email verified. Now pick the goal you\'ll play and you\'re in.');
+            }
+
+            if ($invite) {
+                $request->session()->put('url.intended', $invite);
             }
 
             return $signedIn?->is($user)

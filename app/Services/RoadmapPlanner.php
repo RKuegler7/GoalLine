@@ -556,6 +556,8 @@ class RoadmapPlanner
             'Goal: '.$goal->title,
             'Category: '.$goal->category->label(),
             'Why it matters: '.($goal->why ?: 'Not given.'),
+            ...($goal->target_result ? ['Target result: '.$goal->target_result] : []),
+            ...($goal->context ? ['In their words: '.$goal->context] : []),
             'Today: '.Clock::today()->format('D M j, Y'),
             'Target date: '.$goal->target_date->format('D M j, Y'),
             '</goal>',

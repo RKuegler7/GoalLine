@@ -117,9 +117,9 @@ class LeagueTest extends TestCase
         $joiner = Goal::factory()->create();
 
         $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()
-            ->assertSee('Join GoalLeague')
-            ->assertSee('Set a new one for this league')
-            ->assertSee('name="from" value="league"', false);
+            ->assertSee("Set the goal you'll play", false)
+            ->assertSee('Play a goal you already have')
+            ->assertSee('data-join-goal="custom"', false);
     }
 
     public function test_kickoff_must_be_an_upcoming_monday_and_the_goal_must_be_yours(): void
@@ -147,7 +147,7 @@ class LeagueTest extends TestCase
             ->post(route('leagues.find'), ['code' => strtolower(str_replace('-', '', $league->invite_code))])
             ->assertRedirect(route('leagues.join', $league->invite_code));
 
-        $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()->assertSee('Join GoalLeague');
+        $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()->assertSee('Play a goal you already have');
 
         $this->actingAs($joiner->user)
             ->post(route('leagues.join.store', $league->invite_code), ['goal_id' => $joiner->id])
@@ -164,15 +164,26 @@ class LeagueTest extends TestCase
             ->assertSessionHasErrors('code');
     }
 
-    public function test_no_one_can_join_after_kickoff(): void
+    public function test_late_joiners_play_from_the_current_week_and_a_finished_season_says_so(): void
     {
         $league = League::factory()->create();
-        $joiner = Goal::factory()->create();
-        $this->travelTo($league->starts_on);
+        $league->members()->create(['user_id' => $league->commissioner_id]);
+        $joiner = Goal::factory()->create(['target_date' => $league->ends_on->copy()->addMonth()]);
+        $this->travelTo($league->starts_on->copy()->addDays(8)); // Week 2.
 
+        $this->actingAs($joiner->user)->get(route('leagues.join', $league->invite_code))->assertOk()
+            ->assertSee("You'll play from GoalWeek 2", false);
         $this->actingAs($joiner->user)
             ->post(route('leagues.join.store', $league->invite_code), ['goal_id' => $joiner->id])
-            ->assertForbidden();
+            ->assertRedirect(route('leagues.show', $league));
+        $this->assertSame(2, $league->memberFor($joiner->user)->joined_week);
+
+        $this->travelTo($league->ends_on->copy()->addDays(2));
+        $late = Goal::factory()->create();
+        $this->actingAs($late->user)->get(route('leagues.join', $league->invite_code))->assertOk()->assertSee('This season is over.')->assertSee('Start your own GoalLeague');
+        $this->actingAs($late->user)->post(route('leagues.join.store', $league->invite_code), ['goal_id' => $late->id])
+            ->assertRedirect(route('leagues.join', $league->invite_code));
+        $this->assertNull($league->memberFor($late->user));
     }
 
     public function test_only_members_can_see_a_league(): void

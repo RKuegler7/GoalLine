@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Atomic;
+use App\Models\Goal;
 use App\Models\League;
 use App\Models\LeagueMember;
-use App\Notifications\LeagueMemberJoined;
+use App\PendingInvite;
 use App\Rules\CleanName;
-use Illuminate\Database\UniqueConstraintViolationException;
+use App\Services\LeagueJoin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -32,32 +32,38 @@ class LeagueMembershipController extends Controller
     }
 
     /**
-     * Show a league's invite: who's in, when it kicks off, and which goal to bring.
+     * Show a league's invite from its code: who's in, the league goal, and the goal step. A full or finished league
+     * gets a friendly page with other options.
      */
     public function create(Request $request, string $code): View|RedirectResponse
     {
-        $league = League::where('invite_code', $this->normalize($code))->with('members.user', 'commissioner')->firstOrFail();
-        abort_unless($league->commissioner->sharesWorldWith($request->user()), 404);
+        $league = League::where('invite_code', $this->normalize($code))->with('members.user', 'commissioner')->first();
+
+        if (! $league || ! $league->commissioner->sharesWorldWith($request->user())) {
+            return view('leagues.invite-problem', ['reason' => 'missing', 'league' => null]);
+        }
 
         if ($league->memberFor($request->user())) {
             return redirect()->route('leagues.show', $league);
         }
 
-        // Coming back here after setting a goal.
+        // Coming back here after setting a goal, or after verifying an email.
         $request->session()->put('league_join_return', route('leagues.join', $league->invite_code));
+        PendingInvite::remember($request->user(), route('leagues.join', $league->invite_code));
 
         return view('leagues.join', [
             'league' => $league,
             'invite' => null,
             'joinAction' => route('leagues.join.store', $league->invite_code),
-            'goals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
+            'goalAction' => route('leagues.join.goal', $league->invite_code),
+            'goals' => $request->user()->goals()->inPlay()->orderBy('target_date')->get(),
         ]);
     }
 
     /**
      * Join a league with one of the person's active goals.
      */
-    public function store(Request $request, string $code): RedirectResponse
+    public function store(Request $request, string $code, LeagueJoin $joiner): RedirectResponse
     {
         $league = League::where('invite_code', $this->normalize($code))->with('members', 'commissioner')->firstOrFail();
         abort_unless($league->commissioner->sharesWorldWith($request->user()), 404);
@@ -66,7 +72,9 @@ class LeagueMembershipController extends Controller
             return redirect()->route('leagues.show', $league);
         }
 
-        abort_unless($league->isJoinable(), 403, 'This league has already kicked off or is full.');
+        if (LeagueJoin::blocker($league) !== null) {
+            return redirect()->route('leagues.join', $league->invite_code);
+        }
 
         $validated = $request->validate([
             'goal_id' => ['required', Rule::exists('goals', 'id')->where('user_id', $request->user()->id)->where('status', 'active')],
@@ -75,33 +83,11 @@ class LeagueMembershipController extends Controller
             'goal_id.exists' => 'Pick one of your active goals.',
         ]);
 
-        // Locked on the league and re-checked, so a double submit joins once (and announces once).
-        try {
-            $joined = Atomic::run(function () use ($league, $request, $validated) {
-                League::whereKey($league->id)->lockForUpdate()->first();
-
-                if ($league->members()->where('user_id', $request->user()->id)->exists()) {
-                    return false;
-                }
-
-                $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $validated['goal_id']]);
-
-                return true;
-            });
-        } catch (UniqueConstraintViolationException) {
-            $joined = false;
-        }
-
-        if (! $joined) {
+        if (! $joiner->join($league, $request->user(), Goal::find($validated['goal_id']))) {
             return redirect()->route('leagues.show', $league);
         }
 
-        $league->announce($request->user()->name.' joined the league.');
-        if (! $league->commissioner->is($request->user())) {
-            $league->commissioner->notify(new LeagueMemberJoined($league->withoutRelations(), $request->user()));
-        }
-
-        $status = "You're in ".$league->name.'. Kickoff is '.$league->starts_on->format('l, F j').'.';
+        $status = LeagueJoin::welcome($league);
 
         // Joining during the welcome walkthrough returns to it.
         return $request->user()->onboarded_at

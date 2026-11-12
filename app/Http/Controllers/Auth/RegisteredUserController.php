@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Models\Invite;
 use App\Models\LeagueInvite;
 use App\Models\User;
+use App\PendingInvite;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -60,6 +61,9 @@ class RegisteredUserController extends Controller
 
         // Signed up from a league invite: straight back to it to pick a goal and join.
         if ($request->hasLeagueInvite()) {
+            // Kept with the account too, so verifying the email (even on another device) comes back to this step.
+            PendingInvite::remember($user, $request->session()->get('league_join_return'));
+
             return redirect()->to($request->session()->get('league_join_return'));
         }
 

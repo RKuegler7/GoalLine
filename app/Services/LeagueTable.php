@@ -33,8 +33,32 @@ class LeagueTable
      */
     public function pairings(int $week): array
     {
-        $members = $this->league->members->values()->all();
+        // Late joiners play from the week they joined. In that first week they play the league median, so nobody's
+        // matchup already under way changes; from the next week on they're in the rotation like everyone else.
+        $newcomers = $this->league->members->filter(fn (LeagueMember $member) => $member->joined_week !== null && $member->joined_week === $week);
+        $members = $this->league->members->filter(fn (LeagueMember $member) => $member->joined_week === null || $member->joined_week < $week)->values()->all();
 
+        return [...$this->rotation($members, $week), ...$newcomers->map(fn (LeagueMember $member) => [$member, null])->values()->all()];
+    }
+
+    /**
+     * Members who play in a league week: everyone who had joined by then.
+     *
+     * @return Collection<int, LeagueMember>
+     */
+    public function membersIn(int $week): Collection
+    {
+        return $this->league->members->filter(fn (LeagueMember $member) => $member->joined_week === null || $member->joined_week <= $week)->values();
+    }
+
+    /**
+     * Round-robin pairs for a list of members, by the circle method. An odd count gets a seat against the median.
+     *
+     * @param  list<LeagueMember>  $members
+     * @return list<array{0: LeagueMember, 1: LeagueMember|null}>
+     */
+    private function rotation(array $members, int $week): array
+    {
         if (count($members) % 2 === 1) {
             $members[] = null;
         }
@@ -103,7 +127,7 @@ class LeagueTable
      */
     public function matchups(int $week): array
     {
-        $results = $this->league->members->mapWithKeys(fn (LeagueMember $member) => [$member->id => $this->memberResult($member, $week)]);
+        $results = $this->membersIn($week)->mapWithKeys(fn (LeagueMember $member) => [$member->id => $this->memberResult($member, $week)]);
 
         return collect($this->pairings($week))->map(function (array $pair) use ($results) {
             [$home, $away] = $pair;
@@ -144,7 +168,7 @@ class LeagueTable
      */
     public function typicalPlannedPoints(int $week): ?int
     {
-        $planned = $this->league->members
+        $planned = $this->membersIn($week)
             ->map(fn (LeagueMember $member) => $this->memberResult($member, $week)['goalWeek']?->plannedPoints())
             ->filter();
 
@@ -156,7 +180,7 @@ class LeagueTable
      */
     public function isFinal(int $week): bool
     {
-        return $this->league->members->every(fn (LeagueMember $member) => $this->memberResult($member, $week)['final']);
+        return $this->membersIn($week)->every(fn (LeagueMember $member) => $this->memberResult($member, $week)['final']);
     }
 
     /**
