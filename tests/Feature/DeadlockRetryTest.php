@@ -9,6 +9,7 @@ use App\Services\ErrorAlerts;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use PDOException;
 use RuntimeException;
@@ -124,5 +125,23 @@ class DeadlockRetryTest extends TestCase
         $pdo = new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction');
 
         return new QueryException('mysql', $sql, [], $pdo);
+    }
+
+    public function test_a_deadlock_is_retried_and_succeeds_with_a_warning_not_an_email(): void
+    {
+        Log::spy();
+        $tries = 0;
+
+        $result = Atomic::run(function () use (&$tries) {
+            if (++$tries === 1) {
+                throw new QueryException('mysql', 'insert into medals ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction'));
+            }
+
+            return 'done';
+        });
+
+        $this->assertSame('done', $result);
+        $this->assertSame(2, $tries);
+        Log::shouldHaveReceived('warning')->withArgs(fn ($message) => str_contains($message, 'deadlock-retried'));
     }
 }

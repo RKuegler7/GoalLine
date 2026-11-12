@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\Notifications\AdminAlert;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 /**
- * Emails the admins when something breaks, at most once an hour for the same error, so a bad day isn't a flood.
+ * Emails the admins when something breaks, at most once every 15 minutes for the same error, so a bad day isn't a flood.
  *
  * "The same error" means the same kind of exception with the same message once the parts that change on every
  * request are taken out (file paths, ids, numbers, quoted values, request ids). A missing file at avatars/a.jpg and
@@ -16,10 +18,18 @@ use Throwable;
  */
 class ErrorAlerts
 {
-    public const QUIET_MINUTES = 60;
+    public const QUIET_MINUTES = 15;
 
     public function report(Throwable $exception): void
     {
+        // Waiting on a lock for idempotent work isn't a failure (the work runs again): a warning and a counter only.
+        // Deadlocks that were retried never get here; App\Atomic logs those the same way.
+        if ($exception instanceof LockTimeoutException) {
+            Atomic::noteContention('lock-timeout', $exception);
+
+            return;
+        }
+
         $admins = config('goalline.admin_emails');
 
         if ($admins === []) {

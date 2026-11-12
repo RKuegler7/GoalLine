@@ -42,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        // Email the admins when something breaks: once an hour per distinct error, so a bad day isn't a flood.
+        // Email the admins when something breaks: once every 15 minutes per distinct error, so a bad day isn't a flood.
         $exceptions->report(function (Throwable $exception) {
             if (! app()->environment('testing')) {
                 app(ErrorAlerts::class)->report($exception);
