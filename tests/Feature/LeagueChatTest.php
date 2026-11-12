@@ -124,8 +124,8 @@ class LeagueChatTest extends TestCase
             $league->members()->create(['user_id' => $user->id, 'goal_id' => $goal->id]);
 
             $week = $goal->weeks()->create(['position' => 1, 'starts_on' => '2026-10-05', 'ends_on' => '2026-10-11', 'focus' => 'F', 'milestone' => 'M']);
-            $week->forceFill(['milestone_hit_at' => $hitMilestone ? now() : null])->save(); // With it: 3 of 3, in line (1) + win (3).
-            $week->tasks()->create(['position' => 1, 'description' => 'T'])->forceFill(['completed_at' => now()])->save();
+            $week->forceFill(['milestone_hit_at' => $hitMilestone ? '2026-10-07 16:00:00' : null])->save(); // With it: 3 of 3, in line (1) + win (3).
+            $week->tasks()->create(['position' => 1, 'description' => 'T'])->forceFill(['completed_at' => '2026-10-07 16:00:00'])->save();
         }
 
         $this->travelTo('2026-10-20');

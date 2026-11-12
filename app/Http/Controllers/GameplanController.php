@@ -20,7 +20,7 @@ class GameplanController extends Controller
      */
     public function show(Request $request, WeekPlanner $planner): View
     {
-        $goals = $request->user()->goals()->inPlay()->with(['weeks.tasks', 'habits.logs'])->orderBy('target_date')->get()
+        $goals = $request->user()->goals()->inPlay()->with(['weeks.tasks', 'habits.logs', 'leagues'])->orderBy('target_date')->get()
             ->filter(fn (Goal $goal) => $goal->currentWeek() !== null)
             ->values();
 
@@ -60,7 +60,7 @@ class GameplanController extends Controller
      */
     public function autoPlan(Request $request, WeekPlanner $planner): RedirectResponse
     {
-        $scheduled = $request->user()->goals()->inPlay()->with(['weeks.tasks', 'habits.logs'])->get()
+        $scheduled = $request->user()->goals()->inPlay()->with(['weeks.tasks', 'habits.logs', 'leagues'])->get()
             ->map(fn (Goal $goal) => $goal->currentWeek())
             ->filter()
             ->sum(fn ($week) => $planner->autoPlan($week));

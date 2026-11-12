@@ -108,7 +108,8 @@ class Habit extends Model
      */
     public function logs(): HasMany
     {
-        return $this->hasMany(HabitLog::class);
+        // Voided logs (made before kickoff) stay in the table for history but never count.
+        return $this->hasMany(HabitLog::class)->whereNull('voided_at');
     }
 
     /**

@@ -1504,3 +1504,70 @@ document.addEventListener('click', (event) => {
         event.target.close();
     }
 });
+
+/**
+ * Kickoff countdown: "3 days 4 hrs to go", ticking each minute, then "Kickoff!" (the page's links take it from there).
+ */
+eachOnPage('[data-countdown]', (element) => {
+    const target = Date.parse(element.dataset.countdown);
+
+    const tick = () => {
+        const minutes = Math.max(0, Math.floor((target - Date.now()) / 60000));
+        const days = Math.floor(minutes / 1440);
+        const hours = Math.floor((minutes % 1440) / 60);
+        const mins = minutes % 60;
+
+        if (minutes === 0) {
+            element.textContent = 'Kickoff!';
+
+            return false;
+        }
+
+        element.textContent = days > 0
+            ? `${days} ${days === 1 ? 'day' : 'days'} ${hours} hr${hours === 1 ? '' : 's'} to go`
+            : `${hours} hr${hours === 1 ? '' : 's'} ${mins} min to go`;
+
+        return true;
+    };
+
+    if (Number.isNaN(target) || !tick()) {
+        return;
+    }
+
+    const timer = window.setInterval(() => {
+        if (!element.isConnected || !tick()) {
+            window.clearInterval(timer);
+        }
+    }, 60000);
+});
+
+/**
+ * League creation: show the season's length (kickoff Monday to the Sunday on or after the end date) as it's chosen.
+ */
+eachOnPage('[data-season-start]', (select) => {
+    const form = select.closest('form');
+    const end = form?.querySelector('[name="ends_on"]');
+    const output = form?.querySelector('[data-season-length]');
+
+    if (!end || !output) {
+        return;
+    }
+
+    const update = () => {
+        const start = new Date(`${select.value}T12:00:00`);
+        const finish = new Date(`${end.value}T12:00:00`);
+
+        if (Number.isNaN(start.getTime()) || Number.isNaN(finish.getTime()) || finish <= start) {
+            output.textContent = '';
+
+            return;
+        }
+
+        const weeks = Math.floor(Math.round((finish - start) / 86400000) / 7) + 1;
+        output.textContent = `Season: ${weeks} ${weeks === 1 ? 'week' : 'weeks'}`;
+    };
+
+    select.addEventListener('change', update);
+    end.addEventListener('input', update);
+    update();
+});

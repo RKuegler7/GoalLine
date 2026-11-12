@@ -43,6 +43,11 @@
         <div class="min-w-0 space-y-4" data-first-content>
             @include('partials.league-setup-cards')
 
+            @php $kickoffGoal = $goals->first(fn ($candidate) => $candidate->isActive() && $candidate->isBeforeKickoff()); @endphp
+            @if ($kickoffGoal)
+                <x-kickoff-banner :goal="$kickoffGoal" class="mb-4" />
+            @endif
+
             {{-- Goal Day: the check-in waits here until it's answered; the countdown shows in the final two weeks. --}}
             @if ($goalDayPending)
                 <a href="{{ route('goal-day.show', $goalDayPending) }}" class="flex items-center justify-between gap-3 rounded-xl bg-gold px-3 py-2.5 text-ink hover:brightness-105" data-goal-day-prompt>

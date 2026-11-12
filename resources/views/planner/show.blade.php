@@ -22,6 +22,11 @@
         <p class="mx-auto -mt-2 max-w-5xl px-4 pb-3"><a href="{{ route('settings.notifications') }}#calendar" class="inline-flex min-h-8 items-center gap-1.5 text-[13px] font-semibold text-mint hover:text-ivory"><x-icon name="calendar" class="size-4" /> Sync with your calendar</a></p>
     </x-slot:hero>
 
+    @php $kickoffGoal = $goals->first(fn ($candidate) => $candidate->isActive() && $candidate->isBeforeKickoff()); @endphp
+    @if ($kickoffGoal)
+        <x-kickoff-banner :goal="$kickoffGoal" class="mb-4" />
+    @endif
+
     @if ($goals->isEmpty())
         <section class="rounded-2xl border border-line bg-white px-6 py-8 text-center">
             <h2 class="font-serif text-2xl font-bold text-club tracking-tight">Nothing to plan yet</h2>

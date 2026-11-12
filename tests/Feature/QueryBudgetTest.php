@@ -33,9 +33,9 @@ class QueryBudgetTest extends TestCase
             'plan my week' => ['planner.show', 15],
             'my locker' => ['profile.show', 30],
             'highlights' => ['highlights.index', 40],
-            'goalleague' => ['leagues.show', 30],
+            'goalleague' => ['leagues.show', 31], // +1: the goal's leagues, for when check-ins open (kickoff).
             'challenge' => ['challenges.show', 15],
-            'goal' => ['goals.show', 15],
+            'goal' => ['goals.show', 16], // +1: the goal's leagues, for when check-ins open (kickoff).
         ];
     }
 

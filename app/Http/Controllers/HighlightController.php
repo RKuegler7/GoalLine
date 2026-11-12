@@ -169,6 +169,8 @@ class HighlightController extends Controller
     public function cheer(Request $request, Highlight $highlight): RedirectResponse
     {
         $fan = $request->user();
+        // Cheers on a check-in post need a check-in that counts (never one made before kickoff).
+        abort_if($highlight->roadmap_task_id && ! $highlight->task?->countsAsCheckIn(), 403, 'This check-in doesn\'t count yet, so it can\'t be cheered.');
         // A tap says which state it wants; a double tap changes nothing.
         $intent = $request->input('intent');
 

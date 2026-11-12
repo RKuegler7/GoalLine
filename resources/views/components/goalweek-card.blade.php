@@ -284,6 +284,7 @@
                             @endif
                         </span>
                     @endif
+                    <x-upcoming-tag :task="$task" />
                     <x-task-details :task="$task" :checkable="$checkable" context="goal" />
                 </div>
             </li>

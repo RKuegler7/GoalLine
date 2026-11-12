@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Clock;
 use Database\Factories\RoadmapTaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -139,13 +140,28 @@ class RoadmapTask extends Model
     }
 
     /**
+     * Whether this check-off counts: it was made on or after its GoalWeek started and inside the goal's check-in
+     * season. Early check-ins (before kickoff, or on a week that hadn't started) never count, even if one slipped by.
+     */
+    public function countsAsCheckIn(): bool
+    {
+        if (! $this->completed_at) {
+            return false;
+        }
+
+        $day = Clock::local($this->completed_at)->toDateString();
+
+        return $day >= $this->week->starts_on->toDateString() && $day >= $this->week->goal->checkInSeason()['starts']->toDateString();
+    }
+
+    /**
      * Points this task has earned: its points once checked off, scaled by the result for a numeric task,
      * so running 7 of a planned 5 miles earns 1.4 times the points. A check-in the league owner ruled doesn't count
      * earns nothing, and one still disputed when its GoalWeek closes is held out until the dispute is resolved.
      */
     public function earnedPoints(bool $ignoreDisputes = false): float
     {
-        if (! $this->completed_at) {
+        if (! $this->countsAsCheckIn()) {
             return 0.0;
         }
 

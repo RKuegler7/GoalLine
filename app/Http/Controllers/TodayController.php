@@ -20,6 +20,7 @@ class TodayController extends Controller
     {
         return view('today', [
             'gameplan' => $this->gameplan($request),
+            'kickoffGoals' => $request->user()->goals()->active()->orderBy('target_date')->get(),
             'streak' => new DailyStreak($request->user()),
         ]);
     }

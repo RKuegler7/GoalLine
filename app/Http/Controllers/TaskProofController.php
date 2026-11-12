@@ -34,7 +34,7 @@ class TaskProofController extends Controller
         $week = $task->week;
         Gate::authorize('update', $week->goal);
         // A disputed check-in can get proof even after its GoalWeek closes: proof is how a dispute gets settled.
-        abort_unless($task->completed_at && ($week->isCheckable() || $task->dispute_status === RoadmapTask::DISPUTE_OPEN), 403, 'Proof can be added to a checked-off task while its GoalWeek is open.');
+        abort_unless($task->countsAsCheckIn() && ($week->isCheckable() || $task->dispute_status === RoadmapTask::DISPUTE_OPEN), 403, 'Proof can be added to a checked-off task while its GoalWeek is open.');
 
         $validated = $request->validate([
             'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'mimetypes:image/jpeg,image/png,image/webp', 'max:5120'],
@@ -106,6 +106,7 @@ class TaskProofController extends Controller
     {
         abort_unless($fairPlay->canRequestProof($request->user(), $task), 403);
 
+        abort_unless($task->countsAsCheckIn(), 403, 'Only check-ins that count can be asked about.');
         $proofRequest = $task->proofRequests()->firstOrCreate(['requester_id' => $request->user()->id]);
 
         if ($proofRequest->wasRecentlyCreated && ! $task->isVerified()) {

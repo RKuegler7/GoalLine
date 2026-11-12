@@ -32,7 +32,7 @@ class Disputes
     {
         $week = $task->week;
 
-        return $task->completed_at !== null
+        return $task->countsAsCheckIn()
             && $week->goal->user_id !== $viewer->id
             && ($this->fairPlay->opponentsOf($week)->contains(fn (User $opponent) => $opponent->is($viewer))
                 || $this->fairPlay->leaguesFor($week)->contains(fn (League $league) => $league->commissioner_id === $viewer->id));

@@ -269,6 +269,10 @@
     {{-- Sheets a page asked for (for example the scoring sheet behind "How is GoalLine scored?"). --}}
     @stack('sheets')
 
+    @auth
+        <x-kickoff-sheet />
+    @endauth
+
     {{-- Help, from the ? in the top bar: filled with the Help center when opened (help.js). --}}
     <dialog id="help-sheet" data-help-sheet aria-labelledby="help-sheet-title"
         class="gl-sheet m-0 mt-auto w-full max-w-none rounded-t-2xl bg-ivory p-0 text-ink shadow-2xl backdrop:bg-ink/40 sm:m-auto sm:max-w-lg sm:rounded-2xl">

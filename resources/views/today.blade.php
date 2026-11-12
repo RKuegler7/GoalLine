@@ -3,6 +3,11 @@
         <x-page-header title="Today" :back="route('dashboard')" back-label="Clubhouse" :eyebrow="$gameplan->today->format('l, F j')" subtitle="Trust the process. Show up today." />
     </x-slot:hero>
 
+    @php $kickoffGoal = $kickoffGoals->first(fn ($candidate) => $candidate->isActive() && $candidate->isBeforeKickoff()); @endphp
+    @if ($kickoffGoal)
+        <x-kickoff-banner :goal="$kickoffGoal" class="mb-4" />
+    @endif
+
     {{-- Each goal's live band: it moves the moment you check something off below. --}}
     @php $bandWeeks = collect($gameplan->entries)->pluck('week')->filter()->unique('id'); @endphp
     @if ($bandWeeks->isNotEmpty())

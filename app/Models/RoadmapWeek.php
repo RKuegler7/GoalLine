@@ -270,11 +270,53 @@ class RoadmapWeek extends Model
     }
 
     /**
-     * Whether the person can still check off tasks and the milestone.
+     * Whether the person can still check off tasks and the milestone: the GoalWeek has started, its result isn't
+     * final, the goal is active, and the day a check-in would count for (today, or the week's last day during the
+     * grace day) is inside the goal's check-in season. So nothing counts before kickoff.
      */
     public function isCheckable(): bool
     {
-        return $this->isStarted() && ! $this->isLocked() && $this->goal->isActive();
+        return $this->isStarted() && ! $this->isLocked() && $this->goal->isActive()
+            && $this->goal->isInCheckInSeason(Clock::today()->min($this->ends_on));
+    }
+
+    /**
+     * Why a check-in can't happen right now, in plain words, or null when it can. Every check-in path asks this.
+     */
+    public function checkInBlocker(?RoadmapTask $task = null): ?string
+    {
+        $season = $this->goal->checkInSeason();
+        $day = Clock::today()->min($this->ends_on);
+
+        return match (true) {
+            ! $this->goal->isActive() => 'This goal is no longer active.',
+            $day->toDateString() < $season['starts']->toDateString() => 'Check-ins open '.$season['starts']->format('D, M j').'. Get your plan just right before kickoff.',
+            ! $this->isStarted() => 'This GoalWeek starts '.$this->starts_on->format('D, M j').'.',
+            $this->isLocked() => 'This GoalWeek is final, so check-ins are closed.',
+            $day->toDateString() > $season['ends']->toDateString() => 'This season is over, so check-ins are closed.',
+            $task?->planned_on !== null && $task->planned_on->toDateString() > Clock::today()->toDateString() => 'This task opens '.$task->planned_on->format('D, M j').'.',
+            default => null,
+        };
+    }
+
+    /**
+     * When a check-in that's blocked for now will open: kickoff, the week's first day, or the task's planned day.
+     * Null when it's open now or won't open again (a final week, a season that's over).
+     */
+    public function checkInOpensOn(?RoadmapTask $task = null): ?CarbonInterface
+    {
+        if (! $this->goal->isActive() || $this->isLocked()) {
+            return null;
+        }
+
+        $today = Clock::today()->toDateString();
+        $season = $this->goal->checkInSeason();
+        $opens = collect([$season['starts'], $this->starts_on, $task?->planned_on])
+            ->filter()
+            ->map(fn ($day) => $day->toDateString())
+            ->max();
+
+        return $opens > $today && $opens <= $season['ends']->toDateString() ? Clock::today()->setDateFrom($opens) : null;
     }
 
     /**
@@ -314,7 +356,22 @@ class RoadmapWeek extends Model
     {
         return $this->tasks->sum(fn (RoadmapTask $task) => $task->earnedPoints())
             + $this->habits()->sum(fn (Habit $habit) => $habit->doneIn($this))
-            + ($this->milestone_hit_at ? self::MILESTONE_POINTS : 0);
+            + ($this->milestoneCounts() ? self::MILESTONE_POINTS : 0);
+    }
+
+    /**
+     * Whether the milestone counts: marked hit on or after the week started and inside the goal's check-in season
+     * (an early mark never counts, even if one slipped by).
+     */
+    public function milestoneCounts(): bool
+    {
+        if (! $this->milestone_hit_at) {
+            return false;
+        }
+
+        $day = Clock::local($this->milestone_hit_at)->toDateString();
+
+        return $day >= $this->starts_on->toDateString() && $day >= $this->goal->checkInSeason()['starts']->toDateString();
     }
 
     /**

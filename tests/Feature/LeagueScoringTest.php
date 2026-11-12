@@ -13,6 +13,7 @@ use App\RoadmapStatus;
 use App\Services\LeagueTable;
 use App\Services\ProfileStats;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class LeagueScoringTest extends TestCase
@@ -356,13 +357,13 @@ class LeagueScoringTest extends TestCase
             'focus' => 'Focus',
             'milestone' => 'Milestone',
         ]);
-        $week->forceFill(['milestone_hit_at' => now()])->save();
+        $week->forceFill(['milestone_hit_at' => $this->inWeek($monday)])->save();
 
         $big = $planned - 2 - 3;
         $missed = max(0, $planned - $earned);
 
         foreach ([1, 1, 1, $big] as $index => $points) {
-            $fill = ['points' => $points, 'completed_at' => now(), 'proof_path' => $proof && $index === 0 ? 'proofs/test.png' : null];
+            $fill = ['points' => $points, 'completed_at' => $this->inWeek($monday), 'proof_path' => $proof && $index === 0 ? 'proofs/test.png' : null];
 
             if ($index === 3 && $missed > 0) {
                 $fill += ['result_required' => true, 'result_target' => $big * 2, 'result_value' => ($big - $missed) * 2];
@@ -373,7 +374,7 @@ class LeagueScoringTest extends TestCase
 
         if ($earned > $planned) {
             $week->tasks()->create(['position' => 9, 'description' => 'Extra', 'is_bonus' => true])
-                ->forceFill(['points' => (int) ($earned - $planned), 'completed_at' => now()])->save();
+                ->forceFill(['points' => (int) ($earned - $planned), 'completed_at' => $this->inWeek($monday)])->save();
         }
 
         $week = $week->fresh(['tasks', 'goal.habits.logs']);
@@ -419,11 +420,19 @@ class LeagueScoringTest extends TestCase
             'focus' => 'Focus',
             'milestone' => 'Milestone',
         ]);
-        $week->forceFill(['milestone_hit_at' => $milestone ? now() : null])->save();
+        $week->forceFill(['milestone_hit_at' => $milestone ? $this->inWeek($monday) : null])->save();
 
         foreach (range(1, 2 + $bonus) as $position) {
             $week->tasks()->create(['position' => $position, 'description' => "Task {$position}", 'is_bonus' => $position > 2])
-                ->forceFill(['completed_at' => $position <= $done || $position > 2 ? now() : null, 'proof_path' => $proof && $position === 1 ? 'proofs/test.png' : null])->save();
+                ->forceFill(['completed_at' => $position <= $done || $position > 2 ? $this->inWeek($monday) : null, 'proof_path' => $proof && $position === 1 ? 'proofs/test.png' : null])->save();
         }
+    }
+
+    /**
+     * A moment inside the GoalWeek (Wednesday noon, Eastern): check-ins only count once their week has started.
+     */
+    private function inWeek(string $monday): Carbon
+    {
+        return Carbon::parse($monday.' 12:00', 'America/New_York')->addDays(2);
     }
 }

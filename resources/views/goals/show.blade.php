@@ -39,6 +39,8 @@
                 <p class="px-4 py-3 font-serif text-xl leading-relaxed text-ink sm:px-10 tracking-tight">&ldquo;{{ $goal->completion_note }}&rdquo;</p>
             @endif
         </section>
+    @elseif ($goal->isBeforeKickoff())
+        <x-kickoff-banner :goal="$goal" class="mb-4" />
     @elseif (! $goal->isActive())
         <p class="mb-6 rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink/70">
             You retired this goal on {{ App\Clock::local($goal->retired_at)?->format('F j, Y') }}. Its roadmap is kept here as part of your history.

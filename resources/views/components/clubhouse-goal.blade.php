@@ -58,6 +58,7 @@
                                 @if ($task->is_bonus)
                                     <span class="eyebrow ml-1 rounded-full bg-gold/25 px-1.5 py-0.5 text-[11px] text-ink no-underline">Bonus</span>
                                 @endif
+                                <x-upcoming-tag :task="$task" />
                             </span>
                             <x-task-details :task="$task" :checkable="$checkable" return="clubhouse" context="clubhouse" />
                         </div>

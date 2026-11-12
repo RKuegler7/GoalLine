@@ -26,7 +26,7 @@ class CheckInController extends Controller
     public function toggleTask(Request $request, RoadmapTask $task): RedirectResponse
     {
         $week = $task->week;
-        $this->authorizeCheckIn($week);
+        $this->authorizeCheckIn($week, $task);
 
         // A tap says which state it wants. If the task is already there (a double tap, or a second tab), nothing changes.
         if ($this->alreadyThere($request, (bool) $task->completed_at)) {
@@ -156,12 +156,16 @@ class CheckInController extends Controller
     }
 
     /**
-     * Only the owner can check in, from the day a GoalWeek starts until its result locks.
+     * Only the owner can check in (or undo one), and only when it can count: inside the goal's season (never before
+     * kickoff), on a GoalWeek that has started and isn't final, and never on a task planned for a later day.
      */
-    private function authorizeCheckIn(RoadmapWeek $week): void
+    private function authorizeCheckIn(RoadmapWeek $week, ?RoadmapTask $task = null): void
     {
         Gate::authorize('update', $week->goal);
-        abort_unless($week->isCheckable(), 403, 'This GoalWeek is not open for check-ins.');
+
+        if ($reason = $week->checkInBlocker($task)) {
+            abort(403, $reason);
+        }
     }
 
     /**

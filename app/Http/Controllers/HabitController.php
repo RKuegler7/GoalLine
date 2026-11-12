@@ -81,6 +81,8 @@ class HabitController extends Controller
 
         $week = $habit->goal->weeks()->with('goal')->get()->first(fn (RoadmapWeek $week) => $day->between($week->starts_on, $week->ends_on));
         abort_unless($week?->isCheckable(), 403, 'Check-ins for that day are closed.');
+        // Never before kickoff (or outside the season), even for yesterday.
+        abort_unless($habit->goal->isInCheckInSeason($day), 403, 'Check-ins open '.$habit->goal->checkInSeason()['starts']->format('D, M j').'.');
 
         $existing = $habit->logs()->whereDate('logged_on', $day)->first();
 

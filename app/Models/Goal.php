@@ -10,6 +10,7 @@ use App\Jobs\ReviewRoadmapChanges;
 use App\PlanVerdict;
 use App\RoadmapStatus;
 use App\Services\StoredPhoto;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Database\Factories\GoalFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -209,6 +210,79 @@ class Goal extends Model
     }
 
     /**
+     * Worked out once per loaded goal: see checkInSeason().
+     *
+     * @var array{starts: CarbonImmutable, ends: CarbonImmutable, league: League|null}|null
+     */
+    private ?array $checkInSeasonMemo = null;
+
+    /**
+     * When check-ins count for this goal. In a GoalLeague the season starts at kickoff (the league's first Monday,
+     * 12:00 a.m. Eastern), or for someone who joined late, the Monday of the week they joined; it ends with the
+     * league's season or the goal's date, whichever is later. A solo goal starts on its first GoalWeek's first day and
+     * ends on its date. Before the start you can see and edit the plan, but you can't check in.
+     *
+     * @return array{starts: CarbonImmutable, ends: CarbonImmutable, league: League|null}
+     */
+    public function checkInSeason(): array
+    {
+        if ($this->checkInSeasonMemo !== null) {
+            return $this->checkInSeasonMemo;
+        }
+
+        // The goal's leagues, loaded once (and shared with postingLeagues()), each with the week this member joined.
+        $leagues = $this->leagues;
+        $target = CarbonImmutable::parse($this->target_date->toDateString());
+
+        if ($leagues->isEmpty()) {
+            $first = $this->relationLoaded('weeks') ? $this->weeks->min('starts_on') : $this->weeks()->min('starts_on');
+            $starts = $first ? CarbonImmutable::parse(substr((string) $first, 0, 10)) : CarbonImmutable::parse(Clock::local($this->created_at ?? now())->toDateString());
+
+            return $this->checkInSeasonMemo = ['starts' => $starts, 'ends' => $target, 'league' => null];
+        }
+
+        $kickoffs = $leagues->map(fn (League $league) => [
+            'league' => $league,
+            'starts' => CarbonImmutable::parse($league->weekStartsOn($league->pivot->joined_week ?? 1)->toDateString()),
+        ])->sortBy(fn (array $row) => $row['starts']->timestamp);
+        $leagueEnd = $leagues->map(fn (League $league) => CarbonImmutable::parse($league->ends_on->toDateString()))->max();
+
+        return $this->checkInSeasonMemo = [
+            'starts' => $kickoffs->first()['starts'],
+            'ends' => $leagueEnd->max($target),
+            'league' => $kickoffs->first()['league'],
+        ];
+    }
+
+    /**
+     * Whether a day falls inside the check-in season.
+     */
+    public function isInCheckInSeason(CarbonInterface $day): bool
+    {
+        $season = $this->checkInSeason();
+        $date = $day->toDateString();
+
+        return $date >= $season['starts']->toDateString() && $date <= $season['ends']->toDateString();
+    }
+
+    /**
+     * Before kickoff: the plan is ready to edit, but check-ins haven't opened yet.
+     */
+    public function isBeforeKickoff(): bool
+    {
+        return Clock::today()->toDateString() < $this->checkInSeason()['starts']->toDateString();
+    }
+
+    /**
+     * Forget the worked-out season (after joining a league, say).
+     */
+    public function forgetCheckInSeason(): void
+    {
+        $this->checkInSeasonMemo = null;
+        $this->unsetRelation('leagues');
+    }
+
+    /**
      * Whole days from today until the target date. Negative once the date has passed.
      */
     public function daysRemaining(): int
@@ -345,7 +419,7 @@ class Goal extends Model
      */
     public function leagues(): BelongsToMany
     {
-        return $this->belongsToMany(League::class, 'league_members')->orderBy('leagues.id');
+        return $this->belongsToMany(League::class, 'league_members')->withPivot('joined_week')->orderBy('leagues.id');
     }
 
     /**
@@ -355,7 +429,7 @@ class Goal extends Model
      */
     public function postingLeagues(): \Illuminate\Database\Eloquent\Collection
     {
-        return once(fn () => $this->leagues()->get());
+        return $this->leagues;
     }
 
     /**

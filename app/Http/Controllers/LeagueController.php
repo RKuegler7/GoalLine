@@ -235,7 +235,9 @@ class LeagueController extends Controller
      */
     public static function kickoffOptions(): array
     {
-        $first = Clock::today()->toImmutable()->next(CarbonImmutable::MONDAY);
+        // Kickoff is always a Monday: the next one, or today when today is a Monday.
+        $today = Clock::today()->toImmutable();
+        $first = $today->isMonday() ? $today : $today->next(CarbonImmutable::MONDAY);
 
         return array_map(fn (int $weeks) => $first->addWeeks($weeks), range(0, 7));
     }

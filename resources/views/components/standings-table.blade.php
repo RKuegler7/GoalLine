@@ -4,6 +4,8 @@
 @props(['rows', 'league', 'me' => null])
 
 @php
+    // Before kickoff nobody has a score yet: show when the season starts, not a table of zeros.
+    $forming = $league->status() === App\LeagueStatus::Forming;
     $chip = fn ($band) => match ($band) {
         App\GoalWeekResult::Smashed => ['bg-sky-700 text-white', 'S', 'Smashed'],
         App\GoalWeekResult::Past => ['bg-gold text-ink', 'P', 'Past the line'],
@@ -36,19 +38,19 @@
                             <x-avatar :user="$member->user" class="size-8 text-[11px]" />
                             <span class="min-w-0">
                                 <span class="block max-w-[9.5rem] truncate font-semibold text-ink group-hover:text-club sm:max-w-none">{{ $member->displayName() }}</span>
-                                <span class="block text-xs text-ink/70 tabular-nums">{{ $row['wins'] }}&ndash;{{ $row['ties'] }}&ndash;{{ $row['losses'] }}</span>
+                                <span class="block text-xs text-ink/70 tabular-nums">{{ $forming ? 'Season starts '.$league->starts_on->format('M j') : $row['wins'].'–'.$row['ties'].'–'.$row['losses'] }}</span>
                             </span>
                         </a>
                     </th>
-                    <td class="px-1.5 py-1.5 text-center text-ink tabular-nums">{{ $row['resultPoints'] }}</td>
-                    <td class="px-1.5 py-1.5 text-center text-lg font-bold text-club tabular-nums">{{ $row['total'] }}</td>
+                    <td class="px-1.5 py-1.5 text-center text-ink tabular-nums">{{ $forming ? '—' : $row['resultPoints'] }}</td>
+                    <td class="px-1.5 py-1.5 text-center text-lg font-bold text-club tabular-nums">{{ $forming ? '—' : $row['total'] }}</td>
                     <td class="py-1.5 pr-3 pl-1.5">
                         <span class="flex justify-end gap-0.5" data-form>
                             @forelse ($stats['form'] as $band)
                                 @php([$classes, $letter, $label] = $chip($band))
                                 <span class="grid size-5 place-items-center rounded text-[10px] font-bold {{ $classes }}" title="{{ $label }}"><span aria-hidden="true">{{ $letter }}</span><span class="sr-only">{{ $label }}</span></span>
                             @empty
-                                <span class="text-xs text-ink/60">No weeks yet</span>
+                                <span class="text-xs text-ink/60">{{ $forming ? 'Kickoff '.$league->starts_on->format('M j') : 'No weeks yet' }}</span>
                             @endforelse
                         </span>
                     </td>

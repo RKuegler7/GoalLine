@@ -59,12 +59,13 @@
             <div class="grid gap-6 sm:grid-cols-2">
                 <div>
                     <label for="starts_on" class="mb-1.5 block text-sm font-medium text-ink/80">Kickoff</label>
-                    <select id="starts_on" name="starts_on" required class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                    <select id="starts_on" name="starts_on" required data-season-start class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                         @foreach ($kickoffs as $monday)
-                            <option value="{{ $monday->toDateString() }}" @selected(old('starts_on') === $monday->toDateString())>Monday, {{ $monday->format('M j') }}</option>
+                            <option value="{{ $monday->toDateString() }}" @selected(old('starts_on', $kickoffs[0]->toDateString()) === $monday->toDateString())>Monday, {{ $monday->format('M j') }}{{ $monday->isToday() ? ' (today)' : '' }}</option>
                         @endforeach
                     </select>
-                    <p class="mt-1.5 text-sm text-ink/70">People can join until then.</p>
+                    <p class="mt-1.5 text-sm text-ink/70">Week 1 starts Monday at 12:00 a.m. Eastern. Check-ins open then; until kickoff everyone can shape their plan.</p>
+                    <p class="mt-1 text-sm font-semibold text-club" data-season-length aria-live="polite"></p>
                     @error('starts_on')
                         <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
                     @enderror

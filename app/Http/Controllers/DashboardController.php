@@ -53,7 +53,7 @@ class DashboardController extends Controller
         }
 
         // Now: only what's in play. Goals past their date and finished seasons live in History.
-        $goals = $user->goals()->inPlay()->with(['weeks.tasks', 'weeks.review', 'habits.logs', 'intake'])->orderBy('target_date')->get();
+        $goals = $user->goals()->inPlay()->with(['weeks.tasks', 'weeks.review', 'habits.logs', 'intake', 'leagues'])->orderBy('target_date')->get();
         $stats = new ProfileStats($user);
         $leagues = $user->leagues()->latest('starts_on')->get()->reject(fn (League $league) => $league->status() === LeagueStatus::Finished);
         $leagueGoalIds = $leagues->pluck('pivot.goal_id');
