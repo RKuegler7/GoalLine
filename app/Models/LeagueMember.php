@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\RoadmapStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +11,36 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class LeagueMember extends Model
 {
     public const MAX_TEAM_NAME = 24;
+
+    public const GOAL_SET = 'set';
+
+    public const GOAL_SETTING_UP = 'setting_up';
+
+    public const GOAL_NOT_STARTED = 'not_started';
+
+    /**
+     * Where the member's league goal stands, for the owner's list: set (questions answered and plan ready), setting
+     * up (a goal, but the questions or plan aren't done), or not started (no active goal to play).
+     */
+    public function goalStatus(): string
+    {
+        $goal = $this->goal;
+
+        return match (true) {
+            $goal === null || ! $goal->isActive() => self::GOAL_NOT_STARTED,
+            $goal->intake?->isOpen() || $goal->roadmap_status !== RoadmapStatus::Ready => self::GOAL_SETTING_UP,
+            default => self::GOAL_SET,
+        };
+    }
+
+    public function goalStatusLabel(): string
+    {
+        return match ($this->goalStatus()) {
+            self::GOAL_SET => 'Goal set',
+            self::GOAL_SETTING_UP => 'Setting up',
+            default => 'Not started',
+        };
+    }
 
     /**
      * The name on the scoreboard: the member's team name in this league, or their display name.

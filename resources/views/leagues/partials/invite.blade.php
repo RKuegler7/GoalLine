@@ -27,10 +27,10 @@
             </div>
             <div class="min-w-0 sm:border-l sm:border-line sm:pl-4">
                 <x-share-link id="invite-link" label="Invite link" :url="$shareInvite->url()" :share-title="'Join '.$league->name.' on GoalLine'"
-                    :share-message="App\ShareLink::leagueMessage($league->name, $shareInvite->url())" />
+                    :share-message="App\ShareLink::leagueMessage($league->name, $shareInvite->url(), $league->goalSummary())" />
                 <p class="mt-1 text-xs text-ink/70">
                     {{ $shareInvite->expires_at ? 'Expires '.App\Clock::local($shareInvite->expires_at)->format('M j') : 'Never expires' }}{{ $shareInvite->max_uses ? ' · '.$shareInvite->uses.' of '.$shareInvite->max_uses.' uses' : '' }}.
-                    People can join until kickoff.
+                    People can join until the season ends.
                 </p>
             </div>
         </div>
@@ -104,13 +104,28 @@
                                 <span class="text-xs text-ink/70">Owner</span>
                             @endif
                         </span>
-                        @if ($leagueMember->user_id !== $league->commissioner_id)
-                            <form method="POST" action="{{ route('leagues.members.destroy', [$league, $leagueMember]) }}" onsubmit="return confirm('Remove {{ addslashes($leagueMember->user->name) }} from the league?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-xs font-semibold text-ink/70 hover:text-red-700">Remove</button>
-                            </form>
-                        @endif
+                        <span class="flex shrink-0 items-center gap-2">
+                            @php($goalStatus = $leagueMember->goalStatus())
+                            <span @class([
+                                'rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                                'bg-mint text-club' => $goalStatus === App\Models\LeagueMember::GOAL_SET,
+                                'bg-gold/20 text-ink' => $goalStatus === App\Models\LeagueMember::GOAL_SETTING_UP,
+                                'bg-ivory text-ink/75 ring-1 ring-line ring-inset' => $goalStatus === App\Models\LeagueMember::GOAL_NOT_STARTED,
+                            ]) data-goal-status="{{ $goalStatus }}">{{ $leagueMember->goalStatusLabel() }}</span>
+                            @if ($goalStatus !== App\Models\LeagueMember::GOAL_SET && $leagueMember->user_id !== auth()->id())
+                                <form method="POST" action="{{ route('leagues.members.remind', [$league, $leagueMember]) }}">
+                                    @csrf
+                                    <button type="submit" class="gl-tap relative text-xs font-semibold text-club hover:underline">Remind</button>
+                                </form>
+                            @endif
+                            @if ($leagueMember->user_id !== $league->commissioner_id)
+                                <form method="POST" action="{{ route('leagues.members.destroy', [$league, $leagueMember]) }}" onsubmit="return confirm('Remove {{ addslashes($leagueMember->user->name) }} from the league?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="gl-tap relative text-xs font-semibold text-ink/70 hover:text-red-700">Remove</button>
+                                </form>
+                            @endif
+                        </span>
                     </li>
                 @endforeach
             </ul>

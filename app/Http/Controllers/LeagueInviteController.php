@@ -7,12 +7,14 @@ use App\Models\League;
 use App\Models\LeagueInvite;
 use App\Models\LeagueMember;
 use App\Models\User;
+use App\Notifications\LeagueGoalReminder;
 use App\Notifications\LeagueInvited;
 use App\Notifications\LeagueInviteEmail;
 use App\PendingInvite;
 use App\Services\LeagueJoin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
@@ -191,6 +193,29 @@ class LeagueInviteController extends Controller
     /**
      * Owner only: remove a member from the league.
      */
+    /**
+     * The owner nudges a member whose goal isn't set yet: in the app (and by email only if those are switched on), at
+     * most once a day per member.
+     */
+    public function remind(Request $request, League $league, LeagueMember $member): RedirectResponse
+    {
+        Gate::authorize('manage', $league);
+        abort_unless($member->league_id === $league->id, 404);
+        $back = redirect()->to(route('leagues.show', $league).'#invite');
+
+        if ($member->goalStatus() === LeagueMember::GOAL_SET || $member->user_id === $request->user()->id) {
+            return $back;
+        }
+
+        if (! Cache::add("league-goal-reminder:{$member->id}", true, now()->addDay())) {
+            return $back->with('status', "You already reminded {$member->user->name} today.");
+        }
+
+        $member->user->notify(new LeagueGoalReminder($league->withoutRelations()));
+
+        return $back->with('status', "Reminder sent to {$member->user->name}.");
+    }
+
     public function removeMember(Request $request, League $league, LeagueMember $member): RedirectResponse
     {
         Gate::authorize('manage', $league);

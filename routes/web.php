@@ -273,6 +273,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/leagues/{league}/invite-link', [LeagueInviteController::class, 'regenerate'])->name('leagues.invites.regenerate');
     Route::delete('/league-invites/{invite}', [LeagueInviteController::class, 'revoke'])->name('leagues.invites.revoke');
     Route::delete('/leagues/{league}/members/{member}', [LeagueInviteController::class, 'removeMember'])->name('leagues.members.destroy');
+    Route::post('/leagues/{league}/members/{member}/remind', [LeagueInviteController::class, 'remind'])->name('leagues.members.remind')->middleware('throttle:30,1');
     Route::get('/people/search', [PeopleSearchController::class, 'index'])->name('people.search')->middleware('throttle:30,1');
     Route::get('/goals/{goal}/intake', [GoalIntakeController::class, 'show'])->name('goals.intake')->can('update', 'goal');
     Route::post('/goals/{goal}/intake', [GoalIntakeController::class, 'store'])->name('goals.intake.store')->can('update', 'goal');

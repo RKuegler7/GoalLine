@@ -35,8 +35,10 @@ final class ShareLink
     /**
      * The message for the phone's share sheet: "Join my GoalLine league, Marathon by March: https://…".
      */
-    public static function leagueMessage(string $leagueName, string $link): string
+    public static function leagueMessage(string $leagueName, string $link, ?string $goal = null): string
     {
-        return "Join my GoalLine league, {$leagueName}: {$link}";
+        return $goal
+            ? "Join me: {$goal}. {$leagueName} on GoalLine: {$link}"
+            : "Join my GoalLine league, {$leagueName}: {$link}";
     }
 }

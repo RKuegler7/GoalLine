@@ -146,6 +146,7 @@ class LeagueController extends Controller
 
         $table = new LeagueTable($league);
         $table->settle();
+        $league->loadMissing('members.goal.intake'); // Each member's goal status in the owner's list.
 
         // Opening the league counts as reading its chat.
         $me = $league->memberFor($request->user());
