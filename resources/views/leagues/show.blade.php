@@ -1,7 +1,7 @@
 @php
     $status = $league->status();
     $week = $league->currentWeek();
-    $standings = $table->standings();
+    $standings = (new App\Services\LeagueStats($table))->standings();
     $settledWeeks = $league->results->pluck('week')->unique()->sortDesc()->values();
 @endphp
 
@@ -63,50 +63,14 @@
     @endif
 
     {{-- Standings. --}}
-    <section class="mt-4">
-        <h2 class="eyebrow text-club">Standings</h2>
-        <div class="relative mt-1.5 overflow-x-auto rounded-xl border border-line bg-white">
-            <table class="w-full text-left text-sm">
-                <thead class="border-b border-line text-xs tracking-wide text-ink/70 uppercase">
-                    <tr>
-                        <th class="px-3 py-2 font-semibold">#</th>
-                        <th class="px-1.5 py-2 font-semibold">Member</th>
-                        <th class="px-1.5 py-2 text-center font-semibold" title="GoalWeeks played">P</th>
-                        <th class="px-1.5 py-2 text-center font-semibold">W</th>
-                        <th class="px-1.5 py-2 text-center font-semibold">T</th>
-                        <th class="px-1.5 py-2 text-center font-semibold">L</th>
-                        <th class="hidden px-1.5 py-2 text-center font-semibold sm:table-cell" title="GoalWeek result points">Result</th>
-                        <th class="hidden px-1.5 py-2 text-center font-semibold sm:table-cell" title="Matchup points">Match</th>
-                        <th class="px-3 py-2 text-right font-semibold">Pts</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-line">
-                    @foreach ($standings as $index => $row)
-                        <tr @class(['bg-mint/40' => $row['member']->is($me)])>
-                            <td class="px-3 py-1.5 font-semibold text-ink/70 tabular-nums">{{ $index + 1 }}</td>
-                            <td class="px-2 py-3">
-                                <div class="flex items-center gap-2.5">
-                                    <x-avatar :user="$row['member']->user" class="size-7 text-[11px]" />
-                                    <div class="min-w-0">
-                                        <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}</a>
-                                        <p class="truncate text-xs text-ink/70">{{ $row['member']->goal?->title ?? 'No goal selected' }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['played'] }}</td>
-                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['wins'] }}</td>
-                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['ties'] }}</td>
-                            <td class="px-1.5 py-1.5 text-center tabular-nums">{{ $row['losses'] }}</td>
-                            <td class="hidden px-1.5 py-1.5 text-center tabular-nums sm:table-cell">{{ $row['resultPoints'] }}</td>
-                            <td class="hidden px-1.5 py-1.5 text-center tabular-nums sm:table-cell">{{ $row['matchupPoints'] }}</td>
-                            <td class="px-3 py-1.5 text-right font-serif text-lg font-bold text-club tabular-nums tracking-tight">{{ $row['total'] }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+    <section class="mt-4" aria-labelledby="league-standings">
+        <div class="mb-1.5 flex items-center justify-between">
+            <h2 id="league-standings" class="eyebrow text-club">Standings</h2>
+            <a href="{{ route('leagues.standings', $league) }}" class="gl-tap relative text-[13px] font-semibold text-club hover:underline">Stats &amp; details &rarr;</a>
         </div>
+        <x-standings-table :rows="$standings" :league="$league" :me="$me" />
         <p class="mt-2 text-xs text-ink/70">
-            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to result points, then wins.
+            Points = line points for your band (0&ndash;3) + match points (a higher band wins 3; in a same-band photo finish the higher credited percent of plan wins 2 and the other gets 1, and an exact tie is 1 each), 0 to 6 a week. Close wins count as wins and close losses as losses in the record. Ties in the table go to line points, then wins. Tap a player for their season.
         </p>
     </section>
 

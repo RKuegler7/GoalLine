@@ -37,6 +37,7 @@ use App\Http\Controllers\LeagueMembershipController;
 use App\Http\Controllers\LeagueMessageController;
 use App\Http\Controllers\LeaguePlanController;
 use App\Http\Controllers\LeagueRecapController;
+use App\Http\Controllers\LeagueStandingsController;
 use App\Http\Controllers\MatchupHubController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\NudgeController;
@@ -256,6 +257,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/{league}/matchups/{week}/tasks/{task}', [LeagueMatchupController::class, 'task'])->name('leagues.matchups.task')->can('view', 'league')->whereNumber('week');
     Route::get('/leagues/{league}/feed', [HighlightController::class, 'league'])->name('leagues.feed')->can('view', 'league');
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
+    Route::get('/leagues/{league}/standings', [LeagueStandingsController::class, 'index'])->name('leagues.standings')->can('view', 'league');
+    Route::get('/leagues/{league}/standings/{member}', [LeagueStandingsController::class, 'show'])->name('leagues.standings.player')->can('view', 'league')->scopeBindings();
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');
