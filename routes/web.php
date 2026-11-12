@@ -31,6 +31,7 @@ use App\Http\Controllers\HistoryWeekController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
+use App\Http\Controllers\LeagueGoalController;
 use App\Http\Controllers\LeagueInviteController;
 use App\Http\Controllers\LeagueMatchupController;
 use App\Http\Controllers\LeagueMembershipController;
@@ -259,6 +260,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/leagues/{league}/recap', LeagueRecapController::class)->name('leagues.recap')->can('view', 'league');
     Route::get('/leagues/{league}/standings', [LeagueStandingsController::class, 'index'])->name('leagues.standings')->can('view', 'league');
     Route::get('/leagues/{league}/standings/{member}', [LeagueStandingsController::class, 'show'])->name('leagues.standings.player')->can('view', 'league')->scopeBindings();
+    Route::put('/leagues/{league}/goal', LeagueGoalController::class)->name('leagues.goal.update')->can('manage', 'league')->middleware('throttle:20,1');
     Route::delete('/leagues/{league}', [LeagueController::class, 'destroy'])->name('leagues.destroy')->can('delete', 'league');
 
     Route::post('/leagues/find', [LeagueMembershipController::class, 'find'])->name('leagues.find')->middleware('throttle:20,1');

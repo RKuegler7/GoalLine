@@ -25,6 +25,11 @@
         <div class="mx-auto max-w-5xl px-4 pt-6 pb-12">
             <p class="eyebrow text-mint">{{ Str::before($inviter->name, ' ') }} invited you</p>
             <h1 class="mt-3 font-serif text-4xl font-bold tracking-tight text-ivory sm:text-5xl">{{ $league->name }}</h1>
+            @if ($league->hasGoal())
+                <p class="mt-3 flex items-center gap-2 text-lg font-semibold text-ivory" data-league-goal>
+                    <x-icon name="flag" class="size-5 shrink-0 text-gold-light" /> Goal: {{ $league->goalSummary() }}
+                </p>
+            @endif
             @if ($league->description)
                 <p class="mt-3 max-w-xl text-ivory/85">{{ $league->description }}</p>
             @endif

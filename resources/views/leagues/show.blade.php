@@ -21,8 +21,13 @@
             @endif
             <a href="#chat" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory hover:bg-ivory/25">Chat</a>
         </x-page-header>
+        @if ($league->hasGoal())
+            <p class="mx-auto -mt-2 flex max-w-5xl items-center gap-1.5 px-4 pb-1 text-[13px] text-ivory" data-league-goal>
+                <x-icon name="flag" class="size-4 shrink-0 text-gold-light" /> <span class="truncate"><span class="font-semibold">Goal:</span> {{ $league->goalSummary() }}</span>
+            </p>
+        @endif
         @if ($league->description)
-            <p class="mx-auto -mt-2 max-w-5xl truncate px-4 pb-3 text-[13px] text-ivory/85">{{ $league->description }}</p>
+            <p class="mx-auto max-w-5xl truncate px-4 pb-3 text-[13px] text-ivory/85 {{ $league->hasGoal() ? '' : '-mt-2' }}">{{ $league->description }}</p>
         @endif
     </x-slot:hero>
 
@@ -376,6 +381,33 @@
             <p class="px-6 pb-3 text-sm text-red-700">{{ $message }}</p>
         @enderror
     </section>
+
+    @can('manage', $league)
+        {{-- League settings: the shared league goal new members start from. Only what's here is shared. --}}
+        <details class="mt-6 rounded-xl border border-line bg-white" @if ($errors->leagueGoal->any()) open @endif data-league-goal-settings>
+            <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 [&::-webkit-details-marker]:hidden">
+                <span class="eyebrow text-club">League settings: league goal</span>
+                <x-icon name="chevron-down" class="size-4 text-ink/70" />
+            </summary>
+            <form method="POST" action="{{ route('leagues.goal.update', $league) }}" class="space-y-3 border-t border-line px-3 py-3">
+                @csrf
+                @method('PUT')
+                <p class="text-xs text-ink/70">New members start from this goal and can make it their own. Only these fields are shared: never your plan, answers or notes. Members are told when it changes.</p>
+                <x-form.input name="goal_title" label="League goal" maxlength="120" :value="old('goal_title', $league->goal_title)" :placeholder="App\GoalExamples::title($league->category)" required />
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <x-form.input name="goal_target_date" label="Done by" type="date" :value="old('goal_target_date', $league->goal_target_date?->format('Y-m-d') ?? $league->ends_on->format('Y-m-d'))" required />
+                    <x-form.input name="goal_target_result" label="Target result (optional)" maxlength="80" :value="old('goal_target_result', $league->goal_target_result)" :placeholder="App\GoalExamples::result($league->category)" />
+                </div>
+                <x-form.input name="goal_description" label="Description (optional)" maxlength="280" :value="old('goal_description', $league->goal_description)" />
+                @foreach (['goal_title', 'goal_target_date', 'goal_description', 'goal_target_result'] as $field)
+                    @error($field, 'leagueGoal')
+                        <p class="text-sm text-red-700">{{ $message }}</p>
+                    @enderror
+                @endforeach
+                <button type="submit" class="rounded-full bg-club px-5 py-2 text-sm font-semibold text-ivory hover:bg-club-dark">Save league goal</button>
+            </form>
+        </details>
+    @endcan
 
     @can('leave', $league)
         <form method="POST" action="{{ route('leagues.membership.destroy', $league) }}" class="mt-6 border-t border-line pt-6 text-right"

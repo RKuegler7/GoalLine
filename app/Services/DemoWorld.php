@@ -140,6 +140,10 @@ class DemoWorld
                 $study->members()->create(['user_id' => $person->id, 'goal_id' => $goals['study'][$person->id]->id]);
             }
 
+            // Each league's shared goal, the template new members start from.
+            $running->forceFill(['goal_title' => 'Run a spring marathon', 'goal_target_date' => $marathonTarget, 'goal_description' => 'Any 26.2 this spring. Long runs on Saturdays.', 'goal_target_result' => 'Finish strong'])->save();
+            $study->forceFill(['goal_title' => 'Finish the semester with a 4.0', 'goal_target_date' => $finals, 'goal_description' => 'Every class, every week. Show the work, not just the grade.'])->save();
+
             // A daily habit, a personal task the league can see, and last week's results scored.
             $this->habit($goals['run'][$you->id], 'Stretch', 5, 10);
             $this->personalTask($goals['run'][$you->id], 'Ice bath after the long run', 1);

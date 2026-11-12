@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 #[Fillable(['name', 'description', 'category', 'starts_on', 'ends_on'])]
 class League extends Model
@@ -60,7 +61,46 @@ class League extends Model
             'starts_on' => 'date',
             'ends_on' => 'date',
             'category' => GoalCategory::class,
+            'goal_target_date' => 'date',
+            'goal_updated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Whether the league has a shareable goal template.
+     */
+    public function hasGoal(): bool
+    {
+        return filled($this->goal_title);
+    }
+
+    /**
+     * "Run a marathon by March 20", for the invite and league pages. Only what the owner chose to share.
+     */
+    public function goalSummary(): ?string
+    {
+        if (! $this->hasGoal()) {
+            return null;
+        }
+
+        $title = $this->goal_title;
+
+        return $this->goal_target_date && ! str_contains(Str::lower($title), ' by ')
+            ? $title.' by '.$this->goal_target_date->format('F j')
+            : $title;
+    }
+
+    /**
+     * Copy a goal into the league as its template: title, category and date. Never the goal's private parts (why it
+     * matters, intake answers, plan, notes). Later edits to that goal don't change the league's copy.
+     */
+    public function useGoalAsTemplate(Goal $goal): void
+    {
+        $this->forceFill([
+            'goal_title' => Str::limit($goal->title, 120, ''),
+            'goal_target_date' => $goal->target_date,
+            'category' => $this->category ?? $goal->category,
+        ]);
     }
 
     /**

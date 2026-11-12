@@ -117,6 +117,8 @@ class LeagueController extends Controller
                 'starts_on' => $startsOn,
                 'ends_on' => $endsOn,
             ]);
+            // The owner's goal becomes the league goal new members start from (a snapshot, never kept in sync).
+            $league->useGoalAsTemplate($goal);
             $league->commissioner()->associate($request->user())->save();
             $league->members()->create(['user_id' => $request->user()->id, 'goal_id' => $goal->id]);
             $league->announce($request->user()->name.' started the league. Kickoff is '.$startsOn->format('l, F j').'.');

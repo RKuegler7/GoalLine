@@ -45,7 +45,7 @@
 
                 <div id="new-league-goal" class="mt-3 space-y-4 rounded-xl bg-mint/60 p-4">
                     <p class="text-sm text-club">Name the goal you'll play here. After you create the league, GoalLine asks a few questions and builds its plan.</p>
-                    <x-form.input name="goal_title" label="Your goal" maxlength="120" placeholder="Pass FAR by December 15" />
+                    <x-form.input name="goal_title" label="Your goal" maxlength="120" :placeholder="App\GoalExamples::title($fromGoal?->category)" />
                     <x-form.input name="goal_target_date" label="Done by" type="date" :min="App\Clock::today()->addDay()->format('Y-m-d')"
                         hint="Usually the same as the season's end." />
                 </div>

@@ -2,7 +2,7 @@
 <form method="POST" action="{{ route('goals.store') }}" class="mt-5 space-y-4">
     @csrf
     <input type="hidden" name="from" value="league">
-    <x-form.input name="title" label="Your goal" maxlength="120" placeholder="Pass FAR by December 15" required />
+    <x-form.input name="title" label="Your goal" maxlength="120" :placeholder="App\GoalExamples::title($league->category)" required />
     <div class="grid gap-4 sm:grid-cols-2">
         <div>
             <label for="join-category" class="mb-1.5 block text-sm font-medium text-ink/80">Kind of goal</label>
