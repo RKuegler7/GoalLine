@@ -40,7 +40,7 @@
 
 **How the AI does the work.** Claude writes the goal-specific intake questions, drafts the whole plan (focus, milestone, daily tasks and habits for every week), reads an uploaded syllabus or training plan, refines the plan from a request in your own words, and writes the weekly coach's tip. Plain, tested code does everything that has to be trusted: it sets the minimum pace, locks started weeks, scores every week and matchup, and holds disputed points. The AI never scores, never rules on a dispute and never gives medical advice. More in [docs/AI.md](docs/AI.md).
 
-**What I learned.** The AI is best as a coach, not a referee: people trust the game only when the scoring is plain code they can read and test. Building in phases with a test suite that never went red let me change the scoring rules late (photo finishes, the 3-2-1-0 match points) without breaking anything. And real use beat my own assumptions every time: hands-on feedback is what turned page reloads into in-place updates, a static matchup screen into a swipeable pager, and a quiet demo into a one-click world anyone can try.
+**What I learned.** The AI is best as a coach, not a referee: people trust the game only when the scoring is plain code they can read and test. Building in phases with a test suite that never went red let me change the scoring rules late (photo finishes, then weekly stars) without breaking anything. And real use beat my own assumptions every time: hands-on feedback is what turned page reloads into in-place updates, a static matchup screen into a swipeable pager, and a quiet demo into a one-click world anyone can try.
 
 **Read more:** [Architecture](docs/ARCHITECTURE.md) · [How the AI is used](docs/AI.md) · [Fair play](docs/FAIRNESS.md) · [The rules as built](docs/SPEC.md) · [Decisions](docs/DECISIONS.md) · [Reliability](docs/RELIABILITY.md) · [Changelog](CHANGELOG.md)
 
@@ -72,16 +72,16 @@ The AI **never scores** a week, **never decides a dispute**, **never sets the mi
 
 ## How the scoring works
 
-Each GoalWeek, your share of your own planned points sets your band. A regular task is 1 point, each habit day 1, the milestone 2.
+Each GoalWeek, your share of your own plan points sets your band. A regular task is 1 plan point, each habit day 1, the milestone 2. Your weekly score is in **stars**.
 
-| Band | Share of your plan | Line points |
+| Band | Share of your plan | Line stars |
 |---|---|---|
 | Short of the Line | under 90% | 0 |
 | In Line | 90% to 100% | 1 |
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% and up (needs proof or the opponent's OK) | 3 |
 
-In a matchup a **higher band is a Win for 3** match points and a Loss for 0. The **same band is a Photo finish**: the higher credited percent of plan (whole number, held disputed points left out, unproven Smashed capped at 149%) takes a **Close win for 2** and the other a **Close loss for 1**; an exact tie is **1 each**. A week is worth 0 to 6 points (line points + match points). With an odd number of members, one person plays the league median.
+In a matchup a **higher band is a Win: 2 matchup stars**, and the other side gets 0. The **same band is a Photo finish**: the higher credited percent of plan wins it for **1 matchup star** (compared exactly, to the hundredth of a percent; held disputed points left out, unproven Smashed capped at 149%), and the other side gets 0. Exactly equal percents are a **Tie: 1 star each**. A week is worth **0 to 5 stars** (line stars + matchup stars). More stars wins the matchup and equal stars is a draw (W–D–L); that always matches the higher credited percent. A bye week (odd number of members, or a late joiner's first week) earns line stars only and isn't a win, draw or loss. The table is sorted by total stars, then line stars, then Past-the-Line weeks. Every star value lives in one config (`config/goalline.php`, `stars`).
 
 ## How fairness works
 
@@ -184,7 +184,8 @@ The full reasoning, including why things were built the way they were, is in [do
 | J | One-click Try the demo with isolated, resettable accounts | Done |
 | K | README, final checks and freeze readiness | Done |
 | L | In-place interactions, animations and toasts | Done |
-| — | Scoring: 3-2-1-0 match points with the photo finish | Done |
+| — | Scoring: 3-2-1-0 match points with the photo finish (replaced by weekly stars) | Done |
+| — | Weekly stars: line + matchup, 0–5, W–D–L, full-precision photo finishes | Done |
 | M | Swipeable matchup pager with task view and projections | Done |
 | N | iPhone and mobile polish | Done |
 | O | Playwright QA suite and UX reviewer agent | Done |

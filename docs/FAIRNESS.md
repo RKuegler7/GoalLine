@@ -6,14 +6,14 @@ GoalLine turns personal goals into a friendly competition. Each week, your progr
 
 Everyone is scored on the **percent of their own planned work** they completed that week, not on totals. Someone training for a marathon and someone studying for the CPA can play fairly in the same league. Results fall into four bands:
 
-| Band | Share of planned points | Line points |
+| Band | Share of planned points | Line stars |
 |---|---|---|
 | Short of the Line | under 90% | 0 |
 | In Line | 90% to 100% | 1 |
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% or more | 3 |
 
-A higher band wins the weekly matchup outright: 3 match points to 0. When both sides land in the same band it's a photo finish: the higher credited percent of plan (a whole number) takes a close win for 2 and the other side a close loss for 1, and an exact tie is 1 each. Credited means what counts right now: points held in a dispute are out, and a Smashed week still waiting on proof is capped at 149%, the top of Past the line. That's at most 6 points a week, and a close loss still earns something for a week that stayed in the band. The math is plain, tested code. **The AI never decides a score.**
+A higher band wins the weekly matchup outright: 2 matchup stars to 0. When both sides land in the same band it's a photo finish: the higher credited percent of plan wins it for 1 star, compared exactly (100.4% beats 99.6%), and the other side gets 0. Only truly equal percents tie, and then both get 1. Credited means what counts right now: plan points held in a dispute are out, and a Smashed week still waiting on proof is capped at 149%, the top of Past the line. A week is worth 0 to 5 stars, and more stars always means the higher credited percent. A bye earns line stars only. The math is plain, tested code. **The AI never decides a score.**
 
 ## 2. You can't quietly pad your plan
 

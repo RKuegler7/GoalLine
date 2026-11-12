@@ -48,7 +48,7 @@ Every AI call runs in the background queue (except the optional caption helper),
 
 ### 7. Weekly recap narrator
 - **When:** the first time a member opens a finished week's recap (`RecapNarrator`, queued as `NarrateRecap`). It's saved once per member and week, and written again only if that week's numbers change (for example, after a dispute re-scores it).
-- **In:** only numbers code already computed: check-ins, active days, best day, line points, streak, badges, cheers, and each goal's result and percent of plan. No notes, reflections or intake answers.
+- **In:** only numbers code already computed: check-ins, active days, best day, line stars, streak, badges, cheers, and each goal's result and percent of plan. No notes, reflections or intake answers.
 - **Out:** two or three warm, process-focused sentences.
 - **Checked:** 2 to 3 sentences, a sensible length, and **no number (in digits or words) that code didn't hand it**. So it can't invent a total or do arithmetic on a score.
 - **Fallback:** a plain template written by code from the same numbers. The page always says which one you're reading.

@@ -55,7 +55,7 @@ All math is plain, tested PHP (`GoalWeekResult`, `MatchupOutcome`, `RoadmapWeek`
 
 **Bands**
 
-| Band | Share | Line points | Look |
+| Band | Share | Line stars | Look |
 |---|---|---|---|
 | Short of the Line | under 90% | 0 | red |
 | In Line | 90% to 100% | 1 | green ("close call" under 95%) |
@@ -66,7 +66,7 @@ All math is plain, tested PHP (`GoalWeekResult`, `MatchupOutcome`, `RoadmapWeek`
 
 **Smashed needs backup.** A week at 150% or more counts as Smashed only when at least one check-in that week has proof, or the matchup opponent taps Confirm. Until then it's credited as Past the Line and labeled "Needs proof to count as Smashed". It re-scores on its own when proof or the confirmation arrives.
 
-**Matchups.** Each league week pairs members round-robin. The "GoalWeek X Matchup" page shows every matchup as a card to swipe through (the viewer's first): each side's share of their plan on a line meter marked at 90%, 100% and 150%, their bands, who leads, the points each would take if the week ended now, and the points each needs for the next band. Match points: a higher band is a **Win** for 3 and the other side's **Loss** gets 0. In the same band it's a **Photo finish**: compare each side's credited percent of plan as a whole number (rounded down; points held in an open dispute are left out, and an unverified Smashed week credited as Past is capped at 149). The higher percent takes a **Close win** for 2, the other a **Close loss** for 1, and exactly equal percents are a **Tie**, 1 each. Close wins count as wins and close losses as losses in a W–T–L record. A member with a bye plays the league median: the middle line points, and in a photo finish the middle credited percent. A week is worth 0 to 6 points (match + line). Results go final one day after the week ends (`goalline:settle-leagues`, hourly).
+**Matchups.** Each league week pairs members round-robin. The "GoalWeek X Matchup" page shows every matchup as a card to swipe through (the viewer's first): each side's share of their plan on a line meter marked at 90%, 100% and 150%, their bands, who leads, the stars each would take if the week ended now, and the plan points each needs for the next band. Matchup stars (config/goalline.php `stars`): a higher band is a **Win** for 2 and the other side's **Loss** gets 0. In the same band it's a **Photo finish**: compare each side's credited percent of plan at full precision (hundredths of a percent, the precision bands are decided at; plan points held in an open dispute are left out, and an unverified Smashed week credited as Past is capped at 149). The higher percent wins it for 1 star, the other side gets 0, and exactly equal percents are a **Tie**, 1 star each. A week is line stars + matchup stars, 0 to 5; more stars wins the matchup and equal stars is a draw, which always agrees with the higher credited percent. Records are W–D–L: wins and photo finish wins are W, ties D, losses L. Percents show as whole numbers (rounded down), with decimals only when two would otherwise look equal. A member with a bye (an odd count, or a late joiner's first week) earns line stars only and gets no W, D or L; the league median is shown for context. The table is sorted by total stars, then line stars, then Past-the-Line weeks (Past or Smashed). Results go final one day after the week ends (`goalline:settle-leagues`, hourly).
 
 ## Fair play
 
@@ -139,7 +139,7 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 
 ## Weekly result cards
 
-- "Share your week" (weekly recap, your own matchup) makes a card from the scoring code's results: week, first name and initials, goal, percent of plan, band, match result (Win 3, Close win 2, Close loss 1, Tie 1, Loss 0, "Photo finish" in the same band), week points out of 6 (3 without a league), weeks on the line, and league name. Smashed is blue with a diamond, Past gold, In line green; a Short week is a calm ivory card: "Showed up. Back on the line next week."
+- "Share your week" (weekly recap, your own matchup) makes a card from the scoring code's results: week, first name and initials, goal, percent of plan, band, match result (Win 2, Photo finish win 1, Tie 1, Loss 0; "Photo finish" in the same band), stars out of 5 (3 without a league or on a bye), weeks on the line, and league name. Smashed is blue with a diamond, Past gold, In line green; a Short week is a calm ivory card: "Showed up. Back on the line next week."
 - Sizes: feed 1080×1350 and story 1080×1920, as PNG (GD with the bundled Plus Jakarta Sans fonts) or SVG.
 - Share, Download, and Post to Highlights (a "Weekly result" post with the usual League or League + friends audience). A public link (`/c/{token}`, 48 random characters) is off until the owner turns it on, can be turned off any time, and stops working for everyone who turns off "Allow public links to my weekly cards". A card is a snapshot: only the owner's own summary, never email, last name, notes, proof photos or the opponent's name.
 
@@ -155,7 +155,7 @@ Each kind of email can be paused on its own with an environment switch, off in p
 - **Back** sits at the top left of the top bar on every other screen, with the screen's title (`BackNavigation`). It returns to the previous GoalLine page (browser history, so scroll and the chosen view come back), or, when you arrived from outside, to a set parent: a league goes to GoalLeagues, a player's season to the standings, a past week to History. Desktop also shows a breadcrumb trail. Sheets close on Back, a swipe down, a tap outside or the X, without leaving the page.
 
 - **Help** (the ? beside the bell) opens a sheet at the answer that fits the screen: a searchable FAQ (resources/help/faq.php, scoring numbers read from the scoring code), the tour, "How is GoalLine scored?" and a feedback form (stored, sent to the app owners in the app, 10 an hour). New and demo accounts get a five-step tour once (`users.tour_completed_at`); anyone can replay it from Help.
-- **"How is GoalLine scored?"** is one button and one sheet (bands, match points, week total, tiebreakers, your own example), built from `ScoringRules`, on the standings, league, matchup, goal and past-week pages.
+- **"How is GoalLine scored?"** is one button and one sheet (bands, matchup stars, week total, tiebreakers, your own example), built from `ScoringRules`, on the standings, league, matchup, goal and past-week pages.
 
 ## Invites and people search
 
@@ -166,7 +166,7 @@ Each kind of email can be paused on its own with an environment switch, off in p
 - Leagues with fewer than 4 members show an "Invite friends" button.
 - **League goal:** every league has a shareable goal (title, date, optional description and target result), copied from the owner's goal when the league is made and editable by the owner; members are told when it changes. Only those fields are shared.
 - **Joining:** the goal step leads with "Same goal as the league" and "Use this goal"; "Make it yours" adjusts the date (inside the season, or a later date chosen knowingly), target result, description, chips and why. A different goal, or one you already have, works too. Joining goes straight into the intake questions and the plan.
-- **Late joiners:** leagues take members until the season ends. A late joiner starts in the current week (`league_members.joined_week`), plays the league median that first week so no live matchup changes, then joins the rotation. Earlier weeks never count for or against them.
+- **Late joiners:** leagues take members until the season ends. A late joiner starts in the current week (`league_members.joined_week`), has a bye that first week (line stars only) so no live matchup changes, then joins the rotation. Earlier weeks never count for or against them.
 - **Never lost:** an invite is kept with the account through sign-up, sign-in and email verification (`PendingInvite`). Clubhouse > Now shows "Set your goal for <league>", "Finish setting up" or "Your plan is on its way" until a member's league goal is ready. Dead or full invites get a friendly page with next steps.
 - **Owners** see each member's goal status (Goal set, Setting up, Not started) and can Remind once a day.
 - People search (Highlights, friends page, invite flow) matches name or username, or an exact email. Results show only avatar, name and username, never emails. It's rate limited to 30 searches a minute. "Let people find me by name" (on by default) can be turned off, so only an exact username or email finds you.
@@ -218,7 +218,7 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | recap_narrations | The saved summary of a member's finished week (AI, demo sample or template) and a hash of the numbers it was written from |
 | leagues | GoalLeagues: name, category, season dates, invite code, owner |
 | league_members | Who plays which goal in a league, and their optional team name (24 characters, kept friendly) |
-| league_results | Each member's weekly band, line points, opponent and match points |
+| league_results | Each member's weekly band, line stars (result_points), opponent, outcome and matchup stars (matchup_points) |
 | league_messages | League chat, including system posts |
 | league_invites | Invite links, email and username invites: token, expiry, max uses, revoked |
 | group_tasks / group_task_votes | Proposed league tasks and members' votes |

@@ -8,7 +8,7 @@ The choices behind GoalLine, including what we chose not to build, and why.
 
 **Bands at 90%, 100% and 150%.** In line starts at 90%, so a slightly short week still counts as showing up; past the line is anything over the plan; Smashed is 150% and up, and needs proof or the opponent's OK. A later brief suggested 95% and 105%; we kept 90/100/150 because it reads simply (close to your plan, past your plan, half again past it) and leaves room for a hard week.
 
-**Photo finishes instead of ties.** Two members in the same band used to tie. Now the higher credited percent of plan takes a close win (2 points) and the other a close loss (1), so the week still has a winner, and a close loss still earns something. A week is worth 0 to 6 points.
+**Photo finishes instead of ties.** Two members in the same band used to tie. Then the higher credited percent took a close win (2 points) and the other a close loss (1), 0 to 6 a week. **Now (weekly stars):** a win is 2 stars, a photo finish win 1, a tie 1 each, any loss 0, so a week is 0 to 5 stars and more stars always means the higher credited percent. Photo finishes compare credited percents exactly, so a tie only happens when they're truly equal, and byes earn line stars only. All values live in one config.
 
 **Code sets the minimum pace, not the AI.** Asking the coach for an easy plan shouldn't work. Code sets each week's minimum planned points from the goal and the deadline, and raises any week below it. Plans can always be harder. Two lighter weeks a season are allowed, with a reason the league sees.
 
