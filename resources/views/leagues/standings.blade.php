@@ -5,7 +5,7 @@
     $chartMax = max(150, (int) collect($series)->flatMap(fn ($point) => [$point['mine'], $point['league']])->filter()->max());
     $chartWidth = 320;
     $chartHeight = 120;
-    $x = fn (int $index) => count($series) > 1 ? round(16 + $index * ($chartWidth - 32) / (count($series) - 1), 1) : $chartWidth / 2;
+    $x = fn (int $index) => count($series) > 1 ? round(64 + $index * ($chartWidth - 80) / (count($series) - 1), 1) : $chartWidth / 2;
     $y = fn (?int $value) => round($chartHeight - 14 - (min($value ?? 0, $chartMax) / $chartMax) * ($chartHeight - 28), 1);
     $points = fn (string $key) => collect($series)->map(fn ($point, $index) => $point[$key] === null ? null : $x($index).','.$y($point[$key]))->filter()->implode(' ');
 @endphp
@@ -53,10 +53,11 @@
                             <span class="flex items-center gap-1"><span class="h-0.5 w-4 rounded border-t-2 border-dashed border-gold"></span> League average</span>
                         </span>
                     </div>
-                    <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" class="mt-2 h-auto w-full" role="img" aria-labelledby="season-chart">
-                        @foreach ([(int) round(App\GoalWeekResult::IN_LINE_AT * 100), 100] as $guide)
+                    <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" class="mx-auto mt-2 h-auto w-full max-w-xl" role="img" aria-labelledby="season-chart">
+                        {{-- Guide lines at In line and the plan, labelled at the left: the plan above its line, In line below. --}}
+                        @foreach ([[(int) round(App\GoalWeekResult::IN_LINE_AT * 100), 9, 'In line'], [100, -3, 'Plan']] as [$guide, $offset, $name])
                             <line x1="8" x2="{{ $chartWidth - 8 }}" y1="{{ $y($guide) }}" y2="{{ $y($guide) }}" stroke="#e5e2d8" stroke-width="1" />
-                            <text x="{{ $chartWidth - 8 }}" y="{{ $y($guide) - 3 }}" text-anchor="end" font-size="9" fill="#5f6b63">{{ $guide }}%</text>
+                            <text x="8" y="{{ $y($guide) + $offset }}" font-size="8" fill="#5f6b63">{{ $name }} {{ $guide }}%</text>
                         @endforeach
                         <polyline points="{{ $points('league') }}" fill="none" stroke="#d4ac58" stroke-width="2" stroke-dasharray="5 4" />
                         <polyline points="{{ $points('mine') }}" fill="none" stroke="#176b45" stroke-width="2.5" stroke-linejoin="round" />
