@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Atomic;
 use App\Models\League;
+use App\Models\LeagueMember;
 use App\Notifications\LeagueMemberJoined;
+use App\Rules\CleanName;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -119,6 +121,26 @@ class LeagueMembershipController extends Controller
         $league->memberFor($request->user())->update(['goal_id' => $validated['goal_id']]);
 
         return redirect()->route('leagues.show', $league)->with('status', 'League goal updated.');
+    }
+
+    /**
+     * Set or clear your team name in this league (up to 24 characters, kept friendly). Blank goes back to your name.
+     */
+    public function teamName(Request $request, League $league): RedirectResponse
+    {
+        $member = $league->memberFor($request->user());
+        abort_unless($member, 403);
+
+        $validated = $request->validateWithBag('teamName', [
+            'team_name' => ['nullable', 'string', 'max:'.LeagueMember::MAX_TEAM_NAME, new CleanName],
+        ], [
+            'team_name.max' => 'Team names can be up to '.LeagueMember::MAX_TEAM_NAME.' characters.',
+        ]);
+
+        $name = trim((string) ($validated['team_name'] ?? ''));
+        $member->forceFill(['team_name' => $name === '' ? null : $name])->save();
+
+        return redirect()->route('leagues.show', $league)->with('status', $name === '' ? 'Team name cleared. The scoreboard shows your name.' : "You're playing as {$name}.");
     }
 
     /**

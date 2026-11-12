@@ -149,6 +149,23 @@
             </a>
             <p class="mt-2 text-xs text-ink/70">Switching affects GoalWeeks that aren't final yet. Settled results stay as they are.</p>
         </details>
+        <details class="mt-3 border-t border-line pt-3" @if ($errors->teamName->any()) open @endif data-team-name>
+            <summary class="cursor-pointer list-none text-sm font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">
+                Team name: <span class="font-normal text-ink/75">{{ $me->team_name ?? 'none, the scoreboard shows your name' }}</span>
+            </summary>
+            <form method="POST" action="{{ route('leagues.team-name.update', $league) }}" class="mt-3 flex flex-col gap-2 sm:flex-row">
+                @csrf
+                @method('PUT')
+                <label for="team-name" class="sr-only">Team name in {{ $league->name }}</label>
+                <input id="team-name" name="team_name" value="{{ old('team_name', $me->team_name) }}" maxlength="{{ App\Models\LeagueMember::MAX_TEAM_NAME }}" placeholder="{{ Str::limit($me->user->name, 24, '') }}"
+                    class="min-w-0 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none focus:border-club focus:ring-4 focus:ring-club/10">
+                <button type="submit" class="rounded-lg border border-line px-4 py-2 text-sm font-semibold text-club hover:border-club/40">Save</button>
+            </form>
+            @error('team_name', 'teamName')
+                <p class="mt-1 text-sm text-red-700">{{ $message }}</p>
+            @enderror
+            <p class="mt-2 text-xs text-ink/70">Up to {{ App\Models\LeagueMember::MAX_TEAM_NAME }} characters, shown on the matchup scoreboard and standings. Leave it blank to use your name.</p>
+        </details>
     </section>
 
     <a href="{{ route('leagues.feed', $league) }}" class="mb-3 flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2 transition hover:border-club/40">

@@ -910,6 +910,24 @@ eachOnPage('[data-intake]', (form) => {
  * the left and right arrow keys. The track is as tall as the page in view, so a short page doesn't leave a gap. On
  * phones, a sticky toggle shows one player's tasks at a time. Without this script, it's a horizontal scroller.
  */
+// The line: tapping a player's puck (or its button) opens that player's details; tapping again closes them.
+eachOnPage('[data-matchup-line]', (line) => {
+    line.addEventListener('click', (event) => {
+        const control = event.target.closest('[data-line-puck], [data-line-toggle]');
+        const detail = control && document.getElementById(control.getAttribute('aria-controls'));
+
+        if (!detail) {
+            return;
+        }
+
+        const open = detail.hidden;
+        line.querySelectorAll('[data-line-detail]').forEach((each) => { each.hidden = true; });
+        line.querySelectorAll('[aria-controls]').forEach((each) => each.setAttribute('aria-expanded', 'false'));
+        detail.hidden = !open;
+        line.querySelectorAll(`[aria-controls="${detail.id}"]`).forEach((each) => each.setAttribute('aria-expanded', String(open)));
+    });
+});
+
 eachOnPage('[data-pager]', (pager) => {
     const track = pager.querySelector('[data-pager-track]');
     const pages = () => [...track.querySelectorAll('[data-pager-page]')];
@@ -923,6 +941,16 @@ eachOnPage('[data-pager]', (pager) => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let current = 0;
     let player = 0;
+
+    // While the big scoreboard is on screen, the sticky strip stays hidden (CSS reads data-hero-in-view).
+    const heroWatch = 'IntersectionObserver' in window
+        ? new IntersectionObserver(([entry]) => pager.toggleAttribute('data-hero-in-view', entry.isIntersecting), { rootMargin: '-56px 0px 0px 0px' })
+        : null;
+    const firstHero = pager.querySelector('[data-pager-hero]:not([hidden])');
+    if (firstHero && heroWatch) {
+        pager.setAttribute('data-hero-in-view', '');
+        heroWatch.observe(firstHero);
+    }
 
     const fitHeight = () => {
         const page = pages()[current];
@@ -964,9 +992,16 @@ eachOnPage('[data-pager]', (pager) => {
         count.textContent = `${index + 1} of ${pages().length}`;
         prev.disabled = index === 0;
         next.disabled = index === pages().length - 1;
-        // The sticky scoreboard strip follows the page in view.
+        // The big scoreboard and the sticky strip follow the page in view.
         document.querySelectorAll('[data-pager-strip]').forEach((strip) => {
             strip.hidden = Number(strip.dataset.pagerStrip) !== index;
+        });
+        document.querySelectorAll('[data-pager-hero]').forEach((hero) => {
+            hero.hidden = Number(hero.dataset.pagerHero) !== index;
+            if (!hero.hidden) {
+                heroWatch?.disconnect();
+                heroWatch?.observe(hero);
+            }
         });
         showPlayer();
     };

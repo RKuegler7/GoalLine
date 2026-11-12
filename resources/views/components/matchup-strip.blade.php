@@ -8,7 +8,7 @@
     $sides = $page['sides'];
     $final = $page['final'];
     $card = $page['card'];
-    $first = fn ($side) => Str::before($side['member']->user->name, ' ');
+    $first = fn ($side) => $side['member']->team_name ?: Str::before($side['member']->user->name, ' ');
 @endphp
 
 <div data-pager-strip="{{ $index }}" @if ($index > 0) hidden @endif class="relative grid grid-cols-2 gap-x-3">

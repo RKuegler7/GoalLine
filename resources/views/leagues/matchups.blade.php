@@ -65,6 +65,14 @@
                 <button type="button" data-pager-next class="gl-tap relative grid size-9 shrink-0 place-items-center rounded-full border border-line bg-white text-club hover:border-club/40 disabled:opacity-40" aria-label="Next matchup"><x-icon name="chevron-right" class="size-4" /></button>
             </div>
 
+            {{-- The big scoreboard for the matchup in view, on the green field, then the line. --}}
+            <div class="mt-2 px-4 sm:px-0">
+                @foreach ($pages as $index => $page)
+                    <x-matchup-hero :page="$page" :index="$index" :week="$week" />
+                @endforeach
+            </div>
+            <div class="mx-4 h-3 rounded-b-xl bg-gradient-to-b from-mint to-ivory sm:mx-0" aria-hidden="true"></div>
+
             @php
                 $dayList = collect($pages)->flatMap(fn ($page) => collect($page['sides'])->pluck('days'))->first(fn ($days) => ! empty($days)) ?? [];
                 $todayIndex = collect($dayList)->search(fn ($day) => $day['isToday']);

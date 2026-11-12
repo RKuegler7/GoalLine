@@ -90,6 +90,29 @@
     background-image: repeating-linear-gradient(90deg, rgb(255 255 255 / 0.05) 0 2.5rem, transparent 2.5rem 5rem);
 }
 
+/* A player's puck on the line: placed by --x (from the server), gliding there from the start of the track. */
+.gl-puck {
+    left: var(--x, 0%);
+    transition: left 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@starting-style {
+    .gl-puck {
+        left: 0%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gl-puck {
+        transition: none;
+    }
+}
+
+/* The compact scoreboard strip only shows once the big scoreboard has scrolled away. */
+[data-pager][data-hero-in-view] [data-pager-strip] {
+    display: none;
+}
+
 /* Photo upload progress: the GoalLine line filling across. */
 .gl-upload {
     margin-top: 0.5rem;

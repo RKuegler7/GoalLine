@@ -202,7 +202,7 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | week_reviews | End-of-week reflections and the coach's tip |
 | recap_narrations | The saved summary of a member's finished week (AI, demo sample or template) and a hash of the numbers it was written from |
 | leagues | GoalLeagues: name, category, season dates, invite code, owner |
-| league_members | Who plays which goal in a league |
+| league_members | Who plays which goal in a league, and their optional team name (24 characters, kept friendly) |
 | league_results | Each member's weekly band, line points, opponent and match points |
 | league_messages | League chat, including system posts |
 | league_invites | Invite links, email and username invites: token, expiry, max uses, revoked |

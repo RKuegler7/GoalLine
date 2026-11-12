@@ -9,6 +9,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['user_id', 'goal_id', 'last_read_message_id'])]
 class LeagueMember extends Model
 {
+    public const MAX_TEAM_NAME = 24;
+
+    /**
+     * The name on the scoreboard: the member's team name in this league, or their display name.
+     */
+    public function displayName(): string
+    {
+        return filled($this->team_name) ? $this->team_name : $this->user->name;
+    }
+
     /**
      * The league joined.
      *

@@ -272,6 +272,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goals/{goal}/next', [GoalNextStepController::class, 'choose'])->name('goals.next.choose')->can('update', 'goal');
     Route::post('/join/{code}', [LeagueMembershipController::class, 'store'])->name('leagues.join.store')->middleware(['verified', 'throttle:20,1']);
     Route::put('/leagues/{league}/membership', [LeagueMembershipController::class, 'update'])->name('leagues.membership.update')->can('view', 'league');
+    Route::put('/leagues/{league}/team-name', [LeagueMembershipController::class, 'teamName'])->name('leagues.team-name.update')->can('view', 'league')->middleware('throttle:20,1');
     Route::get('/leagues/{league}/messages', [LeagueMessageController::class, 'index'])->name('leagues.messages.index')->can('view', 'league');
     Route::post('/leagues/{league}/messages', [LeagueMessageController::class, 'store'])->name('leagues.messages.store')->can('view', 'league')->middleware(['verified', 'throttle:30,1']);
     Route::delete('/league-messages/{message}', [LeagueMessageController::class, 'destroy'])->name('leagues.messages.destroy');

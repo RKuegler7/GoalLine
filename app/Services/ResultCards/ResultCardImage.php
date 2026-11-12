@@ -21,6 +21,11 @@ class ResultCardImage
 
     private const CLUB = '#176b45';
 
+    /**
+     * Width of one mowed-grass stripe on the green cards, in pixels.
+     */
+    private const STRIPE = 90;
+
     private const GRASS = '#43b96a';
 
     private const MINT = '#e5f3e8';
@@ -132,6 +137,14 @@ class ResultCardImage
         $theme = self::theme($p['band']);
 
         $canvas->rect(0, 0, $width, $height, $theme['bg']);
+
+        // The green field: faint mowed-grass stripes on the green cards, like the matchup screen. The calm Short card
+        // stays plain ivory.
+        if ($theme['bg'] === self::CLUB) {
+            for ($x = 0; $x < $width; $x += 2 * self::STRIPE) {
+                $canvas->rect($x, 0, self::STRIPE, $height, '#ffffff', 0, 0.05);
+            }
+        }
 
         // Header: the wordmark and the line under it, the week on the right.
         $y = ($story ? 300 : 140);
