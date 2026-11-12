@@ -1646,3 +1646,24 @@ eachOnPage('[data-friends-expand]', (details) => {
         timer = window.setTimeout(() => load(withQuery(search.value.trim())), 250);
     });
 });
+
+/**
+ * A profile's Friends count: tapping it opens the Friends list in place and scrolls to it.
+ */
+document.addEventListener('click', (event) => {
+    const opener = event.target.closest('[data-open-friends]');
+    const list = opener && document.querySelector('[data-friends-expand]');
+
+    if (!list) {
+        return;
+    }
+
+    event.preventDefault();
+
+    if (!list.open) {
+        list.open = true;
+        list.dispatchEvent(new Event('toggle'));
+    }
+
+    list.closest('[id]')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+});
