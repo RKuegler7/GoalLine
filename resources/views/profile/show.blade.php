@@ -58,7 +58,7 @@
             ['Points', $stats->points(), 'From GoalWeek results'],
             ['Goals completed', $stats->completedGoals()->count(), 'Of '.$stats->goalsStarted().' '.Str::plural('goal', $stats->goalsStarted()).' started'],
             ['Weeks on the line', $stats->weeksOnTheLine(), $stats->weeksOnTheLine() === 0 ? 'Start your line this week. Best: '.$stats->bestStreak() : 'In a row at In line or better. Best: '.$stats->bestStreak()],
-            ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, ties, losses. Join a GoalLeague to start.' : 'Wins, ties, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
+            ['League record', implode('–', $stats->leagueRecord()), $stats->leagues()->isEmpty() ? 'Wins, draws, losses. Join a GoalLeague to start.' : 'Wins, draws, losses across '.$stats->leagues()->count().' '.Str::plural('GoalLeague', $stats->leagues()->count())],
         ] as [$label, $value, $note])
             <div class="border-line px-4 py-3 max-lg:odd:border-r max-lg:nth-[-n+2]:border-b lg:not-last:border-r">
                 <dt class="eyebrow text-club">{{ $label }}</dt>
@@ -100,7 +100,7 @@
                     <span class="eyebrow rounded-full bg-gold px-3 py-1.5 text-[11px] text-ink">Completed</span>
                 @else
                     <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $featured->points() }}</p>
-                    <p class="text-sm text-ink/70">GoalWeek points</p>
+                    <p class="text-sm text-ink/70">GoalWeek stars</p>
                 @endif
             </div>
         </section>
@@ -218,7 +218,7 @@
                                 <p class="mt-0.5 font-serif text-lg font-bold text-club tracking-tight">{{ $goal->title }}</p>
                             </div>
                             <div class="shrink-0 text-right text-sm">
-                                <p class="font-semibold text-ink tabular-nums">{{ $goal->points() }} {{ Str::plural('pt', $goal->points()) }}</p>
+                                <p class="font-semibold text-ink tabular-nums">{{ $goal->points() }} {{ Str::plural('star', $goal->points()) }}</p>
                                 <p class="text-ink/70"><x-days-left :days="$goal->daysRemaining()" /></p>
                             </div>
                         </a>

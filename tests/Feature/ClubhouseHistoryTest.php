@@ -91,7 +91,7 @@ class ClubhouseHistoryTest extends TestCase
             ->assertSee(route('leagues.recap', $this->league), false)
             ->assertSee('Finish the CPA section')
             ->assertSee('Date reached')
-            ->assertSee('Close win vs Red')
+            ->assertSee('Photo finish win vs Red')
             ->assertSeeInOrder(['GoalWeek 3', 'GoalWeek 2', 'GoalWeek 1'])
             ->assertDontSee('Write the thesis');
     }
@@ -111,7 +111,7 @@ class ClubhouseHistoryTest extends TestCase
         $this->actingAs($this->user)->get(route('history.weeks.show', $this->finalWeek))
             ->assertOk()
             ->assertSee('GoalWeek 3')
-            ->assertSee('Close win vs Red')
+            ->assertSee('Photo finish win vs Red')
             ->assertSee('Old league task 2')
             ->assertDontSee('name="_method"', false);
 

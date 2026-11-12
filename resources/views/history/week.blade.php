@@ -25,17 +25,17 @@
                     <dd class="font-serif text-xl font-bold text-club tabular-nums">{{ $row['percent'] }}%</dd>
                 </div>
                 <div class="rounded-lg bg-mint/50 px-2 py-2">
-                    <dt class="text-[11px] font-semibold text-ink/70">Line points</dt>
+                    <dt class="text-[11px] font-semibold text-ink/70">Line stars</dt>
                     <dd class="font-serif text-xl font-bold text-club tabular-nums">{{ $row['linePoints'] }}</dd>
                 </div>
                 <div class="rounded-lg bg-mint/50 px-2 py-2">
-                    <dt class="text-[11px] font-semibold text-ink/70">Week points</dt>
+                    <dt class="text-[11px] font-semibold text-ink/70">Week stars</dt>
                     <dd class="font-serif text-xl font-bold text-club tabular-nums">{{ $row['weeklyPoints'] }}</dd>
                 </div>
             </dl>
             @if ($match)
                 <p class="mt-3 flex flex-wrap items-center justify-between gap-2 text-[13px]">
-                    <span class="text-ink/80">{{ $match->league?->name }} &middot; <span class="font-semibold text-ink">{{ App\Services\History::matchLabel($match) }}</span> &middot; {{ $match->matchup_points }} match {{ Str::plural('point', $match->matchup_points) }}</span>
+                    <span class="text-ink/80">{{ $match->league?->name }} &middot; <span class="font-semibold text-ink">{{ App\Services\History::matchLabel($match) }}</span> &middot; {{ $match->matchup_points }} matchup {{ Str::plural('star', $match->matchup_points) }}</span>
                     <a href="{{ $matchupUrl }}" class="font-semibold text-club hover:underline">See the matchup &rarr;</a>
                 </p>
             @endif

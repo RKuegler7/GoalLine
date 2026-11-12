@@ -1,6 +1,6 @@
 {{-- The matchup scoreboard hero: both players large on the green field. For each: photo (or initials), team or
      display name as the biggest text, the season record right below it, then the live percent of plan with the band
-     and the points if the week ended now. Between them: vs, the week, days left. Then the line. A bye shows the
+     and the stars if the week ended now. Between them: vs, the week, days left. Then the line. A bye shows the
      league median; a one-member league shows the player against the line. Every number is from MatchupPager. --}}
 @props(['page', 'index', 'week'])
 
@@ -35,18 +35,18 @@
                         <x-avatar :user="$member->user" tone="light" class="size-16 text-xl ring-3 ring-ivory/80 sm:size-20" />
                         <span class="mt-2 line-clamp-2 max-w-full text-[17px] leading-tight font-extrabold break-words text-ivory group-hover:underline sm:text-xl" data-hero-name title="{{ $member->displayName() }}">{{ $member->displayName() }}</span>
                     </a>
-                    <span class="mt-0.5 text-xs font-semibold text-mint tabular-nums" data-hero-record title="Wins, ties and losses this season">{{ $side['record']['wins'] }}&ndash;{{ $side['record']['ties'] }}&ndash;{{ $side['record']['losses'] }}</span>
-                    <span class="mt-2 text-[30px] leading-none font-extrabold text-ivory tabular-nums" data-hero-percent>{{ $side['percent'] === null ? '–' : $side['percent'].'%' }}</span>
+                    <span class="mt-0.5 text-xs font-semibold text-mint tabular-nums" data-hero-record title="Wins, draws and losses this season">{{ $side['record']['wins'] }}&ndash;{{ $side['record']['ties'] }}&ndash;{{ $side['record']['losses'] }}</span>
+                    <span class="mt-2 text-[30px] leading-none font-extrabold text-ivory tabular-nums" data-hero-percent>{{ $side['percentLabel'] ?? '–' }}</span>
                     @if ($side['result'])
                         <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" compact class="mt-1.5 justify-center" />
                     @endif
-                    <span class="mt-1 text-[11px] text-ivory/90"><span class="font-bold text-ivory tabular-nums">+{{ $side['total'] }}</span> {{ $final ? 'points' : 'if it ended now' }}</span>
+                    <span class="mt-1 text-[11px] text-ivory/90"><span class="font-bold text-ivory tabular-nums">+{{ $side['total'] }}</span> {{ Str::plural('star', $side['total']) }}{{ $final ? '' : ' if it ended now' }}</span>
                 @elseif ($kind === 'bye')
                     <span class="grid size-16 place-items-center rounded-full bg-ivory/15 ring-3 ring-ivory/40 sm:size-20"><x-icon name="users" class="size-7 text-ivory" /></span>
-                    <span class="mt-2 text-[17px] leading-tight font-extrabold text-ivory sm:text-xl">League median</span>
-                    <span class="mt-0.5 text-xs font-semibold text-mint">Bye week</span>
-                    <span class="mt-2 text-[30px] leading-none font-extrabold text-ivory/90 tabular-nums">{{ $card['medianPercent'] === null ? '–' : round($card['medianPercent']).'%' }}</span>
-                    <span class="mt-1.5 text-[11px] text-ivory/90">{{ $card['median'] === null ? 'No results yet' : round($card['median'], 1).' line pts' }}</span>
+                    <span class="mt-2 text-[17px] leading-tight font-extrabold text-ivory sm:text-xl">Bye week</span>
+                    <span class="mt-0.5 text-xs font-semibold text-mint">No opponent</span>
+                    <span class="mt-2 text-[15px] leading-tight font-bold text-ivory/90">Line stars only</span>
+                    <span class="mt-1.5 text-[11px] text-ivory/90">Not a win, draw or loss</span>
                 @else
                     <span class="grid size-16 place-items-center rounded-full bg-ivory/15 ring-3 ring-ivory/40 sm:size-20"><x-icon name="line" class="size-8 text-ivory" /></span>
                     <span class="mt-2 text-[17px] leading-tight font-extrabold text-ivory sm:text-xl">The line</span>

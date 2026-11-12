@@ -1,11 +1,12 @@
+@php($rules = app(App\Services\ScoringRules::class))
 <x-layouts.welcome :step="4" title="How the game works" intro="Thirty seconds, then you're in the Clubhouse.">
     <div class="space-y-4">
         <ol class="space-y-3">
             @foreach ([
                 ['Every week is a GoalWeek', 'Monday to Sunday on your clock. Each one has planned tasks, your recurring habits, and one milestone from your roadmap.'],
                 ['Check in as you go', 'Trust the process: show up today. Check off tasks and log habits for today or yesterday. Add your own tasks mid-week and they count as bonus work.'],
-                ['Your result', 'Your share of the week\'s planned points sets your band: Short of the line under 90%, In line 90 to 100%, Past the line 101 to 149%, Smashed the line at 150% and up (with proof or your opponent\'s OK). That earns 0 to 3 line points.'],
-                ['GoalLeagues (optional)', 'Each GoalWeek you face one league mate in the GoalWeek Matchup. A higher band is a Win for 3 match points. Same band is a Photo finish: the higher percent of plan takes a Close win for 2, the other a Close loss for 1, and an exact tie is 1 each. With line points, 0 to 6 points a week.'],
+                ['Your result', 'Your share of the week\'s plan points sets your band: '.collect($rules->bands())->map(fn ($band) => $band['label'].' '.$band['range'])->implode(', ').' (Smashed needs proof or your opponent\'s OK). That earns line stars: '.collect($rules->bands())->map(fn ($band) => $band['points'])->implode(', ').'.'],
+                ['GoalLeagues (optional)', 'Each GoalWeek you face one league mate in the GoalWeek Matchup. '.collect($rules->outcomes())->map(fn ($outcome) => $outcome['label'].' '.$outcome['points'])->implode(', ').' matchup stars. Same band is a Photo finish: the higher percent of plan takes it. With line stars, '.$rules->weekRange()['min'].' to '.$rules->weekRange()['max'].' stars a week.'],
                 ['Your coach has your back', 'Change your plan anytime. Your coach checks you are still in line and suggests a fix if not.'],
             ] as [$heading, $body])
                 <li class="flex gap-4 rounded-2xl border border-line bg-white px-4 py-3">

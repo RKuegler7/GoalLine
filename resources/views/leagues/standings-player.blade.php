@@ -24,7 +24,7 @@
                 @if ($member->team_name)
                     <p class="truncate text-xs text-mint">{{ $member->user->name }}</p>
                 @endif
-                <p class="mt-0.5 text-sm font-semibold text-ivory tabular-nums">{{ $player['wins'] }}&ndash;{{ $player['ties'] }}&ndash;{{ $player['losses'] }} <span class="font-normal text-ivory/90">&middot; {{ $player['closeWins'] }} close {{ Str::plural('win', $player['closeWins']) }}, {{ $player['closeLosses'] }} close {{ Str::plural('loss', $player['closeLosses']) }}, {{ $player['photoFinishes'] }} photo {{ Str::plural('finish', $player['photoFinishes']) }}</span></p>
+                <p class="mt-0.5 text-sm font-semibold text-ivory tabular-nums">{{ $player['wins'] }}&ndash;{{ $player['ties'] }}&ndash;{{ $player['losses'] }} <span class="font-normal text-ivory/90">&middot; {{ $player['photoFinishWins'] }} photo finish {{ Str::plural('win', $player['photoFinishWins']) }}, {{ $player['photoFinishes'] }} photo {{ Str::plural('finish', $player['photoFinishes']) }}{{ $player['byes'] ? ', '.$player['byes'].' '.Str::plural('bye', $player['byes']) : '' }}</span></p>
             </div>
             @if ($member->user->username)
                 <a href="{{ route('profiles.show', $member->user) }}" class="ml-auto shrink-0 rounded-full bg-ivory/15 px-3 py-1.5 text-xs font-semibold text-ivory hover:bg-ivory/25">Profile</a>
@@ -33,11 +33,11 @@
 
         <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4" data-player-stats>
             @foreach ([
-                ['Total points', $player['total'], 'line + match'],
-                ['Match points', $player['matchPoints'], 'from matchups'],
-                ['Line points', $player['linePoints'], 'from bands'],
+                ['Total stars', $player['total'], 'line + matchup'],
+                ['Matchup stars', $player['matchPoints'], 'from matchups'],
+                ['Line stars', $player['linePoints'], 'from bands'],
                 ['Avg % of plan', $player['avgPercent'] === null ? '–' : $player['avgPercent'].'%', 'across final weeks'],
-                ['Best week', $player['bestWeek'] ? $player['bestWeek']['weeklyPoints'].' pts' : '–', $player['bestWeek'] ? 'Week '.$player['bestWeek']['week'].', '.$player['bestWeek']['percent'].'%' : 'none yet'],
+                ['Best week', $player['bestWeek'] ? $player['bestWeek']['weeklyPoints'].' '.Str::plural('star', $player['bestWeek']['weeklyPoints']) : '–', $player['bestWeek'] ? 'Week '.$player['bestWeek']['week'].', '.$player['bestWeek']['percent'].'%' : 'none yet'],
                 ['Weeks on the line', $player['weeksOnLine'], 'best run: '.$player['bestWeeksOnLine']],
                 ['This week', $player['goalStatus']?->label() ?? '–', $player['goalStatus'] ? 'live, so far' : 'no live week'],
                 ['Plan', $player['planStatus'] ?? '–', 'this week'],
@@ -79,7 +79,7 @@
                                 @if ($week['band'])
                                     <x-goalweek-result :result="$week['band']" compact />
                                 @endif
-                                <span class="w-12 shrink-0 text-right text-sm font-bold text-club tabular-nums">{{ $week['weeklyPoints'] }} pts</span>
+                                <span class="w-12 shrink-0 text-right text-sm font-bold text-club tabular-nums">{{ $week['weeklyPoints'] }} {{ Str::plural('star', $week['weeklyPoints']) }}</span>
                             </a>
                         </li>
                     @endforeach

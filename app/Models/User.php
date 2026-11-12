@@ -213,7 +213,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Settled league results, for the overall W–T–L record.
+     * Settled league results, for the overall W–D–L record.
      *
      * @return HasMany<LeagueResult, $this>
      */

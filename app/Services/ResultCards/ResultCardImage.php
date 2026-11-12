@@ -4,6 +4,7 @@ namespace App\Services\ResultCards;
 
 use App\Models\ResultCard;
 use App\Services\ResultCardData;
+use App\Services\ScoringRules;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use Throwable;
@@ -207,7 +208,7 @@ class ResultCardImage
         // The track: 0 to 175% of plan, ticks at the band lines, the dot at this week's percent.
         $this->track($canvas, $pad, $right, $trackY, (int) $p['percent'], $theme, $p['band']);
 
-        // Three numbers: the match, the week's points, and weeks on the line.
+        // Three numbers: the match, the week's stars, and weeks on the line. Maximums come from the star config.
         $y = min($trackY + 110 * $gap, $statsY);
         $columns = [];
 
@@ -219,10 +220,12 @@ class ResultCardImage
             };
             $columns[] = ['MATCH', $p['match']['label'], $sub.' · +'.$p['match']['points']];
         } else {
-            $columns[] = ['LINE POINTS', '+'.$p['linePoints'], 'Against the line'];
+            $columns[] = ['LINE STARS', '+'.$p['linePoints'], 'Against the line'];
         }
 
-        $columns[] = ['WEEK POINTS', (string) $p['weeklyPoints'], 'of '.($p['match'] ? 6 : 3)];
+        $rules = app(ScoringRules::class);
+        $lineMax = max(array_column($rules->bands(), 'points'));
+        $columns[] = ['STARS', (string) $p['weeklyPoints'], 'of '.($p['match'] && ! $p['match']['bye'] ? $rules->weekRange()['max'] : $lineMax)];
         $columns[] = ['ON THE LINE', $p['onTheLine'].' '.($p['onTheLine'] === 1 ? 'week' : 'weeks'), 'in a row'];
 
         $columnWidth = ($right - $pad) / 3;

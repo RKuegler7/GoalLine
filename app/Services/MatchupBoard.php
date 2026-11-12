@@ -6,10 +6,11 @@ use App\GoalWeekResult;
 use App\MatchupOutcome;
 use App\Models\LeagueMember;
 use App\Models\RoadmapWeek;
+use App\Percent;
 
 /**
  * A league week's matchups, ready to show: each side's share of their plan, band, points to the next band, and the
- * points they'd take if the week ended now, plus a plain-English verdict on who's ahead.
+ * stars they'd take if the week ended now, plus a plain-English verdict on who's ahead.
  */
 class MatchupBoard
 {
@@ -33,6 +34,11 @@ class MatchupBoard
             ->map(function (array $matchup) use ($viewer, $final) {
                 $home = self::side($matchup['home'], $matchup['homeResult'], $matchup['homeOutcome']);
                 $away = $matchup['away'] ? self::side($matchup['away'], $matchup['awayResult'], $matchup['awayOutcome']) : null;
+
+                // Whole percents, with decimals only when they'd otherwise look equal.
+                if ($away && $home['percent'] !== null && $away['percent'] !== null) {
+                    [$home['percentLabel'], $away['percentLabel']] = Percent::pair($home['precise'], $away['precise']);
+                }
 
                 return [
                     'home' => $home,
@@ -65,6 +71,8 @@ class MatchupBoard
             'goalWeek' => $goalWeek,
             'share' => $goalWeek?->completionShare(),
             'percent' => $goalWeek ? $result['percent'] : null,
+            'precise' => $goalWeek ? $result['precise'] : null,
+            'percentLabel' => $goalWeek ? Percent::whole($result['precise']) : null,
             'earned' => $goalWeek ? round($goalWeek->earnedPoints(), 1) : 0,
             'planned' => $goalWeek?->plannedPoints() ?? 0,
             'next' => $goalWeek ? self::nextBand($goalWeek) : null,
@@ -140,7 +148,8 @@ class MatchupBoard
     }
 
     /**
-     * "Red leads: Past the line beats In line.", or, in the same band, "Photo finish: both In line. Red leads, 98% to 94%."
+     * "Red leads: Past the line beats In line.", or, in the same band, "Photo finish: both In line. Red leads, 98% to
+     * 94%.", or a tie with a word of encouragement. A bye: line stars only.
      *
      * @param  array<string, mixed>  $home
      * @param  array<string, mixed>|null  $away
@@ -149,30 +158,10 @@ class MatchupBoard
     {
         $name = fn (array $side) => $side['member']->user->name;
         $band = fn (array $side) => $side['result']?->label() ?? 'Short of the line';
-        $percent = fn (?float $value) => round($value ?? 0, 1).'%';
         $outcome = $home['outcome'];
 
         if ($away === null) {
-            if ($median === null) {
-                return $name($home).' plays the league median, and no one else has a score yet.';
-            }
-
-            $against = 'the league median ('.round($median, 1).' line '.($median == 1 ? 'point' : 'points').')';
-
-            if (! $outcome->isPhotoFinish()) {
-                return $name($home).match ($outcome) {
-                    MatchupOutcome::Win => $final ? ' beat ' : ' is ahead of ',
-                    default => $final ? ' fell short of ' : ' is behind ',
-                }.$against.'.';
-            }
-
-            $score = $percent($home['percent']).' to the median '.$percent($medianPercent);
-
-            return 'Photo finish with '.$against.': '.match ($outcome) {
-                MatchupOutcome::CloseWin => $name($home).($final ? ' took the close win, ' : ' leads, ').$score.'.',
-                MatchupOutcome::CloseLoss => $name($home).($final ? ' took the close loss, ' : ' trails, ').$score.'.',
-                default => ($final ? 'a tie at ' : 'level at ').$percent($home['percent']).'.',
-            };
+            return $name($home).' has a bye this week: line stars only, and it doesn\'t count as a win, draw or loss.';
         }
 
         if (! $outcome->isPhotoFinish()) {
@@ -184,11 +173,14 @@ class MatchupBoard
         $photo = 'Photo finish: both '.$band($home).'. ';
 
         if ($outcome === MatchupOutcome::Tie) {
-            return $photo.($final ? 'A tie at ' : 'Level at ').$percent($home['percent']).'.';
+            $whole = ($home['precise'] ?? 0) >= 100;
+
+            return $photo.($final ? 'Tie' : 'Tied').' at '.($home['percentLabel'] ?? Percent::whole($home['precise'] ?? 0)).'. '
+                .($whole ? MatchupOutcome::tieEncouragement() : 'Dead level. One more check-in pulls ahead.');
         }
 
         [$leader, $trailer] = $outcome === MatchupOutcome::CloseWin ? [$home, $away] : [$away, $home];
 
-        return $photo.$name($leader).($final ? ' takes the close win, ' : ' leads, ').$percent($leader['percent']).' to '.$percent($trailer['percent']).'.';
+        return $photo.$name($leader).($final ? ' takes the photo finish, ' : ' leads, ').$leader['percentLabel'].' to '.$trailer['percentLabel'].'.';
     }
 }

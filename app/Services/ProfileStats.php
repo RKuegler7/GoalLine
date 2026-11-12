@@ -142,7 +142,7 @@ class ProfileStats
     }
 
     /**
-     * Overall league record across every league: wins, ties, losses.
+     * Overall league record across every league: wins, draws, losses (byes left out).
      *
      * @return array{wins: int, ties: int, losses: int}
      */

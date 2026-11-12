@@ -52,6 +52,23 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Weekly stars
+    |--------------------------------------------------------------------------
+    |
+    | The one place the star values live. The scoring code (GoalWeekResult,
+    | MatchupOutcome) and every page, sheet, FAQ answer and card read these, so
+    | the rules shown can never drift from the rules scored. A week is worth
+    | line stars (your band) plus matchup stars: 0 to 5.
+    |
+    */
+
+    'stars' => [
+        'line' => ['short' => 0, 'in_line' => 1, 'past' => 2, 'smashed' => 3],
+        'matchup' => ['win' => 2, 'photo_finish_win' => 1, 'tie' => 1, 'loss' => 0, 'bye' => 0],
+    ],
+
     'ai' => [
         'daily_requests_per_member' => (int) env('AI_DAILY_REQUESTS_PER_MEMBER', 20),
         'daily_budget_usd' => (float) env('AI_DAILY_BUDGET_USD', 2),

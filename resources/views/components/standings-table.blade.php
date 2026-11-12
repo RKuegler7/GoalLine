@@ -1,4 +1,4 @@
-{{-- The league table: rank, player (avatar, team or display name, record underneath), line points, points and the last
+{{-- The league table: rank, player (avatar, team or display name, W–D–L record underneath), line stars, stars and the last
      five weeks' bands. The player column stays put while the table scrolls sideways inside its own box; the page never
      scrolls sideways. Each row opens the player's season. Numbers come from LeagueTable and LeagueStats. --}}
 @props(['rows', 'league', 'me' => null])
@@ -17,8 +17,8 @@
         <thead class="gl-field text-[11px] tracking-wide text-ivory uppercase">
             <tr>
                 <th scope="col" class="sticky left-0 z-10 bg-club py-2 pr-1 pl-3 font-semibold">Player</th>
-                <th scope="col" class="px-1.5 py-2 text-center font-semibold" title="Line points: 0 to 3 a week for your band">Line</th>
-                <th scope="col" class="px-1.5 py-2 text-center font-semibold">Pts</th>
+                <th scope="col" class="px-1.5 py-2 text-center font-semibold" title="Line stars: from your band each week">Line ★</th>
+                <th scope="col" class="px-1.5 py-2 text-center font-semibold">Stars</th>
                 <th scope="col" class="py-2 pr-3 pl-1.5 text-right font-semibold">Last {{ App\Services\LeagueStats::FORM_WEEKS }}</th>
             </tr>
         </thead>

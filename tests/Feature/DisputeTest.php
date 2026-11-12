@@ -141,7 +141,7 @@ class DisputeTest extends TestCase
         // 3 of 4 tasks (the milestone wasn't hit): 3 of 6 planned points is short of the line.
         $this->assertSame(GoalWeekResult::Short, $stored->result);
 
-        $this->actingAs($this->avery)->get(route('leagues.matchups', [$this->league, 1]))->assertSee('1 point held while a dispute is settled');
+        $this->actingAs($this->avery)->get(route('leagues.matchups', [$this->league, 1]))->assertSee('1 plan point held while a dispute is settled');
 
         // Proof after the week closed still settles it, and the stored week re-scores on its own.
         $this->week->forceFill(['milestone_hit_at' => '2026-10-24 09:00'])->save();

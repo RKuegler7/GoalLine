@@ -119,20 +119,20 @@ class DemoTest extends TestCase
         $row = fn ($result) => [$result->result->value, $result->outcome, $result->result_points, $result->matchup_points];
 
         // A higher band wins outright: Red's proven Smashed week, 3 line + 3 match.
-        $this->assertSame(['smashed', MatchupOutcome::Win, 3, 3], $row($result('Marathon by March', 5, 'Red Dufour')));
+        $this->assertSame(['smashed', MatchupOutcome::Win, 3, 2], $row($result('Marathon by March', 5, 'Red Dufour')));
         // Both In line at exactly 100%: a photo-finish tie, 1 each.
         $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Red Dufour')));
         $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Steph Busch')));
-        // Both In line, 100% beats 90%: a close win for 2 and a close loss for 1.
-        $this->assertSame(['in_line', MatchupOutcome::CloseWin, 1, 2], $row($result('4.0 This Fall', 1, 'Mary Mullen')));
-        $this->assertSame(['in_line', MatchupOutcome::CloseLoss, 1, 1], $row($result('4.0 This Fall', 1, 'Pat Caldwell')));
+        // Both In line, 100% beats 90%: a photo finish win for 1 matchup star, and 0 for the loss.
+        $this->assertSame(['in_line', MatchupOutcome::CloseWin, 1, 1], $row($result('4.0 This Fall', 1, 'Mary Mullen')));
+        $this->assertSame(['in_line', MatchupOutcome::CloseLoss, 1, 0], $row($result('4.0 This Fall', 1, 'Pat Caldwell')));
         // Kate's unproven 150%+ week is credited as Past at 149%.
         $kate = RoadmapWeek::whereHas('goal.user', fn ($users) => $users->where('name', 'Kate Gibbons'))->whereDate('starts_on', '2026-10-19')->sole();
         $this->assertSame(149, $kate->creditedPercent());
         $this->assertSame('past', $result('4.0 This Fall', 5, 'Kate Gibbons')->result->value);
 
         $this->get(route('leagues.matchups', [League::where('name', '4.0 This Fall')->sole(), 1]))->assertOk()
-            ->assertSee('Photo finish: both In line. Mary Mullen takes the close win, 100% to 90%.');
+            ->assertSee('Photo finish: both In line. Mary Mullen takes the photo finish, 100% to 90%.');
     }
 
     public function test_the_seeder_builds_one_demo_world_with_a_known_sign_in_and_can_run_again(): void

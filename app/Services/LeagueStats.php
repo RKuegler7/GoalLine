@@ -11,14 +11,14 @@ use App\Models\RoadmapWeek;
 use Illuminate\Support\Collection;
 
 /**
- * The numbers behind the standings: each member's record with its close wins, close losses and photo finishes,
+ * The numbers behind the standings: each member's W–D–L record with its photo finish wins, photo finishes and byes,
  * points by kind, average percent of plan, best week, weeks on the line and band counts, plus league-wide highlights
  * and a season-so-far series. Everything comes from the settled league results (LeagueTable::settle) and the
  * scoring code's credited percent; this only adds them up. The views just show them.
  */
 class LeagueStats
 {
-    public const SORTS = ['points' => 'Points', 'line' => 'Line points', 'percent' => 'Avg % of plan', 'streak' => 'Weeks on the line'];
+    public const SORTS = ['points' => 'Stars', 'line' => 'Line stars', 'percent' => 'Avg % of plan', 'streak' => 'Weeks on the line'];
 
     public const FORM_WEEKS = 5;
 
@@ -42,7 +42,7 @@ class LeagueStats
     }
 
     /**
-     * The standings in the official order (total points, then line points, then wins), or re-sorted by another stat
+     * The standings in the official order (total stars, then line stars, then Past-the-Line weeks), or re-sorted by another stat
      * with the official order breaking ties. Each row adds the member's stats to LeagueTable's row.
      *
      * @return Collection<int, array<string, mixed>>
@@ -66,7 +66,7 @@ class LeagueStats
     /**
      * One member's stats.
      *
-     * @return array{weeks: list<array<string, mixed>>, wins: int, ties: int, losses: int, closeWins: int, closeLosses: int, photoFinishes: int, total: int, matchPoints: int, linePoints: int, avgPercent: int|null, bestWeek: array<string, mixed>|null, weeksOnLine: int, bestWeeksOnLine: int, bands: array<string, int>, form: list<GoalWeekResult|null>, goalStatus: GoalWeekResult|null, planStatus: string|null}
+     * @return array{weeks: list<array<string, mixed>>, wins: int, ties: int, losses: int, photoFinishWins: int, photoFinishes: int, byes: int, total: int, matchPoints: int, linePoints: int, avgPercent: int|null, bestWeek: array<string, mixed>|null, weeksOnLine: int, bestWeeksOnLine: int, bands: array<string, int>, form: list<GoalWeekResult|null>, goalStatus: GoalWeekResult|null, planStatus: string|null}
      */
     public function member(LeagueMember $member): array
     {
@@ -154,7 +154,7 @@ class LeagueStats
                 'weeklyPoints' => $result->result_points + $result->matchup_points,
                 'percent' => $this->table->memberResult($member, $result->week)['percent'],
                 'opponent' => $opponent,
-                'opponentName' => $result->vs_median ? 'League median' : ($opponent?->displayName() ?? 'A former member'),
+                'opponentName' => $result->vs_median || $result->outcome === MatchupOutcome::Bye ? 'Bye' : ($opponent?->displayName() ?? 'A former member'),
                 'opponentPercent' => $opponent ? $this->table->memberResult($opponent, $result->week)['percent'] : null,
                 'opponentBand' => $opponent ? $league->results->first(fn (LeagueResult $theirs) => $theirs->user_id === $opponent->user_id && $theirs->week === $result->week)?->result : null,
             ];
@@ -182,11 +182,11 @@ class LeagueStats
         return [
             'weeks' => $weeks,
             'wins' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome->isWin())->count(),
-            'ties' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome === MatchupOutcome::Tie)->count(),
+            'ties' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome->isDraw())->count(),
             'losses' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome->isLoss())->count(),
-            'closeWins' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome === MatchupOutcome::CloseWin)->count(),
-            'closeLosses' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome === MatchupOutcome::CloseLoss)->count(),
+            'photoFinishWins' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome === MatchupOutcome::CloseWin)->count(),
             'photoFinishes' => $outcomes->filter(fn (MatchupOutcome $outcome) => $outcome->isPhotoFinish())->count(),
+            'byes' => $outcomes->filter(fn (MatchupOutcome $outcome) => ! $outcome->counts())->count(),
             'total' => (int) collect($weeks)->sum('weeklyPoints'),
             'matchPoints' => (int) collect($weeks)->sum('matchPoints'),
             'linePoints' => (int) collect($weeks)->sum('linePoints'),

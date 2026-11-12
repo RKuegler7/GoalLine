@@ -70,7 +70,7 @@ class LeagueScoringTest extends TestCase
         $leader = $standings->first();
         $this->assertTrue($leader['member']->is($alex));
         $this->assertSame([2, 1, 1, 0], [$leader['played'], $leader['wins'], $leader['ties'], $leader['losses']]);
-        $this->assertSame(2 + 3 + 1 + 1, $leader['total'], 'Past (2) + win (3), then in line (1) + a photo-finish tie at 100% (1).');
+        $this->assertSame(2 + 2 + 1 + 1, $leader['total'], 'Past (2) + win (2), then in line (1) + a photo-finish tie at 100% (1).');
 
         $runnerUp = $standings->last();
         $this->assertSame([0, 1, 1], [$runnerUp['wins'], $runnerUp['ties'], $runnerUp['losses']]);
@@ -94,7 +94,7 @@ class LeagueScoringTest extends TestCase
         $table = new LeagueTable($league->fresh());
         $table->settle();
 
-        $this->assertSame(3 + 3, $table->standings()->first()['total'], 'Smashed (3) + win (3): the most a week can earn.');
+        $this->assertSame(3 + 2, $table->standings()->first()['total'], 'Smashed (3) + win (2): the most a week can earn.');
     }
 
     public function test_weeks_wait_to_settle_until_results_lock(): void
@@ -132,7 +132,10 @@ class LeagueScoringTest extends TestCase
         $this->assertEquals($expectedMedian, $bye['median']);
         $expectedMedianPercent = $others->map(fn (LeagueMember $member) => $table->memberResult($member, 1)['percent'])->median();
         $this->assertEquals($expectedMedianPercent, $bye['medianPercent']);
-        $this->assertSame(MatchupOutcome::compare($bye['homeResult']['points'], $expectedMedian, $bye['homeResult']['percent'], $expectedMedianPercent), $bye['homeOutcome']);
+        // A bye: line stars only, no win, draw or loss (the median is still shown).
+        $this->assertSame(MatchupOutcome::Bye, $bye['homeOutcome']);
+        $this->assertSame(0, $bye['homeOutcome']->points());
+        $this->assertFalse($bye['homeOutcome']->counts());
     }
 
     public function test_league_page_shows_standings_and_this_goalweeks_matchup(): void
@@ -163,8 +166,8 @@ class LeagueScoringTest extends TestCase
             ->assertSee('Live')
             ->assertSee("{$first->user->name} leads: Past the line beats In line.")
             ->assertSeeText('125%')
-            ->assertSeeText('if it ended now, +5 pts')
-            ->assertSeeText('2 line + 3 match · Win')
+            ->assertSeeText('if it ended now, +4 stars')
+            ->assertSeeText('2 line + 2 matchup · Win')
             ->assertSee('1 more point to Past the line')
             ->assertSee('Scoreboard')
             ->assertSee('data-pager-page', false);
@@ -189,7 +192,7 @@ class LeagueScoringTest extends TestCase
         $this->actingAs($home->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
             ->assertSee('Final')
             ->assertSee("{$home->user->name} won: Smashed the line beats Short of the line.")
-            ->assertSeeText('+6 pts');
+            ->assertSeeText('+5 stars');
     }
 
     public function test_a_forming_league_has_no_matchups_yet(): void
@@ -200,7 +203,7 @@ class LeagueScoringTest extends TestCase
             ->assertRedirect(route('leagues.show', $league));
     }
 
-    public function test_same_band_is_a_photo_finish_the_higher_credited_percent_wins_2_to_1(): void
+    public function test_same_band_is_a_photo_finish_only_the_higher_credited_percent_gets_a_matchup_star(): void
     {
         $league = $this->league(members: 2, startsOn: '2026-10-05', endsOn: '2026-10-11');
         [$alex, $blair] = $league->members->all();
@@ -211,19 +214,19 @@ class LeagueScoringTest extends TestCase
         $table = new LeagueTable($league->fresh());
         $table->settle();
 
-        $this->assertSame([MatchupOutcome::CloseWin, 2, 3], $this->settled($league, $alex));
-        $this->assertSame([MatchupOutcome::CloseLoss, 1, 2], $this->settled($league, $blair));
+        $this->assertSame([MatchupOutcome::CloseWin, 1, 2], $this->settled($league, $alex));
+        $this->assertSame([MatchupOutcome::CloseLoss, 0, 1], $this->settled($league, $blair));
 
         $standings = $table->standings();
-        $this->assertSame([1, 0, 0], [$standings->first()['wins'], $standings->first()['ties'], $standings->first()['losses']], 'A close win is a win in the record.');
+        $this->assertSame([1, 0, 0], [$standings->first()['wins'], $standings->first()['ties'], $standings->first()['losses']], 'A photo finish win is a win in the record.');
         $this->assertSame([0, 0, 1], [$standings->last()['wins'], $standings->last()['ties'], $standings->last()['losses']], 'A close loss is a loss in the record.');
         $this->assertSame(['wins' => 0, 'ties' => 0, 'losses' => 1], (new ProfileStats($blair->user))->leagueRecord());
 
         $this->actingAs($alex->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
             ->assertSee('Photo finish')
-            ->assertSee("Photo finish: both In line. {$alex->user->name} takes the close win, 100% to 90%.")
-            ->assertSeeText('1 line + 2 match · Close win')
-            ->assertSeeText('1 line + 1 match · Close loss');
+            ->assertSee("Photo finish: both In line. {$alex->user->name} takes the photo finish, 100% to 90%.")
+            ->assertSeeText('1 line + 1 matchup · Photo finish win')
+            ->assertSeeText('1 line + 0 matchup · Loss');
     }
 
     public function test_exactly_equal_credited_percents_are_a_tie_worth_1_each(): void
@@ -240,21 +243,21 @@ class LeagueScoringTest extends TestCase
         $this->assertSame([MatchupOutcome::Tie, 1, 2], $this->settled($league, $alex));
         $this->assertSame([MatchupOutcome::Tie, 1, 2], $this->settled($league, $blair));
         $this->actingAs($alex->user)->get(route('leagues.matchups', [$league, 1]))
-            ->assertSee('Photo finish: both In line. A tie at 95%.');
+            ->assertSee('Photo finish: both In line. Tie at 95%.');
     }
 
-    public function test_a_fraction_of_a_percent_does_not_decide_a_photo_finish(): void
+    public function test_a_fraction_of_a_percent_decides_a_photo_finish(): void
     {
         $league = $this->league(members: 2, startsOn: '2026-10-05', endsOn: '2026-10-11');
         [$alex, $blair] = $league->members->all();
-        // 99.9% and 99.0% both credit as 99.
+        // 99.9% beats 99.0%: credited percents are compared at full precision, no rounding first.
         $this->weekOf($alex, '2026-10-05', planned: 1000, earned: 999);
         $this->weekOf($blair, '2026-10-05', planned: 100, earned: 99);
 
         $this->travelTo('2026-10-21');
         (new LeagueTable($league->fresh()))->settle();
 
-        $this->assertSame(MatchupOutcome::Tie, $this->settled($league, $alex)[0]);
+        $this->assertSame(MatchupOutcome::CloseWin, $this->settled($league, $alex)[0]);
     }
 
     public function test_an_unconfirmed_smashed_week_is_credited_as_past_and_capped_at_149(): void
@@ -283,7 +286,7 @@ class LeagueScoringTest extends TestCase
         $this->travelTo('2026-10-21');
         (new LeagueTable($league->fresh()))->settle();
 
-        $this->assertSame([MatchupOutcome::Win, 3, 6], $this->settled($league, $alex));
+        $this->assertSame([MatchupOutcome::Win, 2, 5], $this->settled($league, $alex));
         $this->assertSame([MatchupOutcome::Loss, 0, 2], $this->settled($league, $blair));
     }
 
@@ -302,11 +305,11 @@ class LeagueScoringTest extends TestCase
         $this->assertSame(90, $table->memberResult($alex, 1)['percent']);
         $table->settle();
 
-        $this->assertSame([MatchupOutcome::CloseLoss, 1, 2], $this->settled($league, $alex));
-        $this->assertSame([MatchupOutcome::CloseWin, 2, 3], $this->settled($league, $blair));
+        $this->assertSame([MatchupOutcome::CloseLoss, 0, 1], $this->settled($league, $alex));
+        $this->assertSame([MatchupOutcome::CloseWin, 1, 2], $this->settled($league, $blair));
     }
 
-    public function test_a_bye_in_the_same_band_as_the_median_is_a_photo_finish_against_the_median_percent(): void
+    public function test_a_bye_earns_line_stars_only_whatever_the_median(): void
     {
         $league = $this->league(members: 3, startsOn: '2026-10-05', endsOn: '2026-10-11');
         $table = new LeagueTable($league);
@@ -322,7 +325,8 @@ class LeagueScoringTest extends TestCase
 
         $this->assertEquals(1, $bye['median']);
         $this->assertEquals(97, $bye['medianPercent']);
-        $this->assertSame(MatchupOutcome::Tie, $bye['homeOutcome']);
+        $this->assertSame(MatchupOutcome::Bye, $bye['homeOutcome']);
+        $this->assertSame(0, $bye['homeOutcome']->points());
     }
 
     /**

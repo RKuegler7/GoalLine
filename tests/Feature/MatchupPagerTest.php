@@ -68,7 +68,7 @@ class MatchupPagerTest extends TestCase
 
         $this->actingAs($bye['sides'][0]['member']->user)->get(route('leagues.matchups', $league))
             ->assertSee('Your bye week: you vs the league median')
-            ->assertSee('League median');
+            ->assertSee('line stars only');
     }
 
     public function test_a_one_member_league_is_a_solo_page_against_the_line(): void

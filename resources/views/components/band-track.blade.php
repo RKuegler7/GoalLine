@@ -1,4 +1,4 @@
-{{-- A GoalWeek's live band: percent of plan, the band chip, line points if the week ended now, the projected band,
+{{-- A GoalWeek's live band: percent of plan, the band chip, line stars if the week ended now, the projected band,
      and a track marked at the band lines (In line, Past the line, Smashed) with a marker at the percent. Every value
      comes from the scoring code on the server; after a check-in the page's fresh copy swaps in and the fill and
      marker glide from the old value to the new one (live.js). The browser never works out a score.
@@ -36,7 +36,7 @@
             @if ($result)
                 <x-goalweek-result :result="$result" :close-call="$week->isCloseCall()" :not-started="$notStarted" :needs-proof="$week->needsProofForSmashed()" compact />
             @endif
-            <span class="text-[11px] text-ink/70">+{{ $result?->points() ?? 0 }} line {{ Str::plural('pt', $result?->points() ?? 0) }} if it ended now</span>
+            <span class="text-[11px] text-ink/70">+{{ $result?->points() ?? 0 }} line {{ Str::plural('star', $result?->points() ?? 0) }} if it ended now</span>
             @if ($projection && $projection['band'])
                 <span class="text-[11px] text-ink/70">&middot; Projected <span class="font-semibold text-ink">{{ $projection['band']->label() }}</span></span>
             @endif

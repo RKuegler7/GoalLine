@@ -30,12 +30,18 @@ class ScoringHelpTest extends TestCase
         }
 
         // Match points, and the week's range, from the outcome points themselves.
-        foreach (MatchupOutcome::cases() as $outcome) {
-            $this->assertMatchesRegularExpression('/>'.$outcome->points().'<\/td>\s*$/', trim($this->between($page, 'data-outcome="'.$outcome->value.'"', '</tr>')), "{$outcome->value} match points");
+        // Matchup stars as shown must equal the one star config the scoring code reads.
+        $config = config('goalline.stars.matchup');
+        foreach ([[MatchupOutcome::Win, 'win'], [MatchupOutcome::CloseWin, 'photo_finish_win'], [MatchupOutcome::Tie, 'tie'], [MatchupOutcome::Loss, 'loss']] as [$outcome, $key]) {
+            $this->assertMatchesRegularExpression('/>'.$config[$key].'<\/td>\s*$/', trim($this->between($page, 'data-outcome="'.$outcome->value.'"', '</tr>')), "{$outcome->value} matchup stars");
         }
+        foreach (config('goalline.stars.line') as $band => $stars) {
+            $this->assertMatchesRegularExpression('/>'.$stars.'<\/td>\s*$/', trim($this->between($page, 'data-band="'.$band.'"', '</tr>')), "{$band} line stars");
+        }
+        $this->assertStringNotContainsString('data-outcome="close_loss"', $page, 'No "close loss" row.');
         $min = min(array_map(fn ($band) => $band->points(), GoalWeekResult::cases())) + min(array_map(fn ($outcome) => $outcome->points(), MatchupOutcome::cases()));
         $max = max(array_map(fn ($band) => $band->points(), GoalWeekResult::cases())) + max(array_map(fn ($outcome) => $outcome->points(), MatchupOutcome::cases()));
-        $this->assertStringContainsString("Line points plus match points: {$min} to {$max} points a week.", $page);
+        $this->assertStringContainsString("Line stars plus matchup stars: {$min} to {$max} stars a week.", $page);
     }
 
     public function test_the_standings_stay_clean_with_one_button_and_one_sheet(): void
@@ -43,7 +49,7 @@ class ScoringHelpTest extends TestCase
         $user = User::factory()->create();
         $league = League::factory()->create(['commissioner_id' => $user->id]);
         $league->members()->create(['user_id' => $user->id]);
-        $league->results()->create(['user_id' => $user->id, 'week' => 1, 'result' => 'in_line', 'result_points' => 1, 'outcome' => 'close_win', 'matchup_points' => 2, 'vs_median' => true]);
+        $league->results()->create(['user_id' => $user->id, 'week' => 1, 'result' => 'in_line', 'result_points' => 1, 'outcome' => 'close_win', 'matchup_points' => 1]);
 
         foreach ([route('leagues.standings', $league), route('leagues.show', $league)] as $url) {
             $page = $this->actingAs($user)->get($url)->assertOk()
@@ -56,7 +62,7 @@ class ScoringHelpTest extends TestCase
 
         // An example from a real league row.
         $this->actingAs($user)->get(route('leagues.standings', $league))
-            ->assertSeeText('Your latest league week, week 1: In line (1 line point) + Close win (2 match points) = 3 points.');
+            ->assertSeeText('Your latest league week, week 1: In line (1 line star) + Photo finish win (1 matchup star) = 2 stars.');
     }
 
     public function test_the_button_is_on_the_matchup_and_goal_week_screens(): void

@@ -63,7 +63,7 @@ class RecapNarratorTest extends TestCase
         $facts = RecapNarrator::facts($this->lastWeek());
         $template = RecapNarrator::template($facts);
 
-        $this->assertSame('You logged 4 check-ins on 3 of 7 days, and Wednesday was your strongest day. Your GoalWeeks earned 1 line point. One more day on the line starts today.', $template);
+        $this->assertSame('You logged 4 check-ins on 3 of 7 days, and Wednesday was your strongest day. Your GoalWeeks earned 1 line star. One more day on the line starts today.', $template);
         $this->assertTrue(RecapNarrator::isValid($template, $facts));
 
         $quiet = [...$facts, 'check_ins' => 0, 'active_days' => 0, 'best_day' => null, 'best_day_check_ins' => null, 'line_points' => 0, 'goals' => []];

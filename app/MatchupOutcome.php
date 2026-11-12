@@ -3,8 +3,14 @@
 namespace App;
 
 /**
- * How a GoalWeek matchup went for one side. The higher band wins outright (3–0). In the same band it's a photo finish:
- * the higher credited percent of plan takes a close win (2–1), and an exact tie is worth 1 each.
+ * How a GoalWeek matchup went for one side. A higher band wins outright. In the same band it's a photo finish: the
+ * higher credited percent of plan (compared at full precision) takes it, and exactly equal percents are a tie. A bye,
+ * or a solo week against the line, has no opponent: line stars only, and no win, draw or loss.
+ *
+ * Matchup stars come from config('goalline.stars.matchup'). With line stars, the player with more total stars wins
+ * the matchup, and equal total stars is a draw; that always agrees with these outcomes (see the tests).
+ *
+ * Stored values stay as they were ('close_win', 'close_loss') so past results keep their meaning.
  */
 enum MatchupOutcome: string
 {
@@ -13,40 +19,44 @@ enum MatchupOutcome: string
     case Tie = 'tie';
     case CloseLoss = 'close_loss';
     case Loss = 'loss';
+    case Bye = 'bye';
 
     /**
-     * Compare two sides: first by line points (the band), then, in the same band, by credited percent of plan.
-     * The league median is compared the same way, with the median line points and the median credited percent.
+     * Compare two sides: first by line stars (the band), then, in the same band, by credited percent of plan.
      */
-    public static function compare(float $myLinePoints, float $theirLinePoints, float $myPercent, float $theirPercent): self
+    public static function compare(float $myLineStars, float $theirLineStars, float $myPercent, float $theirPercent): self
     {
-        if ($myLinePoints != $theirLinePoints) {
-            return $myLinePoints > $theirLinePoints ? self::Win : self::Loss;
+        if ($myLineStars != $theirLineStars) {
+            return $myLineStars > $theirLineStars ? self::Win : self::Loss;
         }
 
+        // Credited percents carry hundredths of a percent; compare them exactly at that precision.
+        $mine = (int) round($myPercent * 100);
+        $theirs = (int) round($theirPercent * 100);
+
         return match (true) {
-            $myPercent > $theirPercent => self::CloseWin,
-            $myPercent < $theirPercent => self::CloseLoss,
+            $mine > $theirs => self::CloseWin,
+            $mine < $theirs => self::CloseLoss,
             default => self::Tie,
         };
     }
 
     /**
-     * Match points: 3 for a win, 2 for a close win, 1 for a tie or a close loss, 0 for a loss.
-     * With line points (0–3), a week is worth 0–6.
+     * Matchup stars, from config('goalline.stars.matchup').
      */
     public function points(): int
     {
-        return match ($this) {
-            self::Win => 3,
-            self::CloseWin => 2,
-            self::Tie, self::CloseLoss => 1,
-            self::Loss => 0,
-        };
+        return (int) config('goalline.stars.matchup.'.match ($this) {
+            self::Win => 'win',
+            self::CloseWin => 'photo_finish_win',
+            self::Tie => 'tie',
+            self::CloseLoss, self::Loss => 'loss',
+            self::Bye => 'bye',
+        });
     }
 
     /**
-     * Whether it counts as a win in a W–T–L record.
+     * A W in the record: a win or a photo finish win.
      */
     public function isWin(): bool
     {
@@ -54,7 +64,7 @@ enum MatchupOutcome: string
     }
 
     /**
-     * Whether it counts as a loss in a W–T–L record.
+     * An L in the record: any loss.
      */
     public function isLoss(): bool
     {
@@ -62,11 +72,27 @@ enum MatchupOutcome: string
     }
 
     /**
+     * A D in the record: equal total stars.
+     */
+    public function isDraw(): bool
+    {
+        return $this === self::Tie;
+    }
+
+    /**
+     * Whether the week counts in the W–D–L record at all (byes and solo weeks don't).
+     */
+    public function counts(): bool
+    {
+        return $this !== self::Bye;
+    }
+
+    /**
      * Whether both sides finished in the same band, so credited percent decided it.
      */
     public function isPhotoFinish(): bool
     {
-        return ! in_array($this, [self::Win, self::Loss], true);
+        return in_array($this, [self::CloseWin, self::Tie, self::CloseLoss], true);
     }
 
     /**
@@ -76,22 +102,31 @@ enum MatchupOutcome: string
     {
         return match ($this) {
             self::Win => 'Win',
-            self::CloseWin => 'Close win',
+            self::CloseWin => 'Photo finish win',
             self::Tie => 'Tie',
-            self::CloseLoss => 'Close loss',
-            self::Loss => 'Loss',
+            self::CloseLoss, self::Loss => 'Loss',
+            self::Bye => 'Bye',
         };
     }
 
     /**
-     * One-letter form, as in a W–T–L record.
+     * One-letter form, as in a W–D–L record. Empty for a bye.
      */
     public function letter(): string
     {
         return match (true) {
             $this->isWin() => 'W',
             $this->isLoss() => 'L',
-            default => 'T',
+            $this->isDraw() => 'D',
+            default => '',
         };
+    }
+
+    /**
+     * A friendly line for a tie.
+     */
+    public static function tieEncouragement(): string
+    {
+        return 'You both did the whole plan. Go past the line to pull ahead.';
     }
 }

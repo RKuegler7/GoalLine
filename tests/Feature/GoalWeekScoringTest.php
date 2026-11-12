@@ -69,7 +69,7 @@ class GoalWeekScoringTest extends TestCase
         ];
     }
 
-    public function test_the_full_band_matrix_higher_band_wins_3_to_0_whatever_the_percents(): void
+    public function test_the_full_band_matrix_higher_band_wins_2_to_0_whatever_the_percents(): void
     {
         foreach (GoalWeekResult::cases() as $mine) {
             foreach (GoalWeekResult::cases() as $theirs) {
@@ -85,7 +85,7 @@ class GoalWeekScoringTest extends TestCase
                         $label = "{$mine->value} {$myPercent}% vs {$theirs->value} {$theirPercent}%";
 
                         $this->assertSame($higher ? MatchupOutcome::Win : MatchupOutcome::Loss, $outcome, $label);
-                        $this->assertSame($higher ? 3 : 0, $outcome->points(), $label);
+                        $this->assertSame($higher ? 2 : 0, $outcome->points(), $label);
                         $this->assertFalse($outcome->isPhotoFinish(), $label);
                     }
                 }
@@ -97,24 +97,84 @@ class GoalWeekScoringTest extends TestCase
     {
         foreach (GoalWeekResult::cases() as $band) {
             [$low, $middle, $high] = self::percentsInBand()[$band->value];
-            $points = $band->points();
+            $stars = $band->points();
 
-            $higher = MatchupOutcome::compare($points, $points, $high, $middle);
-            $lower = MatchupOutcome::compare($points, $points, $middle, $high);
-            $equal = MatchupOutcome::compare($points, $points, $low, $low);
+            $higher = MatchupOutcome::compare($stars, $stars, $high, $middle);
+            $lower = MatchupOutcome::compare($stars, $stars, $middle, $high);
+            $equal = MatchupOutcome::compare($stars, $stars, $low, $low);
 
-            $this->assertSame([MatchupOutcome::CloseWin, 2], [$higher, $higher->points()], "{$band->value}: higher percent");
-            $this->assertSame([MatchupOutcome::CloseLoss, 1], [$lower, $lower->points()], "{$band->value}: lower percent");
+            // Only the photo finish winner gets a matchup star; a tie gives both players one.
+            $this->assertSame([MatchupOutcome::CloseWin, 1], [$higher, $higher->points()], "{$band->value}: higher percent");
+            $this->assertSame([MatchupOutcome::CloseLoss, 0], [$lower, $lower->points()], "{$band->value}: lower percent");
             $this->assertSame([MatchupOutcome::Tie, 1], [$equal, $equal->points()], "{$band->value}: exact tie");
             $this->assertTrue($higher->isPhotoFinish() && $lower->isPhotoFinish() && $equal->isPhotoFinish());
-
-            // One whole percent is enough to decide it.
-            $this->assertSame(MatchupOutcome::CloseWin, MatchupOutcome::compare($points, $points, $low + 1, $low));
-            $this->assertSame(MatchupOutcome::CloseLoss, MatchupOutcome::compare($points, $points, $low, $low + 1));
         }
     }
 
-    public function test_weekly_totals_run_from_0_to_6(): void
+    public function test_photo_finishes_compare_at_full_precision(): void
+    {
+        $inLine = GoalWeekResult::InLine->points();
+
+        // 100.4 against 99.6 is not a tie (the old whole-number rule would have floored 99.6 to 99 anyway, but 100.4
+        // against 100.1 both floored to 100 and tied).
+        $this->assertSame(MatchupOutcome::CloseWin, MatchupOutcome::compare($inLine, $inLine, 100.4, 99.6));
+        $this->assertSame(MatchupOutcome::CloseWin, MatchupOutcome::compare($inLine, $inLine, 100.04, 100.01));
+        $this->assertSame(MatchupOutcome::CloseLoss, MatchupOutcome::compare($inLine, $inLine, 99.99, 100.0));
+        $this->assertSame(MatchupOutcome::Tie, MatchupOutcome::compare($inLine, $inLine, 100.0, 100.0));
+
+        // The credited percent keeps hundredths of a percent; an unconfirmed Smashed share is capped at 149.
+        $this->assertSame(100.4, GoalWeekResult::preciseCreditedPercent(1.004));
+        $this->assertSame(99.6, GoalWeekResult::preciseCreditedPercent(0.996));
+        $this->assertSame(149.0, GoalWeekResult::preciseCreditedPercent(1.62, smashVerified: false));
+        $this->assertSame(162.0, GoalWeekResult::preciseCreditedPercent(1.62));
+    }
+
+    /**
+     * @return array<string, array{float, GoalWeekResult}>
+     */
+    public static function boundaries(): array
+    {
+        return [
+            'just short of In line' => [89.99, GoalWeekResult::Short],
+            'In line' => [90.0, GoalWeekResult::InLine],
+            'the plan exactly' => [100.0, GoalWeekResult::InLine],
+            'just past the plan' => [100.01, GoalWeekResult::Past],
+            'just short of Smashed' => [149.99, GoalWeekResult::Past],
+            'Smashed' => [150.0, GoalWeekResult::Smashed],
+        ];
+    }
+
+    #[DataProvider('boundaries')]
+    public function test_band_boundaries(float $percent, GoalWeekResult $band): void
+    {
+        $this->assertSame($band, GoalWeekResult::score($percent / 100));
+    }
+
+    public function test_more_stars_always_wins_and_agrees_with_the_higher_credited_percent(): void
+    {
+        $percents = [0.0, 45.0, 89.99, 90.0, 95.5, 99.6, 100.0, 100.4, 100.41, 125.0, 149.0, 149.99, 150.0, 175.0, 325.0];
+        $band = fn (float $percent) => GoalWeekResult::score($percent / 100);
+
+        foreach ($percents as $mine) {
+            foreach ($percents as $theirs) {
+                $myBand = $band($mine);
+                $theirBand = $band($theirs);
+                $myOutcome = MatchupOutcome::compare($myBand->points(), $theirBand->points(), $mine, $theirs);
+                $theirOutcome = MatchupOutcome::compare($theirBand->points(), $myBand->points(), $theirs, $mine);
+                $myStars = $myBand->points() + $myOutcome->points();
+                $theirStars = $theirBand->points() + $theirOutcome->points();
+                $label = "{$mine}% vs {$theirs}%";
+
+                // The matchup goes to more total stars, equal stars is a draw, and that's always the higher percent.
+                $this->assertSame($mine <=> $theirs, $myStars <=> $theirStars, $label);
+                $this->assertSame($myStars > $theirStars, $myOutcome->isWin(), $label);
+                $this->assertSame($myStars === $theirStars, $myOutcome->isDraw(), $label);
+                $this->assertSame($myStars < $theirStars, $myOutcome->isLoss(), $label);
+            }
+        }
+    }
+
+    public function test_weekly_totals_run_from_0_to_5(): void
     {
         $totals = [];
 
@@ -126,22 +186,31 @@ class GoalWeekScoringTest extends TestCase
             }
         }
 
-        $this->assertSame(0, min($totals), 'Short of the line and lost to a higher band.');
-        $this->assertSame(6, max($totals), 'Smashed the line and beat a lower band.');
-        $this->assertSame(6, GoalWeekResult::Smashed->points() + MatchupOutcome::Win->points());
-        $this->assertSame(5, GoalWeekResult::Smashed->points() + MatchupOutcome::CloseWin->points());
-        $this->assertSame(1, GoalWeekResult::Short->points() + MatchupOutcome::CloseLoss->points());
-        $this->assertSame(0, GoalWeekResult::Short->points() + MatchupOutcome::Loss->points());
+        $this->assertSame(0, min($totals), 'Short of the line and lost.');
+        $this->assertSame(5, max($totals), 'Smashed the line and beat a lower band.');
+        $this->assertSame(5, GoalWeekResult::Smashed->points() + MatchupOutcome::Win->points());
+        $this->assertSame(4, GoalWeekResult::Smashed->points() + MatchupOutcome::CloseWin->points());
+        $this->assertSame(0, GoalWeekResult::Short->points() + MatchupOutcome::CloseLoss->points());
+        $this->assertSame(0, GoalWeekResult::Short->points() + MatchupOutcome::Bye->points(), 'A bye earns line stars only.');
     }
 
     public function test_outcome_labels_and_record_letters(): void
     {
         $this->assertSame(
-            ['Win', 'Close win', 'Tie', 'Close loss', 'Loss'],
+            ['Win', 'Photo finish win', 'Tie', 'Loss', 'Loss', 'Bye'],
             array_map(fn (MatchupOutcome $outcome) => $outcome->label(), MatchupOutcome::cases()),
         );
-        $this->assertSame(['W', 'W', 'T', 'L', 'L'], array_map(fn (MatchupOutcome $outcome) => $outcome->letter(), MatchupOutcome::cases()));
-        $this->assertSame([3, 2, 1, 1, 0], array_map(fn (MatchupOutcome $outcome) => $outcome->points(), MatchupOutcome::cases()));
+        $this->assertSame(['W', 'W', 'D', 'L', 'L', ''], array_map(fn (MatchupOutcome $outcome) => $outcome->letter(), MatchupOutcome::cases()));
+        $this->assertSame([2, 1, 1, 0, 0, 0], array_map(fn (MatchupOutcome $outcome) => $outcome->points(), MatchupOutcome::cases()));
+        $this->assertFalse(MatchupOutcome::Bye->counts());
+    }
+
+    public function test_star_values_all_come_from_one_config(): void
+    {
+        config(['goalline.stars.line.in_line' => 7, 'goalline.stars.matchup.win' => 9]);
+
+        $this->assertSame(7, GoalWeekResult::InLine->points());
+        $this->assertSame(9, MatchupOutcome::Win->points());
     }
 
     public function test_the_league_median_can_be_a_half_point_or_a_half_percent(): void
@@ -329,7 +398,7 @@ class GoalWeekScoringTest extends TestCase
 
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))
-            ->assertSee('GoalWeek points')
+            ->assertSee('GoalWeek stars')
             ->assertSee('In line');
     }
 

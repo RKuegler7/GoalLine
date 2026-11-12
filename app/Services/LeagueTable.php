@@ -27,13 +27,13 @@ class LeagueTable
 
     /**
      * This week's GoalGroups: round-robin pairs that repeat all season.
-     * A member paired with null plays the league median.
+     * A member paired with null has a bye: line stars only.
      *
      * @return list<array{0: LeagueMember, 1: LeagueMember|null}>
      */
     public function pairings(int $week): array
     {
-        // Late joiners play from the week they joined. In that first week they play the league median, so nobody's
+        // Late joiners play from the week they joined. In that first week they have a bye (line stars only), so nobody's
         // matchup already under way changes; from the next week on they're in the rotation like everyone else.
         $newcomers = $this->league->members->filter(fn (LeagueMember $member) => $member->joined_week !== null && $member->joined_week === $week);
         $members = $this->league->members->filter(fn (LeagueMember $member) => $member->joined_week === null || $member->joined_week < $week)->values()->all();
@@ -52,7 +52,7 @@ class LeagueTable
     }
 
     /**
-     * Round-robin pairs for a list of members, by the circle method. An odd count gets a seat against the median.
+     * Round-robin pairs for a list of members, by the circle method. An odd count gives one member a bye.
      *
      * @param  list<LeagueMember>  $members
      * @return list<array{0: LeagueMember, 1: LeagueMember|null}>
@@ -87,9 +87,10 @@ class LeagueTable
     /**
      * A member's GoalWeek result for a league week: the GoalWeek of their league goal containing that week's Sunday.
      *
-     * The percent is the credited percent of plan as a whole number, which settles a photo finish in the same band.
+     * "percent" is the credited percent of plan as a whole number, for display; "precise" is the same at full
+     * precision (hundredths), which settles a photo finish in the same band.
      *
-     * @return array{result: GoalWeekResult|null, points: int, percent: int, final: bool, goalWeek: RoadmapWeek|null}
+     * @return array{result: GoalWeekResult|null, points: int, percent: int, precise: float, final: bool, goalWeek: RoadmapWeek|null}
      */
     public function memberResult(LeagueMember $member, int $week): array
     {
@@ -102,6 +103,7 @@ class LeagueTable
                 'result' => null,
                 'points' => 0,
                 'percent' => 0,
+                'precise' => 0.0,
                 'final' => $sunday->copy()->addDays(RoadmapWeek::CHECK_IN_GRACE_DAYS)->lt(Clock::today()),
                 'goalWeek' => null,
             ];
@@ -113,6 +115,7 @@ class LeagueTable
             'result' => $result,
             'points' => $result?->points() ?? 0,
             'percent' => $goalWeek->creditedPercent(),
+            'precise' => $goalWeek->preciseCreditedPercent(),
             'final' => $goalWeek->isLocked(),
             'goalWeek' => $goalWeek,
         ];
@@ -120,8 +123,8 @@ class LeagueTable
 
     /**
      * Every GoalGroup matchup for a league week, scored live until the week is final. The higher band wins; in the
-     * same band, the higher credited percent of plan wins a photo finish. A member without an opponent plays the
-     * league median: the middle line points, and in a photo finish the middle credited percent.
+     * same band, the higher credited percent of plan (at full precision) wins a photo finish, and exactly equal is a
+     * tie. A member without an opponent has a bye: line stars only. The league median is kept for display.
      *
      * @return list<array{home: LeagueMember, away: LeagueMember|null, homeResult: array, awayResult: array|null, median: float|null, medianPercent: float|null, homeOutcome: MatchupOutcome, awayOutcome: MatchupOutcome|null}>
      */
@@ -142,9 +145,9 @@ class LeagueTable
                     'homeResult' => $homeResult, 'awayResult' => null,
                     'median' => $median,
                     'medianPercent' => $medianPercent,
-                    'homeOutcome' => $median === null
-                        ? MatchupOutcome::Tie
-                        : MatchupOutcome::compare($homeResult['points'], $median, $homeResult['percent'], $medianPercent),
+                    // A bye (or a solo week against the line): line stars only, no win, draw or loss. The league
+                    // median is still shown for context.
+                    'homeOutcome' => MatchupOutcome::Bye,
                     'awayOutcome' => null,
                 ];
             }
@@ -156,8 +159,8 @@ class LeagueTable
                 'homeResult' => $homeResult, 'awayResult' => $awayResult,
                 'median' => null,
                 'medianPercent' => null,
-                'homeOutcome' => MatchupOutcome::compare($homeResult['points'], $awayResult['points'], $homeResult['percent'], $awayResult['percent']),
-                'awayOutcome' => MatchupOutcome::compare($awayResult['points'], $homeResult['points'], $awayResult['percent'], $homeResult['percent']),
+                'homeOutcome' => MatchupOutcome::compare($homeResult['points'], $awayResult['points'], $homeResult['precise'], $awayResult['precise']),
+                'awayOutcome' => MatchupOutcome::compare($awayResult['points'], $homeResult['points'], $awayResult['precise'], $homeResult['precise']),
             ];
         })->all();
     }
@@ -276,14 +279,16 @@ class LeagueTable
             $week,
             $leaders->join(', ', ' and '),
             $best,
-            $best === 1 ? 'point' : 'points',
+            $best === 1 ? 'star' : 'stars',
         ));
     }
 
     /**
-     * The league table: total points (GoalWeek result points plus matchup points), then result points, then wins.
+     * The league table: total stars (line stars plus matchup stars), then line stars, then Past-the-Line weeks (Past
+     * the line or Smashed). The record is W–D–L: wins and photo finish wins are W, ties are D, losses are L; byes and
+     * solo weeks don't count in it. ("ties" holds the draws.)
      *
-     * @return Collection<int, array{member: LeagueMember, played: int, wins: int, ties: int, losses: int, resultPoints: int, matchupPoints: int, total: int}>
+     * @return Collection<int, array{member: LeagueMember, played: int, wins: int, ties: int, losses: int, pastWeeks: int, resultPoints: int, matchupPoints: int, total: int}>
      */
     public function standings(): Collection
     {
@@ -297,19 +302,20 @@ class LeagueTable
                     'member' => $member,
                     'played' => $mine->count(),
                     'wins' => $mine->filter(fn ($result) => $result->outcome->isWin())->count(),
-                    'ties' => $mine->where('outcome', MatchupOutcome::Tie)->count(),
+                    'ties' => $mine->filter(fn ($result) => $result->outcome->isDraw())->count(),
                     'losses' => $mine->filter(fn ($result) => $result->outcome->isLoss())->count(),
+                    'pastWeeks' => $mine->filter(fn ($result) => in_array($result->result, [GoalWeekResult::Past, GoalWeekResult::Smashed], true))->count(),
                     'resultPoints' => (int) $mine->sum('result_points'),
                     'matchupPoints' => (int) $mine->sum('matchup_points'),
                     'total' => (int) $mine->sum('result_points') + (int) $mine->sum('matchup_points'),
                 ];
             })
-            ->sort(fn (array $a, array $b) => [$b['total'], $b['resultPoints'], $b['wins']] <=> [$a['total'], $a['resultPoints'], $a['wins']])
+            ->sort(fn (array $a, array $b) => [$b['total'], $b['resultPoints'], $b['pastWeeks']] <=> [$a['total'], $a['resultPoints'], $a['pastWeeks']])
             ->values();
     }
 
     /**
-     * The middle value of everyone else's line points (or credited percents), or null if nobody else played.
+     * The middle value of everyone else's line stars (or credited percents), shown on a bye week; null if nobody else played.
      *
      * @param  Collection<int, int>  $points
      */

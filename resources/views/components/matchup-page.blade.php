@@ -130,10 +130,10 @@
                             @endif
                         </p>
                     @endif
-                    <p class="mt-1 font-semibold text-ink">{{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('pt', $side['total']) }}</p>
-                    <p class="tabular-nums text-ink/70">{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} match &middot; {{ $side['outcome']->label() }}</p>
+                    <p class="mt-1 font-semibold text-ink">{{ $final ? '' : 'if it ended now, ' }}+<span data-countup="{{ $side['total'] }}" data-key="total-{{ $side['member']->id }}">{{ $side['total'] }}</span> {{ Str::plural('star', $side['total']) }}</p>
+                    <p class="tabular-nums text-ink/70">{{ $side['linePoints'] }} line + {{ $side['matchPoints'] }} matchup &middot; {{ $side['outcome']->label() }}</p>
                     @if ($side['held'] > 0)
-                        <p class="mt-0.5 text-[11px] text-ink/70">{{ $side['held'] }} {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
+                        <p class="mt-0.5 text-[11px] text-ink/70">{{ $side['held'] }} plan {{ Str::plural('point', $side['held']) }} held while a dispute is settled</p>
                     @endif
                 </div>
             @endforeach

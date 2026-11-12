@@ -9,8 +9,8 @@ use App\Models\RoadmapWeek;
 
 /**
  * The scoring rules in a form a page can show, read from the same code that scores every GoalWeek: the band
- * thresholds and line points in GoalWeekResult, the match points in MatchupOutcome, and the milestone's points in
- * RoadmapWeek. The worked example is run through the real scoring functions, so the About page can't drift from
+ * thresholds in GoalWeekResult, the star values in config('goalline.stars') (read by GoalWeekResult and
+ * MatchupOutcome), and the milestone's points in RoadmapWeek. The worked example is run through the real scoring functions, so the About page can't drift from
  * the code.
  */
 class ScoringRules
@@ -98,18 +98,17 @@ class ScoringRules
     }
 
     /**
-     * The five matchup outcomes and their match points, best first.
+     * The matchup outcomes and their matchup stars, best first. Any loss is 0; a tie gives both players its stars.
      *
      * @return list<array{outcome: MatchupOutcome, label: string, points: int, when: string}>
      */
     public function outcomes(): array
     {
         $when = [
-            MatchupOutcome::Win->value => 'Your band is higher',
-            MatchupOutcome::CloseWin->value => 'Same band, your percent of plan is higher (photo finish)',
-            MatchupOutcome::Tie->value => 'Same band, exactly the same percent',
-            MatchupOutcome::CloseLoss->value => 'Same band, their percent is higher (photo finish)',
-            MatchupOutcome::Loss->value => 'Their band is higher',
+            MatchupOutcome::Win->value => 'Your band is higher than theirs',
+            MatchupOutcome::CloseWin->value => 'Same band, your credited percent is higher (photo finish)',
+            MatchupOutcome::Tie->value => 'Same band, exactly the same credited percent: both players get it',
+            MatchupOutcome::Loss->value => 'Any loss',
         ];
 
         return array_map(fn (MatchupOutcome $outcome) => [
@@ -117,11 +116,11 @@ class ScoringRules
             'label' => $outcome->label(),
             'points' => $this->matchPoints($outcome),
             'when' => $when[$outcome->value],
-        ], [MatchupOutcome::Win, MatchupOutcome::CloseWin, MatchupOutcome::Tie, MatchupOutcome::CloseLoss, MatchupOutcome::Loss]);
+        ], [MatchupOutcome::Win, MatchupOutcome::CloseWin, MatchupOutcome::Tie, MatchupOutcome::Loss]);
     }
 
     /**
-     * The lowest and highest a GoalWeek can be worth in a league: line points plus match points.
+     * The fewest and most stars a GoalWeek can be worth in a league: line stars plus matchup stars.
      *
      * @return array{min: int, max: int}
      */
@@ -140,7 +139,7 @@ class ScoringRules
      */
     public function tableOrder(): array
     {
-        return ['Total points (line points plus match points)', 'Then line points', 'Then wins'];
+        return ['Total stars (line stars plus matchup stars)', 'Then line stars', 'Then Past-the-Line weeks (Past the line or Smashed)'];
     }
 
     /**
@@ -209,6 +208,7 @@ class ScoringRules
             'planned' => $planned,
             'earned' => $earned,
             'percent' => GoalWeekResult::creditedPercent($share),
+            'precise' => GoalWeekResult::preciseCreditedPercent($share),
             'result' => $result,
             'closeCall' => $result === GoalWeekResult::InLine && GoalWeekResult::creditedPercent($share) < $this->closeCallBelow(),
             'linePoints' => $this->linePoints($result),
@@ -232,7 +232,7 @@ class ScoringRules
      */
     private function against(array $side, array $other): array
     {
-        $side['outcome'] = MatchupOutcome::compare($side['linePoints'], $other['linePoints'], $side['percent'], $other['percent']);
+        $side['outcome'] = MatchupOutcome::compare($side['linePoints'], $other['linePoints'], $side['precise'], $other['precise']);
         $side['matchPoints'] = $this->matchPoints($side['outcome']);
         $side['total'] = $side['linePoints'] + $side['matchPoints'];
 

@@ -52,13 +52,13 @@ class AboutPageTest extends TestCase
             $this->assertMatchesRegularExpression('/data-band="'.$result->value.'".*?>'.$result->points().'<\/td>/s', $response->getContent());
         }
 
-        foreach (MatchupOutcome::cases() as $outcome) {
-            $this->assertMatchesRegularExpression('/data-outcome="'.$outcome->value.'".*?'.$outcome->points().' pts?</s', $response->getContent());
+        foreach ([MatchupOutcome::Win, MatchupOutcome::CloseWin, MatchupOutcome::Tie, MatchupOutcome::Loss] as $outcome) {
+            $this->assertMatchesRegularExpression('/data-outcome="'.$outcome->value.'".*?'.$outcome->points().' stars?</s', $response->getContent());
         }
 
         $max = max(array_map(fn (GoalWeekResult $result) => $result->points(), GoalWeekResult::cases()))
             + max(array_map(fn (MatchupOutcome $outcome) => $outcome->points(), MatchupOutcome::cases()));
-        $response->assertSee('0 to '.$max.' points');
+        $response->assertSee('0 to '.$max.' stars');
     }
 
     public function test_changing_a_scoring_rule_changes_the_page(): void
@@ -80,7 +80,7 @@ class AboutPageTest extends TestCase
             ->assertSee('under 85%')
             ->assertSee('85% to 100%')
             ->assertDontSee('under 90%')
-            ->assertSee('0 to 7 points');
+            ->assertSee('0 to 6 stars');
     }
 
     public function test_the_worked_example_is_scored_by_the_real_rules(): void
@@ -93,7 +93,7 @@ class AboutPageTest extends TestCase
         $this->assertSame($avery['linePoints'] + $avery['outcome']->points(), $avery['total']);
         $this->assertTrue($example['photoFinish'], 'The example shows a photo finish.');
 
-        $this->get(route('about'))->assertSee('Weekly points explained')
+        $this->get(route('about'))->assertSee('Weekly stars explained')
             ->assertSee($avery['earned'].' &divide; '.$avery['planned'].' = <strong>'.$avery['percent'].'%</strong>', false)
             ->assertSee('Week total: '.$sam['linePoints'].' + '.$sam['matchPoints'].' = '.$sam['total']);
     }

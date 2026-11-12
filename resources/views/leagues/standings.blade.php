@@ -27,10 +27,10 @@
                 <h2 id="league-stats" class="eyebrow px-3 pt-2.5 text-club">Season so far</h2>
                 <dl class="grid grid-cols-2 gap-px bg-line sm:grid-cols-3" data-league-summary>
                     @foreach (array_filter([
-                        $summary['leader'] ? ['Leader', $first($summary['leader']['member']), $summary['leader']['total'].' pts'] : null,
+                        $summary['leader'] ? ['Leader', $first($summary['leader']['member']), $summary['leader']['total'].' '.Str::plural('star', $summary['leader']['total'])] : null,
                         ['Avg % of plan', ($summary['avgPercent'] ?? '–').'%', 'everyone, every week'],
                         $summary['longestOnLine'] ? ['Longest on the line', $summary['longestOnLine']['weeks'].' '.Str::plural('wk', $summary['longestOnLine']['weeks']), $first($summary['longestOnLine']['member'])] : null,
-                        $summary['bestWeek'] ? ['Best week', $summary['bestWeek']['points'].' pts', $first($summary['bestWeek']['member']).', week '.$summary['bestWeek']['week'].' ('.$summary['bestWeek']['percent'].'%)'] : null,
+                        $summary['bestWeek'] ? ['Best week', $summary['bestWeek']['points'].' '.Str::plural('star', $summary['bestWeek']['points']), $first($summary['bestWeek']['member']).', week '.$summary['bestWeek']['week'].' ('.$summary['bestWeek']['percent'].'%)'] : null,
                         $summary['mostSmashed'] ? ['Most Smashed', $summary['mostSmashed']['count'].' '.Str::plural('week', $summary['mostSmashed']['count']), $first($summary['mostSmashed']['member'])] : null,
                         ['Weeks left', $summary['weeksRemaining'], 'of '.$league->weeksCount()],
                     ]) as [$label, $value, $note])

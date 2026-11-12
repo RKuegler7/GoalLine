@@ -46,7 +46,7 @@ class LeagueResult extends Model
     }
 
     /**
-     * The opponent faced, or null when playing the league median.
+     * The opponent faced, or null for a bye (line stars only).
      *
      * @return BelongsTo<User, $this>
      */

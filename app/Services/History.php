@@ -161,12 +161,16 @@ class History
     }
 
     /**
-     * The match result's words, like "Close win vs Red".
+     * The match result's words, like "Photo finish win vs Red", or "Bye".
      */
     public static function matchLabel(LeagueResult $result): string
     {
+        if ($result->outcome === MatchupOutcome::Bye || $result->vs_median) {
+            return 'Bye';
+        }
+
         $outcome = $result->outcome instanceof MatchupOutcome ? $result->outcome->label() : (string) $result->outcome;
-        $against = $result->vs_median ? 'the league median' : ($result->opponent ? str($result->opponent->name)->before(' ') : 'a former member');
+        $against = $result->opponent ? str($result->opponent->name)->before(' ') : 'a former member';
 
         return "{$outcome} vs {$against}";
     }

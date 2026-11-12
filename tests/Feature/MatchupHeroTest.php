@@ -59,7 +59,7 @@ class MatchupHeroTest extends TestCase
     {
         $bye = $this->league(['Ann One', 'Bea Two', 'Cy Three']);
         $page = $this->actingAs($bye->commissioner)->get(route('leagues.matchups', $bye))->assertOk()->getContent();
-        $this->assertStringContainsString('League median', $page);
+        $this->assertStringContainsString('Line stars only', $page);
         $this->assertStringContainsString('Bye week', $page);
 
         $solo = $this->league(['Dee Solo']);

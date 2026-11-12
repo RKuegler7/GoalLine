@@ -52,7 +52,7 @@ class SeasonRecap
         $awards[] = [
             'badge' => Badge::Champion,
             'member' => $champion['member'],
-            'detail' => "{$champion['total']} points, {$champion['wins']}–{$champion['ties']}–{$champion['losses']}",
+            'detail' => "{$champion['total']} stars, {$champion['wins']}–{$champion['ties']}–{$champion['losses']}",
         ];
 
         // The rest go to whoever leads each category; ties go to the higher finish in the table.
@@ -65,7 +65,7 @@ class SeasonRecap
         };
 
         if ($mvp = $leader(fn (LeagueMember $member) => (int) $results->get($member->user_id, collect())->sum('result_points'), 1)) {
-            $awards[] = ['badge' => Badge::Mvp, 'member' => $mvp['member'], 'detail' => $mvp['score'].' GoalWeek '.str('point')->plural($mvp['score'])];
+            $awards[] = ['badge' => Badge::Mvp, 'member' => $mvp['member'], 'detail' => $mvp['score'].' line '.str('star')->plural($mvp['score'])];
         }
 
         $weeks = $this->league->weeksCount();
@@ -170,16 +170,17 @@ class SeasonRecap
                 continue;
             }
 
-            $opponent = $mine->vs_median ? 'the league median' : ($this->member($mine->opponent_id)?->user->name ?? 'a former member');
+            $opponent = $this->member($mine->opponent_id)?->user->name ?? 'a former member';
             $verb = match ($mine->outcome) {
-                MatchupOutcome::Win => 'you beat',
-                MatchupOutcome::CloseWin => 'a photo finish, and you edged',
-                MatchupOutcome::Tie => 'a photo finish, and you tied',
-                MatchupOutcome::CloseLoss => 'a photo finish, and you just missed against',
-                MatchupOutcome::Loss => 'you lost to',
+                MatchupOutcome::Win => "you beat {$opponent}",
+                MatchupOutcome::CloseWin => "a photo finish, and you edged {$opponent}",
+                MatchupOutcome::Tie => "a photo finish, and you tied {$opponent}",
+                MatchupOutcome::CloseLoss => "a photo finish, and {$opponent} just edged you",
+                MatchupOutcome::Loss => "you lost to {$opponent}",
+                MatchupOutcome::Bye => 'a bye week, line stars only',
             };
-            $points = $mine->result_points + $mine->matchup_points;
-            $text = "{$this->league->name} week {$week} is final: {$verb} {$opponent}, +{$points} ".str('point')->plural($points).'.';
+            $stars = $mine->result_points + $mine->matchup_points;
+            $text = "{$this->league->name} week {$week} is final: {$verb}, +{$stars} ".str('star')->plural($stars).'.';
 
             if ($playerNames !== '') {
                 $text .= ' Player of the Week: '.($recap['players']->contains(fn (LeagueMember $player) => $player->is($member)) && $recap['players']->count() === 1 ? 'you!' : $playerNames.'.');

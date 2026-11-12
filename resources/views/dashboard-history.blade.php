@@ -58,7 +58,7 @@
                             <div class="flex items-center justify-between gap-3">
                                 <a href="{{ route('goals.show', $row['goal']) }}" class="min-w-0">
                                     <span class="block truncate text-[15px] font-semibold text-ink hover:text-club hover:underline">{{ $row['goal']->title }}</span>
-                                    <span class="block text-xs text-ink/70">{{ $row['label'] }} &middot; {{ $row['on']?->format('M j, Y') }} &middot; {{ $row['goal']->points() }} {{ Str::plural('point', $row['goal']->points()) }}</span>
+                                    <span class="block text-xs text-ink/70">{{ $row['label'] }} &middot; {{ $row['on']?->format('M j, Y') }} &middot; {{ $row['goal']->points() }} {{ Str::plural('star', $row['goal']->points()) }}</span>
                                 </a>
                                 <span @class([
                                     'eyebrow shrink-0 rounded-full px-2 py-0.5 text-[11px]',
@@ -101,7 +101,7 @@
                                     @if ($row['result'])
                                         <x-goalweek-result :result="$row['result']" compact />
                                     @endif
-                                    <span class="text-xs text-ink/75 tabular-nums">{{ $row['percent'] }}% &middot; <span class="font-semibold text-ink">{{ $row['weeklyPoints'] }} {{ Str::plural('pt', $row['weeklyPoints']) }}</span></span>
+                                    <span class="text-xs text-ink/75 tabular-nums">{{ $row['percent'] }}% &middot; <span class="font-semibold text-ink">{{ $row['weeklyPoints'] }} {{ Str::plural('star', $row['weeklyPoints']) }}</span></span>
                                 </span>
                                 <x-icon name="chevron-right" class="size-4 shrink-0 text-ink/50" />
                             </a>

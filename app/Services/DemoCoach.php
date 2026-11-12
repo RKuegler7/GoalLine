@@ -94,7 +94,7 @@ class DemoCoach
 
         return "Demo coach: {$facts['check_ins']} ".Str::plural('check-in', $facts['check_ins'])
             ." across {$facts['active_days']} ".Str::plural('day', $facts['active_days']).' is what showing up looks like. '
-            .($facts['line_points'] > 0 ? "Those reps earned {$facts['line_points']} line ".Str::plural('point', $facts['line_points']).'. ' : '')
+            .($facts['line_points'] > 0 ? "Those reps earned {$facts['line_points']} line ".Str::plural('star', $facts['line_points']).'. ' : '')
             .'Keep stacking days, one more on the line.';
     }
 

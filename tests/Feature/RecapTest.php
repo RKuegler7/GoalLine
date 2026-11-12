@@ -76,8 +76,8 @@ class RecapTest extends TestCase
         $awards = collect((new SeasonRecap($this->league, new LeagueTable($this->league)))->awards())
             ->mapWithKeys(fn (array $award) => [$award['badge']->value => [$award['member']->user->name, $award['detail']]]);
 
-        $this->assertSame(['Avery', '16 points, 4–0–0'], $awards[Badge::Champion->value]);
-        $this->assertSame(['Blake', '6 GoalWeek points'], $awards[Badge::Mvp->value]);
+        $this->assertSame(['Avery', '12 stars, 4–0–0'], $awards[Badge::Champion->value]);
+        $this->assertSame(['Blake', '6 line stars'], $awards[Badge::Mvp->value]);
         $this->assertSame(['Casey', 'Climbed from 4th to 2nd'], $awards[Badge::ComebackPlayer->value]);
         $this->assertSame(['Avery', '4 GoalWeeks in line in a row'], $awards[Badge::IronStreak->value]);
         $this->assertSame(['Blake', '2 smashed GoalWeeks'], $awards[Badge::SmashMachine->value]);
@@ -129,8 +129,8 @@ class RecapTest extends TestCase
 
         (new SeasonRecap($this->league, new LeagueTable($this->league)))->notifyWeek(4);
 
-        Notification::assertSentTo($this->people['Casey'], LeagueRecap::class, fn (LeagueRecap $recap) => $recap->text === 'Launch Crew week 4 is final: you beat Avery, +5 points. Player of the Week: you!');
-        Notification::assertSentTo($this->people['Drew'], LeagueRecap::class, fn (LeagueRecap $recap) => $recap->text === 'Launch Crew week 4 is final: you lost to Avery, +0 points. Player of the Week: Casey.');
+        Notification::assertSentTo($this->people['Casey'], LeagueRecap::class, fn (LeagueRecap $recap) => $recap->text === 'Launch Crew week 4 is final: you beat Avery, +4 stars. Player of the Week: you!');
+        Notification::assertSentTo($this->people['Drew'], LeagueRecap::class, fn (LeagueRecap $recap) => $recap->text === 'Launch Crew week 4 is final: you lost to Avery, +0 stars. Player of the Week: Casey.');
     }
 
     public function test_a_photo_finish_week_says_so_in_the_recap(): void
@@ -140,6 +140,6 @@ class RecapTest extends TestCase
         (new SeasonRecap($this->league, new LeagueTable($this->league)))->notifyWeek(1);
 
         // Blake and Avery shared a band in week 1 and tied on credited percent: 3 line + 1 match.
-        Notification::assertSentTo($this->people['Blake'], LeagueRecap::class, fn (LeagueRecap $recap) => str_starts_with($recap->text, 'Launch Crew week 1 is final: a photo finish, and you tied Avery, +4 points.'));
+        Notification::assertSentTo($this->people['Blake'], LeagueRecap::class, fn (LeagueRecap $recap) => str_starts_with($recap->text, 'Launch Crew week 1 is final: a photo finish, and you tied Avery, +4 stars.'));
     }
 }

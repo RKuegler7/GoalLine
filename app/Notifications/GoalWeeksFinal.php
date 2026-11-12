@@ -36,8 +36,8 @@ class GoalWeeksFinal extends GoalLineNotification
 
         return [
             'text' => count($this->results) === 1
-                ? "{$first['week']} of \u{201C}{$first['goal']}\u{201D} is final: {$first['result']}, {$first['points']} ".str('point')->plural($first['points']).'.'
-                : 'Last GoalWeek is final: '.$points.' '.str('point')->plural($points).' across '.count($this->results).' goals.',
+                ? "{$first['week']} of \u{201C}{$first['goal']}\u{201D} is final: {$first['result']}, {$first['points']} line ".str('star')->plural($first['points']).'.'
+                : 'Last GoalWeek is final: '.$points.' line '.str('star')->plural($points).' across '.count($this->results).' goals.',
             'url' => count($this->results) === 1 ? $first['url'] : route('dashboard'),
         ];
     }
@@ -48,7 +48,7 @@ class GoalWeeksFinal extends GoalLineNotification
 
         if (count($this->results) > 1) {
             foreach ($this->results as $result) {
-                $mail->line("**{$result['goal']}**: {$result['result']}, {$result['points']} ".str('point')->plural($result['points']));
+                $mail->line("**{$result['goal']}**: {$result['result']}, {$result['points']} line ".str('star')->plural($result['points']));
             }
         }
 

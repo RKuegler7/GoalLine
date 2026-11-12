@@ -15,7 +15,7 @@
                 @foreach ([
                     ['Check-ins', $recap->checkIns(), 'tasks, habits, and challenges'],
                     ['Active days', $recap->activeDays().'/7', $best ? 'best: '.$best['date']->format('l').' ('.$best['count'].')' : 'every day counts'],
-                    ['Points', $points, 'from your GoalWeeks'],
+                    ['Stars', $points, 'from your GoalWeeks'],
                     ['Streak', $recap->streak(), Str::plural('day', $recap->streak()).' in a row'],
                 ] as [$label, $value, $note])
                     <div class="rounded-xl bg-ivory/10 px-4 py-3 ring-1 ring-ivory/15 ring-inset">
@@ -112,7 +112,7 @@
                         <li>You asked about {{ $fair['opened'] }} {{ Str::plural('check-in', $fair['opened']) }}. Thanks for keeping the league honest.</li>
                     @endif
                     @if ($fair['held'] > 0)
-                        <li>{{ $fair['held'] }} {{ Str::plural('point', $fair['held']) }} {{ $fair['held'] == 1 ? 'is' : 'are' }} waiting on a dispute. Settle it and your week re-scores on its own.</li>
+                        <li>{{ $fair['held'] }} plan {{ Str::plural('point', $fair['held']) }} {{ $fair['held'] == 1 ? 'is' : 'are' }} waiting on a dispute. Settle it and your week re-scores on its own.</li>
                     @endif
                 </ul>
             </section>

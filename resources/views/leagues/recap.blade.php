@@ -21,7 +21,7 @@
                             <li class="flex flex-col items-center text-center" style="order: {{ [1 => 0, 0 => 1, 2 => 2][$place] }}">
                                 <x-avatar :user="$row['member']->user" tone="light" :class="Arr::toCssClasses(['text-sm ring-4', 'size-20 ring-gold' => $place === 0, 'size-14 ring-ivory/40' => $place !== 0])" />
                                 <span class="mt-2 max-w-full truncate text-sm font-semibold text-ivory">{{ $row['member']->user->name }}</span>
-                                <span class="text-xs text-ivory/85 tabular-nums">{{ $row['total'] }} pts</span>
+                                <span class="text-xs text-ivory/85 tabular-nums">{{ $row['total'] }} {{ Str::plural('star', $row['total']) }}</span>
                                 <span @class([
                                     'mt-2 flex w-full items-start justify-center rounded-t-xl pt-2 font-serif text-2xl font-medium',
                                     'h-24 bg-gold text-ink' => $place === 0,
@@ -73,9 +73,9 @@
                         <tr class="border-b border-line">
                             <th class="px-4 py-2 font-semibold">#</th>
                             <th class="px-4 py-2 font-semibold">Member</th>
-                            <th class="px-4 py-2 text-right font-semibold">W&ndash;T&ndash;L</th>
-                            <th class="px-4 py-2 text-right font-semibold">Result pts</th>
-                            <th class="px-4 py-2 text-right font-semibold">Total</th>
+                            <th class="px-4 py-2 text-right font-semibold">W&ndash;D&ndash;L</th>
+                            <th class="px-4 py-2 text-right font-semibold">Line stars</th>
+                            <th class="px-4 py-2 text-right font-semibold">Stars</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-line">
@@ -142,13 +142,7 @@
                                             <span @class(['block truncate', 'font-semibold text-ink' => $away->outcome->isWin(), 'text-ink/75' => ! $away->outcome->isWin()])>{{ $nameOf($away->user_id) }}</span>
                                             <x-goalweek-result :result="$away->result" class="mt-1" />
                                         @else
-                                            <span class="block font-semibold text-ink/70">{{ match ($home->outcome) {
-                                                App\MatchupOutcome::Win => 'Beat the league',
-                                                App\MatchupOutcome::CloseWin => 'Edged the league',
-                                                App\MatchupOutcome::Tie => 'Matched the league',
-                                                App\MatchupOutcome::CloseLoss => 'Just behind the league',
-                                                App\MatchupOutcome::Loss => 'Below the league',
-                                            } }}</span>
+                                            <span class="block font-semibold text-ink/70">Bye: line stars only</span>
                                         @endif
                                     </span>
                                 </li>

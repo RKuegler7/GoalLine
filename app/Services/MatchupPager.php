@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 /**
  * The matchup pager, fantasy-football style: one page per matchup in a league week, the viewer's first. Each page
- * has a scoreboard (record, live percent, band, projected band, points if the week ended now, days left) and, where
+ * has a scoreboard (record, live percent, band, projected band, stars if the week ended now, days left) and, where
  * the players would be, each side's tasks for the week grouped by day. All the numbers are worked out here; the
  * view only shows them. Only what the viewer is allowed to see is included: proof photos open for the check-in's
  * owner, their matchup opponent and the league owner, and related posts follow the post's own visibility.
@@ -125,7 +125,7 @@ class MatchupPager
     }
 
     /**
-     * The member's W–T–L record in this league, from settled weeks. Close wins count as wins, close losses as losses.
+     * The member's W–D–L record in this league, from settled weeks. Photo finish wins count as wins; byes don't count.
      *
      * @return array{wins: int, ties: int, losses: int}
      */

@@ -1,4 +1,4 @@
-{{-- The scoring sheet: how a GoalWeek is scored, in order: one sentence, the four bands, match points and the photo
+{{-- The scoring sheet: how a GoalWeek is scored, in order: one sentence, the four bands, matchup stars and the photo
      finish, the week total, the table's tiebreakers, and an example from your own league results when there is one.
      Every number comes from App\Services\ScoringRules, which reads the scoring code, so this can't drift from the
      real rules. Closes with the X, a tap outside, a swipe down or Back (sheets.js). --}}
@@ -35,7 +35,7 @@
         <section aria-labelledby="scoring-bands">
             <h3 id="scoring-bands" class="eyebrow text-[11px] text-club">Bands</h3>
             <table class="mt-1.5 w-full text-left text-[13px]" data-scoring-bands>
-                <thead class="text-[11px] text-ink/70"><tr><th scope="col" class="py-1 font-semibold">Band</th><th scope="col" class="py-1 font-semibold">Percent of plan</th><th scope="col" class="py-1 text-right font-semibold">Line points</th></tr></thead>
+                <thead class="text-[11px] text-ink/70"><tr><th scope="col" class="py-1 font-semibold">Band</th><th scope="col" class="py-1 font-semibold">Percent of plan</th><th scope="col" class="py-1 text-right font-semibold">Line stars</th></tr></thead>
                 <tbody class="divide-y divide-line">
                     @foreach ($bands as $band)
                         <tr data-band="{{ $band['result']->value }}">
@@ -50,7 +50,7 @@
         </section>
 
         <section aria-labelledby="scoring-match">
-            <h3 id="scoring-match" class="eyebrow text-[11px] text-club">Match points</h3>
+            <h3 id="scoring-match" class="eyebrow text-[11px] text-club">Matchup stars</h3>
             <table class="mt-1.5 w-full text-left text-[13px]" data-scoring-outcomes>
                 <tbody class="divide-y divide-line">
                     @foreach ($outcomes as $outcome)
@@ -62,19 +62,19 @@
                     @endforeach
                 </tbody>
             </table>
-            <p class="mt-1 text-xs text-ink/70"><span class="font-semibold text-ink">Photo finish:</span> both players in the same band. The higher credited percent of plan (a whole number) wins it.</p>
+            <p class="mt-1 text-xs text-ink/70"><span class="font-semibold text-ink">Photo finish:</span> both players in the same band. The higher credited percent of plan wins it, compared exactly; only truly equal percents tie.</p>
         </section>
 
         <section aria-labelledby="scoring-week">
             <h3 id="scoring-week" class="eyebrow text-[11px] text-club">Your week</h3>
-            <p class="mt-1" data-week-range>Line points plus match points: {{ $range['min'] }} to {{ $range['max'] }} points a week.</p>
+            <p class="mt-1" data-week-range>Line stars plus matchup stars: {{ $range['min'] }} to {{ $range['max'] }} stars a week. More stars wins the matchup; equal stars is a draw. Byes earn line stars only.</p>
             <p class="mt-1 text-ink/80"><span class="font-semibold">The table:</span> {{ implode(', ', array_map('lcfirst', $rules->tableOrder())) }}.</p>
             @if ($latest && $latest->outcome)
                 <p class="mt-2 rounded-lg bg-white px-3 py-2 text-[13px] ring-1 ring-line" data-scoring-example>
                     <span class="font-semibold">Your latest league week, week {{ $latest->week }}:</span>
-                    {{ $latest->result?->label() ?? 'No GoalWeek' }} ({{ $latest->result_points }} line {{ Str::plural('point', $latest->result_points) }})
-                    + {{ $latest->outcome->label() }} ({{ $latest->matchup_points }} match {{ Str::plural('point', $latest->matchup_points) }})
-                    = <span class="font-semibold">{{ $latest->result_points + $latest->matchup_points }} {{ Str::plural('point', $latest->result_points + $latest->matchup_points) }}</span>.
+                    {{ $latest->result?->label() ?? 'No GoalWeek' }} ({{ $latest->result_points }} line {{ Str::plural('star', $latest->result_points) }})
+                    + {{ $latest->outcome->label() }} ({{ $latest->matchup_points }} matchup {{ Str::plural('star', $latest->matchup_points) }})
+                    = <span class="font-semibold">{{ $latest->result_points + $latest->matchup_points }} {{ Str::plural('star', $latest->result_points + $latest->matchup_points) }}</span>.
                 </p>
             @endif
         </section>

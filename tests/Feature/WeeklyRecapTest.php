@@ -54,7 +54,7 @@ class WeeklyRecapTest extends TestCase
         $this->assertSame(1, $recap->cheersReceived());
         $this->assertTrue($recap->badgesEarned()->contains('badge', Badge::FirstStep)); // Earned automatically by this week's first check-in.
         $this->assertSame('In line', $recap->goalWeeks()->first()['result']->label());
-        $this->assertSame('Your week: 4 check-ins on 3 days, 1 point.', $recap->headline());
+        $this->assertSame('Your week: 4 check-ins on 3 days, 1 star.', $recap->headline());
     }
 
     public function test_the_page_shows_this_week_and_last_week(): void
@@ -84,7 +84,7 @@ class WeeklyRecapTest extends TestCase
         $this->artisan('goalline:send-reminders');
 
         Notification::assertSentToTimes($this->user, WeeklyRecapReady::class, 1);
-        Notification::assertSentTo($this->user, WeeklyRecapReady::class, fn (WeeklyRecapReady $recap) => $recap->headline === 'Your week: 4 check-ins on 3 days, 1 point.');
+        Notification::assertSentTo($this->user, WeeklyRecapReady::class, fn (WeeklyRecapReady $recap) => $recap->headline === 'Your week: 4 check-ins on 3 days, 1 star.');
     }
 
     public function test_a_quiet_week_gets_a_gentle_nudge(): void

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 
 /**
  * What a weekly result card shows, worked out by the scoring code (never by the AI): the GoalWeek's band and credited
- * percent, its line points, the GoalLeague matchup result if the goal is in a league, and the run of weeks on the
+ * percent, its line stars, the GoalLeague matchup result if the goal is in a league, and the run of weeks on the
  * line. Only the owner's own summary: no email, notes, proof photos or opponent names.
  */
 class ResultCardData

@@ -89,7 +89,7 @@ enum Badge: string
             self::Unstoppable => 'A '.self::UNSTOPPABLE_DAYS.'-day check-in streak.',
             self::ChallengeFinisher => 'Finished a challenge.',
             self::Champion => 'Finished first in a GoalLeague season.',
-            self::Mvp => 'Most GoalWeek points in a GoalLeague season.',
+            self::Mvp => 'Most stars in a GoalLeague season.',
             self::ComebackPlayer => 'Biggest climb in the standings over the second half of a season.',
             self::IronStreak => 'Longest in-line streak in a GoalLeague season.',
             self::SmashMachine => 'Most smashed GoalWeeks in a GoalLeague season.',

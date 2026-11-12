@@ -144,7 +144,7 @@ class ClubhouseTest extends TestCase
             ->assertSee('How is GoalLine scored?')
             ->assertSee('data-open-sheet="scoring-sheet"', false)
             ->assertSee('Photo finish')
-            ->assertSee('0 to 6 points a week');
+            ->assertSee('0 to 5 stars a week');
     }
 
     /**

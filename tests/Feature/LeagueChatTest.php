@@ -131,7 +131,7 @@ class LeagueChatTest extends TestCase
         $this->travelTo('2026-10-20');
         (new LeagueTable($league->fresh()))->settle();
 
-        $this->assertSame('Week 1 is final. Top score: Jordan Rivera with 4 points.', $league->messages()->where('is_system', true)->latest('id')->value('body'));
+        $this->assertSame('Week 1 is final. Top score: Jordan Rivera with 3 stars.', $league->messages()->where('is_system', true)->latest('id')->value('body'));
     }
 
     public function test_unread_counts_others_messages_since_the_last_visit(): void

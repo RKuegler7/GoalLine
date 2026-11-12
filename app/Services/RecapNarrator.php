@@ -214,7 +214,7 @@ class RecapNarrator
             : "You logged {$checkIns} on {$days}.";
 
         $second = $facts['line_points'] > 0
-            ? "Your GoalWeeks earned {$facts['line_points']} line ".Str::plural('point', $facts['line_points']).'.'
+            ? "Your GoalWeeks earned {$facts['line_points']} line ".Str::plural('star', $facts['line_points']).'.'
             : 'Every check-in kept you in the game.';
 
         $third = $facts['streak_days'] > 1
@@ -265,14 +265,14 @@ class RecapNarrator
             "Check-ins: {$facts['check_ins']}",
             "Active days: {$facts['active_days']} of {$facts['days_in_week']}",
             'Best day: '.($facts['best_day'] ? "{$facts['best_day']} ({$facts['best_day_check_ins']} check-ins)" : 'none'),
-            "Line points from GoalWeeks: {$facts['line_points']}",
+            "Line stars from GoalWeeks: {$facts['line_points']}",
             "Daily check-in streak: {$facts['streak_days']} days",
             "Badges earned: {$facts['badges']}",
             "Cheers received: {$facts['cheers']}",
         ];
 
         foreach ($facts['goals'] as $goal) {
-            $lines[] = "Goal \"{$goal['goal']}\": {$goal['result']}, {$goal['percent_of_plan']}% of plan, {$goal['line_points']} line points";
+            $lines[] = "Goal \"{$goal['goal']}\": {$goal['result']}, {$goal['percent_of_plan']}% of plan, {$goal['line_points']} line stars";
         }
 
         $lines[] = '</week>';

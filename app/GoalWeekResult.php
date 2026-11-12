@@ -53,9 +53,22 @@ enum GoalWeekResult: string
     }
 
     /**
-     * The credited percent of plan as a whole number, used to settle a photo finish between two sides in the same
-     * band. It's rounded down, so it never shows a higher band's number. An unverified Smashed share is credited as
-     * Past the line, so it's capped at 149. Disputed points held out of the share are already left out.
+     * The credited percent of plan at full precision (hundredths of a percent: the same precision the band is decided
+     * at), which settles a photo finish. 100.4 beats 99.6, and only truly equal percents tie. An unverified Smashed
+     * share is credited as Past the line, so it is capped at 149. Disputed points held out of the
+     * share are already left out.
+     */
+    public static function preciseCreditedPercent(float $share, bool $smashVerified = true): float
+    {
+        $percent = round($share * 100, 2);
+
+        return $smashVerified ? $percent : min($percent, round(self::SMASHED_AT * 100) - 1.0);
+    }
+
+    /**
+     * The credited percent of plan as a whole number, for display: it's rounded down, so it never shows a higher
+     * band's number, and an unverified Smashed share is capped at 149. Photo finishes are settled by
+     * preciseCreditedPercent(), never by this.
      */
     public static function creditedPercent(float $share, bool $smashVerified = true): int
     {
@@ -86,15 +99,10 @@ enum GoalWeekResult: string
     }
 
     /**
-     * Line points for the band: 0 to 3.
+     * Line stars for the band, from config('goalline.stars.line').
      */
     public function points(): int
     {
-        return match ($this) {
-            self::Short => 0,
-            self::InLine => 1,
-            self::Past => 2,
-            self::Smashed => 3,
-        };
+        return (int) config('goalline.stars.line.'.$this->value);
     }
 }

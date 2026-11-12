@@ -116,7 +116,7 @@ class ResultCardTest extends TestCase
         $this->assertStringContainsString('>'.$label.'</text>', $svg);
         $this->assertStringContainsString('· +'.$points.'</text>', $svg);
         $this->assertSame($photoFinish, str_contains($svg, 'Photo finish'));
-        $this->assertStringContainsString('of 6', $svg);
+        $this->assertStringContainsString('of 5', $svg);
     }
 
     public function test_a_league_week_carries_the_real_matchup_result_from_the_league_table(): void
@@ -132,8 +132,8 @@ class ResultCardTest extends TestCase
         // Both In line (100% and 90%): a photo finish, and the higher percent takes the close win.
         $this->assertSame('Run Club', $payload['league']);
         $this->assertSame('Week 1', $payload['weekLabel']);
-        $this->assertSame(['outcome' => 'close_win', 'label' => 'Close win', 'points' => 2, 'photoFinish' => true, 'bye' => false], $payload['match']);
-        $this->assertSame(3, $payload['weeklyPoints']);
+        $this->assertSame(['outcome' => 'close_win', 'label' => 'Photo finish win', 'points' => 1, 'photoFinish' => true, 'bye' => false], $payload['match']);
+        $this->assertSame(2, $payload['weeklyPoints']);
         $this->assertStringNotContainsString('Rival', json_encode($payload));
     }
 

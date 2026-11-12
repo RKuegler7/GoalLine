@@ -32,7 +32,7 @@ class FairPlay
     }
 
     /**
-     * The member's matchup opponents for the GoalWeek, one per league (a bye vs. the league median has none).
+     * The member's matchup opponents for the GoalWeek, one per league (a bye week has none).
      *
      * @return Collection<int, User>
      */

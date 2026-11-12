@@ -49,7 +49,7 @@ class LeagueStandingsTest extends TestCase
         $avery = $stats->member($this->members['Avery']);
 
         $this->assertSame([2, 0, 1], [$avery['wins'], $avery['ties'], $avery['losses']]);
-        $this->assertSame([1, 0, 1], [$avery['closeWins'], $avery['closeLosses'], $avery['photoFinishes']]);
+        $this->assertSame([1, 1, 0], [$avery['photoFinishWins'], $avery['photoFinishes'], $avery['byes']]);
         $this->assertSame([9, 5, 4], [$avery['total'], $avery['matchPoints'], $avery['linePoints']]);
         $this->assertSame(2, $avery['bestWeek']['week']);
         $this->assertSame(6, $avery['bestWeek']['weeklyPoints']);
@@ -65,7 +65,7 @@ class LeagueStandingsTest extends TestCase
 
         $blake = $stats->member($this->members['Blake']);
         $this->assertSame([1, 1, 1], [$blake['wins'], $blake['ties'], $blake['losses']]);
-        $this->assertSame(2, $blake['photoFinishes'], 'A close loss and a tie are both photo finishes.');
+        $this->assertSame(2, $blake['photoFinishes'], 'A photo finish loss and a tie are both photo finishes.');
         $this->assertSame(3, $blake['weeksOnLine']);
     }
 
@@ -110,7 +110,7 @@ class LeagueStandingsTest extends TestCase
 
         $this->actingAs($avery->user)->get(route('leagues.standings', $this->league))->assertOk()
             ->assertSee('Season so far')
-            ->assertSee('total points (line points plus match points), then line points, then wins.')
+            ->assertSee('total stars (line stars plus matchup stars), then line stars, then Past-the-Line weeks (Past the line or Smashed).')
             ->assertSee('data-season-chart', false)
             ->assertSeeInOrder(['Blake Moss', 'Avery Lane', 'Casey Ruiz']);
 

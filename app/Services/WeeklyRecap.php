@@ -165,7 +165,7 @@ class WeeklyRecap
 
         return "Your week: {$this->checkIns()} ".str('check-in')->plural($this->checkIns())
             ." on {$this->activeDays()} ".str('day')->plural($this->activeDays())
-            .", {$points} ".str('point')->plural($points)
+            .", {$points} ".str('star')->plural($points)
             .($this->streak() > 1 ? ", and a {$this->streak()}-day streak." : '.');
     }
 }

@@ -48,7 +48,7 @@ class LeagueSnapshot
     }
 
     /**
-     * The member's total points this season.
+     * The member's total stars this season.
      */
     public function points(): int
     {
@@ -56,7 +56,7 @@ class LeagueSnapshot
     }
 
     /**
-     * The member's season record, as wins, ties and losses.
+     * The member's season record, as wins, draws ("ties") and losses. Byes don't count.
      *
      * @return array{wins: int, ties: int, losses: int}
      */

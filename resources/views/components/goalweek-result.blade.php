@@ -1,4 +1,4 @@
-{{-- A GoalWeek result pill with its line points, or a neutral "Not started" on day one. Short is red, In line green,
+{{-- A GoalWeek result pill with its line stars, or a neutral "Not started" on day one. Short is red, In line green,
      Past the line a golden shine, Smashed a blue diamond. A Smashed week waiting on proof says so. --}}
 @props(['result', 'closeCall' => false, 'notStarted' => false, 'needsProof' => false, 'compact' => false])
 
@@ -28,7 +28,7 @@
             @else
                 {{ $result->label() }}{{ $closeCall ? ', close call' : '' }}
             @endif
-            <span @class(["sr-only" => $compact])>&middot; {{ $result->points() }} {{ Str::plural("pt", $result->points()) }}</span>
+            <span @class(["sr-only" => $compact])>&middot; {{ $result->points() }} {{ Str::plural("star", $result->points()) }}</span>
         </span>
         @if ($needsProof)
             <span class="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold text-sky-800 ring-1 ring-inset ring-sky-200">Needs proof to count as Smashed</span>

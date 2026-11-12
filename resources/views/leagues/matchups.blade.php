@@ -123,13 +123,13 @@
                                 @endif
                                 <span @class(['min-w-0', 'text-right' => $sideIndex === 1])>
                                     <span @class(['block truncate', 'font-semibold text-club' => $side && $side['outcome']->isWin(), 'text-ink' => ! $side || ! $side['outcome']->isWin()])>
-                                        {{ $side ? $side['member']->user->name : 'League median' }}
+                                        {{ $side ? $side['member']->user->name : 'Bye week' }}
                                     </span>
                                     <span class="block truncate text-[11px] text-ink/70 tabular-nums">
                                         @if ($side)
-                                            {{ $side['percent'] === null ? 'No GoalWeek' : $side['percent'].'%' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
+                                            {{ $side['percentLabel'] ?? 'No GoalWeek' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
                                         @else
-                                            {{ $card['median'] === null ? '–' : round($card['median'], 1).' line pts' }}
+                                            Bye: line stars only
                                         @endif
                                     </span>
                                 </span>

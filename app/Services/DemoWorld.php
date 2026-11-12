@@ -474,7 +474,7 @@ class DemoWorld
         $franWin = $fran->highlights()->create([
             'kind' => HighlightKind::GoalCompleted,
             'headline' => 'Finish the first draft of my novel',
-            'detail' => 'Completed '.$this->today->subDays(2)->format('F j, Y').' · 38 GoalWeek points',
+            'detail' => 'Completed '.$this->today->subDays(2)->format('F j, Y').' · 38 GoalWeek stars',
             'caption' => '82,000 words. A page a day for eleven months. Thank you all for the cheers along the way.',
         ]);
         $this->photo($franWin, 'First draft', '82,000 words', '#D4AC58', '#1E2922');

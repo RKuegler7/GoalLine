@@ -13,7 +13,7 @@ use App\Models\RoadmapWeek;
 use App\Services\ScoringRules;
 
 $rules = app(ScoringRules::class);
-$bands = collect($rules->bands())->map(fn (array $band) => "{$band['label']} ({$band['range']}, {$band['points']} line ".str('point')->plural($band['points']).')')->implode('; ');
+$bands = collect($rules->bands())->map(fn (array $band) => "{$band['label']} ({$band['range']}, {$band['points']} line ".str('star')->plural($band['points']).')')->implode('; ');
 $outcomes = collect($rules->outcomes())->map(fn (array $outcome) => "{$outcome['label']} {$outcome['points']}")->implode(', ');
 $range = $rules->weekRange();
 $inLine = (int) round(GoalWeekResult::IN_LINE_AT * 100);
@@ -30,7 +30,7 @@ return [
             ['id' => 'what-is-goalline', 'q' => 'What is GoalLine?', 'a' => 'A league for the goals you actually care about. You set a goal and a date, answer a few questions, and get a plan of weekly GoalWeeks. You check in as you go, and each week you can play a friendly matchup with a friend, scored against your own plans.'],
             ['id' => 'how-leagues-work', 'q' => 'How does a GoalLeague work?', 'a' => 'Everyone brings their own goal. Each week you face one league mate, and whoever finishes a bigger share of their own plan wins. Different goals play fine together because nobody is compared on raw effort, only on their own plan.'],
             ['id' => 'join', 'q' => 'How do I join with a code or a link?', 'a' => 'Open the invite link, or go to GoalLeagues and type the code. You can start from the league goal with one tap ("Use this goal"), make it your own, or bring a different goal. Then a few questions, and your plan.'],
-            ['id' => 'late-join', 'q' => 'Can I join after the season starts?', 'a' => 'Yes, until the season ends. You play from the current week on, against the league median in your first week, and the weeks before you joined never count against you.'],
+            ['id' => 'late-join', 'q' => 'Can I join after the season starts?', 'a' => 'Yes, until the season ends. You play from the current week on (your first week is a bye: line stars only), and the weeks before you joined never count against you.'],
             ['id' => 'solo', 'q' => 'Can I go solo against the line?', 'a' => 'Yes. Without a league you still get your plan, Today\'s Gameplan, weekly results and badges, playing against the line. You can start or join a league any time.'],
         ],
     ],
@@ -58,9 +58,9 @@ return [
         'id' => 'scoring',
         'title' => 'Scoring',
         'items' => [
-            ['id' => 'bands', 'q' => 'How do bands and line points work?', 'a' => "Your percent of your own plan sets your band: {$bands}."],
-            ['id' => 'reading-matchup', 'q' => 'How do I read my matchup?', 'a' => 'The scoreboard shows each player\'s percent of plan, band and points if the week ended now. On the line below it, each player\'s puck sits at their percent, and a dashed ring shows where their current pace is heading. Tap a puck for details.'],
-            ['id' => 'match-points', 'q' => 'How are match points and a Photo finish scored?', 'a' => "A higher band wins the matchup. In the same band it's a Photo finish, and the higher percent of plan takes it. Match points: {$outcomes}. A week is worth {$range['min']} to {$range['max']} points."],
+            ['id' => 'bands', 'q' => 'How do bands and line stars work?', 'a' => "Your percent of your own plan sets your band: {$bands}."],
+            ['id' => 'reading-matchup', 'q' => 'How do I read my matchup?', 'a' => 'The scoreboard shows each player\'s percent of plan, band and stars if the week ended now. On the line below it, each player\'s puck sits at their percent, and a dashed ring shows where their current pace is heading. Tap a puck for details.'],
+            ['id' => 'match-points', 'q' => 'How do matchup stars and a Photo finish work?', 'a' => "A higher band wins the matchup. In the same band it's a Photo finish: the higher credited percent of plan takes it, compared exactly, and only truly equal percents tie. Matchup stars: {$outcomes}. A week is worth {$range['min']} to {$range['max']} stars, and the player with more stars wins the matchup; equal stars is a draw. A bye earns line stars only."],
             ['id' => 'weeks-on-the-line', 'q' => 'What are weeks on the line?', 'a' => "Finished GoalWeeks in a row at In line or better ({$inLine}% of plan or more). The current week counts once it's final."],
             ['id' => 'table', 'q' => 'How is the league table sorted?', 'a' => implode(', ', array_map('lcfirst', $rules->tableOrder())).'.'],
         ],

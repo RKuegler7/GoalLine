@@ -328,7 +328,16 @@ class RoadmapWeek extends Model
     }
 
     /**
-     * The credited percent of plan as a whole number: what a photo finish compares. Zero before the week starts.
+     * The credited percent of plan at full precision (hundredths): what a photo finish compares. Zero before the week
+     * starts.
+     */
+    public function preciseCreditedPercent(): float
+    {
+        return $this->isStarted() ? GoalWeekResult::preciseCreditedPercent($this->completionShare(), $this->isSmashVerified()) : 0.0;
+    }
+
+    /**
+     * The credited percent of plan as a whole number, for display. Zero before the week starts.
      */
     public function creditedPercent(): int
     {

@@ -20,8 +20,8 @@
         <div class="mx-auto -mt-1 max-w-5xl px-4 pb-3">
             <dl class="grid grid-cols-3 gap-1.5">
                 @foreach ([
-                    ['This week', $weekPoints, 'pts'],
-                    ['Total', $stats->points(), 'pts'],
+                    ['This week', $weekPoints, Str::plural('star', $weekPoints)],
+                    ['Total', $stats->points(), Str::plural('star', $stats->points())],
                     ['Record', $record['wins'].'–'.$record['ties'].'–'.$record['losses'], ''],
                 ] as [$label, $value, $unit])
                     <div class="rounded-lg bg-ivory/10 px-2 py-1.5 ring-1 ring-ivory/15 ring-inset">

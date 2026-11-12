@@ -29,7 +29,7 @@
         'faq' => 'FAQ',
         'contact' => 'Contact',
     ];
-    $pts = fn (int $points) => $points.' '.Str::plural('pt', $points);
+    $stars = fn (int $count) => $count.' '.Str::plural('star', $count);
 @endphp
 
 @push('head')
@@ -164,7 +164,7 @@
             <section id="scoring" aria-labelledby="scoring-title">
                 <p class="eyebrow text-club">Scoring</p>
                 <h2 id="scoring-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">Scored against your own plan</h2>
-                <p class="mt-3">Every GoalWeek has <strong class="text-ink">planned points</strong>: each task (usually 1), each planned habit day (1), and the milestone ({{ $rules->milestonePoints() }}). Your <strong class="text-ink">percent of plan</strong> is the points you earn divided by the points planned. Bonus tasks, extra habit days and beating a task&rsquo;s number push you past 100%.</p>
+                <p class="mt-3">Every GoalWeek has <strong class="text-ink">plan points</strong>: each task (usually 1), each planned habit day (1), and the milestone ({{ $rules->milestonePoints() }}). Your <strong class="text-ink">percent of plan</strong> is the plan points you earn divided by the plan points planned. Bonus tasks, extra habit days and beating a task&rsquo;s number push you past 100%.</p>
 
                 <h3 class="mt-6 font-serif text-xl font-bold tracking-tight text-ink">The four weekly results</h3>
                 {{-- The meter: fixed height, widths from the thresholds. --}}
@@ -186,9 +186,9 @@
                 </div>
                 <div class="mt-4 overflow-hidden rounded-2xl border border-line bg-white">
                     <table class="w-full text-sm">
-                        <caption class="sr-only">Weekly results, their percent of plan and line points</caption>
+                        <caption class="sr-only">Weekly results, their percent of plan and line stars</caption>
                         <thead class="bg-ivory text-left text-xs text-ink/70">
-                            <tr><th scope="col" class="px-4 py-2 font-semibold">Result</th><th scope="col" class="px-4 py-2 font-semibold">Percent of plan</th><th scope="col" class="px-4 py-2 text-right font-semibold">Line points</th></tr>
+                            <tr><th scope="col" class="px-4 py-2 font-semibold">Result</th><th scope="col" class="px-4 py-2 font-semibold">Percent of plan</th><th scope="col" class="px-4 py-2 text-right font-semibold">Line stars</th></tr>
                         </thead>
                         <tbody class="divide-y divide-line">
                             @foreach ($bands as $band)
@@ -203,34 +203,34 @@
                 </div>
                 <p class="mt-3 text-sm">In line under {{ $rules->closeCallBelow() }}% shows as a close call. A Smashed week counts in full only with proof on a check-in that week or your opponent&rsquo;s confirmation; until then it&rsquo;s credited as Past the line.</p>
 
-                <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Match points</h3>
-                <p class="mt-2">In a GoalLeague you also face one league mate each week. The higher band wins outright. In the same band it&rsquo;s a <strong class="text-ink">photo finish</strong>: the higher percent of plan, as a whole number, takes it.</p>
+                <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Matchup stars</h3>
+                <p class="mt-2">In a GoalLeague you also face one league mate each week. The higher band wins outright. In the same band it&rsquo;s a <strong class="text-ink">photo finish</strong>: the higher credited percent of plan takes it, and exactly equal percents are a tie.</p>
                 <ul class="mt-4 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white text-sm">
                     @foreach ($outcomes as $outcome)
                         <li class="flex items-center justify-between gap-3 px-4 py-3" data-outcome="{{ $outcome['outcome']->value }}">
                             <span><span class="font-semibold text-ink">{{ $outcome['label'] }}</span> <span class="block text-ink/70 sm:inline"><span class="hidden sm:inline">&middot; </span>{{ $outcome['when'] }}</span></span>
-                            <span class="shrink-0 font-semibold text-ink tabular-nums">{{ $pts($outcome['points']) }}</span>
+                            <span class="shrink-0 font-semibold text-ink tabular-nums">{{ $stars($outcome['points']) }}</span>
                         </li>
                     @endforeach
                 </ul>
-                <p class="mt-3 text-sm">The photo finish uses your credited percent, rounded down. Points held in an open dispute are left out, and a Smashed week still waiting on proof is capped at {{ $rules->unverifiedSmashedCap() }}%. If you have no opponent that week, you play the league median.</p>
+                <p class="mt-3 text-sm">The photo finish compares credited percents exactly (to the hundredth), so 100.4% beats 99.6%; a tie only when they&rsquo;re truly equal. Plan points held in an open dispute are left out, and a Smashed week still waiting on proof is capped at {{ $rules->unverifiedSmashedCap() }}%. A bye week (no opponent) earns line stars only and isn&rsquo;t a win, draw or loss.</p>
 
                 <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Your weekly total</h3>
-                <p class="mt-2"><strong class="text-ink">Line points + match points</strong>, so a GoalWeek is worth <strong class="text-ink" data-week-range>{{ $range['min'] }} to {{ $range['max'] }} points</strong>.</p>
+                <p class="mt-2"><strong class="text-ink">Line stars + matchup stars</strong>, so a GoalWeek is worth <strong class="text-ink" data-week-range>{{ $range['min'] }} to {{ $range['max'] }} stars</strong>. More stars wins the matchup; equal stars is a draw.</p>
 
-                {{-- Weekly points explained: run through the real scoring functions. --}}
+                {{-- Weekly stars explained: run through the real scoring functions. --}}
                 <div class="mt-5 rounded-2xl border border-club/30 bg-white shadow-sm" data-example>
-                    <p class="eyebrow border-b border-line px-5 py-3 text-club">Weekly points explained</p>
+                    <p class="eyebrow border-b border-line px-5 py-3 text-club">Weekly stars explained</p>
                     <div class="grid gap-px bg-line sm:grid-cols-2">
                         @foreach ([$avery, $sam] as $player)
                             <div class="bg-white px-4 py-3 text-sm">
                                 <p class="font-serif text-lg font-bold tracking-tight text-ink">{{ $player['name'] }}</p>
-                                <p class="mt-1">Planned {{ $player['tasks'] }} tasks + {{ $player['habitDays'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['planned'] }} pts</strong></p>
-                                <p>Earned {{ $player['tasksDone'] }} tasks + {{ $player['habitDaysDone'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['earned'] }} pts</strong></p>
+                                <p class="mt-1">Planned {{ $player['tasks'] }} tasks + {{ $player['habitDays'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['planned'] }} plan pts</strong></p>
+                                <p>Earned {{ $player['tasksDone'] }} tasks + {{ $player['habitDaysDone'] }} habit days + milestone {{ $player['milestone'] }} = <strong class="text-ink">{{ $player['earned'] }} plan pts</strong></p>
                                 <p class="mt-2 text-ink">{{ $player['earned'] }} &divide; {{ $player['planned'] }} = <strong>{{ $player['percent'] }}%</strong></p>
                                 <div class="mt-2"><x-goalweek-result :result="$player['result']" :close-call="$player['closeCall']" /></div>
-                                <p class="mt-2">{{ $player['outcome']->label() }}: {{ $pts($player['matchPoints']) }}</p>
-                                <p class="mt-1 font-semibold text-club">Week total: {{ $player['linePoints'] }} + {{ $player['matchPoints'] }} = {{ $pts($player['total']) }}</p>
+                                <p class="mt-2">{{ $player['outcome']->label() }}: {{ $stars($player['matchPoints']) }}</p>
+                                <p class="mt-1 font-semibold text-club">Week total: {{ $player['linePoints'] }} + {{ $player['matchPoints'] }} = {{ $stars($player['total']) }}</p>
                             </div>
                         @endforeach
                     </div>
@@ -238,7 +238,7 @@
                         @if ($example['photoFinish'])
                             Both landed {{ Str::lower($avery['result']->label()) }}, so it&rsquo;s a photo finish: {{ $sam['percent'] > $avery['percent'] ? $sam['name'] : $avery['name'] }}&rsquo;s higher percent takes it.
                         @endif
-                        If {{ $whatIf['avery']['name'] }} had added {{ $whatIf['avery']['bonusDone'] }} bonus session and finished every task ({{ $whatIf['avery']['percent'] }}%, {{ Str::lower($whatIf['avery']['result']->label()) }}), the higher band wins outright: {{ $whatIf['avery']['name'] }} {{ $pts($whatIf['avery']['total']) }}, {{ $whatIf['sam']['name'] }} {{ $pts($whatIf['sam']['total']) }}.
+                        If {{ $whatIf['avery']['name'] }} had added {{ $whatIf['avery']['bonusDone'] }} bonus session and finished every task ({{ $whatIf['avery']['percent'] }}%, {{ Str::lower($whatIf['avery']['result']->label()) }}), the higher band wins outright: {{ $whatIf['avery']['name'] }} {{ $stars($whatIf['avery']['total']) }}, {{ $whatIf['sam']['name'] }} {{ $stars($whatIf['sam']['total']) }}.
                     </p>
                 </div>
 
@@ -248,7 +248,7 @@
                         <li>{{ $rule }}</li>
                     @endforeach
                 </ol>
-                <p class="mt-2 text-sm">Your W&ndash;T&ndash;L record counts close wins as wins and close losses as losses. Results go final one day after the GoalWeek ends.</p>
+                <p class="mt-2 text-sm">Your W&ndash;D&ndash;L record: more stars in a matchup is a win (photo finish wins included), equal stars is a draw, and byes don&rsquo;t count. Results go final one day after the GoalWeek ends.</p>
 
                 <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Two ways to win a season</h3>
                 <div class="mt-3 grid gap-3 sm:grid-cols-2">

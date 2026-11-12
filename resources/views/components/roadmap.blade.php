@@ -67,7 +67,7 @@
         @if ($scored->isNotEmpty())
             <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-2xl border border-line bg-white px-6 py-4">
                 <div>
-                    <p class="eyebrow text-club">GoalWeek points</p>
+                    <p class="eyebrow text-club">GoalWeek stars</p>
                     <p class="font-serif text-3xl font-bold text-club tabular-nums tracking-tight">{{ $goal->points() }}</p>
                 </div>
                 <div class="flex flex-wrap gap-2">
