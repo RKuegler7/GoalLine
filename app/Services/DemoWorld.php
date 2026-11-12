@@ -260,6 +260,19 @@ class DemoWorld
 
         $goalDay->confirm($goals[$you->id]->fresh()->result, $mary);
 
+        // Highlights from that season, for the finale's reel (their photos double as proof).
+        $daysAgo = (int) $endsOn->diffInDays($this->today) + 3;
+        $mock = $this->post($you, $goals[$you->id], $league, 'Mock exam block', PostVisibility::League,
+            'Four-hour mock under a timer. Brain is fried, score is up.', 'Mullen Library', 'Mock exam', '78% · up from 64%', '#176B45', '#D4AC58', $daysAgo);
+        $sim = $this->post($you, $goals[$you->id], $league, 'Timed simulation', PostVisibility::League,
+            'Simulations finally clicking. Sunday study block with the crew.', null, 'Simulation', '5 of 5 · 42 minutes', '#1E2922', '#176B45', $daysAgo + 7);
+
+        foreach ([[$mock, [$mary, $pat, $kate]], [$sim, [$mary]]] as [$post, $fans]) {
+            foreach ($fans as $fan) {
+                $post->cheers()->create(['user_id' => $fan->id]);
+            }
+        }
+
         // League mates cheered the shared results.
         foreach ([[$you, [$mary, $pat, $kate]], [$mary, [$you, $pat]], [$pat, [$you, $mary]]] as [$author, $fans]) {
             $post = $author->highlights()->where('kind', HighlightKind::GoalDay)->first();

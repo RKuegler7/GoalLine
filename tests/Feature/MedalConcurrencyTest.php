@@ -159,4 +159,12 @@ class MedalConcurrencyTest extends TestCase
         $this->artisan('goalline:check-medals', ['--fix' => true])->expectsOutputToContain('Finished seasons missing medals: 0')->assertSuccessful();
         $this->assertSame($count, Medal::count());
     }
+
+    public function test_exclusive_work_can_re_enter_its_own_lock(): void
+    {
+        $inner = Atomic::exclusively('nested', fn () => Atomic::exclusively('nested', fn () => 'inner ran', wait: 5));
+
+        $this->assertSame('inner ran', $inner);
+        $this->assertSame('again', Atomic::exclusively('nested', fn () => 'again'));
+    }
 }

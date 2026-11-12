@@ -36,7 +36,7 @@ class GoalNextStepTest extends TestCase
     public function test_setting_a_goal_asks_play_it_with_friends(): void
     {
         $this->actingAs($this->me)->get(route('goals.next', $this->goal))
-            ->assertOk()->assertSee('Play it with friends?')->assertSee('Create a league')->assertSee('Join a league')->assertSee('Keep it solo');
+            ->assertOk()->assertSee('Play it with friends?')->assertSee('Create a GoalLeague')->assertSee('Join a GoalLeague')->assertSee('Keep it solo');
     }
 
     public function test_create_a_league_fills_it_in_from_the_goal_and_leads_to_invites(): void

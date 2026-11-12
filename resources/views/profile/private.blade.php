@@ -13,7 +13,7 @@
         <p class="font-serif text-xl text-club tracking-tight">This profile is private</p>
         <p class="mt-2 text-ink/70">
             @if ($user->profile_visibility === App\ProfileVisibility::Leagues)
-                {{ Str::before($user->name, ' ') }} shares their profile with league mates. Join a league together to see their goals and stats.
+                {{ Str::before($user->name, ' ') }} shares their profile with league mates. Join a GoalLeague together to see their goals and stats.
             @else
                 {{ Str::before($user->name, ' ') }} keeps their profile to themselves.
             @endif

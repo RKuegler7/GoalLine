@@ -12,7 +12,7 @@
             @csrf
             <input type="hidden" name="choice" value="create">
             <x-icon name="leagues" class="size-7 text-club" />
-            <h2 class="mt-3 font-serif text-xl font-bold text-club tracking-tight">Create a league</h2>
+            <h2 class="mt-3 font-serif text-xl font-bold text-club tracking-tight">Create a GoalLeague</h2>
             <p class="mt-1 flex-1 text-sm text-ink/65">We'll fill it in from this goal. Then invite friends with a link, a code, or their username.</p>
             <button type="submit" class="mt-4 rounded-full bg-club px-5 py-2.5 font-semibold text-ivory hover:bg-club-dark">Create a GoalLeague</button>
         </form>
@@ -21,7 +21,7 @@
             @csrf
             <input type="hidden" name="choice" value="join">
             <x-icon name="flag" class="size-7 text-club" />
-            <h2 class="mt-3 font-serif text-xl font-bold text-club tracking-tight">Join a league</h2>
+            <h2 class="mt-3 font-serif text-xl font-bold text-club tracking-tight">Join a GoalLeague</h2>
             <label for="next-code" class="mt-1 text-sm text-ink/65">Got an invite code?</label>
             <input id="next-code" name="code" required value="{{ old('code') }}" placeholder="K7QX-M4PA" autocomplete="off" autocapitalize="characters"
                 class="mt-2 rounded-lg border border-line bg-white px-3 py-2 font-mono tracking-widest uppercase outline-none focus:border-club focus:ring-4 focus:ring-club/10">

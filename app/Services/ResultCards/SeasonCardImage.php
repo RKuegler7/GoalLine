@@ -162,7 +162,9 @@ class SeasonCardImage
         foreach ($columns as $index => [$label, $value, $sub]) {
             $x = $pad + $index * $columnWidth;
             $canvas->text($x, $statsY, $label, 26, 'bold', $fg, 'start', 0.75);
-            $canvas->text($x, $statsY + 60, ResultCardImage::fit($value, 46, $columnWidth - 20), 46, 'extrabold', $fg);
+            // A long value ("Goal Achieved") steps down a size before it would be cut short.
+            $valueSize = ResultCardImage::estimateWidth($value, 46) > $columnWidth - 20 ? 36 : 46;
+            $canvas->text($x, $statsY + 60, ResultCardImage::fit($value, $valueSize, $columnWidth - 20), $valueSize, 'extrabold', $fg);
             $canvas->text($x, $statsY + 104, ResultCardImage::fit($sub, 28, $columnWidth - 20), 28, 'medium', $fg, 'start', 0.8);
         }
 

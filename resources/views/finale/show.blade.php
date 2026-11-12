@@ -355,7 +355,7 @@
                 @if ($finale->league)
                     <a href="{{ route('leagues.create', ['rematch' => $finale->league->id]) }}" class="inline-flex min-h-11 items-center rounded-full border border-club/30 px-4 font-semibold text-club hover:border-club" data-rematch>Run it back with the same friends</a>
                 @endif
-                <a href="{{ route('leagues.index', ['tab' => 'invites']) }}#join" class="inline-flex min-h-11 items-center rounded-full border border-club/30 px-4 font-semibold text-club hover:border-club">Join a league</a>
+                <a href="{{ route('leagues.index', ['tab' => 'invites']) }}#join" class="inline-flex min-h-11 items-center rounded-full border border-club/30 px-4 font-semibold text-club hover:border-club">Join a GoalLeague</a>
                 <a href="{{ route('dashboard') }}" class="inline-flex min-h-11 items-center rounded-full px-4 font-semibold text-ink/75 hover:text-ink" data-take-a-break>Take a break</a>
             </div>
         </section>

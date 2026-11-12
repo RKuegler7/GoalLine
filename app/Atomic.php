@@ -25,6 +25,13 @@ final class Atomic
     public const ATTEMPTS = 3;
 
     /**
+     * Keys of exclusive work this process is running right now.
+     *
+     * @var array<string, true>
+     */
+    private static array $held = [];
+
+    /**
      * Run the callback in a transaction, retrying on deadlocks and lock timeouts.
      *
      * Only the outermost transaction retries: inside another transaction a deadlock has already rolled back the
@@ -69,7 +76,22 @@ final class Atomic
      */
     public static function exclusively(string $key, Closure $callback, int $wait = 0, int $seconds = 60): mixed
     {
+        // Re-entrant: work that already holds this lock (say, awarding a badge that triggers the same award) just
+        // carries on instead of waiting on itself.
+        if (isset(self::$held[$key])) {
+            return $callback();
+        }
+
         $lock = Cache::lock('exclusive:'.$key, $seconds);
+        $callback = function () use ($callback, $key) {
+            self::$held[$key] = true;
+
+            try {
+                return $callback();
+            } finally {
+                unset(self::$held[$key]);
+            }
+        };
 
         if ($wait === 0) {
             $result = $lock->get($callback);
