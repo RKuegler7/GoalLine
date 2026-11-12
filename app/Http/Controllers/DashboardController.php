@@ -15,6 +15,7 @@ use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\RoadmapStatus;
 use App\Services\DailyStreak;
+use App\Services\GoalDay;
 use App\Services\HighlightFeed;
 use App\Services\History;
 use App\Services\KickoffChecklist;
@@ -44,6 +45,7 @@ class DashboardController extends Controller
             $history = new History($user);
 
             return view('dashboard-history', [
+                'goalDayPending' => app(GoalDay::class)->pending($user),
                 'leagues' => $history->leagues(),
                 'pastGoals' => $history->goals(),
                 'weeks' => $history->weeks(),
@@ -71,6 +73,8 @@ class DashboardController extends Controller
             'leagueSetup' => $this->leagueSetup($leagues, $goals),
             'chosenSolo' => collect($request->session()->get('solo_goals', [])),
             'endedGoals' => $user->goals()->active()->get()->filter->hasEndedTimeline()->count(),
+            'goalDayPending' => $goalDayPending = app(GoalDay::class)->pending($user)->first(),
+            'goalDayUpcoming' => $goalDayPending ? null : app(GoalDay::class)->upcoming($user),
             'friendFeed' => (new HighlightFeed($user))->friends(self::FRIEND_FEED_SIZE),
             'shareable' => $this->shareableMoment($user),
         ]);

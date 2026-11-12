@@ -77,6 +77,18 @@
         <x-scoring-help class="mt-1" />
     </section>
 
+    {{-- Goal Day news: league mates' shared results (members only; private answers never show). --}}
+    @php $goalDayNews = App\Services\SeasonFinale::newsFor($league); @endphp
+    @if ($goalDayNews->isNotEmpty())
+        <section class="mt-4 rounded-2xl border border-line bg-white p-3" aria-labelledby="league-goal-day" data-league-goal-day>
+            <h2 id="league-goal-day" class="eyebrow text-club">Goal Day news</h2>
+            <p class="mt-1 text-[13px] text-ink/75">
+                {{ $goalDayNews->filter->isAchieved()->count() }} of {{ $league->members->count() }} reached their goal{{ $goalDayNews->filter->isVerified()->count() ? ', '.$goalDayNews->filter->isVerified()->count().' verified' : '' }}. Goal Day results are self-reported and never change the table.
+            </p>
+            @include('finale.partials.news', ['news' => $goalDayNews])
+        </section>
+    @endif
+
     {{-- Your goal in this league: edit it, switch to another, or set a new one for this league. --}}
     <section class="mb-3 rounded-xl border border-line bg-white px-3 py-2">
         <div class="flex flex-wrap items-start justify-between gap-3">

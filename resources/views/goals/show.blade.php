@@ -2,10 +2,11 @@
     <x-slot:hero>
         <x-page-header :title="$goal->title" :back="route('dashboard')" back-label="Clubhouse" :eyebrow="$goal->category->label()">
             @if ($goal->isActive())
-                <a href="{{ route('goals.complete', $goal) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white">I did it</a>
+                <a href="{{ route('goal-day.show', $goal) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white" data-finish-early>{{ $goal->target_date->isFuture() ? 'I finished early' : 'Goal Day' }}</a>
                 <a href="{{ route('goals.edit', $goal) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory/15 px-3 text-[13px] font-semibold text-ivory transition hover:bg-ivory/25">Edit goal</a>
             @elseif ($goal->isCompleted())
                 <span class="eyebrow rounded-full bg-gold px-2.5 py-1 text-[11px] text-ink">Completed</span>
+                <a href="{{ route('finale.show', ['goal' => $goal, 'skip' => 1]) }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white" data-replay-finale>Season finale</a>
             @else
                 <span class="eyebrow rounded-full bg-ivory/15 px-2.5 py-1 text-[11px] text-ivory">Retired</span>
             @endif

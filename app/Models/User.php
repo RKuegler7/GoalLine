@@ -193,6 +193,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Season medals, newest first.
+     *
+     * @return HasMany<Medal, $this>
+     */
+    public function medals(): HasMany
+    {
+        return $this->hasMany(Medal::class)->latest('awarded_at');
+    }
+
+    /**
      * The goals this person is pursuing.
      *
      * @return HasMany<Goal, $this>

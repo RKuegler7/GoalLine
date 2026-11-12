@@ -90,7 +90,7 @@ class Highlight extends Model
                 ->where('highlights.user_id', $viewer->id)
                 ->orWhere(fn (Builder $post) => $post
                     // Check-in posts and weekly result cards go to the audience their author picked.
-                    ->whereIn('kind', [HighlightKind::CheckIn, HighlightKind::WeekCard])
+                    ->whereIn('kind', [HighlightKind::CheckIn, HighlightKind::WeekCard, HighlightKind::GoalDay, HighlightKind::SeasonCard])
                     ->where(fn (Builder $audience) => $audience
                         ->where(fn (Builder $league) => $league
                             ->whereIn('visibility', [PostVisibility::League, PostVisibility::LeagueFriends])
@@ -99,7 +99,7 @@ class Highlight extends Model
                             ->where('visibility', PostVisibility::LeagueFriends)
                             ->whereIn('highlights.user_id', $friendIds))))
                 ->orWhere(fn (Builder $win) => $win
-                    ->whereNotIn('kind', [HighlightKind::CheckIn, HighlightKind::WeekCard])
+                    ->whereNotIn('kind', [HighlightKind::CheckIn, HighlightKind::WeekCard, HighlightKind::GoalDay, HighlightKind::SeasonCard])
                     ->whereIn('highlights.user_id', $circle)
                     ->whereHas('user', fn (Builder $author) => $author->where('profile_visibility', '!=', ProfileVisibility::Private))))
             ->whereDoesntHave('reports', fn (Builder $reports) => $reports->where('reporter_id', $viewer->id));

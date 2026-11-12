@@ -806,3 +806,24 @@ form[data-live-pending] button[data-busy]::after {
         animation: gl-loader-appear 0.15s ease-out 0.25s forwards;
     }
 }
+
+/* Season finale: a soft gold burst behind an achieved goal. Still for reduced motion. */
+.gl-finale-burst {
+    background: repeating-conic-gradient(from 0deg at 50% 0%, rgb(255 255 255 / 0.22) 0deg 6deg, transparent 6deg 22deg);
+    mask-image: radial-gradient(circle at 50% 0%, #000 0%, transparent 75%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .gl-finale-burst {
+        animation: gl-finale-burst 1.2s ease-out both;
+    }
+
+    [data-finale] {
+        scroll-behavior: smooth;
+    }
+}
+
+@keyframes gl-finale-burst {
+    from { opacity: 0; transform: scale(0.6); }
+    to { opacity: 1; transform: none; }
+}

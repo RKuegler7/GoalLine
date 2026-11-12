@@ -17,6 +17,8 @@
     </x-slot:hero>
 
     <div class="space-y-4" data-first-content data-player-season>
+        {{-- This season's top three medals, once the season is complete. --}}
+        @php $playerMedals = App\Models\Medal::where('league_id', $league->id)->where('user_id', $member->user_id)->get()->sortBy(fn ($medal) => $medal->rank())->take(3)->values(); @endphp
         <section class="gl-field flex items-center gap-3 rounded-xl px-3 py-3 text-ivory">
             <x-avatar :user="$member->user" tone="light" class="size-14 text-lg ring-3 ring-ivory/70" />
             <div class="min-w-0">
@@ -30,6 +32,11 @@
                 <a href="{{ route('profiles.show', $member->user) }}" class="ml-auto shrink-0 rounded-full bg-ivory/15 px-3 py-1.5 text-xs font-semibold text-ivory hover:bg-ivory/25">Profile</a>
             @endif
         </section>
+        @if ($playerMedals->isNotEmpty())
+            <section aria-label="Medals" data-player-medals>
+                <x-medal-shelf :medals="$playerMedals" compact />
+            </section>
+        @endif
 
         <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4" data-player-stats>
             @foreach ([

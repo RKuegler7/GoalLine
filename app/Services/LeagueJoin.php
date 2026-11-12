@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\LeagueMemberJoined;
 use App\PendingInvite;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -91,5 +92,17 @@ class LeagueJoin
         return $week === null
             ? "You're in {$league->name}. Kickoff is {$league->starts_on->format('l, F j')}."
             : "You're in {$league->name}. You play from GoalWeek {$week}; the weeks before you joined don't count against you.";
+    }
+
+    /**
+     * The name for the next season of a league: "Run Club" becomes "Run Club · Season 2", and Season 2 becomes 3.
+     */
+    public static function nextSeasonName(string $name): string
+    {
+        if (preg_match('/^(.*?)[\s,·-]*Season (\d+)(?: complete)?$/u', $name, $match)) {
+            return trim($match[1]).' · Season '.((int) $match[2] + 1);
+        }
+
+        return Str::limit($name, 66, '').' · Season 2';
     }
 }

@@ -43,6 +43,23 @@
         <div class="min-w-0 space-y-4" data-first-content>
             @include('partials.league-setup-cards')
 
+            {{-- Goal Day: the check-in waits here until it's answered; the countdown shows in the final two weeks. --}}
+            @if ($goalDayPending)
+                <a href="{{ route('goal-day.show', $goalDayPending) }}" class="flex items-center justify-between gap-3 rounded-xl bg-gold px-3 py-2.5 text-ink hover:brightness-105" data-goal-day-prompt>
+                    <span class="min-w-0">
+                        <span class="eyebrow block text-[11px]">Goal Day</span>
+                        <span class="block truncate text-[15px] font-bold">Did you reach "{{ $goalDayPending->title }}"?</span>
+                    </span>
+                    <span class="shrink-0 font-semibold">Check in &rarr;</span>
+                </a>
+            @elseif ($goalDayUpcoming)
+                @php $daysToGoalDay = $goalDayUpcoming->daysRemaining(); @endphp
+                <a href="{{ route('goals.show', $goalDayUpcoming) }}" class="flex items-center justify-between gap-3 rounded-xl border border-gold bg-gold/15 px-3 py-2 text-[13px] text-ink hover:bg-gold/25" data-goal-day-banner>
+                    <span class="min-w-0 truncate"><span class="font-bold">Goal Day is in {{ $daysToGoalDay }} {{ Str::plural('day', $daysToGoalDay) }}</span> &middot; {{ $goalDayUpcoming->title }}</span>
+                    <span class="shrink-0 font-semibold text-club">Finish strong &rarr;</span>
+                </a>
+            @endif
+
             @if ($endedGoals > 0)
                 <a href="{{ route('dashboard', ['tab' => 'history']) }}" class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2 text-[13px] hover:border-club/40" data-ended-goals>
                     <span class="text-ink/80">{{ $endedGoals }} {{ Str::plural('goal', $endedGoals) }} reached {{ $endedGoals === 1 ? 'its' : 'their' }} date. Mark {{ $endedGoals === 1 ? 'it' : 'them' }} done or set a new date in History.</span>

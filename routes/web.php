@@ -21,6 +21,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
 use App\Http\Controllers\GoalCompletionController;
 use App\Http\Controllers\GoalController;
+use App\Http\Controllers\GoalDayController;
 use App\Http\Controllers\GoalIntakeController;
 use App\Http\Controllers\GoalNextStepController;
 use App\Http\Controllers\GroupTaskController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\ResultCardController;
 use App\Http\Controllers\RoadmapController;
 use App\Http\Controllers\RoadmapTaskController;
 use App\Http\Controllers\RoadmapWeekController;
+use App\Http\Controllers\SeasonFinaleController;
 use App\Http\Controllers\SmashedConfirmationController;
 use App\Http\Controllers\TaskProofController;
 use App\Http\Controllers\TodayController;
@@ -77,6 +79,11 @@ Route::post('/demo/reset', [DemoController::class, 'reset'])->name('demo.reset')
 // A weekly result card someone chose to share: a read-only page and its picture, by unguessable token.
 Route::get('/c/{token}', [ResultCardController::class, 'public'])->name('cards.public')->middleware('throttle:60,1');
 Route::get('/c/{token}/{size}.{format}', [ResultCardController::class, 'publicImage'])->name('cards.public.image')
+    ->whereIn('size', ['feed', 'story'])->whereIn('format', ['png', 'svg'])->middleware('throttle:60,1');
+
+// A season card someone chose to share (opt in, revocable).
+Route::get('/s/{token}', [SeasonFinaleController::class, 'public'])->name('finale.public')->middleware('throttle:60,1');
+Route::get('/s/{token}/{size}.{format}', [SeasonFinaleController::class, 'publicImage'])->name('finale.public.image')
     ->whereIn('size', ['feed', 'story'])->whereIn('format', ['png', 'svg'])->middleware('throttle:60,1');
 
 // League invite links open for anyone; joining needs an account.
@@ -185,6 +192,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/disputes/{dispute}/withdraw', [DisputeController::class, 'withdraw'])->name('disputes.withdraw');
     Route::post('/disputes/{dispute}/rule', [DisputeController::class, 'rule'])->name('disputes.rule');
     Route::post('/goalweeks/{week}/confirm-smashed', [SmashedConfirmationController::class, 'store'])->name('goalweeks.confirm-smashed')->middleware('verified');
+    // Goal Day and the season finale: the check-in, a league mate's confirm, the finale cards and "Share your season".
+    Route::get('/goals/{goal}/goal-day', [GoalDayController::class, 'show'])->name('goal-day.show')->can('view', 'goal');
+    Route::post('/goals/{goal}/goal-day', [GoalDayController::class, 'store'])->name('goal-day.store')->can('view', 'goal')->middleware('throttle:20,1');
+    Route::get('/goals/{goal}/goal-day/proof', [GoalDayController::class, 'proof'])->name('goal-day.proof');
+    Route::post('/goal-results/{goalResult}/confirm', [GoalDayController::class, 'confirm'])->name('goal-day.confirm')->middleware('throttle:20,1');
+    Route::get('/finale/preview', [SeasonFinaleController::class, 'preview'])->name('finale.preview');
+    Route::get('/goals/{goal}/finale', [SeasonFinaleController::class, 'show'])->name('finale.show')->can('view', 'goal');
+    Route::get('/goals/{goal}/season-card/{size}.{format}', [SeasonFinaleController::class, 'image'])->name('finale.card')->can('view', 'goal')
+        ->whereIn('size', ['feed', 'story'])->whereIn('format', ['png', 'svg'])->middleware('throttle:60,1');
+    Route::post('/goals/{goal}/season-card/post', [SeasonFinaleController::class, 'post'])->name('finale.post')->can('view', 'goal')->middleware(['verified', 'throttle:10,1']);
+    Route::post('/goals/{goal}/season-card/public', [SeasonFinaleController::class, 'publish'])->name('finale.publish')->can('view', 'goal')->middleware('throttle:10,1');
+    Route::delete('/goals/{goal}/season-card/public', [SeasonFinaleController::class, 'revoke'])->name('finale.revoke')->can('view', 'goal');
     // "Share your week": the card, posting it, a public link (opt in, revocable), and its images. Rate limited.
     Route::get('/goalweeks/{week}/share', [ResultCardController::class, 'show'])->name('cards.share')->middleware('throttle:30,1');
     Route::get('/cards/{card}/{size}.{format}', [ResultCardController::class, 'image'])->name('cards.image')

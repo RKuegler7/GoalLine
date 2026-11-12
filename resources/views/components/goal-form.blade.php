@@ -1,7 +1,7 @@
-@props(['goal' => null, 'action', 'method' => 'POST', 'submit', 'from' => null, 'cancelUrl' => null, 'cancelLabel' => 'Cancel', 'league' => null])
+@props(['goal' => null, 'action', 'method' => 'POST', 'submit', 'from' => null, 'cancelUrl' => null, 'cancelLabel' => 'Cancel', 'league' => null, 'prefill' => []])
 
 @php
-    $selectedCategory = old('category', $goal?->category?->value ?? $league?->category?->value);
+    $selectedCategory = old('category', $goal?->category?->value ?? $league?->category?->value ?? ($prefill['category'] ?? null));
 @endphp
 
 <form method="POST" action="{{ $action }}" enctype="multipart/form-data" class="space-y-7">
@@ -17,7 +17,7 @@
     <x-form.input
         name="title"
         label="What do you want to accomplish?"
-        :value="$goal?->title"
+        :value="$goal?->title ?? ($prefill['title'] ?? null)"
         placeholder="Pass the CPA exam"
         maxlength="120"
         required
@@ -53,7 +53,7 @@
         name="target_date"
         label="When does it need to happen by?"
         type="date"
-        :value="$goal?->target_date?->format('Y-m-d')"
+        :value="$goal?->target_date?->format('Y-m-d') ?? ($prefill['target_date'] ?? null)"
         :min="App\Clock::today()->addDay()->format('Y-m-d')"
         hint="Your roadmap will be built backward from this date."
         required

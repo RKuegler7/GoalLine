@@ -13,17 +13,22 @@
         <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             @csrf
 
+            @if ($rematch ?? null)
+                <input type="hidden" name="rematch_of" value="{{ $rematch->id }}">
+                <p class="rounded-xl bg-mint px-4 py-3 text-sm text-club" data-rematch-note>Running back {{ $rematch->name }}. Everyone from last season gets an invite in the app when you create it.</p>
+            @endif
+
             @if ($fromGoal)
                 <p class="rounded-xl bg-mint px-4 py-3 text-sm text-club">Filled in from &ldquo;{{ $fromGoal->title }}&rdquo;. Change anything you like. Next you'll invite your people.</p>
             @endif
 
-            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" :value="$fromGoal ? Str::limit($fromGoal->title, 70, '').' League' : null" required autofocus />
+            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" :value="($rematch ?? null) ? App\Services\LeagueJoin::nextSeasonName($rematch->name) : ($fromGoal ? Str::limit($fromGoal->title, 70, '').' League' : null)" required autofocus />
 
             <div>
                 <label for="category" class="mb-1.5 block text-sm font-medium text-ink/80">Kind of goal</label>
                 <select id="category" name="category" class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                     @foreach (App\GoalCategory::cases() as $category)
-                        <option value="{{ $category->value }}" @selected(old('category', $fromGoal?->category?->value) === $category->value)>{{ $category->label() }}</option>
+                        <option value="{{ $category->value }}" @selected(old('category', $fromGoal?->category?->value ?? ($rematch ?? null)?->category?->value) === $category->value)>{{ $category->label() }}</option>
                     @endforeach
                 </select>
             </div>

@@ -11,6 +11,8 @@ use App\Models\League;
 use App\Models\LeagueInvite;
 use App\Models\LeagueMessage;
 use App\Models\PostReport;
+use App\Models\User;
+use App\Notifications\LeagueInvited;
 use App\Services\GroupTasks;
 use App\Services\LeagueSnapshot;
 use App\Services\LeagueTable;
@@ -65,6 +67,8 @@ class LeagueController extends Controller
             'kickoffs' => self::kickoffOptions(),
             // Coming from "Play it with friends?": fill the league in from that goal.
             'fromGoal' => $goals->firstWhere('id', $request->integer('goal')),
+            // "Run it back with the same friends": a new season of a league you played in.
+            'rematch' => $request->user()->leagues()->find($request->integer('rematch')),
         ]);
     }
 
@@ -86,6 +90,7 @@ class LeagueController extends Controller
             'goal_title' => [Rule::requiredIf($newGoal), 'nullable', 'string', 'max:120'],
             'goal_target_date' => [Rule::requiredIf($newGoal), 'nullable', 'date', 'after:'.Clock::today()->toDateString()],
             'category' => ['nullable', Rule::enum(GoalCategory::class)],
+            'rematch_of' => ['nullable', 'integer'],
         ], [
             'starts_on.in' => 'Pick one of the upcoming Mondays.',
             'goal_id.required' => 'Pick the goal you will play in this league.',
@@ -126,6 +131,8 @@ class LeagueController extends Controller
             return $league;
         });
 
+        $invited = $this->inviteFormerMembers($request, $league, $request->user()->leagues()->find($validated['rematch_of'] ?? null));
+
         if ($newGoal) {
             GoalIntake::begin($goal);
 
@@ -133,7 +140,35 @@ class LeagueController extends Controller
                 ->with('status', 'League created. A few questions about your goal, then you\'ll invite your people.');
         }
 
-        return redirect()->to(route('leagues.show', $league).'#invite')->with('status', 'League created. Now invite your people: share the link, the code, or send invites below.');
+        return redirect()->to(route('leagues.show', $league).'#invite')->with('status', $invited > 0
+            ? "League created. We invited last season's {$invited} ".str('member')->plural($invited).' in the app.'
+            : 'League created. Now invite your people: share the link, the code, or send invites below.');
+    }
+
+    /**
+     * A rematch: invite everyone from the earlier season, in the app (one-time personal invites, no email).
+     */
+    private function inviteFormerMembers(Request $request, League $league, ?League $previous): int
+    {
+        if (! $previous) {
+            return 0;
+        }
+
+        $people = $previous->members()->with('user')->get()->pluck('user')->filter()
+            ->reject(fn (User $person) => $person->id === $request->user()->id || $person->demo_sandbox !== $request->user()->demo_sandbox);
+
+        foreach ($people as $person) {
+            $invite = $league->invites()->create([
+                'kind' => LeagueInvite::USERNAME,
+                'invitee_id' => $person->id,
+                'expires_at' => now()->addDays(LeagueInvite::DEFAULT_EXPIRY_DAYS),
+                'max_uses' => 1,
+            ]);
+            $invite->forceFill(['created_by' => $request->user()->id])->save();
+            $person->notify(new LeagueInvited($invite, $request->user()));
+        }
+
+        return $people->count();
     }
 
     /**

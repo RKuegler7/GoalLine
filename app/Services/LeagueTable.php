@@ -10,6 +10,7 @@ use App\MatchupOutcome;
 use App\Models\League;
 use App\Models\LeagueMember;
 use App\Models\LeagueResult;
+use App\Models\Medal;
 use App\Models\RoadmapWeek;
 use Illuminate\Support\Collection;
 
@@ -235,6 +236,11 @@ class LeagueTable
         }
 
         $recap->finalize();
+
+        // Medals once the season is complete (and only once: re-scoring a disputed week re-checks them).
+        if ($recap->isComplete() && ! Medal::where('league_id', $this->league->id)->exists()) {
+            app(MedalAwarder::class)->forLeague($this->league);
+        }
     }
 
     /**
@@ -252,6 +258,9 @@ class LeagueTable
         Atomic::run(fn () => LeagueResult::upsert($rows, ['league_id', 'user_id', 'week'], ['result', 'result_points', 'opponent_id', 'vs_median', 'outcome', 'matchup_points', 'updated_at']));
 
         $this->league->load('results');
+
+        // A settled dispute can change who earned which medal.
+        app(MedalAwarder::class)->forLeague($this->league);
     }
 
     /**

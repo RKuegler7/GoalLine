@@ -57,7 +57,7 @@ class HelpCenterTest extends TestCase
                 $page->assertSee($item['q']);
             }
         }
-        $this->assertSame(['Getting started', 'Your plan', 'Checking in', 'Scoring', 'Fairness', 'Friends and leagues', 'Privacy and safety', 'Account'], array_column($faq, 'title'));
+        $this->assertSame(['Getting started', 'Your plan', 'Checking in', 'Scoring', 'Fairness', 'Goal Day and medals', 'Friends and leagues', 'Privacy and safety', 'Account'], array_column($faq, 'title'));
 
         $bands = collect($faq)->firstWhere('id', 'scoring')['items'][0]['a'];
         $this->assertStringContainsString((int) round(GoalWeekResult::IN_LINE_AT * 100).'%', $bands);

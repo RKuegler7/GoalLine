@@ -7,6 +7,8 @@
  */
 
 use App\GoalWeekResult;
+use App\MedalType;
+use App\Models\GoalResult;
 use App\Models\League;
 use App\Models\LeagueMember;
 use App\Models\RoadmapWeek;
@@ -73,6 +75,19 @@ return [
             ['id' => 'disputes', 'q' => 'How do disputes work?', 'a' => 'Your opponent or the league owner can ask about a check-in. You answer with a photo or a note, or they withdraw it, or the owner decides. People settle disputes, never the AI.'],
             ['id' => 'held-points', 'q' => 'What are held points?', 'a' => 'Points from a check-in under an open dispute after the week closed. They\'re left out until it\'s settled, then the week re-scores on its own.'],
             ['id' => 'ai-role', 'q' => 'What does the AI do, and never do?', 'a' => 'It writes your intake questions, drafts and refines plans, gives weekly tips and short recap summaries. It never scores a week, decides a matchup or a dispute, or gives medical advice. Scoring is plain, tested code.'],
+        ],
+    ],
+    [
+        'id' => 'goal-day',
+        'title' => 'Goal Day and medals',
+        'items' => [
+            ['id' => 'goal-day', 'q' => 'What is Goal Day?', 'a' => 'The day your goal was due. GoalLine asks "Did you reach your goal?" (I did it, Partly, or I came up short), with an optional result, a few words on what was hardest and what helped, and optional proof. It waits on your Clubhouse and in History until you answer, and you can change it for '.GoalResult::EDITABLE_DAYS.' days. Finished sooner? Tap "I finished early" on your goal.'],
+            ['id' => 'goal-day-scoring', 'q' => 'Does my Goal Day answer change my stars?', 'a' => 'No. It\'s self-reported, so it never changes stars, standings or the table. The table measures your weeks; Goal Day is about you. Finishing last while hitting your goal is still a win.'],
+            ['id' => 'goal-day-verified', 'q' => 'What does Verified mean?', 'a' => 'An achieved goal is Verified when you add proof (a finish photo, score report or certificate, cleaned of location data) or a league mate confirms it with one tap. You can\'t confirm your own.'],
+            ['id' => 'goal-day-privacy', 'q' => 'Who sees my Goal Day result?', 'a' => '"Share with my league" is on by default: your result shows in your league\'s Goal Day news, where league mates can cheer it. Choose "Keep private" and only you see it. Nothing is ever posted for you; the season card is shared only if you share it.'],
+            ['id' => 'season-finale', 'q' => 'What is the season finale?', 'a' => 'A few cards after Goal Day: your result, your table finish next to your goal, a week-by-week replay, your highlights, league news, medals, a card to share, and ideas for your next goal. Skip any of it, and replay it from History or your goal.'],
+            ['id' => 'medals', 'q' => 'How do medals work?', 'a' => 'Code awards medals from settled results once a season is complete, and checks them again only if a dispute changes a week. They never change stars. '.collect(MedalType::cases())->map(fn (MedalType $medal) => $medal->label().': '.$medal->rule())->implode(' ')],
+            ['id' => 'next-goal', 'q' => 'What happens after Goal Day?', 'a' => 'Pick a next goal (up to three ideas; after a goal you reached, the first is a step up, never a step down), run it back, start a new season with the same friends, join a league, or take a break.'],
         ],
     ],
     [

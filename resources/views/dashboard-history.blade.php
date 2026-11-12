@@ -8,7 +8,25 @@
     @include('partials.clubhouse-tabs', ['active' => 'history'])
 
     <div class="space-y-5" data-first-content data-history>
-        @if ($leagues->isEmpty() && $pastGoals->isEmpty() && $weeks->isEmpty())
+        @include('finale.partials.preview-button')
+
+        {{-- Goal Day check-ins still waiting on an answer. --}}
+        @if ($goalDayPending->isNotEmpty())
+            <section aria-labelledby="history-goal-day">
+                <h2 id="history-goal-day" class="eyebrow mb-1.5 text-club">Goal Day</h2>
+                <ul class="space-y-2">
+                    @foreach ($goalDayPending as $pendingGoal)
+                        <li>
+                            <a href="{{ route('goal-day.show', $pendingGoal) }}" class="flex items-center justify-between gap-3 rounded-xl bg-gold px-3 py-2.5 text-ink hover:brightness-105" data-history-goal-day>
+                                <span class="min-w-0 truncate text-[15px] font-bold">Did you reach "{{ $pendingGoal->title }}"?</span>
+                                <span class="shrink-0 text-[13px] font-semibold">Check in &rarr;</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
+        @if ($goalDayPending->isEmpty() && $leagues->isEmpty() && $pastGoals->isEmpty() && $weeks->isEmpty())
             <x-empty-state title="Your history starts here"
                 message="Finished GoalWeeks, seasons and goals land here. One more day on the line and you're building it."
                 action="Back to Now" :href="route('dashboard')" />
@@ -40,6 +58,9 @@
                                     <a href="{{ route('leagues.create', array_filter(['goal' => $row['goal']?->isActive() ? $row['goal']->id : null])) }}"
                                         class="inline-flex min-h-9 items-center rounded-full border border-club/30 px-3 font-semibold text-club hover:border-club">Run it back</a>
                                 @endif
+                                @if ($row['goal'])
+                                    <a href="{{ route('finale.show', ['goal' => $row['goal'], 'skip' => 1]) }}" class="inline-flex min-h-9 items-center rounded-full border border-club/30 px-3 font-semibold text-club hover:border-club" data-replay-finale>Season finale</a>
+                                @endif
                                 <a href="{{ route('leagues.recap', $league) }}" class="ml-auto inline-flex min-h-9 items-center font-semibold text-club hover:underline">Season recap &rarr;</a>
                             </div>
                         </li>
@@ -67,9 +88,17 @@
                                     'bg-mint text-club' => $row['state'] === 'ended',
                                 ])>{{ $row['state'] === 'completed' ? 'Done' : ($row['state'] === 'retired' ? 'Retired' : 'Date reached') }}</span>
                             </div>
-                            @if ($row['state'] === 'ended')
+                            @if ($row['goal']->result || $row['state'] === 'completed')
+                                <div class="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
+                                    @if ($row['goal']->result)
+                                        <span class="text-ink/75">{{ $row['goal']->result->outcome->label() }}{{ $row['goal']->result->isVerified() ? ' · Verified' : '' }}</span>
+                                    @endif
+                                    <a href="{{ route('finale.show', ['goal' => $row['goal'], 'skip' => 1]) }}" class="inline-flex min-h-9 items-center rounded-full border border-club/30 px-3 font-semibold text-club hover:border-club" data-replay-finale>Season finale</a>
+                                </div>
+                            @endif
+                            @if ($row['state'] === 'ended' && ! $row['goal']->result)
                                 <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
-                                    <a href="{{ route('goals.complete', $row['goal']) }}" class="inline-flex min-h-9 items-center rounded-full bg-club px-3 font-semibold text-ivory hover:bg-club-dark">I did it</a>
+                                    <a href="{{ route('goal-day.show', $row['goal']) }}" class="inline-flex min-h-9 items-center rounded-full bg-club px-3 font-semibold text-ivory hover:bg-club-dark">Goal Day check-in</a>
                                     <a href="{{ route('goals.edit', $row['goal']) }}" class="inline-flex min-h-9 items-center rounded-full border border-club/30 px-3 font-semibold text-club hover:border-club">Set a new date</a>
                                 </div>
                             @endif

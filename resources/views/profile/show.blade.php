@@ -158,6 +158,32 @@
 
     <x-badge-shelf :user="$user" :is-own="$isOwn" class="mt-6" />
 
+    {{-- Medals: earned by code from settled seasons. A Goal Achieved medal from a private Goal Day answer stays private. --}}
+    @php
+        $medals = $user->medals()->with('league', 'goal.result')->get()
+            ->reject(fn ($medal) => ! $isOwn && $medal->type === App\MedalType::GoalAchieved && ! $medal->goal?->result?->shared)
+            ->sortBy(fn ($medal) => $medal->rank())->values();
+        $finales = $isOwn ? $user->goals()->has('result')->latest('target_date')->get() : collect();
+    @endphp
+    <section class="mt-6" aria-labelledby="locker-medals" data-locker-medals>
+        <div class="flex items-center justify-between gap-3">
+            <h2 id="locker-medals" class="eyebrow text-club">Medals</h2>
+            <a href="{{ route('help', ['q' => 'medals']) }}" class="text-[13px] font-semibold text-club hover:underline">How medals work</a>
+        </div>
+        @if ($medals->isEmpty())
+            <p class="mt-2 rounded-xl border border-line bg-white px-3 py-2.5 text-[14px] text-ink/75">Medals land here at the end of a season: Table Champion, Streak, Perfect Week and more.</p>
+        @else
+            <x-medal-shelf :medals="$medals" class="mt-2" />
+        @endif
+        @if ($finales->isNotEmpty())
+            <div class="mt-2 flex flex-wrap gap-2 text-[13px]">
+                @foreach ($finales as $finaleGoal)
+                    <a href="{{ route('finale.show', ['goal' => $finaleGoal, 'skip' => 1]) }}" class="inline-flex min-h-9 items-center rounded-full border border-club/30 px-3 font-semibold text-club hover:border-club" data-replay-finale>Replay: {{ Str::limit($finaleGoal->title, 32) }}</a>
+                @endforeach
+            </div>
+        @endif
+    </section>
+
     {{-- Trophy case. --}}
     <section class="mt-6">
         <h2 class="eyebrow text-club">Trophy case</h2>

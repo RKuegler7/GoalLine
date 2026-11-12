@@ -103,6 +103,16 @@ class Goal extends Model
     }
 
     /**
+     * The Goal Day check-in, once answered.
+     *
+     * @return HasOne<GoalResult, $this>
+     */
+    public function result(): HasOne
+    {
+        return $this->hasOne(GoalResult::class);
+    }
+
+    /**
      * Limit the query to goals still being pursued.
      *
      * @param  Builder<Goal>  $query

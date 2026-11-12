@@ -32,17 +32,17 @@
             </p>
             <span @class([
                 'eyebrow mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px]',
-                'bg-gold text-ink' => $highlight->kind === App\HighlightKind::GoalCompleted,
+                'bg-gold text-ink' => in_array($highlight->kind, [App\HighlightKind::GoalCompleted, App\HighlightKind::GoalDay], true),
                 'bg-grass text-ink' => $highlight->kind === App\HighlightKind::GreatWeek,
                 'bg-mint text-club' => $highlight->kind === App\HighlightKind::MilestoneHit,
-                'bg-club text-ivory' => $highlight->kind === App\HighlightKind::WeekCard,
+                'bg-club text-ivory' => in_array($highlight->kind, [App\HighlightKind::WeekCard, App\HighlightKind::SeasonCard], true),
             ])>{{ $highlight->kind->label() }}</span>
         </div>
         <x-post-options :post="$highlight" />
     </header>
 
     <div class="mt-4">
-        @if ($highlight->kind === App\HighlightKind::WeekCard && $highlight->photoUrl())
+        @if (in_array($highlight->kind, [App\HighlightKind::WeekCard, App\HighlightKind::SeasonCard], true) && $highlight->photoUrl())
             {{-- A weekly result card: shown whole, never cropped. --}}
             <img src="{{ $highlight->photoUrl() }}" alt="{{ $highlight->detail }}" class="aspect-[4/5] w-full bg-club object-contain" loading="lazy" width="1080" height="1350">
         @elseif ($highlight->photoUrl())

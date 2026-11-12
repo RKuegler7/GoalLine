@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Clock;
+use App\GoalCategory;
 use App\Http\Requests\GoalRequest;
 use App\Jobs\ReadPlanMaterial;
 use App\Models\Goal;
@@ -9,6 +11,7 @@ use App\Models\GoalIntake;
 use App\Models\PlanMaterial;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class GoalController extends Controller
@@ -18,7 +21,14 @@ class GoalController extends Controller
      */
     public function create(Request $request): View
     {
-        return view('goals.create', ['league' => $request->user()->leagues()->find($request->integer('league'))]);
+        // A next-goal idea from the season finale opens the form filled in (title, kind and date).
+        $prefill = array_filter([
+            'title' => Str::limit(trim((string) $request->query('title')), 120, '') ?: null,
+            'category' => GoalCategory::tryFrom((string) $request->query('category'))?->value,
+            'target_date' => preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $request->query('target_date')) && $request->query('target_date') > Clock::today()->toDateString() ? $request->query('target_date') : null,
+        ]);
+
+        return view('goals.create', ['league' => $request->user()->leagues()->find($request->integer('league')), 'prefill' => $prefill]);
     }
 
     /**

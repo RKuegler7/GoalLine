@@ -98,6 +98,23 @@ class History
     }
 
     /**
+     * One goal's finished GoalWeeks, in order: the season replay.
+     *
+     * @return Collection<int, array{week: RoadmapWeek, result: GoalWeekResult|null, percent: int, linePoints: int, match: LeagueResult|null, weeklyPoints: int}>
+     */
+    public function goalWeeks(Goal $goal): Collection
+    {
+        $weeks = $goal->weeks()
+            ->whereDate('starts_on', '<=', Clock::today()->toDateString())
+            ->with(['goal.weeks', 'goal.habits.logs', 'tasks'])
+            ->orderBy('starts_on')
+            ->get()
+            ->filter(fn (RoadmapWeek $week) => $week->isPast());
+
+        return $this->rows($weeks->values());
+    }
+
+    /**
      * One finished GoalWeek of this member's, described like the History list; null if it isn't theirs or isn't over.
      *
      * @return array{week: RoadmapWeek, result: GoalWeekResult|null, percent: int, linePoints: int, match: LeagueResult|null, weeklyPoints: int}|null

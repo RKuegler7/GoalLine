@@ -5,6 +5,7 @@
     </x-slot:hero>
 
     <div class="mx-auto max-w-2xl" data-first-content>
+        <div class="mb-3">@include('finale.partials.preview-button')</div>
         @include('help.panel')
     </div>
 </x-layouts.app>
