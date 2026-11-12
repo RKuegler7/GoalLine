@@ -63,6 +63,7 @@ class League extends Model
             'category' => GoalCategory::class,
             'goal_target_date' => 'date',
             'goal_updated_at' => 'datetime',
+            'finalized_at' => 'datetime',
         ];
     }
 

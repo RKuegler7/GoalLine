@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Atomic;
 use App\GoalWeekResult;
 use App\MatchupOutcome;
 use App\MedalType;
@@ -178,24 +179,48 @@ class MedalAwarder
     /**
      * Make the stored medals match the desired list: add new ones, update tiers, remove ones no longer earned.
      *
+     * Safe when two requests do it at once, and safe to run again: one INSERT that skips medals already there (the
+     * unique award_key decides, never a check-then-insert), updates by award_key, and deletes by primary key only. No
+     * statement scans a range of the medals index, so none takes the gap locks that let two of them deadlock, and
+     * each runs on its own, retried if MySQL still picks it as a deadlock victim.
+     *
      * @param  Builder<Medal>  $scope
      * @param  list<array<string, mixed>>  $desired
      */
     private function sync($scope, array $desired): void
     {
+        $now = now();
         $keys = array_column($desired, 'award_key');
-        (clone $scope)->whereNotIn('award_key', $keys)->delete();
+
+        if ($desired !== []) {
+            $rows = array_map(fn (array $medal) => [
+                ...$medal,
+                'type' => $medal['type'] instanceof MedalType ? $medal['type']->value : $medal['type'],
+                'metadata' => json_encode($medal['metadata']),
+                'awarded_at' => $now,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ], $desired);
+
+            Atomic::run(fn () => Medal::insertOrIgnore($rows));
+        }
+
+        // Tiers and details can change after a re-score: update the ones that differ, by their unique key.
+        $stored = Medal::whereIn('award_key', $keys)->get()->keyBy('award_key');
 
         foreach ($desired as $medal) {
-            $existing = Medal::where('award_key', $medal['award_key'])->first();
+            $current = $stored->get($medal['award_key']);
 
-            if ($existing) {
-                $existing->fill(['tier' => $medal['tier'], 'metadata' => $medal['metadata']])->save();
-
-                continue;
+            if ($current && ($current->tier !== $medal['tier'] || $current->metadata != $medal['metadata'])) {
+                Atomic::run(fn () => Medal::whereKey($current->id)->update(['tier' => $medal['tier'], 'metadata' => json_encode($medal['metadata']), 'updated_at' => $now]));
             }
+        }
 
-            Medal::create($medal + ['awarded_at' => now()]);
+        // Medals no longer earned (a dispute changed a week): found first, then removed by id.
+        $gone = (clone $scope)->whereNotIn('award_key', $keys)->pluck('id');
+
+        if ($gone->isNotEmpty()) {
+            Atomic::run(fn () => Medal::whereKey($gone->all())->delete());
         }
     }
 

@@ -95,10 +95,18 @@ class SeasonRecap
     /**
      * Once the season is complete, hand out the awards (once), post them in the chat, and tell everyone.
      */
-    public function finalize(): void
+    public function finalize(): bool
     {
-        if (! $this->isComplete() || $this->league->awards()->exists()) {
-            return;
+        if (! $this->isComplete()) {
+            return false;
+        }
+
+        // Once per season: claimed first with a guarded update, so only one request can ever do it.
+        $claimed = League::whereKey($this->league->id)->whereNull('finalized_at')->update(['finalized_at' => now()]) > 0;
+        $this->league->finalized_at ??= now();
+
+        if (! $claimed || $this->league->awards()->exists()) {
+            return $claimed;
         }
 
         $awarder = app(BadgeAwarder::class);
@@ -115,6 +123,8 @@ class SeasonRecap
             $this->league->members->pluck('user'),
             new LeagueRecap($this->league->withoutRelations(), "The {$this->league->name} season is over. See who won Champion, MVP, and the rest of the awards."),
         );
+
+        return true;
     }
 
     /**

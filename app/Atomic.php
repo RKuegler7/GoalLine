@@ -3,8 +3,11 @@
 namespace App;
 
 use Closure;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\DetectsConcurrencyErrors;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
@@ -44,10 +47,66 @@ final class Atomic
                     throw $exception;
                 }
 
+                // Retried, so it's not a failure: a warning and a counter, never an error email.
+                self::noteContention('deadlock-retried', $exception);
+
                 // A short, growing, jittered pause so the two sides don't collide again.
                 usleep(random_int(20_000, 60_000) * $attempt);
             }
         }
+    }
+
+    /**
+     * Run work that only one request should do at a time (finishing a league's season, re-checking its medals).
+     * With $wait = 0 a request that finds the work already underway skips it and returns null right away: the other
+     * request is doing it, and its result is what everyone reads. With $wait > 0 it waits up to that many seconds; if
+     * it still can't start, that's logged as a warning (the work is idempotent and will run again), not an error.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn|null
+     */
+    public static function exclusively(string $key, Closure $callback, int $wait = 0, int $seconds = 60): mixed
+    {
+        $lock = Cache::lock('exclusive:'.$key, $seconds);
+
+        if ($wait === 0) {
+            $result = $lock->get($callback);
+
+            if ($result === false) {
+                self::noteContention('skipped-busy', null, $key);
+
+                return null;
+            }
+
+            return $result;
+        }
+
+        try {
+            return $lock->block($wait, $callback);
+        } catch (LockTimeoutException $exception) {
+            self::noteContention('lock-timeout', $exception, $key);
+
+            return null;
+        }
+    }
+
+    /**
+     * Log a deadlock that was retried, or work skipped or postponed because it was already underway: a warning and
+     * a per-day counter (cache key "contention:{kind}:{date}"), never an error email.
+     */
+    public static function noteContention(string $kind, ?Throwable $exception = null, ?string $key = null): void
+    {
+        try {
+            $counter = 'contention:'.$kind.':'.now()->toDateString();
+            Cache::add($counter, 0, now()->addDays(2));
+            $count = Cache::increment($counter);
+        } catch (Throwable) {
+            $count = null;
+        }
+
+        Log::warning('Concurrency: '.$kind, array_filter(['key' => $key, 'count_today' => $count, 'error' => $exception ? str($exception->getMessage())->limit(200)->value() : null]));
     }
 
     /**

@@ -235,11 +235,16 @@ class LeagueTable
             $recap->notifyWeek($latest);
         }
 
-        $recap->finalize();
-
-        // Medals once the season is complete (and only once: re-scoring a disputed week re-checks them).
-        if ($recap->isComplete() && ! Medal::where('league_id', $this->league->id)->exists()) {
-            app(MedalAwarder::class)->forLeague($this->league);
+        // The season finale (awards, the chat post, notifications, medals) happens once. Every member's first visit
+        // after the last week can trigger it at the same moment, so one request per league does the work and the
+        // others skip it and read what it wrote. Each step also checks whether it's already done.
+        if ($recap->isComplete() && $this->league->finalized_at === null) {
+            Atomic::exclusively('league-season:'.$this->league->id, function () use ($recap) {
+                // Medals once the season is complete, by the request that finished it (re-scoring re-checks them).
+                if ($recap->finalize()) {
+                    app(MedalAwarder::class)->forLeague($this->league);
+                }
+            });
         }
     }
 
@@ -259,8 +264,8 @@ class LeagueTable
 
         $this->league->load('results');
 
-        // A settled dispute can change who earned which medal.
-        app(MedalAwarder::class)->forLeague($this->league);
+        // A settled dispute can change who earned which medal. Waits briefly if the season is being finished right now.
+        Atomic::exclusively('league-season:'.$this->league->id, fn () => app(MedalAwarder::class)->forLeague($this->league), wait: 15);
     }
 
     /**
