@@ -149,7 +149,8 @@ class LeagueStandingsTest extends TestCase
 
         $this->actingAs($fresh->commissioner)->get(route('leagues.standings', $fresh))->assertOk()
             ->assertSee('Standings fill in after week 1')
-            ->assertSee('No weeks yet');
+            ->assertSee('Season starts Nov 2')
+            ->assertSee('Kickoff Nov 2');
 
         $summary = (new LeagueStats(new LeagueTable($fresh->fresh())))->summary();
         $this->assertNull($summary['leader']);

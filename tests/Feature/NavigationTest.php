@@ -91,12 +91,12 @@ class NavigationTest extends TestCase
             ->assertSeeInOrder(['What do you want to start?', 'Start a GoalLeague', 'A season with friends', 'Start a challenge', 'A short sprint together'])
             ->assertSee(route('leagues.create'))->assertSee(route('challenges.create'));
 
-        // With a league: the list comes first, then a "Start a new GoalLeague" card, on GoalLeagues and the Clubhouse.
+        // With a league: the list comes first, then GoalLeague and challenge side by side, on GoalLeagues and the Clubhouse.
         $league = League::factory()->create(['name' => 'Morning Crew', 'commissioner_id' => $user->id]);
         $league->members()->create(['user_id' => $user->id]);
 
         foreach ([route('leagues.index'), route('dashboard')] as $page) {
-            $this->actingAs($user)->get($page)->assertSeeInOrder(['Morning Crew', 'Start a new GoalLeague', 'Join with a code'])->assertSee('id="start-sheet"', false);
+            $this->actingAs($user)->get($page)->assertSeeInOrder(['Morning Crew', 'New GoalLeague', 'New challenge', 'Join with a code']);
         }
     }
 
