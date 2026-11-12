@@ -68,6 +68,13 @@
         @endforeach
     </dl>
 
+    @if ($isOwn)
+        <a href="{{ route('dashboard', ['tab' => 'history']) }}" class="mt-3 flex min-h-11 items-center justify-between rounded-xl border border-line bg-white px-3 text-[14px] hover:border-club/40" data-history-link>
+            <span><span class="font-semibold text-club">History</span> <span class="text-ink/70">&middot; past seasons, goals and GoalWeeks</span></span>
+            <x-icon name="chevron-right" class="size-4 text-ink/60" />
+        </a>
+    @endif
+
     @if ($featured = $user->featuredGoal)
         <section class="mt-6 flex flex-col gap-4 rounded-2xl border border-line bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="min-w-0">

@@ -6,13 +6,16 @@ use App\Clock;
 use App\GoalStatus;
 use App\GoalWeekResult;
 use App\HighlightKind;
+use App\LeagueStatus;
 use App\Models\Goal;
 use App\Models\HabitLog;
+use App\Models\League;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Services\DailyStreak;
 use App\Services\HighlightFeed;
+use App\Services\History;
 use App\Services\KickoffChecklist;
 use App\Services\LeagueSnapshot;
 use App\Services\ProfileStats;
@@ -34,8 +37,22 @@ class DashboardController extends Controller
     public function __invoke(Request $request): View
     {
         $user = $request->user();
-        $goals = $user->goals()->active()->with(['weeks.tasks', 'weeks.review', 'habits.logs'])->orderBy('target_date')->get();
+
+        if ($request->query('tab') === 'history') {
+            $history = new History($user);
+
+            return view('dashboard-history', [
+                'leagues' => $history->leagues(),
+                'pastGoals' => $history->goals(),
+                'weeks' => $history->weeks(),
+            ]);
+        }
+
+        // Now: only what's in play. Goals past their date and finished seasons live in History.
+        $goals = $user->goals()->inPlay()->with(['weeks.tasks', 'weeks.review', 'habits.logs'])->orderBy('target_date')->get();
         $stats = new ProfileStats($user);
+        $leagues = $user->leagues()->latest('starts_on')->get()->reject(fn (League $league) => $league->status() === LeagueStatus::Finished);
+        $leagueGoalIds = $leagues->pluck('pivot.goal_id');
 
         return view('dashboard', [
             'goals' => $goals,
@@ -46,10 +63,13 @@ class DashboardController extends Controller
             'greeting' => $this->greeting(),
             'weekPoints' => $goals->sum(fn (Goal $goal) => $goal->currentWeek()?->result()?->points() ?? 0),
             'activity' => $this->weekActivity($user),
-            'leagues' => $user->leagues()->latest('starts_on')->get()->map(fn ($league) => new LeagueSnapshot($league, $user)),
+            'leagues' => $leagues->map(fn (League $league) => new LeagueSnapshot($league, $user))->values(),
+            // Goals in play outside any current GoalLeague get "Play it with friends?", unless the member chose solo.
+            'soloGoals' => $goals->reject(fn (Goal $goal) => $leagueGoalIds->contains($goal->id)),
+            'chosenSolo' => collect($request->session()->get('solo_goals', [])),
+            'endedGoals' => $user->goals()->active()->get()->filter->hasEndedTimeline()->count(),
             'friendFeed' => (new HighlightFeed($user))->friends(self::FRIEND_FEED_SIZE),
             'shareable' => $this->shareableMoment($user),
-            'retired' => $user->goals()->where('status', GoalStatus::Retired)->latest('retired_at')->get(),
         ]);
     }
 

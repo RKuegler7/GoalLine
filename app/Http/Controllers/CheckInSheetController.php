@@ -14,7 +14,7 @@ class CheckInSheetController extends Controller
      */
     public function __invoke(Request $request): View
     {
-        $goals = $request->user()->goals()->active()->with('weeks.tasks', 'habits.logs')->get();
+        $goals = $request->user()->goals()->inPlay()->with('weeks.tasks', 'habits.logs')->get();
 
         return view('partials.check-in-sheet', ['gameplan' => new TodaysGameplan($goals, $request->user())]);
     }

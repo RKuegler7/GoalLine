@@ -75,7 +75,7 @@ class SendReminders extends Command
         $sent = 0;
         $loaded = null;
         $goals = function () use (&$loaded, $user) {
-            return $loaded ??= $user->goals()->active()->with(['weeks.tasks', 'habits.logs'])->orderBy('target_date')->get();
+            return $loaded ??= $user->goals()->inPlay()->with(['weeks.tasks', 'habits.logs'])->orderBy('target_date')->get();
         };
 
         if ($this->isDue($settings->morningAt, $now)) {

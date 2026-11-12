@@ -35,8 +35,17 @@
         </div>
     </x-slot:hero>
 
+    @include('partials.clubhouse-tabs', ['active' => 'now'])
+
     <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0 space-y-4" data-first-content>
+            @if ($endedGoals > 0)
+                <a href="{{ route('dashboard', ['tab' => 'history']) }}" class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2 text-[13px] hover:border-club/40" data-ended-goals>
+                    <span class="text-ink/80">{{ $endedGoals }} {{ Str::plural('goal', $endedGoals) }} reached {{ $endedGoals === 1 ? 'its' : 'their' }} date. Mark {{ $endedGoals === 1 ? 'it' : 'them' }} done or set a new date in History.</span>
+                    <span class="shrink-0 font-semibold text-club">History &rarr;</span>
+                </a>
+            @endif
+
             @if ($goals->isEmpty())
                 <x-empty-state message="What do you want to accomplish? Name a goal and its date, and GoalLine builds your plan." action="Set your first goal" :href="route('goals.create')" />
             @else
@@ -52,6 +61,10 @@
                 </div>
                 @include('partials.clubhouse-leagues')
             </section>
+
+            @foreach ($soloGoals->reject(fn ($goal) => $chosenSolo->contains($goal->id)) as $goal)
+                @include('partials.play-with-friends', ['goal' => $goal])
+            @endforeach
 
             @if ($shareable)
                 <a href="{{ $shareable['url'] }}" class="flex items-center justify-between gap-3 rounded-xl border border-gold/50 bg-gold/15 px-3 py-2 text-[13px] transition hover:bg-gold/25">
@@ -142,23 +155,6 @@
             </section>
 
             <x-scoring-explainer />
-
-            @if ($retired->isNotEmpty())
-                <details class="group rounded-xl border border-line bg-white">
-                    <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 [&::-webkit-details-marker]:hidden">
-                        <span class="eyebrow text-ink/70">Retired goals ({{ $retired->count() }})</span>
-                        <x-icon name="chevron-down" class="size-4 text-ink/70 transition group-open:rotate-180" />
-                    </summary>
-                    <ul class="space-y-1 border-t border-line px-3 py-2">
-                        @foreach ($retired as $goal)
-                            <li class="text-[13px]">
-                                <a href="{{ route('goals.show', $goal) }}" class="text-ink/70 hover:text-club hover:underline">{{ $goal->title }}</a>
-                                <span class="text-ink/70">&middot; retired {{ App\Clock::local($goal->retired_at)?->format('M j, Y') }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </details>
-            @endif
 
             <x-install-app />
             <x-push-nudge />

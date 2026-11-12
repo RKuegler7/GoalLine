@@ -45,6 +45,12 @@ class GoalNextStepController extends Controller
             return redirect()->route('leagues.join', ['code' => $code, 'goal' => $goal->id]);
         }
 
-        return redirect()->route('goals.show', $goal)->with('status', "Going solo: it's you against the line. You can start or join a GoalLeague any time.");
+        // Remembered for the session, so the Clubhouse stops asking about this goal.
+        $request->session()->put('solo_goals', collect($request->session()->get('solo_goals', []))->push($goal->id)->unique()->values()->all());
+        $status = "Going solo: it's you against the line. You can start or join a GoalLeague any time.";
+
+        return $request->input('from') === 'clubhouse'
+            ? redirect()->route('dashboard')->with('status', $status)
+            : redirect()->route('goals.show', $goal)->with('status', $status);
     }
 }

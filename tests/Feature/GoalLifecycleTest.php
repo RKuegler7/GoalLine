@@ -64,11 +64,16 @@ class GoalLifecycleTest extends TestCase
         $goal = Goal::factory()->create(['title' => 'Learn Spanish']);
         $goal->retire();
 
+        // Off the Clubhouse's Now view, and kept in History.
         $this->actingAs($goal->user)
             ->get(route('dashboard'))
-            ->assertSee('Retired goals')
-            ->assertSee('Learn Spanish')
+            ->assertDontSee('Learn Spanish')
             ->assertSee('Set your first goal');
+
+        $this->actingAs($goal->user)
+            ->get(route('dashboard', ['tab' => 'history']))
+            ->assertSee('Learn Spanish')
+            ->assertSee('Retired');
 
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))

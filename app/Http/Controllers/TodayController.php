@@ -57,7 +57,7 @@ class TodayController extends Controller
 
     private function gameplan(Request $request): TodaysGameplan
     {
-        $goals = $request->user()->goals()->active()->with('weeks.tasks', 'habits.logs')->get();
+        $goals = $request->user()->goals()->inPlay()->with('weeks.tasks', 'habits.logs')->get();
 
         return new TodaysGameplan($goals, $request->user());
     }

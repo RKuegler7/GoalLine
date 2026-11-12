@@ -113,6 +113,25 @@ class Goal extends Model
     }
 
     /**
+     * Active goals whose timeline hasn't ended: the ones with work this week or ahead. An active goal past its target
+     * date (and its last week's check-in grace day) has no GoalWeeks left, so it belongs in History until it's
+     * marked done, retired or given a new date.
+     */
+    public function scopeInPlay(Builder $query): void
+    {
+        $query->where('status', GoalStatus::Active)
+            ->whereDate('target_date', '>=', Clock::today()->subDays(RoadmapWeek::CHECK_IN_GRACE_DAYS)->toDateString());
+    }
+
+    /**
+     * Whether the goal is active but its timeline, grace day included, is over.
+     */
+    public function hasEndedTimeline(): bool
+    {
+        return $this->isActive() && $this->target_date->copy()->addDays(RoadmapWeek::CHECK_IN_GRACE_DAYS)->lt(Clock::today());
+    }
+
+    /**
      * Whether the goal is still being pursued.
      */
     public function isActive(): bool

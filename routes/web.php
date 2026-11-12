@@ -27,6 +27,7 @@ use App\Http\Controllers\GroupTaskController;
 use App\Http\Controllers\HabitController;
 use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
+use App\Http\Controllers\HistoryWeekController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
@@ -97,6 +98,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/history/weeks/{week}', HistoryWeekController::class)->name('history.weeks.show');
 
     Route::get('/welcome', [WelcomeController::class, 'you'])->name('welcome.show');
     Route::put('/welcome', [WelcomeController::class, 'saveYou'])->name('welcome.you');
