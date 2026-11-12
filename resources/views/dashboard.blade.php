@@ -41,6 +41,8 @@
 
     <div class="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div class="min-w-0 space-y-4" data-first-content>
+            @include('partials.league-setup-cards')
+
             @if ($endedGoals > 0)
                 <a href="{{ route('dashboard', ['tab' => 'history']) }}" class="flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3 py-2 text-[13px] hover:border-club/40" data-ended-goals>
                     <span class="text-ink/80">{{ $endedGoals }} {{ Str::plural('goal', $endedGoals) }} reached {{ $endedGoals === 1 ? 'its' : 'their' }} date. Mark {{ $endedGoals === 1 ? 'it' : 'them' }} done or set a new date in History.</span>

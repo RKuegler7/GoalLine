@@ -2,21 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Clock;
-use App\GoalCategory;
-use App\GoalExamples;
 use App\Models\GoalIntake;
 use App\Models\League;
 use App\Models\LeagueInvite;
+use App\Services\LeagueGoalForm;
 use App\Services\LeagueJoin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class LeagueJoinGoalController extends Controller
 {
+    public function __construct(private LeagueGoalForm $form) {}
+
     /**
      * The goal step from an invite link.
      */
@@ -60,44 +57,7 @@ class LeagueJoinGoalController extends Controller
             return redirect()->to($back);
         }
 
-        $category = GoalCategory::tryFrom((string) $request->input('category')) ?? $league->category ?? GoalCategory::Other;
-        $seasonEnd = $league->ends_on->toDateString();
-
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:120'],
-            'category' => ['required', Rule::enum(GoalCategory::class)],
-            'target_date' => ['required', 'date', 'after:'.Clock::today()->toDateString()],
-            'target_result' => ['nullable', 'string', 'max:80'],
-            'description' => ['nullable', 'string', 'max:280'],
-            'why' => ['nullable', 'string', 'max:1000'],
-            'chips' => ['nullable', 'array'],
-            'chips.*' => ['string', Rule::in(array_keys(GoalExamples::chips($category)))],
-            'past_season' => ['nullable', 'boolean'],
-        ], [
-            'title.required' => 'Name the goal you\'ll play.',
-            'target_date.after' => 'Pick a date after today.',
-        ]);
-
-        // A date past the season is fine, as long as they chose it knowing the matchups stop when the season does.
-        if ($validated['target_date'] > $seasonEnd && ! $request->boolean('past_season')) {
-            throw ValidationException::withMessages([
-                'target_date' => "The league season ends {$league->ends_on->format('F j, Y')}. Pick a date by then, or tick \"Keep my later date\": your matchups end with the season, and you keep going against the line after it.",
-            ]);
-        }
-
-        $context = collect([trim((string) ($validated['description'] ?? ''))])
-            ->merge(collect($validated['chips'] ?? [])->map(fn (string $chip) => GoalExamples::chips($category)[$chip]))
-            ->filter()
-            ->implode(' ');
-
-        $goal = $user->goals()->create([
-            'title' => trim($validated['title']),
-            'category' => $validated['category'],
-            'target_date' => $validated['target_date'],
-            'why' => filled($validated['why'] ?? null) ? trim($validated['why']) : null,
-            'target_result' => filled($validated['target_result'] ?? null) ? trim($validated['target_result']) : null,
-            'context' => $context === '' ? null : Str::limit($context, 600, ''),
-        ]);
+        $goal = $this->form->create($request, $league, $user);
 
         if (! $joiner->join($league, $user, $goal, $invite)) {
             $goal->delete();

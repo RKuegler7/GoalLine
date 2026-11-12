@@ -13,6 +13,7 @@ use App\Models\League;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use App\Models\User;
+use App\RoadmapStatus;
 use App\Services\DailyStreak;
 use App\Services\HighlightFeed;
 use App\Services\History;
@@ -22,6 +23,7 @@ use App\Services\ProfileStats;
 use App\Services\TodaysGameplan;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
@@ -49,7 +51,7 @@ class DashboardController extends Controller
         }
 
         // Now: only what's in play. Goals past their date and finished seasons live in History.
-        $goals = $user->goals()->inPlay()->with(['weeks.tasks', 'weeks.review', 'habits.logs'])->orderBy('target_date')->get();
+        $goals = $user->goals()->inPlay()->with(['weeks.tasks', 'weeks.review', 'habits.logs', 'intake'])->orderBy('target_date')->get();
         $stats = new ProfileStats($user);
         $leagues = $user->leagues()->latest('starts_on')->get()->reject(fn (League $league) => $league->status() === LeagueStatus::Finished);
         $leagueGoalIds = $leagues->pluck('pivot.goal_id');
@@ -66,11 +68,40 @@ class DashboardController extends Controller
             'leagues' => $leagues->map(fn (League $league) => new LeagueSnapshot($league, $user))->values(),
             // Goals in play outside any current GoalLeague get "Play it with friends?", unless the member chose solo.
             'soloGoals' => $goals->reject(fn (Goal $goal) => $leagueGoalIds->contains($goal->id)),
+            'leagueSetup' => $this->leagueSetup($leagues, $goals),
             'chosenSolo' => collect($request->session()->get('solo_goals', [])),
             'endedGoals' => $user->goals()->active()->get()->filter->hasEndedTimeline()->count(),
             'friendFeed' => (new HighlightFeed($user))->friends(self::FRIEND_FEED_SIZE),
             'shareable' => $this->shareableMoment($user),
         ]);
+    }
+
+    /**
+     * Every live GoalLeague whose goal still needs the member: no goal to play (or it ended), the questions still open,
+     * or the plan still being built. Nobody is left in a league with nowhere to see or set their goal.
+     *
+     * @param  Collection<int, League>  $leagues  Forming or in season, with the membership pivot.
+     * @param  Collection<int, Goal>  $inPlay
+     * @return list<array{league: League, state: string, goal: Goal|null, spare: Goal|null}>
+     */
+    private function leagueSetup(Collection $leagues, Collection $inPlay): array
+    {
+        $attached = $leagues->pluck('pivot.goal_id')->filter();
+        $spare = $inPlay->first(fn (Goal $goal) => ! $attached->contains($goal->id));
+
+        return $leagues->map(function (League $league) use ($inPlay, $spare) {
+            $goal = $inPlay->firstWhere('id', $league->pivot->goal_id);
+            $goal?->loadMissing('intake');
+
+            $state = match (true) {
+                $goal === null => 'needs_goal',
+                $goal->intake?->isOpen() => 'setting_up',
+                $goal->roadmap_status !== RoadmapStatus::Ready => 'building',
+                default => null,
+            };
+
+            return $state === null ? null : ['league' => $league, 'state' => $state, 'goal' => $goal, 'spare' => $state === 'needs_goal' ? $spare : null];
+        })->filter()->values()->all();
     }
 
     /**

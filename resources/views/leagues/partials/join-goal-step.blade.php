@@ -127,6 +127,9 @@
         </summary>
         <form method="POST" action="{{ $joinAction }}" class="space-y-3 border-t border-line px-3 py-3">
             @csrf
+            @if (($joinMethod ?? 'POST') !== 'POST')
+                @method($joinMethod)
+            @endif
             <label for="goal_id" class="sr-only">Your goal</label>
             <select id="goal_id" name="goal_id" required class="{{ $field }}">
                 @foreach ($goals as $goal)
