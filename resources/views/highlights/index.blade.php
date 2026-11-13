@@ -5,6 +5,8 @@
         </x-page-header>
     </x-slot:hero>
 
+    @include('highlights.partials.switch', ['active' => 'feed'])
+
     <div class="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <div class="min-w-0">
             @if ($highlights->isEmpty())

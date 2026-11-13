@@ -16,6 +16,7 @@ use App\Http\Controllers\CoachCheckController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DemoController;
 use App\Http\Controllers\DisputeController;
+use App\Http\Controllers\ExploreController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GameplanController;
@@ -140,6 +141,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/u/{user}/friends', ProfileFriendsController::class)->name('profiles.friends')->middleware('throttle:60,1');
 
     Route::get('/highlights', [HighlightController::class, 'index'])->name('highlights.index');
+    // Explore: public GoalLeagues and public posts, rate limited and paged.
+    Route::get('/highlights/explore', [ExploreController::class, 'index'])->name('highlights.explore')->middleware('throttle:60,1');
+    Route::post('/explore/leagues/{league}/join', [ExploreController::class, 'join'])->name('explore.join')->middleware('throttle:20,1');
+    Route::patch('/leagues/{league}/public', [ExploreController::class, 'listLeague'])->name('leagues.public')->middleware('throttle:20,1');
+    Route::patch('/highlights/{highlight}/visibility', [ExploreController::class, 'visibility'])->name('highlights.visibility')->middleware('throttle:30,1');
+    Route::match(['post', 'delete'], '/u/{user}/mute', [ExploreController::class, 'mute'])->name('users.mute')->middleware('throttle:30,1');
     Route::get('/highlights/new', [HighlightController::class, 'create'])->name('highlights.create');
     Route::post('/highlights', [HighlightController::class, 'store'])->name('highlights.store')->middleware(['verified', 'throttle:20,60']);
     Route::delete('/highlights/{highlight}', [HighlightController::class, 'destroy'])->name('highlights.destroy')->can('delete', 'highlight');

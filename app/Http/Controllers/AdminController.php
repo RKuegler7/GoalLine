@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invite;
+use App\Models\PostReport;
 use App\Services\AdminStats;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,10 @@ class AdminController extends Controller
             'storage' => $stats->photoStorage(),
             'queue' => $stats->queue(),
             'goalDay' => $stats->goalDay(),
+            // Reported posts (real members only), newest first: the post is already hidden for whoever reported it.
+            'reports' => PostReport::query()->with('highlight.user', 'reporter')
+                ->whereHas('reporter', fn ($reporter) => $reporter->whereNull('demo_sandbox'))
+                ->latest()->limit(20)->get(),
             'invites' => Invite::withCount('members')->latest()->get(),
             'inviteOnly' => config('goalline.beta.invite_only'),
             'feedback' => DB::table('feedback')

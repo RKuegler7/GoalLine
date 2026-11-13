@@ -60,6 +60,13 @@
                     <div class="flex flex-wrap items-center gap-2">
                         <x-friend-button :user="$user" tone="light" />
                         <x-nudge-button :user="$user" tone="light" />
+                        @if (App\Models\UserMute::where('user_id', auth()->id())->where('muted_user_id', $user->id)->exists())
+                            <form method="POST" action="{{ route('users.mute', $user) }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="min-h-11 rounded-full border border-ivory/60 px-4 text-sm font-semibold text-ivory hover:bg-ivory/10" data-unmute>Muted &middot; Unmute</button>
+                            </form>
+                        @endif
                     </div>
                     <p class="mt-1 text-[11px] text-ivory/80" data-friend-note>Friends can see your League + friends posts.</p>
                 </div>

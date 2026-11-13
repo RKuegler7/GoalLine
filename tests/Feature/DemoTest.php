@@ -55,7 +55,8 @@ class DemoTest extends TestCase
 
         $this->assertSame(DemoWorld::VISITOR_NAME, $visitor->name);
         $this->assertTrue($visitor->isDemo());
-        $this->assertSame(8, User::where('demo_sandbox', $visitor->demo_sandbox)->count());
+        // John, his seven friends and league mates, and four made-up people for Explore.
+        $this->assertSame(12, User::where('demo_sandbox', $visitor->demo_sandbox)->count());
         $this->assertEqualsCanonicalizing(['Marathon by March', '4.0 This Fall', 'CPA Prep League · Season 1'], $visitor->leagues()->pluck('name')->all());
         $this->assertSame(1, $visitor->challenges()->count());
         $this->assertCount(4, $visitor->friends());
@@ -140,9 +141,9 @@ class DemoTest extends TestCase
         $this->seed();
         $this->seed();
 
-        $this->assertSame(8, User::where('demo_sandbox', DemoWorld::SEEDED_SANDBOX)->count());
+        $this->assertSame(12, User::where('demo_sandbox', DemoWorld::SEEDED_SANDBOX)->count());
         $this->assertSame(1, User::where('email', 'test@example.com')->count());
-        $this->assertSame(3, League::count());
+        $this->assertSame(6, League::count());
 
         $this->post('/login', ['email' => DemoSeeder::EMAIL, 'password' => DemoSeeder::PASSWORD])->assertRedirect();
         $this->assertSame(DemoWorld::VISITOR_NAME, auth()->user()->name);
@@ -273,7 +274,7 @@ class DemoTest extends TestCase
 
         $this->assertNotSame($first, auth()->user()->demo_sandbox);
         $this->assertSame(0, User::where('demo_sandbox', $first)->count());
-        $this->assertSame(8, User::where('demo_sandbox', $other)->count());
+        $this->assertSame(12, User::where('demo_sandbox', $other)->count());
 
         $real = User::factory()->create();
         $this->actingAs($real)->post(route('demo.reset'))->assertNotFound();
@@ -289,7 +290,7 @@ class DemoTest extends TestCase
         $this->get(route('demo'));
 
         $this->assertSame(0, User::where('demo_sandbox', $old)->count());
-        $this->assertSame(8, User::whereNotNull('demo_sandbox')->count());
+        $this->assertSame(12, User::whereNotNull('demo_sandbox')->count());
     }
 
     public function test_demo_worlds_never_reach_real_members(): void
@@ -337,10 +338,10 @@ class DemoTest extends TestCase
         auth()->logout();
         $this->get(route('demo'));
         $this->assertNotSame($first, auth()->user()->demo_sandbox);
-        $this->assertSame(16, User::whereNotNull('demo_sandbox')->count());
+        $this->assertSame(24, User::whereNotNull('demo_sandbox')->count());
 
         $this->travel(25)->hours();
-        $this->assertSame(16, DemoWorld::pruneExpired());
+        $this->assertSame(24, DemoWorld::pruneExpired());
         $this->assertSame(0, User::whereNotNull('demo_sandbox')->count());
         $this->assertSame(0, League::count());
         $this->assertSame([], Storage::disk('uploads')->allFiles('highlights'));

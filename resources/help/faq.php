@@ -106,7 +106,8 @@ return [
         'title' => 'Privacy and safety',
         'items' => [
             ['id' => 'photo-location', 'q' => 'Are my photos cleaned of location data?', 'a' => '"Show your work" photos are re-saved without their hidden data, including GPS location, before they\'re stored. The optional "Where?" label is only what you type.'],
-            ['id' => 'who-sees-posts', 'q' => 'Who can see my posts?', 'a' => 'You choose for each post: proof only, your league, or your league and friends. Your plan details, answers and notes are never shared.'],
+            ['id' => 'who-sees-posts', 'q' => 'Who can see my posts?', 'a' => 'You choose for each post: proof only, your league, your league and friends, or Public (Explore), which anyone on GoalLine can see. Public is never picked for you. Change it any time from the post\'s … menu, and a post you take back from Public leaves Explore right away. Your plan details, answers and notes are never shared.'],
+            ['id' => 'explore', 'q' => 'What is Explore?', 'a' => 'A tab in Highlights with public GoalLeagues you can join (an owner lists theirs from the league page) and posts people chose to make public. Nothing else ever appears there. Report a post to hide it for you and flag it for us, or mute someone from a post\'s … menu so their posts never show for you; unmute from their profile.'],
             ['id' => 'reporting', 'q' => 'How do I report something?', 'a' => 'Use Report on a post. It\'s hidden for you right away, and the league owner can take a look.'],
             ['id' => 'not-medical', 'q' => 'Is my plan medical advice?', 'a' => 'No. Plans are general guidance. Physical goals get careful progression and rest days. Check with a doctor if you have health concerns.'],
         ],

@@ -42,6 +42,29 @@
             </ol>
         </section>
 
+        {{-- Reported posts: each is hidden for the person who reported it; the author can be muted or the post removed. --}}
+        <section class="rounded-2xl border border-line bg-white px-4 py-3 lg:col-span-2" data-admin-reports>
+            <h2 class="eyebrow text-club">Reported posts</h2>
+            @if ($reports->isEmpty())
+                <p class="mt-2 text-sm text-ink/70">No reports.</p>
+            @else
+                <ul class="mt-2 divide-y divide-line text-sm">
+                    @foreach ($reports as $report)
+                        <li class="py-2">
+                            <span class="font-semibold text-ink">{{ $report->highlight?->user?->name ?? 'A removed post' }}</span>
+                            <span class="text-ink/70">&middot; {{ $report->highlight?->kind?->label() }}{{ $report->highlight?->isPublic() ? ' · Public (Explore)' : '' }} &middot; {{ $report->created_at->diffForHumans() }}</span>
+                            @if ($report->reason)
+                                <span class="block text-ink/80">&ldquo;{{ $report->reason }}&rdquo;</span>
+                            @endif
+                            @if ($report->highlight)
+                                <span class="block text-ink/70">{{ Str::limit($report->highlight->caption ?? $report->highlight->headline, 120) }}</span>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
+
         {{-- Goal Day and medals: counts only, never names or notes. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3" data-admin-goal-day>
             <h2 class="eyebrow text-club">Goal Day and medals</h2>

@@ -188,6 +188,7 @@ class DemoWorld
             Friendship::create(['requester_id' => $steph->id, 'addressee_id' => $you->id]);
 
             $this->posts($you, $red, $tim, $steph, $mary, $pat, $fran, $running, $study, $goals);
+            $this->exploreExamples($seasonStart);
             $this->planHonesty($goals, $you, $pat, $running);
             $groupTask = $this->groupTask($running, $red, [$red, $tim]);
             $this->challenge($tim, [$you, $tim, $red, $mary]);
@@ -310,6 +311,57 @@ class DemoWorld
 
         if ($this->store(User::AVATAR_DISK, $path, $svg)) {
             $person->forceFill(['cover_path' => $path, 'cover_mime_type' => 'image/svg+xml'])->save();
+        }
+    }
+
+    /**
+     * Explore for the demo: made-up people, three public GoalLeagues to join and four public posts, all inside this
+     * demo world (a demo never sees real members, and real members never see this).
+     */
+    private function exploreExamples(CarbonImmutable $seasonStart): void
+    {
+        $ana = $this->person('Ana Ruiz', 'Ironman 70.3 in June. Swim is the hard part.');
+        $ben = $this->person('Ben Okoro', 'Bar exam, July. Flashcards everywhere.');
+        $chloe = $this->person('Chloe Park', 'Day 41 of 75 Hard. Still smiling.');
+        $dev = $this->person('Dev Shah', 'Writing a thesis on urban heat islands.');
+        $this->identity($ana, 'Swim, bike, run, repeat', ['Swimming', 'Cycling', 'Running'], '#176B45', '#0369A1');
+        $this->identity($ben, 'Passing the bar on the first try', ['Exams', 'Career'], '#1E2922', '#176B45');
+        $this->identity($chloe, '75 days, no excuses', ['Mindfulness', 'Lifting'], '#D4AC58', '#176B45');
+        $this->identity($dev, 'Chapter a month', ['Writing', 'Studying'], '#176B45', '#D4AC58');
+
+        $nextMonday = $this->monday->addWeek();
+        $leagues = [
+            [$ana, 'Spring Triathletes', 'Training for a spring tri. Every distance welcome.', GoalCategory::Fitness, $nextMonday, $nextMonday->addWeeks(12)->subDay(), [$ana, $chloe]],
+            [$ben, 'Bar Prep Study Hall', 'Daily study blocks for the summer bar exam.', GoalCategory::Career, $seasonStart->addWeeks(2), $seasonStart->addWeeks(14)->subDay(), [$ben, $dev]],
+            [$dev, 'Thesis Writing Club', 'A page a day. Accountability for grad students.', GoalCategory::Academic, $nextMonday, $nextMonday->addWeeks(10)->subDay(), [$dev]],
+        ];
+
+        foreach ($leagues as [$owner, $name, $description, $category, $starts, $ends, $members]) {
+            $league = $this->league($name, $description, $category, $owner, $starts, $ends);
+            $league->forceFill(['is_public' => true])->save();
+
+            foreach ($members as $member) {
+                $league->members()->create(['user_id' => $member->id]);
+            }
+        }
+
+        $posts = [
+            [$ana, HighlightKind::GreatWeek, 'Ironman 70.3 in June', 'Past the line this GoalWeek', 'First open-water swim of the year. 1,500m and still smiling.', 'Swim', '1,500 m · open water', '#0369A1', '#176B45', 2],
+            [$ben, HighlightKind::MilestoneHit, 'Pass the bar exam', 'Milestone: first full practice test', '200 questions, one sitting. 71% on the first try.', 'Practice test', '142 of 200', '#1E2922', '#D4AC58', 3],
+            [$chloe, HighlightKind::GreatWeek, 'Finish 75 Hard', 'Smashed the line this GoalWeek', 'Two workouts, a gallon of water, ten pages. Day 41 done.', 'Day 41', '75 Hard', '#D4AC58', '#1E2922', 1],
+            [$dev, HighlightKind::GoalCompleted, 'Finish the lit review', 'Completed this week', 'Chapter 2 is done: 34 pages, 112 sources. On to methods.', 'Chapter 2', '34 pages · done', '#176B45', '#43B96A', 4],
+        ];
+
+        foreach ($posts as [$author, $kind, $headline, $detail, $caption, $photoTitle, $photoSubtitle, $from, $to, $daysAgo]) {
+            $post = $author->highlights()->create([
+                'kind' => $kind,
+                'visibility' => PostVisibility::Public,
+                'headline' => $headline,
+                'detail' => $detail,
+                'caption' => $caption,
+            ]);
+            $this->photo($post, $photoTitle, $photoSubtitle, $from, $to);
+            $post->forceFill(['created_at' => now()->subDays($daysAgo)->subHours(2)])->saveQuietly();
         }
     }
 

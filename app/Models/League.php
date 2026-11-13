@@ -64,6 +64,7 @@ class League extends Model
             'goal_target_date' => 'date',
             'goal_updated_at' => 'datetime',
             'finalized_at' => 'datetime',
+            'is_public' => 'boolean',
         ];
     }
 

@@ -25,7 +25,26 @@
                 <button type="submit" class="block w-full px-4 py-2 text-left text-red-700 hover:bg-red-50">{{ $mine ? 'Remove' : 'Remove from league' }}</button>
             </form>
         @endif
+        {{-- Who sees it: switch any time, including taking a public post out of Explore. --}}
+        @if ($mine && $post->visibilityChoices() !== [])
+            <form method="POST" action="{{ route('highlights.visibility', $post) }}" class="border-t border-line px-4 py-2" data-post-visibility>
+                @csrf
+                @method('PATCH')
+                <label for="visibility-{{ $post->id }}" class="block text-xs font-semibold text-ink/70">Who sees it</label>
+                <select id="visibility-{{ $post->id }}" name="visibility" class="mt-1 w-full rounded-lg border border-line px-2 py-1 text-xs">
+                    @foreach ($post->visibilityChoices() as $choice)
+                        <option value="{{ $choice }}" @selected(($post->visibility?->value ?? 'circle') === $choice)>{{ $choice === 'circle' ? 'Friends and league mates' : App\PostVisibility::from($choice)->label((bool) $post->league_id) }}</option>
+                    @endforeach
+                </select>
+                <p class="mt-1 text-[11px] text-ink/70">Public (Explore): anyone on GoalLine can see it.</p>
+                <button type="submit" class="mt-1.5 text-xs font-semibold text-club hover:underline">Save</button>
+            </form>
+        @endif
         @unless ($mine)
+            <form method="POST" action="{{ route('users.mute', $post->user_id) }}" class="border-t border-line">
+                @csrf
+                <button type="submit" class="block w-full px-4 py-2 text-left text-ink hover:bg-mint" data-mute>Mute {{ Str::before($post->user->name, ' ') }}</button>
+            </form>
             <form method="POST" action="{{ route('highlights.report', $post) }}" class="border-t border-line px-4 py-2">
                 @csrf
                 <label for="report-reason-{{ $post->id }}" class="block text-xs font-semibold text-ink/70">Report this post</label>

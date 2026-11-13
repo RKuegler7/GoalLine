@@ -53,6 +53,20 @@
         <x-people-search-form :league="$league" label="Find friends to invite" class="mt-4 border-dashed bg-ivory/50" />
     @endif
 
+    @if ($isOwner && $joinable)
+        {{-- Explore: off unless the owner lists the league. Anyone on GoalLine can then find it and join the usual way. --}}
+        <form method="POST" action="{{ route('leagues.public', $league) }}" class="mt-4 flex items-start justify-between gap-3 rounded-xl bg-ivory px-3 py-2.5" data-league-public>
+            @csrf
+            @method('PATCH')
+            <span class="text-sm">
+                <span class="block font-semibold text-ink">List in Explore</span>
+                <span class="block text-ink/70">{{ $league->is_public ? 'Anyone on GoalLine can find this GoalLeague in Explore and join while there\'s room.' : 'Off: only people with your link or code can join.' }}</span>
+            </span>
+            <input type="hidden" name="is_public" value="{{ $league->is_public ? 0 : 1 }}">
+            <button type="submit" class="min-h-11 shrink-0 rounded-full border border-club/30 bg-white px-4 text-sm font-semibold text-club hover:border-club">{{ $league->is_public ? 'Unlist' : 'List it' }}</button>
+        </form>
+    @endif
+
     @if ($isOwner)
         <details class="mt-5 border-t border-line pt-4" @if ($pendingInvites->isNotEmpty() || session('status') && str_contains(session('status'), 'invite')) open @endif>
             <summary class="cursor-pointer list-none text-sm font-semibold text-club hover:underline [&::-webkit-details-marker]:hidden">Manage invites and members</summary>

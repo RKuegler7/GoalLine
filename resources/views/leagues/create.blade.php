@@ -8,7 +8,9 @@
     </x-slot:hero>
 
     @php
-        $goalChoice = old('goal_id', $fromGoal?->id ?? ($goals->isEmpty() ? 'new' : $goals->first()->id));
+        // An idea from Explore's Inspiration strip arrives as ?name=&category=&goal_title=, filled in below.
+        $idea = ['name' => Str::limit(trim((string) request('name')), 80, ''), 'category' => App\GoalCategory::tryFrom((string) request('category'))?->value, 'goal' => Str::limit(trim((string) request('goal_title')), 120, '')];
+        $goalChoice = old('goal_id', $fromGoal?->id ?? ($goals->isEmpty() || $idea['goal'] !== '' ? 'new' : $goals->first()->id));
     @endphp
         <form method="POST" action="{{ route('leagues.store') }}" class="mx-auto max-w-2xl space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
             @csrf
@@ -22,13 +24,13 @@
                 <p class="rounded-xl bg-mint px-4 py-3 text-sm text-club">Filled in from &ldquo;{{ $fromGoal->title }}&rdquo;. Change anything you like. Next you'll invite your people.</p>
             @endif
 
-            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" :value="($rematch ?? null) ? App\Services\LeagueJoin::nextSeasonName($rematch->name) : ($fromGoal ? Str::limit($fromGoal->title, 70, '').' League' : null)" required autofocus />
+            <x-form.input name="name" label="GoalLeague name" maxlength="80" placeholder="FAR Exam Crew" :value="($rematch ?? null) ? App\Services\LeagueJoin::nextSeasonName($rematch->name) : ($fromGoal ? Str::limit($fromGoal->title, 70, '').' League' : ($idea['name'] ?: null))" required autofocus />
 
             <div>
                 <label for="category" class="mb-1.5 block text-sm font-medium text-ink/80">Kind of goal</label>
                 <select id="category" name="category" class="block w-full rounded-lg border border-line bg-white px-3.5 py-2.5 text-ink outline-none focus:border-club focus:ring-4 focus:ring-club/10">
                     @foreach (App\GoalCategory::cases() as $category)
-                        <option value="{{ $category->value }}" @selected(old('category', $fromGoal?->category?->value ?? ($rematch ?? null)?->category?->value) === $category->value)>{{ $category->label() }}</option>
+                        <option value="{{ $category->value }}" @selected(old('category', $fromGoal?->category?->value ?? ($rematch ?? null)?->category?->value ?? $idea['category']) === $category->value)>{{ $category->label() }}</option>
                     @endforeach
                 </select>
             </div>
@@ -50,7 +52,7 @@
 
                 <div id="new-league-goal" class="mt-3 space-y-4 rounded-xl bg-mint/60 p-4">
                     <p class="text-sm text-club">Name the goal you'll play here. After you create the league, GoalLine asks a few questions and builds its plan.</p>
-                    <x-form.input name="goal_title" label="Your goal" maxlength="120" :placeholder="App\GoalExamples::title($fromGoal?->category)" />
+                    <x-form.input name="goal_title" label="Your goal" maxlength="120" :value="$idea['goal'] ?: null" :placeholder="App\GoalExamples::title($fromGoal?->category)" />
                     <x-form.input name="goal_target_date" label="Done by" type="date" :min="App\Clock::today()->addDay()->format('Y-m-d')"
                         hint="Usually the same as the season's end." />
                 </div>

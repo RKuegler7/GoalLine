@@ -101,8 +101,38 @@ class Highlight extends Model
                 ->orWhere(fn (Builder $win) => $win
                     ->whereNotIn('kind', [HighlightKind::CheckIn, HighlightKind::WeekCard, HighlightKind::GoalDay, HighlightKind::SeasonCard])
                     ->whereIn('highlights.user_id', $circle)
-                    ->whereHas('user', fn (Builder $author) => $author->where('profile_visibility', '!=', ProfileVisibility::Private))))
-            ->whereDoesntHave('reports', fn (Builder $reports) => $reports->where('reporter_id', $viewer->id));
+                    ->whereHas('user', fn (Builder $author) => $author->where('profile_visibility', '!=', ProfileVisibility::Private)))
+                ->orWhere(fn (Builder $public) => $public
+                    // Public (Explore) posts: anyone in the same GoalLine (a demo world sees only its own).
+                    ->where('visibility', PostVisibility::Public)
+                    ->whereHas('user', fn (Builder $author) => $author->where('demo_sandbox', $viewer->demo_sandbox))))
+            ->whereDoesntHave('reports', fn (Builder $reports) => $reports->where('reporter_id', $viewer->id))
+            // People you muted never show up for you.
+            ->whereNotIn('highlights.user_id', UserMute::where('user_id', $viewer->id)->select('muted_user_id'));
+    }
+
+    /**
+     * Who the author can switch this post to see it ("circle" is friends and league mates, for finished goals and
+     * great weeks). Goal Day posts follow the Goal Day answer's own Share setting, so they aren't listed here.
+     *
+     * @return list<string>
+     */
+    public function visibilityChoices(): array
+    {
+        return match ($this->kind) {
+            HighlightKind::GoalDay => [],
+            HighlightKind::CheckIn, HighlightKind::WeekCard, HighlightKind::SeasonCard => array_values(array_filter([
+                $this->league_id ? PostVisibility::League->value : null,
+                PostVisibility::LeagueFriends->value,
+                PostVisibility::Public->value,
+            ])),
+            default => ['circle', PostVisibility::Public->value],
+        };
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->visibility === PostVisibility::Public;
     }
 
     /**

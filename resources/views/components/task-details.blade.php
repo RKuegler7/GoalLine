@@ -100,7 +100,8 @@
         @php
             $postLeagues = $task->week->goal->postingLeagues();
             $inLeague = $postLeagues->isNotEmpty();
-            $choices = $inLeague ? App\PostVisibility::cases() : [App\PostVisibility::Proof, App\PostVisibility::LeagueFriends];
+            // Public (Explore) is offered last and never pre-selected.
+            $choices = $inLeague ? App\PostVisibility::cases() : [App\PostVisibility::Proof, App\PostVisibility::LeagueFriends, App\PostVisibility::Public];
             $chosen = $proofError ? old('visibility') : null;
             $chosen ??= ($inLeague ? App\PostVisibility::League : App\PostVisibility::Proof)->value;
             $fieldId = "{$context}-{$task->id}";
@@ -118,7 +119,7 @@
                 <p class="mt-1 text-[11px] text-ink/70">JPG, PNG, or WebP, up to 5 MB. Location data is removed.</p>
             </div>
 
-            <fieldset>
+            <fieldset class="group">
                 <legend class="text-xs font-semibold text-ink/75">Who sees it?</legend>
                 <div class="mt-1 flex flex-wrap gap-1.5">
                     @foreach ($choices as $choice)
@@ -128,6 +129,7 @@
                         </label>
                     @endforeach
                 </div>
+                <p class="mt-1 hidden text-[11px] font-semibold text-club group-has-[input[value=public]:checked]:block" data-public-notice>Anyone on GoalLine can see this post. Crop out maps that show your home.</p>
                 @if ($postLeagues->count() > 1)
                     <label for="proof-league-{{ $fieldId }}" class="sr-only">Which GoalLeague?</label>
                     <select id="proof-league-{{ $fieldId }}" name="league_id" class="mt-1.5 rounded-lg border border-line bg-white px-2 py-1 text-xs">
