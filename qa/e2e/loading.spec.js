@@ -6,6 +6,7 @@ async function startDemo(page) {
     await page.goto('/demo');
     await page.waitForURL('**/dashboard', { timeout: 90_000 });
     await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
+    await page.goto(page.url());
     await page.waitForFunction(() => document.documentElement.dataset.pageReady === '1');
 }
 

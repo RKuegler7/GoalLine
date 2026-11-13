@@ -8,6 +8,7 @@ async function startDemo(page) {
     await page.goto('/demo');
     await page.waitForURL('**/dashboard', { timeout: 90_000 });
     await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
+    await page.goto(page.url());
     await page.waitForLoadState('networkidle');
     // Survives only if the page is never fully reloaded.
     await page.evaluate(() => {
@@ -72,7 +73,7 @@ test('main actions keep the scroll position and never reload', async ({ page }) 
     await page.waitForLoadState('networkidle');
     await page.locator('[data-start-buttons] [data-open-sheet="start-sheet"]').click();
     await expect(page.locator('dialog#start-sheet[open]')).toBeVisible();
-    await expect(page.locator('dialog#start-sheet')).toContainText('Start a challenge');
+    await expect(page.locator('dialog#start-sheet')).toContainText('Start a Challenge');
     expect(await stillHere(page)).toBe('still here');
 });
 

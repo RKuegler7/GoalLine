@@ -81,7 +81,7 @@
 
             {{-- Live numbers that stay in view while you scroll: the strip for the matchup on screen, and the day chips
                  (they choose the day on every page). Outside the pager, so they can stick under the top bar. --}}
-            <div data-pager-sticky class="sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 mt-2 border-y border-line bg-ivory/95 px-4 py-1.5 backdrop-blur sm:rounded-xl sm:border sm:px-3">
+            <div data-pager-sticky class="sticky top-[calc(3.25rem+env(safe-area-inset-top))] z-20 mt-2 border-y border-line bg-ivory px-4 py-1.5 sm:rounded-xl sm:border sm:px-3">
                 @foreach ($pages as $index => $page)
                     <x-matchup-strip :page="$page" :index="$index" />
                 @endforeach

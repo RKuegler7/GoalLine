@@ -95,7 +95,7 @@
     @endif
 
     {{-- Section chips: stay at the top while scrolling. --}}
-    <nav aria-label="Profile sections" class="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mt-3 flex gap-1.5 overflow-x-auto bg-ivory/95 px-4 py-2 backdrop-blur [scrollbar-width:none] md:top-16" data-profile-chips>
+    <nav aria-label="Profile sections" class="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mt-3 flex gap-1.5 overflow-x-auto bg-ivory px-4 py-2 [scrollbar-width:none] md:top-16" data-profile-chips>
         @foreach ($sections as [$id, $label])
             <a href="#{{ $id }}" data-turbo="false" class="inline-flex min-h-9 shrink-0 items-center rounded-full bg-white px-3 text-[13px] font-semibold text-club ring-1 ring-line hover:ring-club/40">{{ $label }}</a>
         @endforeach

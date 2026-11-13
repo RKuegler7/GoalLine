@@ -158,7 +158,8 @@
                     <span class="eyebrow mr-1 rounded-full bg-club px-1.5 py-0.5 text-[11px] text-ivory">Demo mode</span> You're {{ Str::before($viewer->name, ' ') }}. All pretend, so tap anything.
                 </p>
                 <div class="flex shrink-0 items-center gap-3">
-                    <form method="POST" action="{{ route('demo.reset') }}">
+                    {{-- A normal form post: rebuilding the world can outlast the in-page loader's time limit. --}}
+                    <form method="POST" action="{{ route('demo.reset') }}" data-live="false">
                         @csrf
                         <button type="submit" class="gl-tap relative font-semibold text-club hover:underline">Reset demo</button>
                     </form>

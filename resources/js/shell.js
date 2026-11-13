@@ -230,6 +230,15 @@ document.addEventListener('turbo:before-prefetch', (event) => {
     }
 });
 
+// Building a demo world can take longer than the loader's 15-second "Try again" limit on a slow phone, which used to
+// cancel the visit and leave people on the home page. So "Try the demo" is a normal page load: the browser shows its
+// own progress and simply waits.
+document.addEventListener('turbo:click', (event) => {
+    if (new URL(event.detail.url, window.location.href).pathname === '/demo') {
+        event.preventDefault();
+    }
+});
+
 /* ---------- Prefetch tabs on touch (iPhone has no hover) ---------- */
 
 document.addEventListener('touchstart', (event) => {

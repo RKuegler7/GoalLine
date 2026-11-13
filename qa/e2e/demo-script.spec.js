@@ -15,10 +15,11 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
             await qa.review('Home', '/');
             // Building a demo world takes a few seconds (longer on a slow machine), so allow it more than a click.
             await Promise.all([
-                page.waitForURL('**/dashboard', { timeout: 90_000 }),
-                page.locator('a[href$="/demo"]').first().click({ timeout: 90_000 }),
+                page.waitForURL('**/dashboard', { timeout: 150_000 }),
+                page.locator('a[href$="/demo"]').first().click({ timeout: 150_000 }),
             ]);
             await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
+            await page.goto(page.url());
         });
 
         await test.step('Dashboard', () => qa.step('Dashboard', () => qa.review('Dashboard')));
@@ -60,6 +61,9 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
 
             await qa.screenshot('Check-in sheet');
             await page.keyboard.press('Escape');
+            // Closing the sheet steps history back (sheets.js); let that finish before loading the next page.
+            await expect(page.locator('dialog[data-checkin-sheet][open]')).toHaveCount(0);
+            await page.waitForLoadState('networkidle');
             await page.goto(goalUrl);
         }));
 
@@ -111,7 +115,12 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
             const firstPage = page.locator('[data-pager-page]').first();
             await firstPage.locator('details:has(> summary:has-text("This week\'s check-ins")) > summary').click();
             const dispute = firstPage.locator('details:has(> summary:text-is("Dispute"))').first();
-            await dispute.locator('summary').click();
+            // Opened from the keyboard: inside the swipeable pager, Playwright's WebKit "scroll into view" fights the
+            // scroll snapping and never settles (a real phone doesn't), so the click would time out.
+            await dispute.locator('summary').evaluate((summary) => summary.scrollIntoView({ block: 'center' }));
+            await dispute.locator('summary').focus();
+            await page.keyboard.press('Enter');
+            await expect(dispute.locator('input[name=reason]')).toBeVisible();
             await dispute.locator('input[name=reason]').fill('Can you show the route?');
             await dispute.locator('button[type=submit]').click();
             await page.waitForLoadState('networkidle');

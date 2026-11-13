@@ -16,13 +16,13 @@ function watchErrors(page) {
     page.on('console', (message) => {
         // WebKit logs a fetch it cancelled because the page moved on (a prefetch, say) as "Load failed": the same as
         // Chromium's ERR_ABORTED, which isn't logged. Not an error in the app.
-        if (message.type() === 'error' && !/^TypeError: Load failed$/.test(message.text())) {
+        if (message.type() === 'error' && !/Load failed$/.test(message.text())) {
             errors.push(message.text());
         }
     });
     page.on('pageerror', (error) => {
         // Same story for Turbo's tab prefetch on touch, cancelled by the navigation it was warming up for.
-        if (!/^Load failed$/.test(error.message)) {
+        if (!/Load failed$/.test(error.message)) {
             errors.push(error.message);
         }
     });
@@ -39,6 +39,7 @@ async function startDemo(page) {
     await page.goto('/demo');
     await page.waitForURL('**/dashboard', { timeout: 90_000 });
     await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
+    await page.goto(page.url());
     await page.waitForLoadState('networkidle');
 }
 

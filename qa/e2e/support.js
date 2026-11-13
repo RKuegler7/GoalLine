@@ -31,6 +31,12 @@ export class Reviewer {
                 return;
             }
 
+            // WebKit also reports a fetch it cancelled (a prefetch cut short by navigating) as "TypeError: Load
+            // failed". Same story, not a crash.
+            if (/^(TypeError: )?Load failed$/.test(error.message)) {
+                return;
+            }
+
             this.add('blocker', 'JavaScript crash', error.message.slice(0, 300), 'An uncaught exception stops scripts on this page. Fix it first.');
         });
         page.on('response', (response) => {
