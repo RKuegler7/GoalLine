@@ -38,6 +38,7 @@ function watchErrors(page) {
 async function startDemo(page) {
     await page.goto('/demo');
     await page.waitForURL('**/dashboard', { timeout: 90_000 });
+    await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
     await page.waitForLoadState('networkidle');
 }
 
@@ -98,7 +99,7 @@ test('with no GoalLeague, all five tabs are tappable, swap in place, and the bar
 
         if (label === 'Matchups') {
             await expect(page.locator('[data-matchup-hub="no-league"]')).toBeVisible();
-            await expect(page.getByText('No matchup yet.', { exact: true })).toBeVisible();
+            await expect(page.getByText('No Matchup yet.', { exact: true })).toBeVisible();
         }
     }
 

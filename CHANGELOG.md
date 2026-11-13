@@ -18,6 +18,13 @@ How GoalLine was built, week by week, from the real commit history (`git log`). 
 - **Phase U:** a "What the AI did, what code did" panel on each goal and in About, and a recap narrator that words a finished week only from numbers code computed, with a template fallback.
 - **Navigation round:** Clubhouse Now and History, "Weeks on the line", a Matchups tab that always opens, a people-first matchup scoreboard with the line on a green field, standings with stats and player seasons, and a Back arrow everywhere.
 - **Weekly stars:** line stars + matchup stars (Win 2, Photo finish win 1, Tie 1 each, any loss 0), 0 to 5 a week, W–D–L records, byes as line stars only, full-precision photo finishes, all from one config; settled weeks re-scored.
+- **Season finale:** the Goal Day check-in ("Did you reach your goal?", verified by proof or a league mate), finale cards (result, two results, replay, highlights reel, league news, medals, share, next goal), medals computed by code, "Share your season" cards, next-goal ideas, run it back with the same friends, and a finished demo season with a finale preview.
+- **Kickoff fix:** no check-ins before a season's kickoff (or on a later day's task) on any path, enforced on the server; early check-ins voided by an idempotent migration; a countdown banner and locked "Upcoming" tasks before kickoff; Start a Challenge beside Start a GoalLeague.
+- **Proof details and profiles:** "Show your work" with a photo, details (caption, place, time window) or both (only photos earn Verified); profiles with an expandable Friends list and privacy setting; Standings and Stats switch.
+- **Try the demo and limits:** the demo reopens your own demo instead of building a new one, real visitor addresses behind CloudFront, per-account limits for shared networks, and a friendly 429 page.
+- **Medals under concurrency:** one idempotent award path, the season finale serialized per league, quieter error emails, and `goalline:check-medals`.
+- **Profile redesign:** cover and identity on top, a counts row, bio, "Why I'm here" and interests, per-goal visibility, photos stripped of location data, and sections for Goals, Highlights, Stats, Trophy case and History.
+- **Explore:** public GoalLeagues to join and posts people chose to make public, with report, mute, and example content in the demo.
 - **Join and help round:** league goal templates, joining with the goal pre-filled (and late joins), invites that survive sign-up and verification, owner goal status with Remind, the "How is GoalLine scored?" sheet, and a Help Center with a searchable FAQ, feedback and a first-run tour.
 
 ## Week of Nov 2, 2026: plan honesty, the demo and smooth interactions

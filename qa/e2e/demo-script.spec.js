@@ -18,6 +18,7 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
                 page.waitForURL('**/dashboard', { timeout: 90_000 }),
                 page.locator('a[href$="/demo"]').first().click({ timeout: 90_000 }),
             ]);
+            await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
         });
 
         await test.step('Dashboard', () => qa.step('Dashboard', () => qa.review('Dashboard')));

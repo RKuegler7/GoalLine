@@ -53,6 +53,14 @@ Every AI call runs in the background queue (except the optional caption helper),
 - **Checked:** 2 to 3 sentences, a sensible length, and **no number (in digits or words) that code didn't hand it**. So it can't invent a total or do arithmetic on a score.
 - **Fallback:** a plain template written by code from the same numbers. The page always says which one you're reading.
 
+### 8. Next-goal ideas after Goal Day
+- **When:** after a Goal Day check-in, queued (`RecommendNextGoals`, `GoalRecommender`).
+- **In:** the goal's title, kind and target, the Goal Day outcome, and the optional result and notes the member wrote.
+- **Out:** three next goals, each with a kind, a length in weeks (4 to 26) and one warm sentence. After a goal they reached, the first is a step up; after one they didn't, the same goal with a fresh timeline. Never a step down.
+- **Checked:** schema, a known category, the week range and lengths; anything else is dropped.
+- **Fallback:** built-in ideas for the goal's category (shown straight away, and whenever the AI is off, over budget or returns nothing usable). The demo always uses them.
+- **Never:** scores, stars, medals, or medical, diet or injury advice.
+
 ## You can see who did what
 
 Each goal page has a **"What the AI did, what code did"** panel, built from that goal's real history: how many intake questions the coach wrote, that it drafted the GoalWeeks, each refinement you approved, and on the code side which weeks were raised to the minimum pace ("We raised GoalWeek 3 to your minimum pace."), how many weeks are locked, and the points scored so far. The About page shows the general version (`AiCodeSplit`, `x-ai-code-split`).
@@ -63,7 +71,7 @@ Each goal page has a **"What the AI did, what code did"** panel, built from that
 - **Rule on disputes.** People settle disputes: proof, an explanation, a withdrawal, or the league owner's ruling (`Disputes`).
 - **Set the minimum pace.** Code does (`PlanFloor`), and it can only make a plan harder.
 - **Give medical advice.** Plans are general guidance, physical goals get conservative progression and rest days, and the app says to check with a doctor about health concerns.
-- **Write share cards or recaps' numbers.** Weekly result cards are drawn by code from the scoring code's results (`ResultCardData`). The recap narrator only words numbers code gives it, and any answer with a new number is thrown away.
+- **Write share cards or recaps' numbers.** Weekly result cards are drawn by code from the scoring code's results (`ResultCardData`). The recap narrator only words numbers code gives it, and any answer with a new number is thrown away. Season cards, medals and Goal Day results are code too: medals come from settled results (`MedalAwarder`, `config/medals.php`), and the Goal Day answer is the member's own.
 
 ## Cost and safety controls
 

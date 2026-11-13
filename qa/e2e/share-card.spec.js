@@ -5,6 +5,7 @@ import { expect, test } from '@playwright/test';
 test('share your week: preview, download a PNG, and open the public link', async ({ page, browser }) => {
     await page.goto('/demo');
     await page.waitForURL('**/dashboard', { timeout: 90_000 });
+    await page.evaluate(() => fetch('/tour', { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }, credentials: 'same-origin' }));
     await page.goto('/my-week');
     await page.waitForFunction(() => document.documentElement.dataset.pageReady === '1');
 

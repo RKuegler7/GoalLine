@@ -197,6 +197,15 @@ The full reasoning, including why things were built the way they were, is in [do
 | S | Reliability, security and accessibility hardening | Done |
 | T | Final README, architecture and AI docs, repo hygiene | Done |
 | U | AI you can see: the AI/code panel and the recap narrator | Done |
+| — | Navigation: Clubhouse Now and History, Matchups hub, standings and player seasons | Done |
+| — | Join and help: league goal templates, late joins, scoring sheet, Help Center and tour | Done |
+| — | Season finale: Goal Day check-in, medals, finale cards, share your season, next goal | Done |
+| — | No check-ins before kickoff (server-enforced, early check-ins voided) | Done |
+| — | Show your work with details; profiles with Friends list; Standings and Stats switch | Done |
+| — | Try the demo resumes; real client IPs behind CloudFront; friendly 429 | Done |
+| — | Medals safe under concurrency; `goalline:check-medals` | Done |
+| — | Profile redesign: identity, counts, per-goal visibility, sections | Done |
+| — | Explore: public GoalLeagues and public posts, report and mute | Done |
 
 Week by week, from the commit history: [CHANGELOG.md](CHANGELOG.md). The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md) (P–U).
 
