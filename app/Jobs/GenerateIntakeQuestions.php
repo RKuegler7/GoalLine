@@ -2,12 +2,12 @@
 
 namespace App\Jobs;
 
+use App\AiFallback;
 use App\Clock;
 use App\Models\GoalIntake;
 use App\Services\RoadmapPlanner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class GenerateIntakeQuestions implements ShouldQueue
@@ -43,7 +43,7 @@ class GenerateIntakeQuestions implements ShouldQueue
             $questions = Clock::for($goal->user, fn () => $planner->intakeQuestions($goal));
             $this->intake->useQuestions($questions, GoalIntake::SOURCE_AI);
         } catch (Throwable $exception) {
-            Log::warning('Intake questions fell back to the built-in set.', ['goal_id' => $goal->id, 'error' => $exception->getMessage()]);
+            AiFallback::note('questions', $exception, ['goal_id' => $goal->id]);
             $this->intake->useFallback();
         }
     }
@@ -53,6 +53,7 @@ class GenerateIntakeQuestions implements ShouldQueue
      */
     public function failed(?Throwable $exception): void
     {
+        AiFallback::note('questions', $exception, ['goal_id' => $this->intake->goal_id, 'job' => 'timed out or failed']);
         $this->intake->refresh()->useFallback();
     }
 }

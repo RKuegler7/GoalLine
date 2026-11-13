@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\AiFallback;
 use App\Clock;
 use App\Models\Goal;
 use App\Models\PlanVersion;
@@ -14,7 +15,6 @@ use App\Services\WeekPlanner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -79,7 +79,7 @@ class GenerateRoadmap implements ShouldQueue
             $roadmap = $planner->plan($this->goal, $periods, $kept, $floors);
             $source = 'coach';
         } catch (Throwable $exception) {
-            Log::warning('Roadmap fell back to the starter plan.', ['goal_id' => $this->goal->id, 'error' => $exception->getMessage()]);
+            AiFallback::note('plan', $exception, ['goal_id' => $this->goal->id]);
             $roadmap = FallbackPlan::for($this->goal, $periods);
             $source = 'fallback';
         }

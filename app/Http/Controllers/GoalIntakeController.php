@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AiFallback;
 use App\Models\Goal;
 use App\Models\GoalIntake;
 use App\RoadmapStatus;
@@ -26,6 +27,7 @@ class GoalIntakeController extends Controller
         $intake = $goal->intake ?? GoalIntake::begin($goal);
 
         if ($intake->status === GoalIntake::GENERATING && ! $intake->isGenerating()) {
+            AiFallback::note('questions', null, ['goal_id' => $goal->id, 'job' => 'still not done after the wait']);
             $intake->useFallback();
         }
 

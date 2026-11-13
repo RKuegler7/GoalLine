@@ -131,6 +131,14 @@
         {{-- AI spend. --}}
         <section class="rounded-2xl border border-line bg-white px-4 py-3">
             <h2 class="eyebrow text-club">AI spend</h2>
+            {{-- Built-in fallbacks used today because the coach couldn't answer: a jump here usually means a bad key. --}}
+            @php $fallbacks = App\AiFallback::today(); @endphp
+            <p @class(['mt-2 text-sm', 'font-semibold text-red-700' => array_sum($fallbacks) > 0, 'text-ink/70' => array_sum($fallbacks) === 0]) data-ai-fallbacks>
+                Fallbacks today: {{ $fallbacks['questions'] }} questions, {{ $fallbacks['plan'] }} plans, {{ $fallbacks['ideas'] }} next-goal ideas.
+                @if (array_sum($fallbacks) > 0)
+                    Run <code>php artisan goalline:ai-check</code>.
+                @endif
+            </p>
             @foreach ([['Today', $ai['today'], $ai['dailyBudget']], ['This month', $ai['month'], $ai['monthlyBudget']]] as [$label, $spent, $limit])
                 <div class="mt-3">
                     <div class="flex justify-between text-sm"><span class="text-ink/70">{{ $label }}</span><span class="font-semibold text-ink tabular-nums">{{ $money($spent) }} / {{ $money($limit) }}</span></div>

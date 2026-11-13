@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ResultCard;
 use App\Models\User;
 use App\Notifications\AdminAlert;
+use App\Services\AiCheck;
 use App\Services\ErrorAlerts;
 use App\Services\HealthCheck;
 use Illuminate\Auth\AuthenticationException;
@@ -163,7 +164,14 @@ class ReliabilityTest extends TestCase
             'queue.default' => 'database',
         ]);
 
-        $this->assertSame(0, Artisan::call('goalline:preflight'), Artisan::output());
+        // The real API is never called in tests: a working AI check stands in for it.
+        $this->mock(AiCheck::class, fn ($mock) => $mock->shouldReceive('run')->andReturn(['ok' => true, 'message' => 'It works.']));
+
+        $exit = Artisan::call('goalline:preflight');
+        $output = Artisan::output();
+
+        $this->assertSame(0, $exit, $output);
+        $this->assertStringContainsString('PASS  The AI coach answers: It works.', $output);
     }
 
     public function test_every_page_sends_security_headers(): void

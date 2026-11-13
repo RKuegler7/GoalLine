@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\AiFallback;
 use App\Jobs\GenerateIntakeQuestions;
 use App\Services\AiBudget;
 use App\Services\DemoCoach;
@@ -88,6 +89,10 @@ class GoalIntake extends Model
         $goal->setRelation('intake', $intake);
 
         if (blank(config('services.anthropic.key')) || DemoCoach::applies($goal->user) || app(AiBudget::class)->blockedReason($goal->user) !== null) {
+            // A missing key on a real account is worth a warning; the demo and spend caps are expected.
+            if (blank(config('services.anthropic.key')) && ! $goal->user->isDemo()) {
+                AiFallback::note('questions', null, ['goal_id' => $goal->id]);
+            }
             $intake->useFallback();
         } else {
             GenerateIntakeQuestions::dispatch($intake);

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\AiCheck;
 use App\Services\HealthCheck;
 use App\Services\ResultCards\ResultCardImage;
 use Illuminate\Console\Command;
@@ -13,14 +14,14 @@ use Throwable;
  */
 class Preflight extends Command
 {
-    protected $signature = 'goalline:preflight';
+    protected $signature = 'goalline:preflight {--skip-ai : Skip the one tiny Claude API call}';
 
     protected $description = 'Check the production settings (keys, https address, database, mail, S3, Claude) without printing secrets';
 
     /** @var list<array{0: 'PASS'|'WARN'|'FAIL', 1: string}> */
     private array $results = [];
 
-    public function handle(HealthCheck $health): int
+    public function handle(HealthCheck $health, AiCheck $ai): int
     {
         $production = app()->isProduction();
 
@@ -56,6 +57,12 @@ class Preflight extends Command
         }
 
         $this->check(filled(config('services.anthropic.key')), 'ANTHROPIC_API_KEY is set (the AI coach)');
+
+        // One tiny real call (the same as goalline:ai-check), so a mistyped or revoked key shows up here.
+        if (filled(config('services.anthropic.key')) && ! $this->option('skip-ai')) {
+            $ai = $ai->run();
+            $this->check($ai['ok'], 'The AI coach answers: '.$ai['message']);
+        }
         $this->check(filled(config('goalline.admin_emails')), 'ADMIN_EMAILS is set (error and spend alerts)', warnOnly: true);
         $this->check(ResultCardImage::canMakePng(), 'GD can draw PNG share cards (otherwise the browser draws them)', warnOnly: true);
 

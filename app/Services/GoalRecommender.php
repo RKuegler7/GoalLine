@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Anthropic\Client;
+use App\AiFallback;
 use App\Clock;
 use App\GoalCategory;
 use App\Models\Goal;
@@ -140,7 +141,7 @@ class GoalRecommender
                 $result->forceFill(['recommendations' => $ideas])->save();
             }
         } catch (Throwable $exception) {
-            report($exception);
+            AiFallback::note('ideas', $exception, ['goal_id' => $goal->id]);
         }
     }
 
