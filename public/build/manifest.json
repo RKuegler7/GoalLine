@@ -1,7 +1,7 @@
 {
-  "_fonts-BE8vW19m.css": {
-    "file": "assets/fonts-BE8vW19m.css",
-    "src": "_fonts-BE8vW19m.css"
+  "_fonts-ZlUTESbe.css": {
+    "file": "assets/fonts-ZlUTESbe.css",
+    "src": "_fonts-ZlUTESbe.css"
   },
   "_plus-jakarta-sans-400-normal-BDKaGhyp.woff": {
     "file": "assets/plus-jakarta-sans-400-normal-BDKaGhyp.woff",
@@ -43,32 +43,8 @@
     "file": "assets/plus-jakarta-sans-800-normal-CusIZhrK.woff2",
     "src": "_plus-jakarta-sans-800-normal-CusIZhrK.woff2"
   },
-  "_space-grotesk-500-normal-CNSSEhBt.woff": {
-    "file": "assets/space-grotesk-500-normal-CNSSEhBt.woff",
-    "src": "_space-grotesk-500-normal-CNSSEhBt.woff"
-  },
-  "_space-grotesk-500-normal-lFbtlQH6.woff2": {
-    "file": "assets/space-grotesk-500-normal-lFbtlQH6.woff2",
-    "src": "_space-grotesk-500-normal-lFbtlQH6.woff2"
-  },
-  "_space-grotesk-600-normal-BflQw4A9.woff": {
-    "file": "assets/space-grotesk-600-normal-BflQw4A9.woff",
-    "src": "_space-grotesk-600-normal-BflQw4A9.woff"
-  },
-  "_space-grotesk-600-normal-DjKNqYRj.woff2": {
-    "file": "assets/space-grotesk-600-normal-DjKNqYRj.woff2",
-    "src": "_space-grotesk-600-normal-DjKNqYRj.woff2"
-  },
-  "_space-grotesk-700-normal-CwsQ-cCU.woff": {
-    "file": "assets/space-grotesk-700-normal-CwsQ-cCU.woff",
-    "src": "_space-grotesk-700-normal-CwsQ-cCU.woff"
-  },
-  "_space-grotesk-700-normal-RjhwGPKo.woff2": {
-    "file": "assets/space-grotesk-700-normal-RjhwGPKo.woff2",
-    "src": "_space-grotesk-700-normal-RjhwGPKo.woff2"
-  },
   "resources/css/app.css": {
-    "file": "assets/app-noWaQciA.css",
+    "file": "assets/app-Du90T12u.css",
     "name": "app",
     "names": [
       "app.css"

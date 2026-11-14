@@ -140,7 +140,7 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 ## Weekly result cards
 
 - "Share your week" (weekly recap, your own matchup) makes a card from the scoring code's results: week, first name and initials, goal, percent of plan, band, match result (Win 2, Photo finish win 1, Tie 1, Loss 0; "Photo finish" in the same band), stars out of 5 (3 without a league or on a bye), weeks on the line, and league name. Smashed is blue with a diamond, Past gold, In line green; a Short week is a calm ivory card: "Showed up. Back on the line next week."
-- Sizes: feed 1080×1350 and story 1080×1920, as PNG (GD with the bundled Plus Jakarta Sans fonts) or SVG. The cards keep Plus Jakarta Sans, the body and wordmark typeface; the app's headings and numbers use Space Grotesk.
+- Sizes: feed 1080×1350 and story 1080×1920, as PNG (GD with the bundled Plus Jakarta Sans fonts) or SVG.
 - Share, Download, and Post to Highlights (a "Weekly result" post with the usual League or League + friends audience). A public link (`/c/{token}`, 48 random characters) is off until the owner turns it on, can be turned off any time, and stops working for everyone who turns off "Allow public links to my weekly cards". A card is a snapshot: only the owner's own summary, never email, last name, notes, proof photos or the opponent's name.
 
 ## Outbound messages

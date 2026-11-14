@@ -20,7 +20,7 @@ The choices behind GoalLine, including what we chose not to build, and why.
 
 **Brevo for email.** Amazon SES needs a verified domain, which GoalLine doesn't have yet. Brevo's SMTP works with a verified sender address, and moving to SES later is a settings change.
 
-**Plus Jakarta Sans for text, Space Grotesk for headings and numbers.** The wordmark is lettered in Plus Jakarta Sans, so body text uses it (it replaced the brief's Public Sans). Headings, scores and big numbers use Space Grotesk, as the brand brief asks. Both are self-hosted (built into the app, OFL-licensed, font-display: swap). Until Nov 14, 2026, Plus Jakarta Sans was used everywhere; that was tagged pre-font-swap and the swap is one commit, so it can be reverted cleanly.
+**Plus Jakarta Sans everywhere.** The brief named Space Grotesk and Public Sans, but the GoalLine wordmark is Plus Jakarta Sans. Using the wordmark's typeface throughout makes the app and the brand feel like one thing. Space Grotesk headings were tried on Nov 14, 2026 (fd4741d) and reverted the same day.
 
 **A demo that can't break or cost money.** Try the demo builds a private, throwaway world per visitor, uses saved sample answers for the coach, sends no email, and deletes itself after a day. Judges and classmates can tap anything.
 

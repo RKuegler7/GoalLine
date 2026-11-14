@@ -6,9 +6,9 @@
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    /* Display type for headings, scores and big numbers: Space Grotesk (the body stays Plus Jakarta Sans). The token
-       keeps its old name so every heading picks it up. Numbers stay tabular where they line up (tabular-nums). */
-    --font-serif: 'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    /* Display type for headings and big numbers: the wordmark's Plus Jakarta Sans, set bold and tight. The token keeps
+       its old name so every heading picks it up. */
+    --font-serif: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
 
     /* GoalLine brand palette. */
     --color-club: #176b45;

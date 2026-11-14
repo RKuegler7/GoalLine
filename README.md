@@ -51,8 +51,6 @@
 3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the **GoalWeek Matchup**, a fantasy-football-style pager: swipe between matchups, see both players' tasks day by day where the players would be, each side's band, its projected band on current pace, and the points each would take if the week ended now. Same band? It's a photo finish, settled by percent of plan.
 4. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
 
-**Look and type.** Club Green, Grass Green, Fresh Mint, Warm Ivory, Soft Ink and Championship Gold (Challenges are gold). Body text is Plus Jakarta Sans, the wordmark's typeface; headings, scores and big numbers are Space Grotesk. Both are self-hosted (built into the app at build time, OFL-licensed, `font-display: swap`) and numbers use tabular figures.
-
 ## Who it's for
 
 Students and friend groups working toward real goals with real deadlines: classmates studying for the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts. Small leagues of people who know each other (12 or fewer works best).
@@ -164,7 +162,7 @@ Lighthouse (mobile, simulated slow 4G) via `LIGHTHOUSE=<label> npx playwright te
 
 | Page | Before (Nov 14) | After | Notes |
 |---|---|---|---|
-| Landing | 84 (LCP 3.8 s) | 87 (LCP 3.4 s) | With a second (heading) font added, thanks to preloading only the three font files the first screen uses |
+| Landing | 84 (LCP 3.8 s) | 87 (LCP 3.4 s) | Measured with Space Grotesk headings (since reverted to Plus Jakarta Sans everywhere); preloading only the three font files the first screen uses |
 | Dashboard | 100 | 100 | |
 | Matchup | 90 | 90 | Server response time on the dev server |
 | Standings | 98 | 98 | |
