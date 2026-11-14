@@ -12,29 +12,25 @@ use Illuminate\View\View;
 class LeagueStandingsController extends Controller
 {
     /**
-     * The full standings: league highlights, the table with each member's form, a sort control (the official order
-     * stays the default) and the viewer's season so far. Members only.
+     * The standings: "Table" (the default) is one swipeable table with every column, in the official order unless a
+     * column is picked (?col=, highest first; the page also sorts in place without a reload). "League stats" is the
+     * league-wide highlights and the viewer's season chart. Members only.
      */
     public function index(Request $request, League $league): View
     {
         $stats = $this->stats($league);
-        $sort = array_key_exists((string) $request->query('sort'), LeagueStats::SORTS) ? $request->query('sort') : 'points';
         $me = $league->memberFor($request->user());
-
-        // Standings (the table) or Stats (every number, sortable, with presets).
-        $view = $request->query('view') === 'stats' ? 'stats' : 'standings';
-        $preset = array_key_exists((string) $request->query('preset'), LeagueStats::PRESETS) ? $request->query('preset') : 'stars';
-        $column = array_key_exists((string) $request->query('col'), LeagueStats::columns()) ? $request->query('col') : null;
+        $view = $request->query('view') === 'league' ? 'league' : 'table';
+        $column = array_key_exists((string) $request->query('col'), LeagueStats::columns()) && LeagueStats::columns()[$request->query('col')]['value'] !== null
+            ? $request->query('col')
+            : null;
 
         return view('leagues.standings', [
             'league' => $league,
             'stats' => $stats,
-            'rows' => $stats->standings($sort),
-            'sort' => $sort,
+            'rows' => $stats->statsRows($column),
             'view' => $view,
-            'preset' => $preset,
             'column' => $column,
-            'statRows' => $view === 'stats' ? $stats->statsRows($column) : collect(),
             'summary' => $stats->summary(),
             'series' => $stats->series($me),
             'me' => $me,
@@ -51,7 +47,7 @@ class LeagueStandingsController extends Controller
         $stats = $this->stats($league);
         $row = $stats->standings()->first(fn (array $row) => $row['member']->is($member));
 
-        return view('leagues.standings-player', [
+        return view($request->ajax() ? 'leagues.partials.player-season' : 'leagues.standings-player', [
             'league' => $league,
             'member' => $row['member'],
             'row' => $row,

@@ -148,27 +148,4 @@ class ProfileFriendsTest extends TestCase
         // Someone outside the league sees no league stats.
         $this->actingAs(User::factory()->create())->get($alex->profileUrl())->assertDontSee('data-profile-stats', false);
     }
-
-    public function test_the_standings_have_a_big_stats_switch_with_presets_sorting_and_a_reset(): void
-    {
-        $this->travelTo(Carbon::parse('2026-10-21 09:00', 'America/New_York'));
-        $league = League::factory()->create(['starts_on' => '2026-10-05', 'ends_on' => '2026-11-29']);
-        [$alex, $blair] = [User::factory()->create(['name' => 'Alex']), User::factory()->create(['name' => 'Blair'])];
-        foreach ([$alex, $blair] as $user) {
-            $league->members()->create(['user_id' => $user->id]);
-        }
-        foreach ([[$alex, GoalWeekResult::InLine, MatchupOutcome::Loss], [$blair, GoalWeekResult::Past, MatchupOutcome::Win]] as [$user, $band, $outcome]) {
-            $league->results()->create(['user_id' => $user->id, 'week' => 1, 'result' => $band, 'result_points' => $band->points(), 'opponent_id' => ($user->is($alex) ? $blair : $alex)->id, 'vs_median' => false, 'outcome' => $outcome, 'matchup_points' => $outcome->points()]);
-        }
-
-        $this->actingAs($alex)->get(route('leagues.standings', $league))->assertOk()->assertSee('data-standings-switch', false)->assertSee('Stats');
-        $this->get(route('leagues.standings', [$league, 'view' => 'stats']))->assertOk()
-            ->assertSee('Matchup ★')->assertSee('W–D–L')->assertSee('Consistency')->assertSee('Performance')
-            ->assertSeeInOrder(['Blair', 'Alex']);
-        $this->get(route('leagues.standings', [$league, 'view' => 'stats', 'preset' => 'consistency', 'col' => 'in_line']))->assertOk()
-            ->assertSeeInOrder(['Alex', 'Blair'])->assertSee('Reset to official order')->assertDontSee('Points');
-
-        // Members only.
-        $this->actingAs(User::factory()->create())->get(route('leagues.standings', [$league, 'view' => 'stats']))->assertForbidden();
-    }
 }

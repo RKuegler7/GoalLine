@@ -60,6 +60,7 @@ class ChallengeController extends Controller
         return view('challenges.show', [
             'challenge' => $challenge,
             'standings' => $challenge->standings(),
+            'column' => in_array($request->query('col'), ['days', 'run', 'bestRun', 'percent'], true) ? $request->query('col') : null,
             'today' => Clock::today(),
             'me' => $request->user(),
         ]);

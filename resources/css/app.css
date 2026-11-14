@@ -279,6 +279,18 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     animation: gl-sheet-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* Standings tables swipe sideways in their own box: columns snap (clear of the sticky Rank and Player columns), and
+   once scrolled, the sticky Player column casts a soft edge over what slides under it. */
+.gl-table-scroll {
+    scroll-snap-type: x proximity;
+    scroll-padding-left: 9.5rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gl-table-scroll[data-scrolled] .gl-sticky-edge {
+    box-shadow: 6px 0 8px -6px rgb(30 41 34 / 0.35);
+}
+
 /* The pager track only animates its height change; the page itself never jumps. */
 [data-pager-track] {
     transition: height 200ms ease;

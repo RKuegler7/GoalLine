@@ -88,26 +88,8 @@
 
             {{-- Leaderboard. --}}
             <section>
-                <h2 class="eyebrow text-club">Leaderboard</h2>
-                <ol class="mt-3 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-white">
-                    @foreach ($standings as $row)
-                        @php
-                            $isMe = $row['member']->user_id === $me->id;
-                        @endphp
-                        <li @class(['flex items-center gap-3 px-5 py-3', 'bg-mint/50' => $isMe])>
-                            <span @class(['w-6 shrink-0 text-center font-serif text-lg tabular-nums', 'text-gold-ink' => $row['rank'] === 1 && $row['days'] > 0, 'text-ink/70' => $row['rank'] !== 1 || $row['days'] === 0])>{{ $row['rank'] }}</span>
-                            <x-avatar :user="$row['member']->user" class="size-9 text-xs" />
-                            <span class="min-w-0 flex-1">
-                                <a href="{{ $row['member']->user->profileUrl() }}" class="block truncate font-medium text-ink hover:text-club hover:underline">{{ $row['member']->user->name }}{{ $isMe ? ' (you)' : '' }}</a>
-                                <span class="text-xs text-ink/70">run {{ $row['run'] }} {{ Str::plural('day', $row['run']) }}</span>
-                            </span>
-                            @if ($row['finished'])
-                                <x-badge :badge="App\Badge::ChallengeFinisher" class="size-7" />
-                            @endif
-                            <span class="font-serif text-xl text-ink tabular-nums tracking-tight">{{ $row['days'] }}<span class="text-sm text-ink/70">/{{ $challenge->target_days }}</span></span>
-                        </li>
-                    @endforeach
-                </ol>
+                <h2 class="eyebrow text-gold-ink">Leaderboard</h2>
+                <x-challenge-table class="mt-2" :challenge="$challenge" :rows="$standings" :me="$me" :column="$column" />
             </section>
         </div>
 

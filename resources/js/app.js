@@ -1086,7 +1086,8 @@ eachOnPage('[data-task-sheet]', (sheet) => {
     document.addEventListener('click', async (event) => {
         const link = event.target.closest('[data-task-sheet-open]');
 
-        if (!link || event.metaKey || event.ctrlKey || event.shiftKey || typeof sheet.showModal !== 'function') {
+        // A sheet from a page we've since left is out of the document: its listener stands aside.
+        if (!link || !sheet.isConnected || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || typeof sheet.showModal !== 'function') {
             return;
         }
 
@@ -1103,6 +1104,11 @@ eachOnPage('[data-task-sheet]', (sheet) => {
             body.innerHTML = await response.text();
             openSheet(sheet);
             body.scrollTop = 0;
+            // A link to a part of the page (#week-by-week) opens the sheet there.
+            const part = link.hash && body.querySelector(link.hash);
+            if (part) {
+                body.scrollTop = part.offsetTop - body.offsetTop - 8;
+            }
             body.dispatchEvent(new CustomEvent('goalline:updated', { bubbles: true }));
         } catch {
             window.location.assign(link.href);
@@ -1117,6 +1123,104 @@ eachOnPage('[data-task-sheet]', (sheet) => {
     });
 
     sheet.addEventListener('close', () => opener?.focus({ preventScroll: true }));
+});
+
+/**
+ * The standings table: a heading sorts by its column in place (highest first, the official order breaking ties) and
+ * says in one line what the column means; "Reset to official order" puts it back. The URL follows (?col=) so Back
+ * and a reload agree. The table swipes sideways inside its own box: a soft edge shows there's more, and a one-time
+ * "Swipe for more" hint. Tapping anywhere on a row opens that player's season.
+ */
+const SWIPE_HINT_KEY = 'goalline:standings-swipe-hint';
+
+eachOnPage('[data-standings-table]', (wrap) => {
+    const scroller = wrap.querySelector('[data-table-scroll]');
+    const body = wrap.querySelector('tbody');
+    const note = wrap.querySelector('[data-sort-note]');
+    const reset = wrap.querySelector('[data-reset-order]');
+    const edge = wrap.querySelector('[data-scroll-edge]');
+    const hint = wrap.querySelector('[data-swipe-hint]');
+
+    const sortBy = (key, link) => {
+        const rows = [...body.querySelectorAll('tr[data-standings-row]')];
+        const value = (row) => Number(row.querySelector(`[data-cell="${key}"]`)?.dataset.value ?? 0);
+        const rank = (row) => Number(row.dataset.rank);
+        rows.sort((a, b) => (key ? value(b) - value(a) : 0) || rank(a) - rank(b));
+        rows.forEach((row) => body.appendChild(row));
+
+        wrap.querySelectorAll('th[data-col]').forEach((th) => {
+            const on = th.dataset.col === key;
+            th.toggleAttribute('aria-sort', on);
+            if (on) {
+                th.setAttribute('aria-sort', 'descending');
+            }
+            th.querySelector('[data-sort-arrow]')?.classList.toggle('hidden', !on);
+        });
+
+        note.textContent = key ? `Sorted by ${link.dataset.label}, highest first. ${link.dataset.title}` : wrap.dataset.officialNote;
+        if (reset) {
+            reset.hidden = !key;
+        }
+
+        const url = new URL(window.location.href);
+        if (key) {
+            url.searchParams.set('col', key);
+        } else {
+            url.searchParams.delete('col');
+        }
+        history.replaceState(history.state, '', url);
+    };
+
+    wrap.addEventListener('click', (event) => {
+        const head = event.target.closest('[data-sort-col]');
+
+        if (head && !event.metaKey && !event.ctrlKey) {
+            event.preventDefault();
+            sortBy(head.dataset.sortCol, head);
+
+            return;
+        }
+
+        if (event.target.closest('[data-reset-order]')) {
+            event.preventDefault();
+            sortBy(null);
+
+            return;
+        }
+
+        // Anywhere on a row (not on one of its own links) opens the player.
+        const row = event.target.closest('tr[data-standings-row]');
+        if (row && !event.target.closest('a, button')) {
+            row.querySelector('[data-row-link]')?.click();
+        }
+    });
+
+    const updateEdge = () => {
+        const more = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft > 4;
+        edge?.classList.toggle('opacity-0', !more);
+        scroller.toggleAttribute('data-scrolled', scroller.scrollLeft > 2);
+    };
+    scroller.addEventListener('scroll', updateEdge, { passive: true });
+    updateEdge();
+
+    let seen = false;
+    try {
+        seen = localStorage.getItem(SWIPE_HINT_KEY) === '1';
+    } catch {
+        // Storage off: show the hint each time.
+    }
+
+    if (!seen && hint && scroller.scrollWidth > scroller.clientWidth + 4) {
+        hint.classList.replace('hidden', 'inline-flex');
+        scroller.addEventListener('scroll', () => {
+            hint.classList.replace('inline-flex', 'hidden');
+            try {
+                localStorage.setItem(SWIPE_HINT_KEY, '1');
+            } catch {
+                // Fine.
+            }
+        }, { once: true, passive: true });
+    }
 });
 
 /**

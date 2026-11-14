@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
@@ -160,7 +161,30 @@ class Challenge extends Model
                 $day->subDay();
             }
 
-            return ['member' => $member, 'days' => $days->count(), 'run' => $run, 'finished' => $days->count() >= $this->target_days];
+            // For the table only (the order is days, then the current run): the best run and the last five days.
+            $best = $streak = 0;
+            $previous = null;
+            foreach ($days->sort()->values() as $date) {
+                $streak = $previous && Carbon::parse($previous)->addDay()->toDateString() === $date ? $streak + 1 : 1;
+                $best = max($best, $streak);
+                $previous = $date;
+            }
+            $lastDays = collect(range(4, 0))
+                ->map(fn (int $back) => $lastDay->copy()->subDays($back))
+                ->filter(fn ($date) => $date->gte($this->starts_on))
+                ->map(fn ($date) => ['date' => $date->toDateString(), 'done' => $days->contains($date->toDateString())])
+                ->values()
+                ->all();
+
+            return [
+                'member' => $member,
+                'days' => $days->count(),
+                'run' => $run,
+                'bestRun' => $best,
+                'percent' => $this->target_days > 0 ? (int) min(100, round($days->count() / $this->target_days * 100)) : 0,
+                'lastDays' => $lastDays,
+                'finished' => $days->count() >= $this->target_days,
+            ];
         });
 
         $sorted = $rows->sort(fn (array $a, array $b) => [$b['days'], $b['run'], $a['member']->id] <=> [$a['days'], $a['run'], $b['member']->id])->values();

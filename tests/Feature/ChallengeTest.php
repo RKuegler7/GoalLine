@@ -94,6 +94,20 @@ class ChallengeTest extends TestCase
         $this->assertSame(['Avery Lee', 'Sam Okafor'], $standings->map(fn ($row) => $row['member']->user->name)->all());
         $this->assertSame([2, 1], $standings->pluck('days')->all());
         $this->assertSame([2, 1], $standings->pluck('run')->all());
+        $this->assertSame([2, 1], $standings->pluck('bestRun')->all());
+        $this->assertSame([67, 33], $standings->pluck('percent')->all());
+        // Last 5 days, from the start (Oct 19) to today (Oct 21).
+        $this->assertSame([false, true, true], array_column($standings[0]['lastDays'], 'done'));
+
+        // The gold table: ranked by days, sortable, with a text alternative for the last five days.
+        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()
+            ->assertSee('data-challenge-table', false)
+            ->assertSee('Official order: most days checked in, then the longest current run.')
+            ->assertSee('Last 5 days: missed, checked in, checked in')
+            ->assertSeeInOrder(['Avery Lee', 'Sam Okafor']);
+        $this->actingAs($this->avery)->get(route('challenges.show', [$challenge, 'col' => 'bestRun']))->assertOk()
+            ->assertSee('Sorted by Best run, highest first.')
+            ->assertSee('Reset to official order');
 
         // Checking in again undoes it.
         $this->actingAs($sam)->post(route('challenges.check-in', $challenge));

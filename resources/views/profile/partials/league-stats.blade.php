@@ -20,7 +20,7 @@
                     <noscript><button type="submit" class="min-h-11 rounded-full px-3 text-[13px] font-semibold text-club">Show</button></noscript>
                 </form>
             @else
-                <a href="{{ route('leagues.standings', [$league, 'view' => 'stats']) }}" class="text-[13px] font-semibold text-club hover:underline">{{ $league->name }} stats &rarr;</a>
+                <a href="{{ route('leagues.standings', $league) }}" class="text-[13px] font-semibold text-club hover:underline">{{ $league->name }} stats &rarr;</a>
             @endif
         </div>
 

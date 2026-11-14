@@ -17,16 +17,22 @@
     </x-slot:hero>
 
     <div class="space-y-4" data-first-content>
-        {{-- The big switch: Standings or Stats. --}}
-        <x-segmented label="Standings or Stats" class="mx-auto w-full max-w-sm [&_a]:min-h-12 [&_a]:text-[16px] [&_a]:font-bold" data-standings-switch :options="[
-            ['label' => 'Standings', 'href' => route('leagues.standings', $league), 'active' => $view === 'standings'],
-            ['label' => 'Stats', 'href' => route('leagues.standings', [$league, 'view' => 'stats']), 'active' => $view === 'stats'],
+        {{-- The switch: the table, or the league's numbers. --}}
+        <x-segmented label="Table or League stats" class="mx-auto w-full max-w-sm [&_a]:min-h-12 [&_a]:text-[16px] [&_a]:font-bold" data-standings-switch :options="[
+            ['label' => 'Table', 'href' => route('leagues.standings', $league), 'active' => $view === 'table'],
+            ['label' => 'League stats', 'href' => route('leagues.standings', [$league, 'view' => 'league']), 'active' => $view === 'league'],
         ]" />
 
-        @if ($view === 'stats')
-            @include('leagues.partials.stats-view')
-        @else
-        @if ($summary['played'] === 0)
+        @if ($view === 'table')
+            <section aria-labelledby="standings-title">
+                <h2 id="standings-title" class="sr-only">Table</h2>
+                @if ($summary['played'] === 0 && $league->status() !== App\LeagueStatus::Forming)
+                    <p class="mb-2 rounded-xl border border-line bg-white px-3 py-2.5 text-[13px] text-ink/75" data-standings-early>Standings fill in after week 1. Results go final a day after each GoalWeek ends; until then, everyone's level.</p>
+                @endif
+                <x-standings-table :rows="$rows" :league="$league" :me="$me" :column="$column" />
+                <x-scoring-help class="mt-1" />
+            </section>
+        @elseif ($summary['played'] === 0)
             <x-empty-state title="Standings fill in after week 1"
                 message="Results go final a day after each GoalWeek ends. Until then, everyone's tied at zero and it's all to play for."
                 action="This week's Matchups" :href="route('matchups')" />
@@ -86,25 +92,7 @@
                     </table>
                 </section>
             @endif
-        @endif
-
-        {{-- The table, with a sort control. The official order is the default. --}}
-        <section aria-labelledby="standings-title">
-            <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
-                <h2 id="standings-title" class="eyebrow text-club">Table</h2>
-                <nav aria-label="Sort the table" class="-mx-1 flex max-w-full gap-1 overflow-x-auto px-1 [scrollbar-width:none]">
-                    @foreach (App\Services\LeagueStats::SORTS as $key => $label)
-                        <a href="{{ route('leagues.standings', $key === 'points' ? [$league] : [$league, 'sort' => $key]) }}" @if ($sort === $key) aria-current="true" @endif
-                            @class(['inline-flex min-h-9 shrink-0 items-center rounded-full px-3 text-xs font-semibold ring-1 ring-inset', 'bg-club text-ivory ring-club' => $sort === $key, 'bg-white text-ink/75 ring-line hover:text-ink' => $sort !== $key])>{{ $label }}</a>
-                    @endforeach
-                </nav>
-            </div>
-            <x-standings-table :rows="$rows" :league="$league" :me="$me" />
-            @if ($sort !== 'points')
-                <p class="mt-2 text-xs text-ink/70">Sorted by {{ Str::lower(App\Services\LeagueStats::SORTS[$sort]) }} for a look around. The official order is total stars, then line stars, then Past-the-Line weeks.</p>
-            @endif
-            <x-scoring-help class="mt-1" />
-        </section>
+            <x-scoring-help />
         @endif
     </div>
 </x-layouts.app>
