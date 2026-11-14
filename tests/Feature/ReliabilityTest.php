@@ -36,7 +36,7 @@ class ReliabilityTest extends TestCase
         config(['app.key' => 'base64:SECRET-APP-KEY-VALUE', 'services.anthropic.key' => 'sk-ant-SECRET']);
 
         $response = $this->getJson('/health')->assertOk()
-            ->assertExactJson(['status' => 'ok', 'checks' => ['app' => 'ok', 'database' => 'ok', 'cache' => 'ok', 'storage' => 'ok', 'queue' => 'ok']])
+            ->assertExactJson(['status' => 'ok', 'checks' => ['app' => 'ok', 'database' => 'ok', 'cache' => 'ok', 'storage' => 'ok', 'queue' => 'ok'], 'build' => null])
             ->assertHeader('Cache-Control', 'no-store, private');
 
         foreach (['SECRET', (string) config('database.connections.sqlite.database'), 'sk-ant'] as $secret) {

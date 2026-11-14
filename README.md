@@ -242,10 +242,11 @@ GoalLine runs on one Elastic Beanstalk server (PHP 8.4, Amazon Linux 2023). It u
 ### Each deploy
 
 1. Commit everything. If you changed any front-end files, run `npm run build` first and commit `public/build`.
-2. Build the zip from the commit: `git archive --format=zip -o deploy.zip HEAD` (or `final-submission` for the judged version). Don't zip with Windows, which writes paths Linux can't read.
+2. Build the zip from the commit: `php artisan goalline:deploy-zip` (or `php artisan goalline:deploy-zip final-submission` for the judged version). It runs `git archive` (only committed files, Linux-friendly paths; don't zip with Windows) and adds the **build stamp**, `build.json`: the short commit hash and the build time, nothing secret.
 3. Elastic Beanstalk console → your environment → **Upload and deploy** → choose `deploy.zip`.
 4. The server then does the rest on its own (`.platform/hooks/postdeploy/01-goalline.sh`). It checks the database connection, runs the migrations, gives existing plans their minimum pace (`goalline:plan-floors`), caches the config, and restarts the queue worker and the scheduler. There's no separate migrate step, and no seeders run on the server.
 5. Check it: the deploy log (`eb-hooks.log`) shows `goalline:preflight` with PASS, WARN or FAIL per setting, `/health` should say `ok`, and from your computer `npm run smoke -- --url https://YOUR-ADDRESS` runs the live end-to-end check.
+6. Confirm the live site is the commit you meant: the bottom of the About page says **Build `abc1234` · built …** (linking to that commit on GitHub), and `/health` returns the same under `build`. A copy run straight from git says "running from source".
 
 > **Photos need S3.** The server's own disk is wiped on every deploy. Until S3 is set up, uploaded photos (proof, posts, profile pictures, plan files) vanish on each deploy. The admin page's **Photo storage** card says whether S3 is working.
 

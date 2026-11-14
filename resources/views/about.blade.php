@@ -392,5 +392,17 @@
                 @endif
             </div>
         @endunless
+
+        {{-- The build stamp: which commit this site runs (set when deploy.zip is built), so it can be checked against
+             the repository. --}}
+        @php $build = App\BuildStamp::current(); @endphp
+        <p class="mt-10 text-center text-[13px] text-ink/70 tabular-nums" data-build-stamp>
+            @if ($build)
+                Build <a href="{{ rtrim(config('goalline.repository_url'), '/') }}/commit/{{ $build['commit'] }}" class="font-semibold text-club underline-offset-2 hover:underline" rel="noopener"><code>{{ $build['commit'] }}</code></a>
+                &middot; built {{ App\Clock::local(Carbon\CarbonImmutable::parse($build['built_at']))->format('M j, Y g:i a T') }}
+            @else
+                Build: running from source (no build stamp)
+            @endif
+        </p>
     </div>
 </x-dynamic-component>
