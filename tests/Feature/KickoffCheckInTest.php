@@ -293,7 +293,10 @@ class KickoffCheckInTest extends TestCase
         $this->at('2026-11-11 09:00');
         [$league, $alex] = $this->league();
 
-        $this->actingAs($alex)->get(route('leagues.show', $league))->assertOk()->assertSee('Season starts Nov 16');
+        // One line above a level table (dashes, no sorting), never a table of zeros.
+        $this->actingAs($alex)->get(route('leagues.show', $league))->assertOk()
+            ->assertSee('Season starts Monday, Nov 16. Everyone starts level.')
+            ->assertDontSee('data-sort-col', false);
         $this->get(route('leagues.matchups', $league))->assertRedirect(route('leagues.show', $league));
     }
 
