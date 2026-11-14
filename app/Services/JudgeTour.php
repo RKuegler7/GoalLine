@@ -23,7 +23,7 @@ class JudgeTour
     public const ITEMS = [
         'check_in' => ['title' => 'Check in a task and watch your band move', 'explain' => 'Tap a task’s check. Your band (Short, In Line, Past, Smashed) moves as the week fills in.'],
         'matchup' => ['title' => 'Open your Matchup', 'explain' => 'You against one opponent this week, each measured against your own plan.'],
-        'ai_plan' => ['title' => 'See how AI built this plan', 'explain' => 'Open “What the AI did, what code did” on your goal: the AI drafts, code checks and keeps score.'],
+        'ai_plan' => ['title' => 'See how AI built this plan', 'explain' => 'Open “How this plan was built” on your goal: what the AI drafted, and what code checked and enforced.'],
         'proof' => ['title' => 'Add proof or dispute a check-in', 'explain' => 'Attach a photo or details to a task, or question an opponent’s check-in.'],
         'standings' => ['title' => 'Explore the Standings table', 'explain' => 'Stars rank the table. Swipe for more columns, tap a heading to sort.'],
         'finale' => ['title' => 'Preview the season finale', 'explain' => 'A finished season: medals, the season card and what to go for next.'],

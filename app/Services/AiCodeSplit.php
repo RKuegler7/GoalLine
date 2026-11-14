@@ -67,7 +67,9 @@ class AiCodeSplit
         $questions = count($intake?->questions ?? []);
 
         if ($intake?->source === GoalIntake::SOURCE_AI && $questions > 0) {
-            $ai[] = "Wrote {$questions} intake ".Str::plural('question', $questions).' just for this goal.';
+            // One real question as the example. Only the question: the answers are the member's own and never shown here.
+            $example = Str::limit((string) ($intake->questions[0]['text'] ?? ''), 90);
+            $ai[] = "Wrote {$questions} intake ".Str::plural('question', $questions).' just for this goal'.($example !== '' ? ", like \u{201C}{$example}\u{201D}" : '').'.';
         } elseif ($intake?->source === GoalIntake::SOURCE_FALLBACK) {
             $code[] = 'Asked the built-in starter questions for this kind of goal.';
         }
@@ -77,8 +79,9 @@ class AiCodeSplit
         if ($goal->plan_source === 'coach' && $stretches > 0) {
             $ai[] = "Drafted your {$stretches} ".Str::plural('GoalWeek', $stretches).': a focus, a milestone and the tasks for each.';
             if (filled($goal->roadmap_summary)) {
-                $ai[] = 'Explained the plan in its own words.';
+                $ai[] = "Explained the plan in its own words: \u{201C}".Str::limit((string) $goal->roadmap_summary, 110)."\u{201D}";
             }
+            $code[] = "Set the dates of all {$stretches} ".Str::plural('GoalWeek', $stretches).' from your start and deadline, and kept the coach\'s draft only because its weeks matched them.';
         } elseif ($goal->plan_source === 'fallback') {
             $code[] = 'Built a starter plan from your goal\'s category when the coach was unavailable.';
         }
@@ -109,7 +112,8 @@ class AiCodeSplit
 
         if ($raised->isNotEmpty()) {
             foreach ($raised->take(self::NAMED_RAISES) as $week) {
-                $code[] = "We raised {$week->label()} to your minimum pace.";
+                $added = preg_match('/\(\+(\d+) points?\)/', (string) $week->floor_note, $match) ? ' (+'.$match[1].' '.Str::plural('point', (int) $match[1]).')' : '';
+                $code[] = "We raised {$week->label()} to your minimum pace of {$week->floor_points} ".Str::plural('point', (int) $week->floor_points)."{$added}.";
             }
             if ($raised->count() > self::NAMED_RAISES) {
                 $more = $raised->count() - self::NAMED_RAISES;
@@ -119,10 +123,14 @@ class AiCodeSplit
             $code[] = 'Checked every GoalWeek against the minimum pace your deadline needs.';
         }
 
-        $locked = $goal->weeks->filter(fn (RoadmapWeek $week) => $week->isStarted())->count();
-        $code[] = $locked > 0
-            ? "Locked {$locked} ".Str::plural('GoalWeek', $locked).' when '.($locked === 1 ? 'it' : 'they').' started, so the plan you\'re scored on can\'t move.'
-            : 'Will lock each GoalWeek\'s plan when it starts.';
+        $started = $goal->weeks->filter(fn (RoadmapWeek $week) => $week->isStarted());
+        $latest = $started->sortBy('starts_on')->last();
+        $next = $goal->weeks->reject(fn (RoadmapWeek $week) => $week->isStarted())->sortBy('starts_on')->first();
+        $code[] = match (true) {
+            $latest !== null => "Locked {$latest->label()} at the start of ".$latest->starts_on->format('l, M j').($started->count() > 1 ? ', and the '.($started->count() - 1).' before it,' : ',').' so the plan you\'re scored on can\'t move.',
+            $next !== null => "Will lock {$next->label()} at the start of ".$next->starts_on->format('l, M j').', so the plan you\'re scored on can\'t move.',
+            default => 'Locks each GoalWeek\'s plan when it starts.',
+        };
 
         $points = $goal->points();
         $code[] = "Scored every check-in: {$points} ".Str::plural('point', $points).' so far, by plain tested code.';
@@ -132,7 +140,7 @@ class AiCodeSplit
             ? "Ran {$disputes} ".Str::plural('dispute', $disputes).' by the rules, with people deciding. The AI never rules on one.'
             : 'Runs any dispute by the rules, with people deciding. The AI never rules on one.';
 
-        $code[] = 'Capped how much AI GoalLine can use each day, so costs stay small.';
+        $code[] = 'Capped AI use at '.config('goalline.ai.daily_requests_per_member').' coaching requests per member a day, and $'.rtrim(rtrim(number_format((float) config('goalline.ai.daily_budget_usd'), 2), '0'), '.').' a day for all of GoalLine.';
 
         return ['ai' => $ai, 'code' => $code, 'sample' => DemoCoach::applies($goal->user)];
     }

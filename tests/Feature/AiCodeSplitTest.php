@@ -4,10 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Goal;
 use App\Models\GoalIntake;
+use App\Models\League;
 use App\Models\PlanRefinement;
 use App\Models\User;
 use App\RoadmapStatus;
 use App\Services\AiCodeSplit;
+use App\Services\IntakeQuestions;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -47,12 +49,46 @@ class AiCodeSplitTest extends TestCase
 
         $split = AiCodeSplit::forGoal($this->goal->fresh());
 
-        $this->assertContains("Wrote {$questions} intake questions just for this goal.", $split['ai']);
+        $first = $this->goal->intake->questions[0]['text'];
+        $this->assertContains("Wrote {$questions} intake questions just for this goal, like \u{201C}{$first}\u{201D}.", $split['ai']);
         $this->assertContains('Drafted your 3 GoalWeeks: a focus, a milestone and the tasks for each.', $split['ai']);
+        $this->assertContains("Explained the plan in its own words: \u{201C}Build, then sharpen.\u{201D}", $split['ai']);
         $this->assertContains('Reworked your plan once when you asked. You approved each change.', $split['ai']);
-        $this->assertContains('We raised GoalWeek 3 to your minimum pace.', $split['code']);
-        $this->assertContains('Locked 2 GoalWeeks when they started, so the plan you\'re scored on can\'t move.', $split['code']);
+        $this->assertContains('We raised GoalWeek 3 to your minimum pace of 3 points (+2 points).', $split['code']);
+        $this->assertContains('Locked GoalWeek 2 at the start of Monday, Oct 26, and the 1 before it, so the plan you\'re scored on can\'t move.', $split['code']);
+        $this->assertContains('Set the dates of all 3 GoalWeeks from your start and deadline, and kept the coach\'s draft only because its weeks matched them.', $split['code']);
+        $this->assertContains('Capped AI use at 20 coaching requests per member a day, and $2 a day for all of GoalLine.', $split['code']);
         $this->assertFalse($split['sample']);
+    }
+
+    public function test_before_kickoff_it_says_when_the_first_week_will_lock(): void
+    {
+        $this->travelTo(Carbon::parse('2026-10-15 12:00', config('app.timezone')));
+
+        $this->assertContains('Will lock GoalWeek 1 at the start of Monday, Oct 19, so the plan you\'re scored on can\'t move.', AiCodeSplit::forGoal($this->goal->fresh())['code']);
+    }
+
+    public function test_the_panel_never_shows_intake_answers_and_other_members_never_see_it(): void
+    {
+        $this->goal->intake->answer([['id' => 'experience', 'question' => 'Experience?', 'answer' => 'Private note: failed it twice before', 'status' => IntakeQuestions::ANSWERED]]);
+
+        // The owner sees their own answers elsewhere on the page, but the panel itself never quotes them.
+        $html = $this->actingAs($this->user)->get(route('goals.show', $this->goal))->assertOk()->assertSee('How this plan was built')->getContent();
+        preg_match('#<section[^>]*data-ai-code-split>.*?</section>#s', $html, $panel);
+        $this->assertNotEmpty($panel);
+        $this->assertStringNotContainsString('failed it twice before', $panel[0]);
+
+        // Someone else can't open the goal page, and a league mate's view of the plan has no panel and no answers.
+        $mate = User::factory()->create();
+        $this->actingAs($mate)->get(route('goals.show', $this->goal))->assertForbidden();
+
+        $league = League::factory()->create(['starts_on' => '2026-10-19', 'ends_on' => '2026-11-08']);
+        $member = $league->members()->create(['user_id' => $this->user->id, 'goal_id' => $this->goal->id]);
+        $league->members()->create(['user_id' => $mate->id]);
+        $this->actingAs($mate)->get(route('leagues.members.plan', [$league, $member]))->assertOk()
+            ->assertDontSee('How this plan was built')
+            ->assertDontSee('data-ai-code-split', false)
+            ->assertDontSee('failed it twice before');
     }
 
     public function test_a_starter_plan_is_credited_to_code_not_the_ai(): void
@@ -71,8 +107,9 @@ class AiCodeSplitTest extends TestCase
     {
         $this->actingAs($this->user)->get(route('goals.show', $this->goal))
             ->assertOk()
-            ->assertSee('What the AI did, what code did')
+            ->assertSee('How this plan was built')
             ->assertSee('Drafted your 3 GoalWeeks')
+            ->assertSee('AI never scores your week or decides disputes.')
             ->assertDontSee('saved samples');
 
         $this->user->forceFill(['demo_sandbox' => 'test-sandbox'])->save();
@@ -86,6 +123,7 @@ class AiCodeSplitTest extends TestCase
             ->assertOk()
             ->assertSee('Who does what')
             ->assertSee('Scores every check-in, band and matchup')
-            ->assertSee('Caps how much AI GoalLine can use each day');
+            ->assertSee('Caps how much AI GoalLine can use each day')
+            ->assertSee('AI never scores your week or decides disputes.');
     }
 }

@@ -63,7 +63,7 @@ Every AI call runs in the background queue (except the optional caption helper),
 
 ## You can see who did what
 
-Each goal page has a **"What the AI did, what code did"** panel, built from that goal's real history: how many intake questions the coach wrote, that it drafted the GoalWeeks, each refinement you approved, and on the code side which weeks were raised to the minimum pace ("We raised GoalWeek 3 to your minimum pace."), how many weeks are locked, and the points scored so far. The About page shows the general version (`AiCodeSplit`, `x-ai-code-split`).
+Each goal page has a **"How this plan was built"** panel, built from that goal's real history: the intake questions the coach wrote (with one real example; never the answers), that it drafted the GoalWeeks and its explanation, each refinement you approved, and on the code side the dates code set and checked the draft against, which weeks were raised to the minimum pace and by how much ("We raised GoalWeek 3 to your minimum pace of 6 points (+2 points)."), when each week locked, the points scored so far and the AI caps. It ends with "AI never scores your week or decides disputes." Only the goal's owner sees it; demo accounts see saved sample data and nothing calls the AI to draw it. The About page shows the general version (`AiCodeSplit`, `x-ai-code-split`).
 
 ## What the AI never does
 
