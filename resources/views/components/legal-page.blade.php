@@ -1,7 +1,7 @@
 {{-- A plain-language legal page: privacy policy or terms. --}}
-@props(['title', 'updated'])
+@props(['title', 'updated', 'description' => null])
 
-<x-layouts.field :title="$title.' · GoalLine'">
+<x-layouts.field :title="$title.' · GoalLine'" :description="$description ?? $title.' for GoalLine, the weekly goal league you play with friends against your own plan.'">
     <x-slot:nav>
         <a href="{{ auth()->check() ? route('dashboard') : route('login') }}" class="text-sm font-medium text-ivory/90 hover:text-ivory">{{ auth()->check() ? 'Clubhouse' : 'Log in' }}</a>
     </x-slot:nav>

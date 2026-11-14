@@ -1,4 +1,4 @@
-<x-legal-page title="Privacy policy" updated="October 22, 2026">
+<x-legal-page title="Privacy policy" updated="October 22, 2026" description="Privacy and safety at GoalLine: what we collect, what other members can see, how photos are stripped of location data, and how to delete your account.">
     <p>GoalLine helps you plan and reach your goals, alone or with friends. This page explains, in plain language, what we collect, why, and the choices you have. GoalLine is in a private beta, and we&rsquo;ll update this page as it grows.</p>
 
     <h2>What we collect</h2>

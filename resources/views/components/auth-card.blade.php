@@ -1,6 +1,6 @@
 @props(['title', 'eyebrow', 'intro'])
 
-<x-layouts.field :title="$title.' · GoalLine'">
+<x-layouts.field :title="$title.' · GoalLine'" :description="$intro.' GoalLine: compete weekly with friends, each against your own AI-built plan.'">
     <x-slot:hero>
         <div class="mx-auto max-w-md px-4 pt-8 pb-24 text-center">
             <p class="eyebrow text-mint">{{ $eyebrow }}</p>

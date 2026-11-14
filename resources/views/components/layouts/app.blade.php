@@ -153,7 +153,7 @@
         @if ($viewer->onboarded_at && $viewer->tour_completed_at === null) data-tour-pending @endif>
         @if ($viewer->isDemo())
             {{-- One slim line, so the page starts right under it. --}}
-            <div class="mb-3 flex items-center justify-between gap-2 rounded-xl border border-club/25 bg-mint px-3 py-1.5 text-[13px]">
+            <div class="mb-3 flex items-center justify-between gap-2 rounded-xl border border-club/25 bg-mint px-3 py-1.5 text-[13px]" data-demo-banner>
                 <p class="min-w-0 truncate text-ink" title="Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.">
                     <span class="eyebrow mr-1 rounded-full bg-club px-1.5 py-0.5 text-[11px] text-ivory">Demo mode</span> You're {{ Str::before($viewer->name, ' ') }}. All pretend, so tap anything.
                 </p>

@@ -1,9 +1,10 @@
 {{--
     Primary lockup: the wordmark followed by the signature Line (stroke, marker, end post),
-    set at the middle of the lowercase letters. Optionally adds the tagline beneath.
+    set at the middle of the lowercase letters. Optionally adds the tagline beneath. With animated, the line draws in
+    and the marker runs to its place once (a still lockup with reduced motion; see .gl-logo-animated in app.css).
     The marker position is a fixed brand element. For a user's real progress, use <x-goal-progress>.
 --}}
-@props(['tone' => 'light', 'tagline' => false])
+@props(['tone' => 'light', 'tagline' => false, 'animated' => false])
 
 @php
     $light = $tone === 'light';
@@ -12,16 +13,16 @@
     $marker = $light ? '#43b96a' : '#176b45';
 @endphp
 
-<span @class(['inline-flex flex-col items-center gap-3', $light ? 'text-ivory' : 'text-club'])>
+<span @class(['inline-flex flex-col items-center gap-3', $light ? 'text-ivory' : 'text-club', 'gl-logo-animated' => $animated])>
     <svg {{ $attributes->class(['w-auto', 'h-9' => ! preg_match('/(^|\s)h-\d/', (string) $attributes->get('class'))]) }} viewBox="3 22 518 81.5" role="img" aria-label="GoalLine">
         <x-brand.letters />
 
         <g stroke-width="6" stroke-linecap="round">
-            <path d="M420 73 H468" stroke="#43b96a" />
+            <path d="M420 73 H468" stroke="#43b96a" class="gl-logo-line" pathLength="1" />
             <path d="M468 73 H514" stroke="{{ $rest }}" stroke-opacity="{{ $light ? 0.6 : 0.45 }}" />
             <path d="M514 49 V97" stroke="{{ $post }}" />
         </g>
-        <circle cx="468" cy="73" r="10" fill="{{ $marker }}" />
+        <circle cx="468" cy="73" r="10" fill="{{ $marker }}" class="gl-logo-marker" />
     </svg>
 
     @if ($tagline)

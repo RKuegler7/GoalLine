@@ -279,6 +279,28 @@ form[data-optimistic='check'][data-optimistic-on] [data-check='done'] {
     animation: gl-sheet-up 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+/* The landing page lockup: the Line draws in and the marker runs to its place, once. Still with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+    .gl-logo-animated .gl-logo-line {
+        stroke-dasharray: 1;
+        animation: gl-logo-draw 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 250ms both;
+    }
+
+    .gl-logo-animated .gl-logo-marker {
+        animation: gl-logo-run 900ms cubic-bezier(0.2, 0.8, 0.2, 1) 250ms both;
+    }
+}
+
+@keyframes gl-logo-draw {
+    from { stroke-dashoffset: 1; }
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes gl-logo-run {
+    from { transform: translateX(-48px); }
+    to { transform: translateX(0); }
+}
+
 /* Standings tables swipe sideways in their own box: columns snap (clear of the sticky Rank and Player columns), and
    once scrolled, the sticky Player column casts a soft edge over what slides under it. */
 .gl-table-scroll {
