@@ -149,6 +149,30 @@ First time only: `npx playwright install chromium webkit`.
 
 **UX reviewer agent.** `.claude/agents/ux-reviewer.md` is a read-only Claude Code reviewer. In Claude Code, ask: *"Use the ux-reviewer agent to review the app."* It runs `npm run qa`, reads the report and screenshots, and replies with prioritized feedback on clarity, flow, visual polish, mobile usability and tone, plus its top 5 fixes. It never edits code.
 
+## Accessibility
+
+What's in place, and how it's checked:
+
+- **axe-core on every screen** of the Try the demo script (WCAG 2.1 A and AA), on iPhone WebKit, a small Android phone and a desktop, plus dedicated checks on the landing page, the font comparison and the Standings table. On Nov 14, 2026 the run found two serious issues, both fixed: link names on the Standings table and the Matchup scoreboard that didn't start with their visible text (a problem for voice control; the extra words are now screen-reader-only text after the visible name), and faded past days on Plan my week (60% opacity put text below 4.5:1; they now sit on ivory at full contrast). The landing page's swipeable screens row is keyboard-focusable. Serious and critical findings: none left on the screens checked.
+- **Tap targets** of at least 44 × 44 px on phones (or a larger invisible hit area), 24 px minimum anywhere (pager dots widened from 20 px). **Text** at least 11 px (chips raised from 9-10 px), with 13 px for anything people read.
+- **Tables** have captions, row headers and `aria-sort`; the Last 5 circles and Challenge days have text alternatives ("Last 5: W Past, L Short, …"). **Sheets** (Judge's tour, player season, task details) are dialogs that close with Escape and Back and return focus. **Reduced motion** turns off the logo animation, celebrations and slides. **Live regions** announce sort changes and tour progress.
+- Lighthouse accessibility (mobile, below): 100 on the landing page, Matchup and Standings; 97 on the dashboard, for one inline text link inside a sentence, which WCAG exempts from the target-size rule.
+
+## Performance
+
+Lighthouse (mobile, simulated slow 4G) via `LIGHTHOUSE=<label> npx playwright test qa/e2e/lighthouse.spec.js --project="Desktop (Chromium)"`. These numbers come from the QA setup: PHP's one-request-at-a-time development server on a laptop, which doesn't compress anything. So the landing page's first paint is slower here than it will be live.
+
+| Page | Before (Nov 14) | After | Notes |
+|---|---|---|---|
+| Landing | 84 (LCP 3.8 s) | 87 (LCP 3.4 s) | With a second (heading) font added, thanks to preloading only the three font files the first screen uses |
+| Dashboard | 100 | 100 | |
+| Matchup | 90 | 90 | Server response time on the dev server |
+| Standings | 98 | 98 | |
+
+SEO went from 91-92 to 100 on the signed-in pages (meta description); best practices 100 throughout; layout shift 0 everywhere.
+
+Changes: on the live server (nginx), text responses are now **gzip-compressed** (Lighthouse estimated about 1.5 s off the landing page's first paint on a phone) and the hashed files under `/build` are **cached for a year** (`immutable`), `/images` for a week (`.platform/nginx/conf.d/elasticbeanstalk/02-performance.conf`); fonts are **self-hosted** with `font-display: swap` and only three preloaded; landing images are **600 px WebP** (36-70 KB) with width and height set (no layout shift) and lazy below the first. Not done: splitting the app's JavaScript for the landing page (185 KB before compression; Lighthouse lists it as unused there), and smaller image variants for phones (about 0.2 s).
+
 **Live checks.** `npm run smoke -- --url https://YOUR-ADDRESS` checks a running site end to end (health, home, Try the demo, a check-in, Matchups, privacy) and fails on any 500 or console error; it only uses a fresh demo account, so it's safe on production. On the server, `php artisan goalline:preflight` checks the production settings without printing secrets, and `/health` reports the database, cache, storage and queue for an uptime monitor. See [docs/RELIABILITY.md](docs/RELIABILITY.md).
 
 ## What we chose not to build

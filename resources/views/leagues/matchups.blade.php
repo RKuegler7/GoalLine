@@ -54,7 +54,7 @@
                     @if (count($pages) > 1)
                         <div class="flex items-center gap-0.5">
                             @foreach ($pages as $index => $page)
-                                <a href="#matchup-{{ $index + 1 }}" data-pager-dot class="group grid h-6 min-w-5 place-items-center" aria-label="Matchup {{ $index + 1 }}: {{ $page['card']['home']['member']->user->name }} vs {{ $page['card']['away']['member']->user->name ?? 'the league median' }}">
+                                <a href="#matchup-{{ $index + 1 }}" data-pager-dot class="group grid h-6 min-w-6 place-items-center" aria-label="Matchup {{ $index + 1 }}: {{ $page['card']['home']['member']->user->name }} vs {{ $page['card']['away']['member']->user->name ?? 'the league median' }}">
                                     <span class="block size-2 rounded-full bg-ink/20 transition-all group-data-[active]:w-5 group-data-[active]:bg-club"></span>
                                 </a>
                             @endforeach

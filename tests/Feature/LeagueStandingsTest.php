@@ -179,7 +179,7 @@ class LeagueStandingsTest extends TestCase
         $this->assertStringContainsString('bg-grass text-ink" data-form-week="1" data-letter="W"', $row);
         $this->assertStringContainsString('bg-sky-700 text-white" data-form-week="2" data-letter="W"', $row);
         $this->assertStringContainsString('bg-red-100 text-red-800" data-form-week="3" data-letter="L"', $row);
-        $this->assertStringContainsString('aria-label="Last 5: W In Line, W Smashed, L Short.', $row);
+        $this->assertStringContainsString('<span class="sr-only">Last 5: W In Line, W Smashed, L Short.', $row);
 
         // The informational columns say they don't rank anyone.
         $page->assertSee('For interest only, not ranking.');

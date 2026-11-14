@@ -27,6 +27,8 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     @include('partials.head')
+    {{-- Signed-in pages aren't for search engines, but a description still reads well wherever a link is pasted. --}}
+    <meta name="description" content="GoalLine: compete weekly with friends, each against your own AI-built plan.">
 </head>
 <body class="min-h-dvh bg-ivory pr-[env(safe-area-inset-right)] pb-[calc(8.5rem+env(safe-area-inset-bottom))] pl-[env(safe-area-inset-left)] font-sans text-ink antialiased md:pb-16" data-signed-in data-density="compact">
     <x-splash />

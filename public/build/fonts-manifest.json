@@ -25,59 +25,9 @@
     {
       "alias": "plus-jakarta-sans",
       "family": "Plus Jakarta Sans",
-      "weight": 500,
-      "style": "normal",
-      "file": "assets/plus-jakarta-sans-500-normal-Bf-nb4oT.woff2",
-      "as": "font",
-      "type": "font/woff2",
-      "crossorigin": "anonymous"
-    },
-    {
-      "alias": "plus-jakarta-sans",
-      "family": "Plus Jakarta Sans",
       "weight": 600,
       "style": "normal",
       "file": "assets/plus-jakarta-sans-600-normal-DLTa1BUW.woff2",
-      "as": "font",
-      "type": "font/woff2",
-      "crossorigin": "anonymous"
-    },
-    {
-      "alias": "plus-jakarta-sans",
-      "family": "Plus Jakarta Sans",
-      "weight": 700,
-      "style": "normal",
-      "file": "assets/plus-jakarta-sans-700-normal-CfpNZvy6.woff2",
-      "as": "font",
-      "type": "font/woff2",
-      "crossorigin": "anonymous"
-    },
-    {
-      "alias": "plus-jakarta-sans",
-      "family": "Plus Jakarta Sans",
-      "weight": 800,
-      "style": "normal",
-      "file": "assets/plus-jakarta-sans-800-normal-CusIZhrK.woff2",
-      "as": "font",
-      "type": "font/woff2",
-      "crossorigin": "anonymous"
-    },
-    {
-      "alias": "space-grotesk",
-      "family": "Space Grotesk",
-      "weight": 500,
-      "style": "normal",
-      "file": "assets/space-grotesk-500-normal-lFbtlQH6.woff2",
-      "as": "font",
-      "type": "font/woff2",
-      "crossorigin": "anonymous"
-    },
-    {
-      "alias": "space-grotesk",
-      "family": "Space Grotesk",
-      "weight": 600,
-      "style": "normal",
-      "file": "assets/space-grotesk-600-normal-DjKNqYRj.woff2",
       "as": "font",
       "type": "font/woff2",
       "crossorigin": "anonymous"

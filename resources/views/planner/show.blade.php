@@ -44,10 +44,12 @@
                         $isToday = $day->isSameDay($today);
                     @endphp
                     <li @class([
-                        'rounded-2xl border bg-white p-3',
+                        'rounded-2xl border p-3',
                         'border-club ring-4 ring-mint' => $isToday,
                         'border-line' => ! $isToday,
-                        'opacity-60' => $day->lt($today),
+                        // Past days sit back on ivory, without fading the text below AA contrast.
+                        'bg-ivory' => $day->lt($today),
+                        'bg-white' => ! $day->lt($today),
                     ])>
                         <p @class(['text-xs font-semibold uppercase tracking-wide', 'text-club' => $isToday, 'text-ink/70' => ! $isToday])>{{ $isToday ? 'Today' : $day->format('D') }}</p>
                         <p class="font-serif text-lg text-ink tracking-tight">{{ $day->format('j') }}</p>

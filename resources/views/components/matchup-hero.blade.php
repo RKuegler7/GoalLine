@@ -31,9 +31,9 @@
                 @if ($side)
                     @php($member = $side['member'])
                     @php($profile = $member->user->username ? route('profiles.show', $member->user) : null)
-                    <a @if ($profile) href="{{ $profile }}" @endif class="group flex min-w-0 flex-col items-center" aria-label="{{ $member->displayName() }}{{ $profile ? ', open profile' : '' }}">
+                    <a @if ($profile) href="{{ $profile }}" @endif class="group flex min-w-0 flex-col items-center">
                         <x-avatar :user="$member->user" tone="light" class="size-16 text-xl ring-3 ring-ivory/80 sm:size-20" />
-                        <span class="mt-2 line-clamp-2 max-w-full text-[17px] leading-tight font-extrabold break-words text-ivory group-hover:underline sm:text-xl" data-hero-name title="{{ $member->displayName() }}">{{ $member->displayName() }}</span>
+                        <span class="mt-2 line-clamp-2 max-w-full text-[17px] leading-tight font-extrabold break-words text-ivory group-hover:underline sm:text-xl" data-hero-name title="{{ $member->displayName() }}">{{ $member->displayName() }}@if ($profile)<span class="sr-only">, open profile</span>@endif</span>
                     </a>
                     <span class="mt-0.5 text-xs font-semibold text-mint tabular-nums" data-hero-record title="Wins, draws and losses this season">{{ $side['record']['wins'] }}&ndash;{{ $side['record']['ties'] }}&ndash;{{ $side['record']['losses'] }}</span>
                     <span class="mt-2 text-[30px] leading-none font-extrabold text-ivory tabular-nums" data-hero-percent>{{ $side['percentLabel'] ?? '–' }}</span>

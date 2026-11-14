@@ -60,9 +60,9 @@
                         <tr class="group cursor-pointer" data-standings-row="{{ $member->id }}" data-rank="{{ $row['rank'] }}">
                             <td class="sticky left-0 z-10 border-t border-line py-0 pl-3 font-semibold text-ink/70 {{ $cellBg }}">{{ $row['rank'] }}</td>
                             <th scope="row" class="gl-sticky-edge sticky left-9 z-10 w-[7.25rem] max-w-[7.25rem] border-t border-line py-0 pr-2 pl-1 font-normal {{ $cellBg }}">
-                                <a href="{{ $playerUrl($member) }}" data-task-sheet-open data-row-link class="flex min-h-11 items-center gap-2" aria-label="{{ $row['rank'] }}. {{ $member->displayName() }}{{ $mine ? ' (you)' : '' }}: see their season">
+                                <a href="{{ $playerUrl($member) }}" data-task-sheet-open data-row-link class="flex min-h-11 items-center gap-2">
                                     <x-avatar :user="$member->user" class="size-7 shrink-0 text-[11px]" />
-                                    <span class="min-w-0 truncate font-semibold text-ink group-hover:text-club">{{ $member->displayName() }}</span>
+                                    <span class="min-w-0 truncate font-semibold text-ink group-hover:text-club">{{ $member->displayName() }}<span class="sr-only">{{ $mine ? ' (you)' : '' }}, place {{ $row['rank'] }}: see their season</span></span>
                                 </a>
                             </th>
                             @foreach ($columns as $key => $col)
@@ -88,7 +88,8 @@
                                                 {{ $stats['plusMinus'] > 0 ? '+'.$stats['plusMinus'] : ($stats['plusMinus'] < 0 ? '−'.abs($stats['plusMinus']) : '0') }}
                                                 @break
                                             @case('form')
-                                                <a href="{{ $playerUrl($member) }}#week-by-week" data-task-sheet-open class="flex min-h-11 items-center gap-1" data-form aria-label="{{ App\Services\LeagueStats::formLabel($stats['formWeeks']) }}. Open {{ $member->displayName() }}'s week-by-week list.">
+                                                <a href="{{ $playerUrl($member) }}#week-by-week" data-task-sheet-open class="flex min-h-11 items-center gap-1" data-form>
+                                                    <span class="sr-only">{{ App\Services\LeagueStats::formLabel($stats['formWeeks']) }}. Open {{ $member->displayName() }}'s week-by-week list.</span>
                                                     @forelse ($stats['formWeeks'] as $week)
                                                         <span class="grid size-[18px] place-items-center rounded-full text-[11px] leading-none font-bold {{ $circle($week['band']) }}" data-form-week="{{ $week['week'] }}" data-letter="{{ $week['letter'] }}" aria-hidden="true">{{ $week['letter'] }}</span>
                                                     @empty

@@ -62,9 +62,9 @@
                         <tr class="group cursor-pointer" data-standings-row="{{ $row['member']->id }}" data-rank="{{ $row['rank'] }}">
                             <td @class(['sticky left-0 z-10 border-t border-line py-0 pl-3 font-semibold', $cellBg, 'text-gold-ink' => $row['rank'] === 1 && $row['days'] > 0, 'text-ink/70' => $row['rank'] !== 1 || $row['days'] === 0])>{{ $row['rank'] }}</td>
                             <th scope="row" class="gl-sticky-edge sticky left-9 z-10 w-[7.25rem] max-w-[7.25rem] border-t border-line py-0 pr-2 pl-1 font-normal {{ $cellBg }}">
-                                <a href="{{ $user->profileUrl() }}" data-row-link class="flex min-h-11 items-center gap-2" aria-label="{{ $row['rank'] }}. {{ $user->name }}{{ $mine ? ' (you)' : '' }}: see their profile">
+                                <a href="{{ $user->profileUrl() }}" data-row-link class="flex min-h-11 items-center gap-2">
                                     <x-avatar :user="$user" class="size-7 shrink-0 text-[11px]" />
-                                    <span class="min-w-0 truncate font-semibold text-ink group-hover:text-gold-ink">{{ $user->name }}</span>
+                                    <span class="min-w-0 truncate font-semibold text-ink group-hover:text-gold-ink">{{ $user->name }}<span class="sr-only">{{ $mine ? ' (you)' : '' }}, place {{ $row['rank'] }}: see their profile</span></span>
                                 </a>
                             </th>
                             <td data-cell="days" data-value="{{ $row['days'] }}" class="border-t border-line px-1.5 py-0 text-center {{ $cellBg }}"><span class="text-[16px] font-extrabold text-ink">{{ $row['days'] }}</span><span class="text-ink/70">/{{ $challenge->target_days }}</span></td>
