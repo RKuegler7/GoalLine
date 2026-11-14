@@ -195,9 +195,12 @@
         @endif
 
         {{ $slot }}
+
+        <x-judge-tour />
     </main>
 
-    <footer class="border-t border-line">
+    {{-- In a demo, room under the footer links so the Judge's tour pill never covers them. --}}
+    <footer @class(['border-t border-line', 'pb-16 md:pb-0' => $viewer->isDemo()])>
         <nav class="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-2 px-4 py-5 text-sm text-ink/70" aria-label="Footer">
             <a href="{{ route('about') }}" class="hover:text-club">About</a>
             <a href="{{ route('privacy') }}" class="hover:text-club">Privacy</a>

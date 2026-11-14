@@ -4,6 +4,7 @@ use App\Http\Controllers\HealthController;
 use App\Http\Middleware\EnsureOnboarded;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackActivity;
+use App\Http\Middleware\TrackJudgeTour;
 use App\Http\Middleware\TrustCloudFront;
 use App\Http\Middleware\UsePublicAddress;
 use App\Http\Middleware\UseViewerTimezone;
@@ -27,7 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [UseViewerTimezone::class, EnsureOnboarded::class, TrackActivity::class]);
+        $middleware->web(append: [UseViewerTimezone::class, EnsureOnboarded::class, TrackActivity::class, TrackJudgeTour::class]);
 
         // CloudFront sits in front in production: find the real visitor behind it (TRUSTED_PROXIES, see
         // TrustCloudFront), and treat every request as arriving at the public https address so signed links validate.

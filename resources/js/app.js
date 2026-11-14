@@ -1126,6 +1126,35 @@ eachOnPage('[data-task-sheet]', (sheet) => {
 });
 
 /**
+ * The Judge's tour (demo accounts): the pill opens its sheet, and opening the AI panel on a goal ticks that item off.
+ */
+eachOnPage('[data-judge-tour-open]', (button) => {
+    const sheet = button.closest('[data-judge-tour]')?.querySelector('[data-judge-tour-sheet]');
+    button.addEventListener('click', () => openSheet(sheet));
+    sheet?.addEventListener('close', () => button.focus({ preventScroll: true }));
+});
+
+eachOnPage('[data-judge-tour-ping]', (details) => {
+    details.addEventListener('toggle', () => {
+        if (!details.open || !document.querySelector('[data-judge-tour]')) {
+            return;
+        }
+
+        fetch(`/judge-tour/${details.dataset.judgeTourPing}/seen`, {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '', 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' },
+            credentials: 'same-origin',
+        }).catch(() => {});
+    });
+
+    // Arriving from "Take me there" (?tour=ai_plan, which survives the redirect a #fragment wouldn't): open the panel.
+    if (new URLSearchParams(window.location.search).get('tour') === details.dataset.judgeTourPing && !details.open) {
+        details.open = true;
+        details.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+});
+
+/**
  * The standings table: a heading sorts by its column in place (highest first, the official order breaking ties) and
  * says in one line what the column means; "Reset to official order" puts it back. The URL follows (?col=) so Back
  * and a reload agree. The table swipes sideways inside its own box: a soft edge shows there's more, and a one-time

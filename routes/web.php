@@ -32,6 +32,7 @@ use App\Http\Controllers\HighlightCommentController;
 use App\Http\Controllers\HighlightController;
 use App\Http\Controllers\HistoryWeekController;
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\JudgeTourController;
 use App\Http\Controllers\KickoffController;
 use App\Http\Controllers\LeagueController;
 use App\Http\Controllers\LeagueGoalController;
@@ -115,6 +116,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/help', [HelpController::class, 'show'])->name('help')->middleware('throttle:60,1');
     Route::post('/tour', [HelpController::class, 'tourDone'])->name('tour.done')->middleware('throttle:20,1');
+    Route::get('/judge-tour/{item}', [JudgeTourController::class, 'go'])->name('judge-tour.go');
+    Route::post('/judge-tour/{item}/seen', [JudgeTourController::class, 'seen'])->name('judge-tour.seen')->middleware('throttle:30,1');
+    Route::post('/judge-tour-visibility', [JudgeTourController::class, 'hide'])->name('judge-tour.hide')->middleware('throttle:30,1');
     Route::get('/history/weeks/{week}', HistoryWeekController::class)->name('history.weeks.show');
 
     Route::get('/welcome', [WelcomeController::class, 'you'])->name('welcome.show');

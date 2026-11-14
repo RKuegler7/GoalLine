@@ -387,6 +387,8 @@ class DemoWorld
      */
     public static function remove(User $user): void
     {
+        JudgeTour::forget($user);
+
         try {
             $user->delete();
         } catch (Throwable $exception) {

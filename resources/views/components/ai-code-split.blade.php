@@ -6,7 +6,7 @@
 @endphp
 
 <section {{ $attributes->class(['rounded-xl border border-line bg-white']) }} aria-labelledby="ai-code-split-title" data-ai-code-split>
-    <details @if (! $collapsed) open @endif class="group">
+    <details @if (! $collapsed) open @endif class="group" @if ($goal) data-judge-tour-ping="ai_plan" @endif>
         <summary class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 [&::-webkit-details-marker]:hidden">
             <h2 id="ai-code-split-title" class="eyebrow text-club">{{ $goal ? 'What the AI did, what code did' : 'Who does what' }}</h2>
             <x-icon name="chevron-down" class="size-4 shrink-0 text-ink/70 transition group-open:rotate-180" />
