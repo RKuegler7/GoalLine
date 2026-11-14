@@ -13,7 +13,7 @@
     <h2>How we use it</h2>
     <ul>
         <li>To run GoalLine for you: your roadmap, Today&rsquo;s Gameplan, scoring, GoalLeagues, reminders, and notifications.</li>
-        <li>To show what you share to the people your settings allow: your locker&rsquo;s visibility setting controls who sees your profile and highlights.</li>
+        <li>To show what you share to the people your settings allow: your locker&rsquo;s visibility setting controls who sees your profile and Highlights posts.</li>
         <li>To improve GoalLine, using feature-use counts.</li>
         <li>To keep GoalLine safe and working, including fixing errors.</li>
     </ul>

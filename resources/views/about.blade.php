@@ -82,7 +82,7 @@
             <section id="what" aria-labelledby="what-title">
                 <p class="eyebrow text-club">What GoalLine is</p>
                 <h2 id="what-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">A league for real goals</h2>
-                <p class="mt-3">GoalLine is a league for the goals you actually care about: the exam, the thesis, the race, the lift. An AI coach turns your goal into a dated plan of weekly GoalWeeks. You check in every day, and each week you play a friendly matchup with a friend in your GoalLeague. The scoreboard is fun, but what matters most is hitting the goal.</p>
+                <p class="mt-3">GoalLine is a league for the goals you actually care about: the exam, the thesis, the race, the lift. An AI coach turns your goal into a dated plan of weekly GoalWeeks. You check in every day, and each week you play a friendly Matchup with a friend in your GoalLeague. The scoreboard is fun, but what matters most is hitting the goal.</p>
             </section>
 
             {{-- 2. Mission --}}
@@ -125,7 +125,7 @@
                         ['A plan, not a blank page', 'A tailored, dated plan built from your answers about your goal, your time, and your starting point.'],
                         ['Friends in your corner', 'League mates see your progress, cheer your posts, and nudge you when it counts.'],
                         ['A fair fight', 'You compete against your own plan, so a beginner and a veteran can play the same league.'],
-                        ['Honest by design', 'Proof photos, Verified check-ins and highlights make progress real, and disputes are calm and simple.'],
+                        ['Honest by design', 'Proof photos, Verified check-ins and Highlights make progress real, and disputes are calm and simple.'],
                         ['Private by default', 'You choose who sees your locker and each post. We don\'t sell your information or show ads.'],
                         ['Built around the process', 'One clear list for today, and a week you can still win after a slow start.'],
                     ] as [$title, $body])
@@ -277,7 +277,7 @@
                     @foreach ([
                         ['Range checks', 'A tracked number has to make sense: 0 to 3× the plan. Over 1.5× the plan, or a new personal best, asks "Are you sure?" once.'],
                         ['No backfilling', 'Check-ins are for today or yesterday. A week locks one day after it ends, and future weeks can\'t be checked off early.'],
-                        ['Open matchups', 'Your opponent sees your check-ins as a timeline, with times, numbers and Verified checks.'],
+                        ['Open Matchups', 'Your opponent sees your check-ins as a timeline, with times, numbers and Verified checks.'],
                         ['Proof', 'Add a photo, details (a caption, where and when), or both to any check-in. Photos earn the Verified check; details help your league see your process. A Smashed week counts in full only with a photo or your opponent\'s confirmation.'],
                         ['Dispute button', 'Your opponent or the league owner can calmly question a check-in. You settle it with proof or a note; the league owner can rule.'],
                         ['Plan floor and plan lock', 'Code sets a minimum pace for every week, so an easy plan can\'t Smash every week. A week\'s plan locks when it starts.'],

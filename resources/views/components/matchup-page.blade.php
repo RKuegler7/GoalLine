@@ -107,7 +107,7 @@
                                     @php $state = $dayState($day); @endphp
                                     <li title="{{ $day['label'] }}: {{ ['done' => 'done', 'due' => 'due today', 'upcoming' => 'upcoming', 'rest' => 'rest day', 'open' => 'not done'][$state] }}"
                                         @class([
-                                            'grid size-5 place-items-center rounded-full text-[10px] font-bold',
+                                            'grid size-5 place-items-center rounded-full text-[11px] font-bold',
                                             'bg-grass text-ink' => $state === 'done',
                                             'bg-gold/30 text-ink ring-1 ring-gold' => $state === 'due',
                                             'bg-ivory text-ink/70 ring-1 ring-line' => in_array($state, ['upcoming', 'open'], true),

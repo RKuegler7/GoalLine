@@ -4,7 +4,7 @@
     [$title, $text] = match ($reason) {
         'expired' => ['This invite has expired or was turned off.', 'Invite links can be used up or switched off by the league owner. Ask '.($league ? Str::before($league->commissioner->name, ' ') : 'whoever sent it').' for a fresh one.'],
         App\Services\LeagueJoin::FULL => ['This GoalLeague is full.', 'It already has the most members a league can hold. You can start your own with the same kind of goal in a minute.'],
-        App\Services\LeagueJoin::OVER => ['This season is over.', 'The matchups are done for this one. Start your own GoalLeague, or ask the owner about running it back.'],
+        App\Services\LeagueJoin::OVER => ['This season is over.', 'The Matchups are done for this one. Start your own GoalLeague, or ask the owner about running it back.'],
         default => ['We couldn\'t find that invite.', 'The link may be mistyped, or the league was called off. Double-check it, or ask for a new one.'],
     };
 @endphp

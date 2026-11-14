@@ -45,7 +45,7 @@
             <section class="rounded-2xl border border-club/30 bg-white px-4 py-3">
                 <div class="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <p class="eyebrow text-club">Your progress</p>
+                        <p class="eyebrow text-gold-ink">Your progress</p>
                         <p class="mt-1 font-serif text-3xl text-ink tabular-nums tracking-tight">{{ $mine['days'] ?? 0 }}<span class="text-lg text-ink/70">/{{ $challenge->target_days }} days</span></p>
                         <p class="text-sm text-ink/70">
                             @if ($mine['finished'] ?? false)
@@ -96,7 +96,7 @@
         <aside class="space-y-6">
             @unless ($challenge->isOver())
                 <section class="rounded-2xl border border-line bg-white px-4 py-3">
-                    <h2 class="eyebrow text-club">Bring people in</h2>
+                    <h2 class="eyebrow text-gold-ink">Bring people in</h2>
                     <p class="mt-2 font-mono text-2xl font-semibold tracking-widest text-ink">{{ $challenge->invite_code }}</p>
                     <x-share-link id="challenge-link" label="Or share this link" :url="$challenge->joinUrl()" class="mt-3"
                         :share-title="'Join '.$challenge->title.' on GoalLine'" :share-message="'Join my GoalLine Challenge, '.$challenge->title.': '.$challenge->joinUrl()" />

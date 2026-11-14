@@ -230,7 +230,7 @@
                                 <img src="{{ $highlight->photoUrl() }}" alt="{{ $highlight->caption ?? $highlight->headline }}" loading="lazy" decoding="async" class="size-full object-cover">
                             @else
                                 <span class="flex size-full flex-col justify-end bg-linear-to-br from-club to-club-dark p-2 text-left">
-                                    <span class="eyebrow text-[9px] text-mint">{{ $highlight->kind->label() }}</span>
+                                    <span class="eyebrow text-[11px] text-mint">{{ $highlight->kind->label() }}</span>
                                     <span class="line-clamp-3 text-[12px] leading-tight font-semibold text-ivory">{{ $highlight->headline }}</span>
                                 </span>
                             @endif
@@ -312,7 +312,7 @@
                                 @endif
                             </span>
                             <span class="min-w-0">
-                                <span class="eyebrow block text-[10px] text-gold-ink">Completed</span>
+                                <span class="eyebrow block text-[11px] text-gold-ink">Completed</span>
                                 <span class="block text-[15px] font-bold text-club [overflow-wrap:anywhere]">{{ $goal->title }}</span>
                                 <span class="block text-[12px] text-ink/70">{{ App\Clock::local($goal->completed_at)->format('F j, Y') }} &middot; {{ $goal->points() }} {{ Str::plural('star', $goal->points()) }}</span>
                             </span>

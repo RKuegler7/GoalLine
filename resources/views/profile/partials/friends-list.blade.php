@@ -16,7 +16,7 @@
                             @endif
                         </span>
                         @if (! $isOwn && isset($mutual[$friend->id]))
-                            <span class="eyebrow shrink-0 rounded-full bg-mint px-2 py-0.5 text-[10px] text-club">Mutual</span>
+                            <span class="eyebrow shrink-0 rounded-full bg-mint px-2 py-0.5 text-[11px] text-club">Mutual</span>
                         @endif
                     </a>
                 </li>

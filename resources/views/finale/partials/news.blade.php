@@ -13,9 +13,9 @@
                     <p class="text-[14px] font-semibold text-ink">{{ $shared->user->name }}</p>
                     <p class="truncate text-[13px] text-ink/75">{{ $shared->goal->title }}</p>
                     <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[12px]">
-                        <span @class(['eyebrow rounded-full px-2 py-0.5 text-[10px]', 'bg-gold text-ink' => $shared->isAchieved(), 'bg-mint text-club' => ! $shared->isAchieved()])>{{ $shared->outcome->label() }}</span>
+                        <span @class(['eyebrow rounded-full px-2 py-0.5 text-[11px]', 'bg-gold text-ink' => $shared->isAchieved(), 'bg-mint text-club' => ! $shared->isAchieved()])>{{ $shared->outcome->label() }}</span>
                         @if ($shared->isVerified())
-                            <span class="eyebrow rounded-full bg-club px-2 py-0.5 text-[10px] text-ivory">Verified</span>
+                            <span class="eyebrow rounded-full bg-club px-2 py-0.5 text-[11px] text-ivory">Verified</span>
                         @endif
                         @if ($shared->actual_result)
                             <span class="text-ink/75">{{ $shared->actual_result }}</span>

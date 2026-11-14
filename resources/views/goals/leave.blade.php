@@ -27,7 +27,7 @@
         @else
             <p class="eyebrow text-club">Locked in</p>
             <p class="mt-3 text-lg text-ink">
-                You locked in on {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. Retiring stops this goal and takes it off your clubhouse,
+                You locked in on {{ App\Clock::local($goal->lockedInAt())->format('F j') }}. Retiring stops this goal and takes it off your Clubhouse,
                 but keeps its history. You can't undo it.
             </p>
 

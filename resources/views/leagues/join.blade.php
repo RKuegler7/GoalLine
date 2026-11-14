@@ -15,7 +15,7 @@
 @push('head')
     @include('partials.share-meta', [
         'title' => "Join {$league->name} on GoalLine",
-        'description' => Str::before($inviter->name, ' ')." invited you to a GoalLeague: {$summary}. Bring one real goal and play a friendly weekly matchup.",
+        'description' => Str::before($inviter->name, ' ')." invited you to a GoalLeague: {$summary}. Bring one real goal and play a friendly weekly Matchup.",
         'url' => $invite ? $invite->url() : App\ShareLink::route('leagues.join', $league->invite_code),
     ])
 @endpush

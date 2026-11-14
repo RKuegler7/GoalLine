@@ -12,7 +12,7 @@
                     @case('kickoff')
                         <p class="eyebrow text-mint">Season not started</p>
                         <h2 class="mt-1 text-[22px] leading-tight font-bold text-ivory">{{ $forming->name }} kicks off {{ $forming->starts_on->format('l, M j') }}.</h2>
-                        <p class="mt-1 text-[14px] text-ivory/90">Your first matchup goes live that Monday. Until then, bring a friend or two: every member makes the season better.</p>
+                        <p class="mt-1 text-[14px] text-ivory/90">Your first Matchup goes live that Monday. Until then, bring a friend or two: every member makes the season better.</p>
                         @break
                     @case('season-over')
                         <p class="eyebrow text-mint">Season over</p>
@@ -20,7 +20,7 @@
                         <p class="mt-1 text-[14px] text-ivory/90">Every week you played is saved in History. Run it back with the same crew, or start something new.</p>
                         @break
                     @default
-                        <p class="eyebrow text-mint">No matchup yet</p>
+                        <p class="eyebrow text-mint">No Matchup yet</p>
                         <h2 class="mt-1 text-[22px] leading-tight font-bold text-ivory">No Matchup yet.</h2>
                         <p class="mt-1 text-[14px] text-ivory/90">A Matchup is your week against a friend, scored against your own plans.</p>
                 @endswitch

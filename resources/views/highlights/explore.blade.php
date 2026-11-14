@@ -23,7 +23,7 @@
                         <li class="shrink-0">
                             <a href="{{ route('leagues.create', ['name' => $idea['name'], 'category' => $idea['category'], 'goal_title' => $idea['title']]) }}"
                                 class="flex min-h-11 flex-col justify-center rounded-xl border border-line bg-white px-3 py-2 hover:border-club/40">
-                                <span class="eyebrow text-[10px] text-ink/70">{{ App\GoalCategory::from($idea['category'])->label() }}</span>
+                                <span class="eyebrow text-[11px] text-ink/70">{{ App\GoalCategory::from($idea['category'])->label() }}</span>
                                 <span class="text-[14px] font-semibold whitespace-nowrap text-club">{{ $idea['title'] }}</span>
                             </a>
                         </li>
@@ -78,7 +78,7 @@
                     @foreach ($posts as $post)
                         <div data-public-post>
                             @if ($demo)
-                                <p class="eyebrow mb-1 text-[10px] text-ink/60">Example</p>
+                                <p class="eyebrow mb-1 text-[11px] text-ink/70">Example</p>
                             @endif
                             <x-highlight-card :highlight="$post" />
                         </div>

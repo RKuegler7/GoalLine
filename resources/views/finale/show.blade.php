@@ -343,7 +343,7 @@
                     <li>
                         <a href="{{ route('goals.create', ['title' => $idea['title'], 'category' => $idea['category'], 'target_date' => $idea['target_date']]) }}"
                             class="block rounded-xl border border-line px-3 py-2.5 hover:border-club/40" data-recommendation="{{ $idea['kind'] }}">
-                            <span class="eyebrow text-[10px] text-club">{{ ['harder' => 'Step it up', 'again' => 'Run it back', 'new' => 'Something new'][$idea['kind']] ?? 'Idea' }} &middot; {{ $idea['weeks'] }} weeks</span>
+                            <span class="eyebrow text-[11px] text-club">{{ ['harder' => 'Step it up', 'again' => 'Run it back', 'new' => 'Something new'][$idea['kind']] ?? 'Idea' }} &middot; {{ $idea['weeks'] }} weeks</span>
                             <span class="block text-[15px] font-semibold text-ink">{{ $idea['title'] }}</span>
                             <span class="block text-[13px] text-ink/75">{{ $idea['why'] }}</span>
                         </a>
