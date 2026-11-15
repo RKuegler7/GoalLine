@@ -193,7 +193,7 @@
             {{-- A check-in just moved a GoalWeek up a band (worked out by the scoring code): celebrate.js plays it. --}}
             <span data-band-up hidden data-band="{{ session('band_up')['band'] }}" data-label="{{ session('band_up')['label'] }}"
                 data-percent="{{ session('band_up')['percent'] }}" data-needs-proof="{{ session('band_up')['needsProof'] ? '1' : '' }}"
-                data-goal-url="{{ session('band_up')['goalUrl'] }}"></span>
+                data-goal-url="{{ session('band_up')['goalUrl'] ?? '' }}" data-title="{{ session('band_up')['title'] ?? '' }}" data-detail="{{ session('band_up')['detail'] ?? '' }}"></span>
         @endif
 
         {{ $slot }}

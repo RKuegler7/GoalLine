@@ -46,7 +46,7 @@ class TodaysGameplan
             ? $member->challenges()
                 ->whereDate('starts_on', '<=', $this->today->toDateString())
                 ->whereDate('ends_on', '>=', $this->today->toDateString())
-                ->with(['checkIns' => fn ($checkIns) => $checkIns->where('user_id', $member->id)])
+                ->with(['checkIns' => fn ($checkIns) => $checkIns->where('user_id', $member->id)->counted()])
                 ->orderBy('ends_on')
                 ->get()
             : collect();
@@ -157,7 +157,7 @@ class TodaysGameplan
      */
     public function isChallengeDone(Challenge $challenge): bool
     {
-        return $challenge->checkIns->contains(fn ($checkIn) => $checkIn->checked_on->isSameDay($this->today));
+        return $challenge->checkIns->contains(fn ($checkIn) => $checkIn->checked_on->isSameDay($this->today) && $challenge->checkInCompletes($checkIn));
     }
 
     private function isToday(CarbonInterface $moment): bool

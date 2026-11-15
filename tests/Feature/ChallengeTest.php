@@ -26,40 +26,56 @@ class ChallengeTest extends TestCase
     {
         parent::setUp();
 
-        $this->travelTo(Carbon::parse('2026-10-21 09:00', config('app.timezone'))); // A Wednesday.
+        $this->travelTo(Carbon::parse('2026-10-21 09:00', 'America/New_York')); // A Wednesday.
         $this->avery = User::factory()->create(['name' => 'Avery Lee']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private function form(array $overrides = []): array
+    {
+        return array_replace_recursive([
+            'title' => 'Cold showers',
+            'type' => 'daily',
+            'rules' => ['items' => ['Take a cold shower']],
+            'duration' => '7',
+            'starts_on' => '2026-10-21',
+            'mode' => 'flexible',
+            'allowed_misses' => 1,
+            'visibility' => 'private',
+        ], $overrides);
     }
 
     public function test_anyone_can_start_a_challenge_and_is_its_first_member(): void
     {
-        $this->actingAs($this->avery)->post(route('challenges.store'), [
-            'title' => 'No sugar for a week',
-            'starts_on' => '2026-10-21',
-            'length' => 7,
-            'target_days' => 6,
-        ])->assertRedirect();
+        $this->actingAs($this->avery)->post(route('challenges.store'), $this->form())->assertRedirect();
 
         $challenge = Challenge::sole();
         $this->assertSame('2026-10-27', $challenge->ends_on->toDateString());
-        $this->assertSame(6, $challenge->target_days);
+        $this->assertSame(6, $challenge->target_days, '7 days, 1 miss allowed.');
+        $this->assertFalse($challenge->is_public, 'Private by default.');
         $this->assertMatchesRegularExpression('/^[A-Z2-9]{4}-[A-Z2-9]{4}$/', $challenge->invite_code);
         $this->assertTrue($challenge->members()->where('user_id', $this->avery->id)->exists());
 
-        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()->assertSee('I did it today')->assertSee($challenge->invite_code);
+        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()
+            ->assertSee('I did it today')->assertSee($challenge->invite_code)->assertSee('Daily: Take a cold shower, every day');
     }
 
     public function test_challenge_details_are_validated(): void
     {
         $this->actingAs($this->avery)
-            ->post(route('challenges.store'), ['title' => '', 'starts_on' => '2026-10-01', 'length' => 9, 'target_days' => 40])
-            ->assertSessionHasErrors(['title', 'starts_on', 'length']);
+            ->post(route('challenges.store'), $this->form(['title' => '', 'starts_on' => '2026-10-01', 'duration' => '9']))
+            ->assertSessionHasErrors(['title', 'duration']);
 
-        $this->actingAs($this->avery)
-            ->post(route('challenges.store'), ['title' => 'Run', 'starts_on' => '2026-10-21', 'length' => 7, 'target_days' => 8])
-            ->assertSessionHasErrors('target_days');
+        $this->actingAs($this->avery)->post(route('challenges.store'), $this->form(['starts_on' => '2026-10-01']))->assertSessionHasErrors('starts_on');
+        $this->actingAs($this->avery)->post(route('challenges.store'), $this->form(['title' => str_repeat('a', 61)]))->assertSessionHasErrors('title');
+        $this->actingAs($this->avery)->post(route('challenges.store'), $this->form(['rules' => ['items' => ['', '']]]))->assertSessionHasErrors('rules.items');
+        $this->assertSame(0, Challenge::count());
     }
 
-    public function test_people_join_with_the_link_or_code_and_the_creator_hears_about_it(): void
+    public function test_people_join_with_the_link_or_code_after_seeing_the_rules_and_the_creator_hears_about_it(): void
     {
         Notification::fake();
         $challenge = Challenge::factory()->for($this->avery, 'creator')->create();
@@ -70,16 +86,20 @@ class ChallengeTest extends TestCase
 
         $this->actingAs($sam)->post(route('challenges.find'), ['code' => strtolower(str_replace('-', ' ', $challenge->invite_code))])
             ->assertRedirect(route('challenges.join', $challenge->invite_code));
-        $this->actingAs($sam)->get(route('challenges.join', $challenge->invite_code))->assertSee('I&rsquo;m in', false);
-        $this->actingAs($sam)->post(route('challenges.join.store', $challenge->invite_code))->assertRedirect(route('challenges.show', $challenge));
+        $this->actingAs($sam)->get(route('challenges.join', $challenge->invite_code))
+            ->assertSee('The rules')->assertSee('I&rsquo;m in for these rules', false);
+
+        // The rules must be confirmed.
+        $this->actingAs($sam)->post(route('challenges.join.store', $challenge->invite_code))->assertSessionHasErrors('agree');
+        $this->actingAs($sam)->post(route('challenges.join.store', $challenge->invite_code), ['agree' => '1'])->assertRedirect(route('challenges.show', $challenge));
 
         $this->assertSame(2, $challenge->members()->count());
         Notification::assertSentTo($this->avery, ChallengeJoined::class);
     }
 
-    public function test_check_ins_count_once_a_day_with_a_one_day_grace_and_rank_the_leaderboard(): void
+    public function test_check_ins_count_once_a_day_with_a_one_day_grace_and_rank_the_standings(): void
     {
-        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['starts_on' => '2026-10-19', 'ends_on' => '2026-10-25', 'target_days' => 3]);
+        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['starts_on' => '2026-10-19', 'ends_on' => '2026-10-25']);
         $sam = User::factory()->create(['name' => 'Sam Okafor']);
         $challenge->members()->create(['user_id' => $this->avery->id]);
         $challenge->members()->create(['user_id' => $sam->id]);
@@ -92,26 +112,22 @@ class ChallengeTest extends TestCase
 
         $standings = $challenge->fresh()->load('members.user', 'checkIns')->standings();
         $this->assertSame(['Avery Lee', 'Sam Okafor'], $standings->map(fn ($row) => $row['member']->user->name)->all());
-        $this->assertSame([2, 1], $standings->pluck('days')->all());
-        $this->assertSame([2, 1], $standings->pluck('run')->all());
-        $this->assertSame([2, 1], $standings->pluck('bestRun')->all());
-        $this->assertSame([67, 33], $standings->pluck('percent')->all());
-        // Last 5 days, from the start (Oct 19) to today (Oct 21).
-        $this->assertSame([false, true, true], array_column($standings[0]['lastDays'], 'done'));
-
-        // The gold table: ranked by days, sortable, with a text alternative for the last five days.
-        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()
-            ->assertSee('data-challenge-table', false)
-            ->assertSee('Official order: most days checked in, then the longest current run.')
-            ->assertSee('Last 5 days: missed, checked in, checked in')
-            ->assertSeeInOrder(['Avery Lee', 'Sam Okafor']);
-        $this->actingAs($this->avery)->get(route('challenges.show', [$challenge, 'col' => 'bestRun']))->assertOk()
-            ->assertSee('Sorted by Best run, highest first.')
-            ->assertSee('Reset to official order');
+        $this->assertSame([2, 1], $standings->pluck('completed')->all());
+        $this->assertSame([2, 1], $standings->pluck('streak')->all());
+        $this->assertSame([28, 14], $standings->pluck('percent')->all(), '2 and 1 of 7 days.');
 
         // Checking in again undoes it.
         $this->actingAs($sam)->post(route('challenges.check-in', $challenge));
         $this->assertSame(0, $challenge->checkIns()->where('user_id', $sam->id)->count());
+
+        // The gold table, ranked by completion, with a text alternative for the last five days.
+        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()
+            ->assertSee('data-challenge-table', false)
+            ->assertSee('Official order: Completion %, then current streak, then days completed.')
+            ->assertSee('Last 5: missed, done, done.')
+            ->assertSee('2 of 7 days');
+        $this->actingAs($this->avery)->get(route('challenges.show', [$challenge, 'col' => 'bestStreak']))->assertOk()
+            ->assertSee('Sorted by Best, highest first.')->assertSee('Reset to official order');
     }
 
     public function test_challenges_show_on_todays_gameplan_and_count_toward_the_streak(): void
@@ -132,7 +148,8 @@ class ChallengeTest extends TestCase
     public function test_when_it_ends_everyone_hears_their_finish_and_finishers_earn_the_badge(): void
     {
         Notification::fake();
-        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['title' => 'No sugar', 'starts_on' => '2026-10-12', 'ends_on' => '2026-10-18', 'target_days' => 2]);
+        // 7 days, 5 misses allowed: 2 days finish it.
+        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['title' => 'No sugar', 'starts_on' => '2026-10-12', 'ends_on' => '2026-10-18', 'allowed_misses' => 5]);
         $sam = User::factory()->create();
         $challenge->members()->create(['user_id' => $this->avery->id]);
         $challenge->members()->create(['user_id' => $sam->id]);
@@ -143,8 +160,8 @@ class ChallengeTest extends TestCase
         $this->assertSame(1, app(ChallengeWrapUp::class)->run());
         $this->assertSame(0, app(ChallengeWrapUp::class)->run()); // Only once.
 
-        Notification::assertSentTo($this->avery, ChallengeFinished::class, fn (ChallengeFinished $finished) => $finished->text === '“No sugar” is over. You finished #1 of 2 with 2 of 2 days. Challenge complete!');
-        Notification::assertSentTo($sam, ChallengeFinished::class, fn (ChallengeFinished $finished) => $finished->text === '“No sugar” is over. You finished #2 of 2 with 1 of 2 days.');
+        Notification::assertSentTo($this->avery, ChallengeFinished::class, fn (ChallengeFinished $finished) => $finished->text === '“No sugar” is over. You finished #1 of 2 with 2 of 7 days. Challenge complete!');
+        Notification::assertSentTo($sam, ChallengeFinished::class, fn (ChallengeFinished $finished) => $finished->text === '“No sugar” is over. You finished #2 of 2 with 1 of 7 days.');
         $this->assertTrue($this->avery->badges()->where('badge', Badge::ChallengeFinisher)->exists());
         $this->assertFalse($sam->badges()->where('badge', Badge::ChallengeFinisher)->exists());
     }
@@ -153,7 +170,7 @@ class ChallengeTest extends TestCase
     {
         $upcoming = Challenge::factory()->for($this->avery, 'creator')->create(['starts_on' => '2026-10-26', 'ends_on' => '2026-11-01']);
         $upcoming->members()->create(['user_id' => $this->avery->id]);
-        $this->actingAs($this->avery)->delete(route('challenges.destroy', $upcoming))->assertRedirect(route('leagues.index'));
+        $this->actingAs($this->avery)->delete(route('challenges.destroy', $upcoming))->assertRedirect(route('leagues.index', ['tab' => 'challenges']));
         $this->assertModelMissing($upcoming);
 
         $running = Challenge::factory()->for($this->avery, 'creator')->create();
@@ -172,12 +189,14 @@ class ChallengeTest extends TestCase
         $challenge->members()->create(['user_id' => $this->avery->id]);
 
         $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('I did it today')->assertSee('0/7');
-        $this->actingAs($this->avery)->post(route('challenges.check-in', $challenge), ['return' => 'list'])->assertRedirect(route('leagues.index'));
+        $this->actingAs($this->avery)->post(route('challenges.check-in', $challenge), ['return' => 'list'])->assertRedirect(route('leagues.index', ['tab' => 'challenges']));
         $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('Done today')->assertSee('1/7');
     }
 
-    public function test_the_goalleagues_page_lists_challenges(): void
+    public function test_the_goalleagues_page_lists_challenges_and_offers_templates_when_there_are_none(): void
     {
+        $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('No Challenges yet.')->assertSee('Lent')->assertSee('Build your own');
+
         $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['title' => 'Read 20 pages a day']);
         $challenge->members()->create(['user_id' => $this->avery->id]);
 

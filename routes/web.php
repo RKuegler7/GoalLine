@@ -10,6 +10,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\SessionController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\ChallengeDisputeController;
+use App\Http\Controllers\ChallengeInviteController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\CheckInSheetController;
 use App\Http\Controllers\CoachCheckController;
@@ -281,7 +283,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/challenges/join/{code}', [ChallengeController::class, 'join'])->name('challenges.join')->middleware('throttle:20,1');
     Route::post('/challenges/join/{code}', [ChallengeController::class, 'joinStore'])->name('challenges.join.store')->middleware(['verified', 'throttle:20,1']);
     Route::get('/challenges/{challenge}', [ChallengeController::class, 'show'])->name('challenges.show')->can('view', 'challenge');
-    Route::post('/challenges/{challenge}/check-in', [ChallengeController::class, 'checkIn'])->name('challenges.check-in')->can('view', 'challenge');
+    Route::get('/challenges/{challenge}/edit', [ChallengeController::class, 'edit'])->name('challenges.edit')->can('manage', 'challenge');
+    Route::patch('/challenges/{challenge}', [ChallengeController::class, 'update'])->name('challenges.update')->can('manage', 'challenge');
+    Route::post('/challenges/{challenge}/check-in', [ChallengeController::class, 'checkIn'])->name('challenges.check-in')->can('view', 'challenge')->middleware('throttle:60,1');
+    Route::post('/challenges/{challenge}/proof', [ChallengeController::class, 'proof'])->name('challenges.proof')->can('view', 'challenge')->middleware('throttle:20,1');
+    Route::get('/challenges/{challenge}/check-ins/{checkIn}/photo', [ChallengeController::class, 'proofPhoto'])->name('challenges.proof.show')->can('view', 'challenge')->scopeBindings();
+    Route::get('/challenges/{challenge}/members/{member}', [ChallengeController::class, 'member'])->name('challenges.members.show')->can('view', 'challenge')->scopeBindings();
+    Route::delete('/challenges/{challenge}/members/{member}', [ChallengeController::class, 'removeMember'])->name('challenges.members.destroy')->can('manage', 'challenge')->scopeBindings();
+    Route::post('/challenges/{challenge}/invites', [ChallengeInviteController::class, 'store'])->name('challenges.invites.store')->can('view', 'challenge')->middleware('throttle:20,1');
+    Route::delete('/challenge-invites/{invite}', [ChallengeInviteController::class, 'decline'])->name('challenges.invites.decline');
+    Route::post('/challenges/{challenge}/check-ins/{checkIn}/disputes', [ChallengeDisputeController::class, 'store'])->name('challenges.disputes.store')->can('view', 'challenge')->middleware('throttle:20,1')->scopeBindings();
+    Route::patch('/challenges/{challenge}/disputes/{dispute}', [ChallengeDisputeController::class, 'resolve'])->name('challenges.disputes.resolve')->can('manage', 'challenge');
     Route::delete('/challenges/{challenge}/membership', [ChallengeController::class, 'leave'])->name('challenges.leave')->can('view', 'challenge');
     Route::delete('/challenges/{challenge}', [ChallengeController::class, 'destroy'])->name('challenges.destroy')->can('delete', 'challenge');
 

@@ -56,7 +56,7 @@ class WeeklyRecap
             ->get()
             ->map(fn (HabitLog $log) => $log->logged_on->toDateString());
 
-        $challenges = ChallengeCheckIn::query()
+        $challenges = ChallengeCheckIn::query()->counted()
             ->where('user_id', $user->id)
             ->whereDate('checked_on', '>=', $from)->whereDate('checked_on', '<=', $to)
             ->get()

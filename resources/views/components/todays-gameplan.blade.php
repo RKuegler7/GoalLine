@@ -101,6 +101,13 @@
                 $doneToday = $gameplan->isChallengeDone($challenge);
             @endphp
             <li class="flex items-start gap-2.5 py-2">
+                @if (! $challenge->isOneTap())
+                    {{-- A checklist or a number: check in on the Challenge page. --}}
+                    <a href="{{ route('challenges.show', $challenge) }}" title="Check in on the Challenge page" @class(['mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-lg border-2', 'border-gold bg-gold text-ink' => $doneToday, 'border-gold/70' => ! $doneToday])>
+                        @if ($doneToday) {!! $check !!} @endif
+                        <span class="sr-only">{{ $doneToday ? 'Done today: ' : 'Check in: ' }}{{ $challenge->title }}</span>
+                    </a>
+                @else
                 <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                     @csrf
                     <input type="hidden" name="return" value="{{ $return }}">
@@ -115,6 +122,7 @@
                         <span class="sr-only">{{ $doneToday ? 'Done today: ' : 'Check in: ' }}{{ $challenge->title }}</span>
                     </button>
                 </form>
+                @endif
                 <div class="min-w-0 flex-1">
                     <p @class(['flex items-center gap-1.5', 'text-ink/70 line-through decoration-ink/30' => $doneToday, 'text-ink' => ! $doneToday])>
                         <x-icon name="flag" class="size-3.5 text-gold" />

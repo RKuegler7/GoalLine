@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Clock;
 use App\GoalCategory;
 use App\LeagueStatus;
+use App\Models\Challenge;
+use App\Models\ChallengeInvite;
 use App\Models\Goal;
 use App\Models\GoalIntake;
 use App\Models\League;
@@ -46,9 +48,13 @@ class LeagueController extends Controller
                 ->map(fn (League $league) => new LeagueSnapshot($league, $user))
                 ->values(),
             'invites' => LeagueInvite::usable()->where('invitee_id', $user->id)->with('league.commissioner')->latest()->get(),
+            'challengeInvites' => ChallengeInvite::where('invitee_id', $user->id)->whereNull('accepted_at')->whereNull('declined_at')
+                ->whereHas('challenge', fn ($challenges) => $challenges->whereDate('ends_on', '>=', Challenge::today()->toDateString()))
+                ->with('challenge.creator', 'inviter')->latest()->get(),
             'tab' => in_array($request->query('tab'), ['leagues', 'challenges', 'invites'], true) ? $request->query('tab') : 'leagues',
             'challenges' => $request->user()->challenges()
-                ->withCount(['members', 'checkIns as my_days' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)])
+                ->with(['checkIns' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)])
+                ->withCount('members')
                 ->withExists(['checkIns as checked_today' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)->whereDate('checked_on', Clock::today()->toDateString())])
                 ->orderByDesc('ends_on')
                 ->get(),

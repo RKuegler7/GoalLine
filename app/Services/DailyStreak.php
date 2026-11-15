@@ -47,7 +47,7 @@ class DailyStreak
             ->get()
             ->map(fn (HabitLog $log) => $log->logged_on->toDateString());
 
-        $challengeDays = ChallengeCheckIn::query()
+        $challengeDays = ChallengeCheckIn::query()->counted()
             ->where('user_id', $user->id)
             ->whereDate('checked_on', '>=', $since->toDateString())
             ->get()

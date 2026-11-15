@@ -12,7 +12,7 @@
         $tabs = [
             ['label' => 'GoalLeagues', 'segment' => 'leagues', 'count' => $snapshots->count(), 'active' => $tab === 'leagues'],
             ['label' => 'Challenges', 'segment' => 'challenges', 'count' => $challenges->count(), 'active' => $tab === 'challenges'],
-            ['label' => 'Invites', 'segment' => 'invites', 'count' => $invites->count() ?: null, 'active' => $tab === 'invites'],
+            ['label' => 'Invites', 'segment' => 'invites', 'count' => ($invites->count() + $challengeInvites->count()) ?: null, 'active' => $tab === 'invites'],
         ];
     @endphp
 
@@ -33,62 +33,44 @@
             @endif
         </section>
 
-        {{-- Challenges: short sprints with a daily check-in. --}}
+        {{-- Challenges: completion, never stars. --}}
         <section data-segment-panel="challenges" @if ($tab !== 'challenges') hidden @endif aria-label="Challenges">
             @if ($challenges->isEmpty())
-                <x-empty-state message="No Challenges yet. Try “Run 20 days this month.”" action="Start a Challenge" :href="route('challenges.create')" />
+                <div class="rounded-2xl border border-gold/60 bg-white px-4 py-5 text-center" data-challenges-empty>
+                    <p class="text-[17px] font-bold text-ink">No Challenges yet.</p>
+                    <p class="mt-1 text-[13px] text-ink/75">A Challenge is one simple rule for a set time, like 10,000 steps a day or a dry month. Tap one to start:</p>
+                    <ul class="mt-3 flex flex-wrap justify-center gap-1.5">
+                        @foreach (array_slice(App\ChallengeTemplates::all(), 0, 6, true) as $key => $template)
+                            <li><a href="{{ route('challenges.create', ['template' => $key]) }}" class="inline-flex min-h-11 items-center rounded-full bg-white px-3.5 text-[13px] font-semibold text-ink ring-1 ring-gold ring-inset hover:bg-gold-light/40">{{ $template['name'] }}</a></li>
+                        @endforeach
+                        <li><a href="{{ route('challenges.create') }}" class="inline-flex min-h-11 items-center rounded-full bg-gold px-3.5 text-[13px] font-semibold text-ink">Build your own</a></li>
+                    </ul>
+                </div>
             @else
                 <ul class="grid gap-2 sm:grid-cols-2">
                     @foreach ($challenges as $challenge)
-                        @php
-        $tab = $errors->hasAny(['code', 'challenge_code']) ? 'invites' : $tab;
-                            $active = $challenge->isActive();
-                            $percent = min(100, $challenge->my_days / max(1, $challenge->target_days) * 100);
-                            $finished = $challenge->my_days >= $challenge->target_days;
-                        @endphp
-                        <li class="flex items-center gap-2 rounded-xl border border-line bg-white py-2 pr-2 pl-3">
-                            <a href="{{ route('challenges.show', $challenge) }}" class="min-w-0 flex-1">
-                                <span class="flex items-center justify-between gap-2">
-                                    <span class="truncate text-[15px] font-bold text-club">{{ $challenge->title }}</span>
-                                    <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $challenge->my_days }}/{{ $challenge->target_days }}</span>
-                                </span>
-                                <x-progress-bar :percent="$percent" :tone="$finished ? 'gold' : 'grass'" class="mt-1.5" label="Your progress" />
-                                <span class="mt-1 block truncate text-xs text-ink/70">
-                                    @if (! $challenge->hasStarted())
-                                        Starts {{ $challenge->starts_on->format('D, M j') }}
-                                    @elseif ($challenge->isOver())
-                                        Finished
-                                    @else
-                                        Day {{ $challenge->dayNumber() }} of {{ $challenge->lengthInDays() }}
-                                    @endif
-                                    &middot; {{ $challenge->members_count }} {{ Str::plural('member', $challenge->members_count) }}
-                                </span>
-                            </a>
-                            @if ($active)
-                                <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live class="shrink-0">
-                                    @csrf
-                                    <input type="hidden" name="return" value="list">
-                                    <button type="submit" @class([
-                                        'inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold transition',
-                                        'bg-grass/15 text-club' => $challenge->checked_today,
-                                        'border border-club/30 text-club hover:bg-mint' => ! $challenge->checked_today,
-                                    ]) title="{{ $challenge->checked_today ? 'Done today · tap to undo' : 'I did it today' }}">
-                                        @if ($challenge->checked_today)
-                                            <x-icon name="check" class="size-4" /> Done today
-                                        @else
-                                            I did it today
-                                        @endif
-                                    </button>
-                                </form>
-                            @endif
-                        </li>
+                        <x-challenge-card :challenge="$challenge" :me="auth()->user()" />
                     @endforeach
                 </ul>
             @endif
         </section>
-
         {{-- Invites, and joining with a code. --}}
         <section data-segment-panel="invites" @if ($tab !== 'invites') hidden @endif aria-label="Invites">
+            @foreach ($challengeInvites as $challengeInvite)
+                @php $challengeJoinUrl = route('challenges.join', $challengeInvite->challenge->invite_code); @endphp
+                <div class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gold/60 bg-white px-3 py-2.5" data-challenge-invite>
+                    <a href="{{ $challengeJoinUrl }}" class="min-w-0 flex-1">
+                        <span class="block truncate text-[15px] font-bold text-gold-ink">{{ $challengeInvite->challenge->title }}</span>
+                        <span class="block truncate text-[13px] text-ink/75">Challenge &middot; from {{ $challengeInvite->inviter?->name ?? $challengeInvite->challenge->creator->name }}</span>
+                    </a>
+                    <form method="POST" action="{{ route('challenges.invites.decline', $challengeInvite) }}">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="min-h-11 px-2 text-[13px] font-semibold text-ink/70 hover:text-ink">Not for me</button>
+                    </form>
+                    <a href="{{ $challengeJoinUrl }}" class="shrink-0 text-[13px] font-semibold text-gold-ink">Open <span aria-hidden="true">&rarr;</span></a>
+                </div>
+            @endforeach
             @forelse ($invites as $invite)
                 <a href="{{ $invite->url() }}" class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-club/30 bg-white px-3 py-2.5 hover:bg-mint/40">
                     <span class="min-w-0">
@@ -98,7 +80,9 @@
                     <span class="shrink-0 text-[13px] font-semibold text-club">Open <span aria-hidden="true">&rarr;</span></span>
                 </a>
             @empty
+                @if ($challengeInvites->isEmpty())
                 <x-empty-state class="mb-2" message="No invites waiting. Have a code from a friend? Join with it below." action="Join with a code" href="#join" />
+                @endif
             @endforelse
 
             <div id="join" class="grid scroll-mt-20 gap-2 sm:grid-cols-2">

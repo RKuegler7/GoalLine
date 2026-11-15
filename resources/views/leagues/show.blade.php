@@ -77,6 +77,34 @@
         <x-scoring-help class="mt-1" />
     </section>
 
+    {{-- Side Challenges: opt-in, for this GoalLeague's members, scored by completion and never part of the stars. --}}
+    @php
+        $sideChallenges = App\Models\Challenge::where('league_id', $league->id)->whereDate('ends_on', '>=', App\Models\Challenge::today()->subDays(7)->toDateString())
+            ->withCount('members')->withExists(['members as joined' => fn ($members) => $members->where('user_id', auth()->id())])->orderBy('starts_on')->get();
+    @endphp
+    @if ($sideChallenges->isNotEmpty() || auth()->user()->can('manage', $league))
+        <section class="mt-4" aria-labelledby="side-challenges" data-side-challenges>
+            <div class="mb-1.5 flex items-center justify-between gap-2">
+                <h2 id="side-challenges" class="eyebrow text-gold-ink">Side Challenges</h2>
+                @can('manage', $league)
+                    <a href="{{ route('challenges.create', ['league' => $league->id]) }}" class="gl-tap relative text-[13px] font-semibold text-gold-ink hover:underline">Start a side Challenge</a>
+                @endcan
+            </div>
+            @forelse ($sideChallenges as $side)
+                @php $sideUrl = $side->joined ? route('challenges.show', $side) : route('challenges.join', $side->invite_code); @endphp
+                <a href="{{ $sideUrl }}" class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gold/60 bg-white px-3 py-2.5 hover:bg-gold-light/30">
+                    <span class="min-w-0">
+                        <span class="block truncate text-[15px] font-bold text-gold-ink">{{ $side->title }}</span>
+                        <span class="block truncate text-[13px] text-ink/75">{{ $side->typeLabel() }} &middot; {{ $side->ruleSummary() }} &middot; {{ $side->members_count }} in</span>
+                    </span>
+                    <span class="shrink-0 text-[13px] font-semibold text-ink">{{ $side->joined ? 'Open' : 'Opt in' }} <span aria-hidden="true">&rarr;</span></span>
+                </a>
+            @empty
+                <p class="rounded-xl border border-gold/60 bg-white px-3 py-2.5 text-[13px] text-ink/75">A side Challenge is a fun extra for this GoalLeague, like a step count or a dry month. Members opt in, and it never changes stars or Standings.</p>
+            @endforelse
+        </section>
+    @endif
+
     {{-- Goal Day news: league mates' shared results (members only; private answers never show). --}}
     @php $goalDayNews = App\Services\SeasonFinale::newsFor($league); @endphp
     @if ($goalDayNews->isNotEmpty())

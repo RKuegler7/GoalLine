@@ -8,7 +8,7 @@ use App\Models\User;
 class ChallengePolicy
 {
     /**
-     * Members see the challenge and its leaderboard. Everyone else joins with the invite link first.
+     * Members see the Challenge, its Standings and each other's days. Everyone else sees the join page first.
      */
     public function view(User $user, Challenge $challenge): bool
     {
@@ -16,7 +16,15 @@ class ChallengePolicy
     }
 
     /**
-     * The creator can call it off before it starts.
+     * The owner (who started it) edits it, removes members and decides disputes.
+     */
+    public function manage(User $user, Challenge $challenge): bool
+    {
+        return $challenge->creator_id === $user->id;
+    }
+
+    /**
+     * The owner can call it off before it starts.
      */
     public function delete(User $user, Challenge $challenge): bool
     {

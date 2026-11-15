@@ -1126,6 +1126,80 @@ eachOnPage('[data-task-sheet]', (sheet) => {
 });
 
 /**
+ * The Challenge builder: only the chosen type's rules and the chosen duration's dates show (hidden fields are disabled
+ * so they aren't sent), and the dates it works out are spelled out with the length. The server checks it all again.
+ */
+eachOnPage('[data-challenge-builder]', (form) => {
+    const dates = form.querySelector('[data-challenge-dates]');
+    const format = (date) => date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+    const parse = (value) => (value ? new Date(`${value}T00:00:00Z`) : null);
+
+    const update = () => {
+        const type = form.querySelector('[data-challenge-type]:checked')?.value;
+        const duration = form.querySelector('[data-challenge-duration]')?.value;
+        const locked = (element) => element.closest('fieldset')?.disabled;
+
+        form.querySelectorAll('[data-type-panel]').forEach((panel) => {
+            const on = panel.dataset.typePanel === type;
+            panel.hidden = !on;
+            panel.querySelectorAll('input, select, textarea').forEach((field) => {
+                if (!locked(panel)) {
+                    field.disabled = !on;
+                }
+            });
+        });
+        form.querySelectorAll('[data-type-hide]').forEach((element) => {
+            element.hidden = element.dataset.typeHide === type;
+        });
+        form.querySelectorAll('[data-duration-panel]').forEach((panel) => {
+            const keys = panel.dataset.durationPanel.split(' ');
+            const on = keys.includes(duration) || (keys.includes('days') && /^\d+$/.test(duration));
+            panel.hidden = !on;
+            panel.querySelectorAll('input, select').forEach((field) => {
+                if (!locked(panel)) {
+                    field.disabled = !on;
+                }
+            });
+        });
+
+        let start = null;
+        let end = null;
+
+        if (/^\d+$/.test(duration)) {
+            start = parse(form.querySelector('[data-challenge-start]')?.value);
+            end = start && new Date(start.getTime() + (Number(duration) - 1) * 86400000);
+        } else if (duration === 'custom') {
+            start = parse(form.querySelector('[data-challenge-start]')?.value);
+            end = parse(form.querySelector('[data-challenge-end]')?.value);
+        } else if (duration === 'month') {
+            const month = form.querySelector('[data-challenge-month]')?.value;
+            if (month) {
+                const [year, number] = month.split('-').map(Number);
+                start = new Date(Date.UTC(year, number - 1, 1));
+                end = new Date(Date.UTC(year, number, 0));
+            }
+        } else if (duration === 'lent') {
+            const option = form.querySelector('[data-challenge-lent]')?.selectedOptions[0];
+            start = parse(option?.dataset.start);
+            end = parse(option?.dataset.end);
+        }
+
+        if (dates && start && end && end >= start) {
+            const days = Math.round((end - start) / 86400000) + 1;
+            dates.textContent = `Runs ${format(start)} to ${format(end)} (${days} ${days === 1 ? 'day' : 'days'}). Kickoff is 12:00 a.m. New York time on the start date.`;
+        }
+    };
+
+    form.addEventListener('change', update);
+    form.addEventListener('input', (event) => {
+        if (event.target.matches('[type=date], [type=month]')) {
+            update();
+        }
+    });
+    update();
+});
+
+/**
  * The Judge's tour (demo accounts): the pill opens its sheet, and opening the AI panel on a goal ticks that item off.
  */
 eachOnPage('[data-judge-tour-open]', (button) => {

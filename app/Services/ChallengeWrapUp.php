@@ -39,7 +39,7 @@ class ChallengeWrapUp
         foreach ($standings as $row) {
             $user = $row['member']->user;
             $place = $field > 1 ? " You finished #{$row['rank']} of {$field}" : ' You finished';
-            $text = "\u{201C}{$challenge->title}\u{201D} is over.{$place} with {$row['days']} of {$challenge->target_days} days"
+            $text = "\u{201C}{$challenge->title}\u{201D} is over.{$place} with {$row['completed']} of {$row['total']} ".str($row['unit'])->plural($row['total'])
                 .($row['finished'] ? '. Challenge complete!' : '.');
 
             $user->notify(new ChallengeFinished($challenge->withoutRelations(), $text));

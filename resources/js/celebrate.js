@@ -36,15 +36,16 @@ function hide() {
     }, 180);
 }
 
-export function celebrateBand({ band, percent, needsProof = false, goalUrl = '#' }) {
+export function celebrateBand({ band, percent, needsProof = false, goalUrl = '#', title = '', detail = '' }) {
     const overlay = root();
-    const copy = COPY[band];
+    // A Challenge milestone (7 days, 30 days, halfway, complete) brings its own words and plays in gold.
+    const copy = band === 'challenge' ? { title, detail } : COPY[band];
 
     if (!overlay || !copy) {
         return;
     }
 
-    overlay.dataset.band = band;
+    overlay.dataset.band = band === 'challenge' ? 'past' : band;
     overlay.querySelector('[data-celebration-title]').textContent = copy.title;
     overlay.querySelector('[data-celebration-detail]').textContent = needsProof
         ? `${percent ? `${percent}% of plan. ` : ''}Add proof or your opponent's OK so it counts in full.`

@@ -263,6 +263,8 @@ function playBandUp(doc) {
                 percent: marker.dataset.percent,
                 needsProof: marker.dataset.needsProof === '1',
                 goalUrl: marker.dataset.goalUrl,
+                title: marker.dataset.title,
+                detail: marker.dataset.detail,
             },
         }));
     }
