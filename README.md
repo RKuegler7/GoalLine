@@ -1,79 +1,75 @@
+<p align="center"><img src="public/icons/app-icon.svg" alt="GoalLine" width="88"></p>
+
 # GoalLine
 
 [![tests](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml/badge.svg)](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml)
 
-**A fantasy-sports-style accountability app: friends play their real goals head to head, one GoalWeek at a time.**
-
-> **The 20-second pitch:** Every player is scored against their own plan by plain code, not AI. Big claims need proof or your opponent's sign-off, and plans can't drop below the minimum pace the deadline requires.
+**Get in line with your goals: an app that helps you commit to a goal and actually finish it, through group accountability, a game you play every week, friendly competition and a quick daily check-in.**
 
 **Live app:** https://ddhxw7holo4vs.cloudfront.net
 
-### Try the demo (no sign-up, no password)
+**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world with friends, GoalLeagues mid-season, a live Matchup and Challenges. **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
 
-1. Open https://ddhxw7holo4vs.cloudfront.net on your phone or laptop.
-2. Tap **Try the demo**. You're signed in as John Cardinal, with your own private copy of a demo world: friends, two GoalLeagues in GoalWeek 6, and a live matchup. Everything is pretend, so tap anything.
-3. Check off a task on **Today's Gameplan** and watch the band move. Open **Matchups** and swipe between matchups. Open the account menu, then **Your week**, then **Share your week**.
-4. Tap **Reset demo** in the banner any time to start fresh.
+**Demo video:** DEMO_VIDEO_LINK *(coming)*
 
-**About GoalLine** (public): https://ddhxw7holo4vs.cloudfront.net/about: how to play, scoring (rendered from the same code that scores every week), fair play, the AI coach, privacy and FAQ.
-
-**Demo video (2 to 3 minutes):** *(link coming)*
+> **The 20-second pitch:** Every player is scored against their own plan by plain code, not AI. Big claims need proof or your opponent's sign-off, and plans can't drop below the minimum pace the deadline requires.
 
 <table>
   <tr>
-    <td align="center" width="25%"><img src="docs/images/matchup.png" alt="The GoalWeek Matchup pager: both players' live percent of plan, bands, projections and points if the week ended now" width="220"><br><sub><b>The GoalWeek Matchup</b></sub></td>
-    <td align="center" width="25%"><img src="docs/images/celebration.png" alt="Checking in moves the band up and plays the band-up celebration: Past the Line" width="220"><br><sub><b>The band-up moment</b></sub></td>
-    <td align="center" width="25%"><img src="docs/images/share-card.png" alt="A weekly result card: 93% of plan, In line, the match result and weeks on the line" width="220"><br><sub><b>A shareable weekly card</b></sub></td>
-    <td align="center" width="25%"><img src="docs/images/plan.png" alt="A goal's plan: each GoalWeek's result, the minimum pace, and this week's tasks" width="220"><br><sub><b>The plan, week by week</b></sub></td>
+    <td align="center" width="25%"><img src="public/images/og-goalline.jpg" alt="The GoalLine landing page: Get in line with your goals" width="220"><br><sub><b>Landing page</b></sub></td>
+    <td align="center" width="25%"><img src="public/images/landing/matchup.webp" alt="The GoalWeek Matchup: both players' percent of plan, bands and stars if the week ended now" width="220"><br><sub><b>The weekly Matchup</b></sub></td>
+    <td align="center" width="25%"><img src="public/images/landing/standings.webp" alt="The Standings table: rank, player, stars, record and line stars" width="220"><br><sub><b>Standings</b></sub></td>
+    <td align="center" width="25%"><img src="public/images/landing/plan.webp" alt="A goal's plan: this GoalWeek's tasks, the minimum pace and earlier weeks' results" width="220"><br><sub><b>The plan, week by week</b></sub></td>
   </tr>
 </table>
 
-**Get in line with your goals. We get more done together.** GoalLine is about the process, not just the end result: the goal is what the daily work builds, and doing it with friends makes it stick. Trust the process. Show up today.
-
 *Kuegs: CUA Busch School AI Vibe Coding Contest, Fall 2026*
 
-## GoalLine on one page
+## The problem
 
-**The problem.** Big goals with deadlines (the CPA exam, a spring marathon, a thesis) fail in the middle, not at the start. Motivation fades, nobody notices when you slip, and accountability apps either nag you alone or rank you against people with completely different goals.
+Big goals with deadlines (the CPA exam, a spring marathon, a thesis) rarely fail at the start. They fade in the middle: motivation drops, progress is invisible, nobody notices a missed week, and nothing brings you back tomorrow. Accountability apps either nag you alone or rank you against people with completely different goals, which isn't fair and isn't fun.
 
-**The solution.** GoalLine turns a goal into a season. An AI coach drafts a dated plan of GoalWeeks; each week you check in, and you play one friend in a fantasy-football-style matchup. You're never compared on raw numbers: each player is scored against their own plan, so a CPA candidate and a marathoner can play fairly in the same league. Proof, open check-ins, disputes and a minimum pace set by code keep it honest.
+## What GoalLine does
 
-**How the AI does the work.** Claude writes the goal-specific intake questions, drafts the whole plan (focus, milestone, daily tasks and habits for every week), reads an uploaded syllabus or training plan, refines the plan from a request in your own words, and writes the weekly coach's tip. Plain, tested code does everything that has to be trusted: it sets the minimum pace, locks started weeks, scores every week and matchup, and holds disputed points. The AI never scores, never rules on a dispute and never gives medical advice. More in [docs/AI.md](docs/AI.md).
+GoalLine was created to help people commit to their goals and actually accomplish them. It turns a goal into a season:
 
-**What I learned.** The AI is best as a coach, not a referee: people trust the game only when the scoring is plain code they can read and test. Building in phases with a test suite that never went red let me change the scoring rules late (photo finishes, then weekly stars) without breaking anything. And real use beat my own assumptions every time: hands-on feedback is what turned page reloads into in-place updates, a static matchup screen into a swipeable pager, and a quiet demo into a one-click world anyone can try.
+1. **Set a goal** with a deadline. GoalLine asks 5 to 8 questions written for that goal, and the AI coach drafts a dated plan of **GoalWeeks**: a focus, a milestone, daily tasks and habits with clear rules ("Run · 2+ miles" on Mon, Wed, Fri).
+2. **Check in every day** from Today's Gameplan, the Today page or the floating **Check in** button. Add a photo or a few details to show your work.
+3. **Play it with friends** in a **GoalLeague**. Each GoalWeek you face one league mate in the **Matchup**, scored against your own plans, so a CPA candidate and a marathoner play fairly in the same league. The **Standings** table ranks the season by stars.
+4. **Take on a Challenge**: one simple rule for a set time, done together (see [Challenges](#challenges)).
+5. **Keep it going**: posts and cheers in **Highlights**, streaks, weekly recaps, badges, medals, a season finale, and friends' profiles.
 
-**Read more:** [Architecture](docs/ARCHITECTURE.md) · [How the AI is used](docs/AI.md) · [Fair play](docs/FAIRNESS.md) · [The rules as built](docs/SPEC.md) · [Decisions](docs/DECISIONS.md) · [Reliability](docs/RELIABILITY.md) · [Changelog](CHANGELOG.md)
-
-## What the app does
-
-1. **Set a goal** with a deadline (an exam, a race, a thesis, a job search). GoalLine asks 5 to 8 questions written for that goal, then the AI coach drafts a dated roadmap of GoalWeeks: a focus, a milestone and daily tasks, plus habits with clear rules like "Run · 2+ miles" on Mon, Wed, Fri.
-2. **Check in every day** from Today's Gameplan or the Today page's week grid. Add a photo to show your work.
-3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the **GoalWeek Matchup**, a fantasy-football-style pager: swipe between matchups, see both players' tasks day by day where the players would be, each side's band, its projected band on current pace, and the points each would take if the week ended now. Same band? It's a photo finish, settled by percent of plan.
-4. **Take on a Challenge**: one simple rule for a set time, together (10,000 steps a day, a dry month, Lent, a 75-day checklist). Four types (Daily, Weekly, Abstain, Target), templates or build your own, strict or flexible, ranked by completion in a gold Standings table, never stars. Public GoalLeagues and Challenges can be found and joined from the GoalLeagues tab, and a GoalLeague owner can start a side Challenge for their league.
-5. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
+Four things do the motivating: **group accountability** (your league sees your check-ins), **goals as a game** (stars, streaks, badges and medals), **friendly competition** (the weekly Matchup) and **a daily habit** (one quick check-in keeps the goal in front of you).
 
 ## Who it's for
 
-Students and friend groups working toward real goals with real deadlines: classmates studying for the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts. Small leagues of people who know each other (12 or fewer works best).
+Students and friend groups working toward real goals with real deadlines: classmates studying for the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts, a parish group keeping Lent. Small leagues of people who know each other work best (12 or fewer); Challenges can be bigger.
 
-## The AI: what it does and what it never does
+## How the AI works
 
-GoalLine uses **Anthropic's Claude API**. The AI:
+GoalLine uses **Anthropic's Claude API** for the parts where judgment and language help:
 
-- writes goal-specific **intake questions** (what a coach would ask before planning);
-- **drafts the roadmap** from the goal, the answers and any uploaded study or training plan;
-- **refines the plan** when you ask in your own words ("Make weeks lighter, I have finals"), as a preview you accept or discard;
-- checks your edits and gives an end-of-week **coach's tip**;
-- **narrates your finished week** in two or three sentences, using only numbers code counted (any answer with a new number is replaced by a plain template);
-- optionally **suggests a caption** for a post, which you edit.
+- **Intake questions:** a few questions written for your goal, the way a coach would start (built-in questions stand in if the AI is unavailable).
+- **Drafting the plan:** the whole season of GoalWeeks from your goal, your answers and any uploaded syllabus or training plan.
+- **Refining the plan:** ask in your own words ("Make weeks lighter, I have finals"); you get a week-by-week preview to accept or discard. Every version is kept.
+- **Coaching:** an end-of-week tip, a check on your own edits, ideas for your next goal, and an optional caption suggestion you edit.
+- **The recap narrator:** two or three sentences about your finished week, written only from numbers code counted (an answer with any other number is replaced by a plain template).
 
-Every goal page shows **what the AI did and what code did** for that plan, with live examples like "We raised GoalWeek 3 to your minimum pace."
+Every goal page has a **"How this plan was built"** panel showing, for that plan, what the AI did (one real intake question, its explanation) and what code enforced (the dates, the weeks raised to the minimum pace and by how much, when each week locked, the AI caps).
 
-The AI **never scores** a week, **never decides a dispute**, **never sets the minimum pace**, and **never gives medical advice**. Scoring and fairness are plain, tested PHP.
+**What the AI never does:** it never scores a week, never decides a Matchup or a dispute, never sets the minimum pace, and never gives medical advice. Scoring and fairness are plain, tested PHP. More in [docs/AI.md](docs/AI.md).
 
-## How the scoring works
+## What happens when the AI gets it wrong
 
-Each GoalWeek, your share of your own plan points sets your band. A regular task is 1 plan point, each habit day 1, the milestone 2. Your weekly score is in **stars**.
+- **Everything it returns is validated.** Malformed or incomplete answers are rejected, text is cleaned and capped, the weeks must match the dates code set, and only weeks that are allowed to change can be touched.
+- **Preview and accept.** A new plan is a draft until you accept it; refinements show a preview with Accept and Discard.
+- **The plan floor.** If the AI plans below the minimum pace the deadline needs, code raises the week and tells you why.
+- **Fallbacks, not dead ends.** If the coach fails, times out or hits a spending cap, built-in intake questions or a starter plan for the goal type stand in, and the app logs a counted warning (`php artisan goalline:ai-check` tests the key in plain English).
+- **Cached demo responses.** Demo accounts use saved sample answers, so judges never trigger live AI calls or spend.
+
+## How scoring works
+
+Each GoalWeek, your share of your own plan sets your **band**, and the week is worth **0 to 5 stars**: line stars (0 to 3) plus matchup stars (0 to 2).
 
 | Band | Share of your plan | Line stars |
 |---|---|---|
@@ -82,38 +78,76 @@ Each GoalWeek, your share of your own plan points sets your band. A regular task
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% and up (needs proof or the opponent's OK) | 3 |
 
-In a matchup a **higher band is a Win: 2 matchup stars**, and the other side gets 0. The **same band is a Photo finish**: the higher credited percent of plan wins it for **1 matchup star** (compared exactly, to the hundredth of a percent; held disputed points left out, unproven Smashed capped at 149%), and the other side gets 0. Exactly equal percents are a **Tie: 1 star each**. A week is worth **0 to 5 stars** (line stars + matchup stars). More stars wins the matchup and equal stars is a draw (W–D–L); that always matches the higher credited percent. A bye week (odd number of members, or a late joiner's first week) earns line stars only and isn't a win, draw or loss. The table is sorted by total stars, then line stars, then Past-the-Line weeks. Every star value lives in one config (`config/goalline.php`, `stars`).
+| Matchup result | Matchup stars |
+|---|---|
+| Win (a higher band) | 2 |
+| Photo finish win (same band, higher credited percent, compared exactly) | 1 |
+| Tie (exactly equal percents) | 1 each |
+| Loss | 0 |
+
+More stars wins the Matchup and equal stars is a draw (W-D-L). A bye week earns line stars only. The table is ordered by **Stars**, then **Line ★**, then **Past-the-Line weeks**. Every value lives in one config (`config/goalline.php`), and the "How is GoalLine scored?" sheet in the app is rendered from the same code.
 
 ## How fairness works
 
-GoalLine doesn't police anyone. It makes cheating visible, hard to do quietly, and not worth much. The full plain-English version is in [docs/FAIRNESS.md](docs/FAIRNESS.md), and the exact rules are in [docs/SPEC.md](docs/SPEC.md).
+GoalLine makes cheating visible, hard to do quietly, and not worth much. The plain-English version is [docs/FAIRNESS.md](docs/FAIRNESS.md); the exact rules are [docs/SPEC.md](docs/SPEC.md).
 
-- **Minimum pace (plan floor):** code sets each week's minimum planned points from the goal type, deadline and intake answers. Plans can be harder, never easier, so asking the AI for an easy plan doesn't work. Two lighter weeks a season are allowed, at 70%, with a reason the league sees.
-- **Plan lock:** a week's plan locks when it starts. No removing work after seeing how the week is going.
-- **Range checks:** numbers must be sensible, and unusually high ones get an "Are you sure?".
-- **No backfill:** check-ins are for today or yesterday only.
-- **Opponent visibility:** both sides' check-ins, times and plan status are open to the league.
+- **Minimum pace (plan floor):** code sets each week's minimum from the goal type, deadline and answers. Plans can be harder, never easier. Two lighter weeks a season are allowed, at 70%, with a reason the league sees.
+- **Plan lock:** a week's plan locks when it starts.
+- **No check-ins before kickoff, no backfill:** today or yesterday only, enforced on the server.
+- **Range checks:** numbers must be sensible, and unusual ones get an "Are you sure?".
+- **Open check-ins:** both sides' check-ins, times and plan status are visible to the league.
 - **Proof for Smashed:** a 150%+ week counts as Smashed only with a photo or the opponent's confirmation.
-- **Disputes:** the opponent or league owner can dispute any check-in. Its points are held when the week closes until it's settled by proof, an explanation, a withdrawal or the league owner's ruling, and then the week re-scores on its own.
+- **Disputes:** the opponent or league owner can question a check-in; its points are held until it's settled by proof, an explanation, a withdrawal or the owner's ruling. People decide, never the AI.
 
-## What happens when the AI gets it wrong
+## Challenges
 
-- **Everything it returns is validated.** Malformed or incomplete answers are rejected, text is cleaned and capped, and only weeks that are allowed to change can be touched.
-- **Nothing changes without you.** Refinements show a week-by-week preview with Accept and Discard, and a new plan is a draft until you accept it.
-- **Fallbacks, not dead ends.** If the coach fails, times out or hits a spending cap, GoalLine uses built-in intake questions or a starter plan for the goal type, at the minimum pace, and says so plainly.
-- **Plans stay yours.** You can edit, reorder and move tasks, edit focus and milestones, and restore any earlier version from plan history.
-- **Code has the last word on workload.** If the AI plans below the minimum pace, code raises the week and tells you why.
+A **Challenge** is one simple rule for a set time, done together, in Championship Gold. Start one from a template (Lent, a 75-day discipline checklist, 10,000 steps a day, a dry month and more) or build your own:
 
-## Safety and privacy
+- **Four types:** Daily (a checklist), Weekly (X times a week or on chosen days), Abstain (stay off something; "Stayed on track" or a kindly worded "Slipped today") and Target (a number per day or week, range-checked).
+- **Durations:** 7, 30, 40, 75 or 365 days, a calendar month, Lent (worked out from the date of Easter, with Sundays off), or custom dates up to 400 days. Kickoff is 12:00 a.m. New York time, and the rules lock then.
+- **Strict or flexible:** strict restarts your streak on a miss; flexible allows 0 to 10 misses first.
+- **Ranked by completion, never stars,** in a gold Standings table (Completion %, then current streak, then completed). Challenges never change GoalLeague Standings.
+- **Fair play:** server-side date rules, same-day proof photos for the Verified check, and disputes the owner decides.
+- **Public or private, side Challenges:** Private by default; public ones show up under "Find a public Challenge" in the GoalLeagues tab and in Explore. A GoalLeague owner can start a side Challenge just for that league.
 
-- Proof photos are re-encoded on the server, which strips location and camera data. They're served only to people allowed to see them (the owner, the opponent and the league owner, or wider if the member posts them).
-- No GPS or maps. "Where?" is free text, with a reminder to crop out maps that show your home.
-- People search shows only name, username and photo, never emails. A setting hides you from name search.
-- Leagues are invite-only, posts can be reported, and plan summaries never show private notes, intake answers or reflections.
-- AI spending is capped per member, per day and per month. The demo uses saved sample answers.
-- **Disclaimer:** GoalLine plans are general guidance, not medical advice. Check with a doctor if you have health concerns. Physical goals always get an injury question, conservative progression and rest days.
+## Safety, privacy and legal
 
-## Run it on your computer
+- [Privacy Policy](https://ddhxw7holo4vs.cloudfront.net/privacy) · [Terms of use](https://ddhxw7holo4vs.cloudfront.net/terms) · [Community guidelines](docs/COMMUNITY_GUIDELINES.md) · [Accessibility statement](docs/ACCESSIBILITY.md)
+- Photos are re-encoded on the server, which strips location and camera data, and are served only to people allowed to see them. No GPS or maps.
+- People search shows only name, username and photo, never emails. A private account shows only its header (photo, name, @username, bio and counts) so friends can find you; goals, posts and stats stay hidden.
+- GoalLeagues and Challenges are Private by default; posts are never Public unless you choose it. Posts can be reported, and people can be muted.
+- Demo worlds are sealed off from real members: a demo visitor can't see, find or join anything real, never sends email and never calls the live AI.
+- AI spending is capped per member, per day and per month.
+- **Disclaimer:** GoalLine plans are general guidance, not medical advice. Physical goals always get an injury question, conservative progression and rest days.
+
+## Accessibility and performance
+
+**Accessibility.** axe-core (WCAG 2.1 A and AA) runs on every screen of the Try the demo script on an iPhone (WebKit), a small Android phone and a desktop, plus dedicated checks on the landing page, the Standings and Challenge tables, the profile header and the colour-matched tabs. Serious and critical findings: none on the screens checked. Tap targets are at least 44 × 44 px on phones, text at least 11 px (13 px for reading), tables have captions, row headers and `aria-sort`, sheets close with Escape and Back and return focus, and reduced motion turns off animations. Full statement: [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
+
+**Performance** (Lighthouse, mobile, measured on the QA laptop's one-request-at-a-time development server, which doesn't compress, so the live site is faster):
+
+| Page | Performance | Accessibility | Best practices | SEO |
+|---|---|---|---|---|
+| Landing | 87 | 100 | 100 | 100 |
+| Dashboard | 100 | 97 | 100 | 100 |
+| Matchup | 90 | 100 | 100 | 100 |
+| Standings | 98 | 100 | 100 | 100 |
+
+The dashboard's 97 is one text link inside a sentence, which WCAG exempts from the target-size rule. Fonts are self-hosted with `font-display: swap`; landing images are 600 px WebP with sizes set (layout shift 0); CloudFront compresses responses. Not done: splitting the app's JavaScript for the landing page.
+
+## Architecture
+
+Laravel 13 (PHP 8.4), Blade with Tailwind CSS v4 and light JavaScript (Turbo Drive for the app shell, small modules for live updates and sheets), MySQL on RDS, S3 for photos, CloudFront for HTTPS, one Elastic Beanstalk server with a queue worker and scheduler. The diagram and the map of services are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md); the reasoning behind the choices is in [docs/DECISIONS.md](docs/DECISIONS.md); operations are in [docs/RELIABILITY.md](docs/RELIABILITY.md).
+
+## Testing
+
+[![tests](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml/badge.svg)](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml)
+
+- **PHPUnit:** `php artisan test --compact` runs about 880 tests, also on every push by [GitHub Actions](.github/workflows/tests.yml): every band boundary and the full Matchup matrix, photo finishes, held disputes, the plan floor, kickoff rules, Challenge completion for every type and mode, Lent dates, privacy of photos, posts and profiles, demo isolation, query budgets and mobile readiness.
+- **Playwright QA suite:** `npm run qa` builds the assets, starts its own server on a fresh `database/qa.sqlite` (your local data is never touched) and clicks through the app on an **iPhone 14 (WebKit)**, a **small Android phone** and a **desktop**: the whole Try the demo script, the Standings table, Challenges for each type, public lists, the landing page, the Judge's tour, profiles and more. On every screen it checks for 500s, console errors, sideways scroll, small tap targets and text, cut-off text, contrast (axe-core) and full page reloads where an in-place update is expected, and writes `qa/REPORT.md`. Run a single file with `QA_PORT=8124 npx playwright test qa/e2e/challenges.spec.js`. First time only: `npx playwright install chromium webkit`.
+- **Live checks:** `npm run smoke -- --url https://YOUR-ADDRESS` checks a running site with a fresh demo account; `php artisan goalline:preflight` checks production settings without printing secrets; `/health` reports the database, cache, storage, queue and the build stamp.
+
+## How to run locally
 
 Needs PHP 8.4+, Composer and Node.
 
@@ -126,113 +160,42 @@ php artisan migrate --seed
 composer run dev
 ```
 
-Then open http://localhost:8000.
+Then open http://localhost:8000 and tap **Try the demo**, or sign in as **john.cardinal@demo.goalline.invalid** with the password **password** (`php artisan db:seed` rebuilds that world, dated to today). Without an `ANTHROPIC_API_KEY` everything works and the coach uses its built-in fallbacks. Emails go to `storage/logs/laravel.log`.
 
-- `php artisan migrate --seed` builds the demo world. Sign in as **john.cardinal@demo.goalline.invalid** with the password **password**, or tap **Try the demo**. Running `php artisan db:seed` again replaces it with a fresh one dated to today. Demo worlds are deleted after 24 hours, so re-seed if it's gone.
-- Without an `ANTHROPIC_API_KEY`, everything works and the coach uses its built-in fallbacks.
-- Emails are written to `storage/logs/laravel.log` (`MAIL_MAILER=log`).
-- Run the tests with `php artisan test --compact`. More in [Testing](#testing).
+## What testers said
 
-## Testing
+TESTER_QUOTES
 
-**Unit and feature tests (PHPUnit).** `php artisan test --compact` runs 600+ tests (also on every push, by [GitHub Actions](.github/workflows/tests.yml)): scoring (every band boundary and the full matchup matrix, photo finishes, the 149% cap, held disputes), fair play, plan floor, the matchup pager and its projections, privacy of proof photos and posts, the demo, and mobile readiness.
+## Built with AI
 
-**QA suite (Playwright).** `npm run qa` builds the assets, starts its own server on a fresh `database/qa.sqlite` (your local data is never touched), and clicks through the whole Try the demo script on three profiles: an **iPhone 14 (WebKit)**, a **small Android phone (Chromium)** and a **desktop (Chromium)**. The script: Try the demo, dashboard, a goal and its plan, check in a task, attach proof, the matchup pager (swipe between matchups), a task sheet, a dispute, a group-task vote, a friend request, Highlights, the inbox, My Locker and the privacy page.
-
-On every screen and profile it checks for failed requests and 500s, console errors, horizontal overflow, tap targets under 44 px, text under 12 px, missing alt text or form labels, colour contrast (axe-core), and actions that reload the page or jump to the top. It writes:
-
-- `qa/REPORT.md`: findings by severity (blocker, important, nice to have) with the screen, profile and a suggested fix, plus a checklist for a real iPhone. WebKit emulation is close to iPhone Safari, not the same.
-- `qa/screenshots/<profile>/`: a full-page screenshot of every screen (git-ignored).
-
-First time only: `npx playwright install chromium webkit`.
-
-**UX reviewer agent.** `.claude/agents/ux-reviewer.md` is a read-only Claude Code reviewer. In Claude Code, ask: *"Use the ux-reviewer agent to review the app."* It runs `npm run qa`, reads the report and screenshots, and replies with prioritized feedback on clarity, flow, visual polish, mobile usability and tone, plus its top 5 fixes. It never edits code.
-
-## Accessibility
-
-What's in place, and how it's checked:
-
-- **axe-core on every screen** of the Try the demo script (WCAG 2.1 A and AA), on iPhone WebKit, a small Android phone and a desktop, plus dedicated checks on the landing page, the font comparison and the Standings table. On Nov 14, 2026 the run found two serious issues, both fixed: link names on the Standings table and the Matchup scoreboard that didn't start with their visible text (a problem for voice control; the extra words are now screen-reader-only text after the visible name), and faded past days on Plan my week (60% opacity put text below 4.5:1; they now sit on ivory at full contrast). The landing page's swipeable screens row is keyboard-focusable. Serious and critical findings: none left on the screens checked.
-- **Tap targets** of at least 44 × 44 px on phones (or a larger invisible hit area), 24 px minimum anywhere (pager dots widened from 20 px). **Text** at least 11 px (chips raised from 9-10 px), with 13 px for anything people read.
-- **Tables** have captions, row headers and `aria-sort`; the Last 5 circles and Challenge days have text alternatives ("Last 5: W Past, L Short, …"). **Sheets** (Judge's tour, player season, task details) are dialogs that close with Escape and Back and return focus. **Reduced motion** turns off the logo animation, celebrations and slides. **Live regions** announce sort changes and tour progress.
-- Lighthouse accessibility (mobile, below): 100 on the landing page, Matchup and Standings; 97 on the dashboard, for one inline text link inside a sentence, which WCAG exempts from the target-size rule.
-
-## Performance
-
-Lighthouse (mobile, simulated slow 4G) via `LIGHTHOUSE=<label> npx playwright test qa/e2e/lighthouse.spec.js --project="Desktop (Chromium)"`. These numbers come from the QA setup: PHP's one-request-at-a-time development server on a laptop, which doesn't compress anything. So the landing page's first paint is slower here than it will be live.
-
-| Page | Before (Nov 14) | After | Notes |
-|---|---|---|---|
-| Landing | 84 (LCP 3.8 s) | 87 (LCP 3.4 s) | Measured with Space Grotesk headings (since reverted to Plus Jakarta Sans everywhere); preloading only the three font files the first screen uses |
-| Dashboard | 100 | 100 | |
-| Matchup | 90 | 90 | Server response time on the dev server |
-| Standings | 98 | 98 | |
-
-SEO went from 91-92 to 100 on the signed-in pages (meta description); best practices 100 throughout; layout shift 0 everywhere.
-
-Changes: **compression** comes from CloudFront (its "Compress objects automatically" setting; Lighthouse estimated about 1.5 s off the landing page's first paint on a phone). An nginx file for compression and caching was tried on Nov 14 and failed the Elastic Beanstalk deploy, so it was removed and the server setup is back to what it was. Fonts are **self-hosted** with `font-display: swap` and only three preloaded; landing images are **600 px WebP** (36-70 KB) with width and height set (no layout shift) and lazy below the first. Not done: splitting the app's JavaScript for the landing page (185 KB before compression; Lighthouse lists it as unused there), and smaller image variants for phones (about 0.2 s).
-
-**Live checks.** `npm run smoke -- --url https://YOUR-ADDRESS` checks a running site end to end (health, home, Try the demo, a check-in, Matchups, privacy) and fails on any 500 or console error; it only uses a fresh demo account, so it's safe on production. On the server, `php artisan goalline:preflight` checks the production settings without printing secrets, and `/health` reports the database, cache, storage and queue for an uptime monitor. See [docs/RELIABILITY.md](docs/RELIABILITY.md).
+I built GoalLine with **Claude Code**, from phased prompts that I wrote. I wrote the rules and specs myself (the scoring, the fairness rules, the brand and what the AI may and may not do), had each phase built against them, and tested every phase before moving on: the PHP test suite and the Playwright QA suite had to pass, and I tried each build by hand on my phone. The build log is the series of prompts in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md), with week-by-week results in [CHANGELOG.md](CHANGELOG.md) and the full commit history on GitHub.
 
 ## What we chose not to build
 
-The full reasoning, including why things were built the way they were, is in [docs/DECISIONS.md](docs/DECISIONS.md).
+The reasoning is in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 - **No AI judging.** The AI never scores, never rules on disputes and never sets the minimum pace.
-- **No GPS, maps or wearable syncing** (Strava, Apple Health). That's more privacy risk than a friendly league needs.
-- **No money, stakes or betting**, and no public leaderboards or follower counts.
-- **No public user directory.** People find each other by name, username or exact email, inside a private beta.
+- **No GPS, maps or wearable syncing** (Strava, Apple Health): more privacy risk than a friendly league needs.
+- **No money, stakes or betting**, and no global leaderboard ranking strangers against each other.
+- **No public user directory.** People find each other by name, username or exact email; public listings are only for GoalLeagues and Challenges their owners chose to make public.
 - **No medical advice**, and no diagnosing from intake answers.
-- **No native apps.** GoalLine is an installable web app with push notifications.
+
+## What's next
+
+- **Push notifications** for everyone: built and tested, behind the existing `GOALLINE_PUSH` flag, off in production until the reminder schedule is tuned.
+- **A native iPhone wrapper** around the installable web app.
+- **One-way follows** for public people, alongside mutual friends.
+- **Identity federation for API credentials**, so the server's keys come from the cloud provider instead of environment properties.
+- **The recap narrator for whole seasons** (it already narrates each finished week).
 
 ## Known limitations
 
 - Check-ins are self-reported. GoalLine makes faking visible and not worth much, but it can't prove someone studied for an hour.
 - The minimum-pace formulas are deliberate, documented rules of thumb, not a model of every goal.
-- Weeks follow each member's own time zone, so a league spread across time zones can see weeks close a few hours apart.
-- When the coach rewords a task it moved between weeks, the refinement preview shows it as removed and added rather than moved. Its explanation says where the work went.
+- GoalWeeks follow each member's own time zone, while Challenges and GoalLeague kickoffs use New York time, so people far from Eastern time can see days close a few hours apart.
+- When the coach rewords a task it moved between weeks, the refinement preview shows it as removed and added rather than moved.
+- The Lighthouse numbers above come from a development server, not the live site.
 - One Elastic Beanstalk server, with a single queue worker and scheduler, sized for a private beta.
-
-## Build status
-
-| Phase | What | Status |
-|---|---|---|
-| A | Fair play, proof and Smashed confirmation | Done |
-| B | Media posts, feeds, friends and cheers | Done |
-| C | Group tasks with a league vote, personal tasks | Done |
-| D | Demo seed, fairness docs, deploy checklist | Done |
-| E | Goal-to-league flow, league invites, people search | Done |
-| F | Goal-specific intake questions feeding the plan | Done |
-| G | Refine the plan with prompts, preview, manual edits, plan history | Done |
-| H | Objective recurring tasks, Today view, week grid | Done |
-| I | Plan floor, plan lock, plan transparency, disputes | Done |
-| J | One-click Try the demo with isolated, resettable accounts | Done |
-| K | README, final checks and freeze readiness | Done |
-| L | In-place interactions, animations and toasts | Done |
-| — | Scoring: 3-2-1-0 match points with the photo finish (replaced by weekly stars) | Done |
-| — | Weekly stars: line + matchup, 0–5, W–D–L, full-precision photo finishes | Done |
-| M | Swipeable matchup pager with task view and projections | Done |
-| N | iPhone and mobile polish | Done |
-| O | Playwright QA suite and UX reviewer agent | Done |
-| — | Deadlock fixes, email verification links, persistent app shell, Start flow | Done |
-| P | Live band progression and the band-up celebration | Done |
-| R | Branded loader, skeletons, empty states and error pages | Done |
-| Q | Shareable weekly result cards | Done |
-| — | Switches to pause outbound email and push | Done |
-| S | Reliability, security and accessibility hardening | Done |
-| T | Final README, architecture and AI docs, repo hygiene | Done |
-| U | AI you can see: the AI/code panel and the recap narrator | Done |
-| — | Navigation: Clubhouse Now and History, Matchups hub, standings and player seasons | Done |
-| — | Join and help: league goal templates, late joins, scoring sheet, Help Center and tour | Done |
-| — | Season finale: Goal Day check-in, medals, finale cards, share your season, next goal | Done |
-| — | No check-ins before kickoff (server-enforced, early check-ins voided) | Done |
-| — | Show your work with details; profiles with Friends list; Standings and Stats switch | Done |
-| — | Try the demo resumes; real client IPs behind CloudFront; friendly 429 | Done |
-| — | Medals safe under concurrency; `goalline:check-medals` | Done |
-| — | Profile redesign: identity, counts, per-goal visibility, sections | Done |
-| — | Explore: public GoalLeagues and public posts, report and mute | Done |
-
-Week by week, from the commit history: [CHANGELOG.md](CHANGELOG.md). The phase details are in [docs/NEXT_BUILD.md](docs/NEXT_BUILD.md) (A–D), [docs/NEXT_BUILD_2.md](docs/NEXT_BUILD_2.md) (E–H), [docs/NEXT_BUILD_3.md](docs/NEXT_BUILD_3.md) (I–K), [docs/NEXT_BUILD_4.md](docs/NEXT_BUILD_4.md) (L–O) and [docs/NEXT_BUILD_5.md](docs/NEXT_BUILD_5.md) (P–U).
 
 ## Deploying to Elastic Beanstalk
 
