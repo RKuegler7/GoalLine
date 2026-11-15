@@ -30,6 +30,12 @@ class HelpController extends Controller
         'leagues.my-goal' => 'join',
         'highlights.index' => 'who-sees-posts',
         'profile.edit' => 'settings',
+        'challenges.show' => 'challenge-ranking',
+        'challenges.create' => 'challenge-types',
+        'challenges.edit' => 'challenge-modes',
+        'challenges.join' => 'what-is-challenge',
+        'challenges.browse' => 'public-listings',
+        'leagues.browse' => 'public-listings',
     ];
 
     /**

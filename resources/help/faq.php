@@ -8,6 +8,7 @@
 
 use App\GoalWeekResult;
 use App\MedalType;
+use App\Models\Challenge;
 use App\Models\GoalResult;
 use App\Models\League;
 use App\Models\LeagueMember;
@@ -102,12 +103,27 @@ return [
         ],
     ],
     [
+        'id' => 'challenges',
+        'title' => 'Challenges',
+        'items' => [
+            ['id' => 'what-is-challenge', 'q' => 'What is a Challenge?', 'a' => 'One simple rule for a set time, done together: 10,000 steps a day, a dry month, Lent. You check in each day (or week), and the Standings rank everyone by how much they completed. Start one from a template or build your own in the GoalLeagues tab, under Challenges.'],
+            ['id' => 'challenge-types', 'q' => 'What are the four types?', 'a' => 'Daily: do it every day; a day counts when every rule on the checklist is checked. Weekly: a set number of times a week, or on chosen days; a week counts when the target is met ("3 of 4 this week"). Abstain: stay off something; each day check in "Stayed on track" or log "Slipped today", and a day counts when it\'s on track. Target: hit a number each day or each week, like 10,000 steps or 20 pages.'],
+            ['id' => 'challenge-durations', 'q' => 'How long can a Challenge be?', 'a' => '7, 30, 40, 75 or 365 days, a calendar month (the 1st to the last day), Lent, or your own dates up to '.Challenge::MAX_DAYS.' days. It starts at 12:00 a.m. New York time on the start date, by default the next Monday. The builder shows the end date before you start.'],
+            ['id' => 'challenge-lent', 'q' => 'How does the Lent template work?', 'a' => 'It runs from Ash Wednesday to Holy Saturday, worked out from the date of Easter for the year you pick. "Sundays off" is on: Sundays aren\'t required and never break a streak. It starts as Abstain ("Give something up for Lent"); change it to Daily for a practice like prayer or reflection.'],
+            ['id' => 'challenge-modes', 'q' => 'What are strict and flexible?', 'a' => 'Strict: miss a required day (or week) and your streak restarts; the Standings show your restarts. Flexible: the owner allows 0 to '.Challenge::MAX_MISSES.' misses or rest days before a miss counts, and a forgiven miss never breaks your streak. Today and yesterday stay open, so they never count as a miss until they close.'],
+            ['id' => 'challenge-ranking', 'q' => 'How are Challenges ranked?', 'a' => 'By completion: the share of the required days or weeks you\'ve completed. Ties go to the longer current streak, then more days or weeks completed. Challenges never earn stars and never change a GoalLeague\'s Standings.'],
+            ['id' => 'challenge-fair-play', 'q' => 'What keeps Challenges fair?', 'a' => 'Check-ins open at kickoff and work for today or yesterday only, never future days, checked on the server. Numbers have a sensible range, and an unusual one asks "are you sure?". A photo added the same day earns the Verified check. Any member can dispute a recent check-in; the owner decides, and an upheld dispute takes it off. The rules lock at kickoff; after that only the name, description and visibility can change.'],
+            ['id' => 'challenge-vs-league', 'q' => 'How is a Challenge different from a GoalLeague?', 'a' => 'A GoalLeague is a season of weekly Matchups, each player against their own AI-built plan for their own goal, scored in stars. A Challenge is everyone on the same simple rule, scored by completion. A GoalLeague owner can also start a side Challenge just for that league: members opt in, and it never touches stars.'],
+        ],
+    ],
+    [
         'id' => 'privacy',
         'title' => 'Privacy and safety',
         'items' => [
             ['id' => 'photo-location', 'q' => 'Are my photos cleaned of location data?', 'a' => '"Show your work" photos are re-saved without their hidden data, including GPS location, before they\'re stored. The optional "Where?" label is only what you type.'],
             ['id' => 'who-sees-posts', 'q' => 'Who can see my posts?', 'a' => 'You choose for each post: proof only, your league, your league and friends, or Public (Explore), which anyone on GoalLine can see. Public is never picked for you. Change it any time from the post\'s … menu, and a post you take back from Public leaves Explore right away. Your plan details, answers and notes are never shared.'],
-            ['id' => 'explore', 'q' => 'What is Explore?', 'a' => 'A tab in Highlights with public GoalLeagues you can join (an owner lists theirs from the league page) and posts people chose to make public. Nothing else ever appears there. Report a post to hide it for you and flag it for us, or mute someone from a post\'s … menu so their posts never show for you; unmute from their profile.'],
+            ['id' => 'explore', 'q' => 'What is Explore?', 'a' => 'A tab in Highlights with public GoalLeagues and Challenges you can join (owners make theirs public) and posts people chose to make public. Nothing else ever appears there. Report a post to hide it for you and flag it for us, or mute someone from a post\'s … menu so their posts never show for you; unmute from their profile.'],
+            ['id' => 'public-listings', 'q' => 'How do public GoalLeagues and Challenges work?', 'a' => 'New GoalLeagues and Challenges are Private: invite only. An owner can make theirs Public (a GoalLeague from its invite section, a Challenge from its settings), and it shows under "Find a public GoalLeague" or "Find a public Challenge" in the GoalLeagues tab and in Explore, while it has room and isn\'t over. Anyone can see its name, type or category, rules, dates, member count and the owner\'s name, and join through the usual flow. Nobody sees emails, plans, notes, intake answers or anyone\'s check-in details. Switch it back to Private any time.'],
             ['id' => 'reporting', 'q' => 'How do I report something?', 'a' => 'Use Report on a post. It\'s hidden for you right away, and the league owner can take a look.'],
             ['id' => 'not-medical', 'q' => 'Is my plan medical advice?', 'a' => 'No. Plans are general guidance. Physical goals get careful progression and rest days. Check with a doctor if you have health concerns.'],
         ],

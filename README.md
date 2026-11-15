@@ -49,7 +49,8 @@
 1. **Set a goal** with a deadline (an exam, a race, a thesis, a job search). GoalLine asks 5 to 8 questions written for that goal, then the AI coach drafts a dated roadmap of GoalWeeks: a focus, a milestone and daily tasks, plus habits with clear rules like "Run · 2+ miles" on Mon, Wed, Fri.
 2. **Check in every day** from Today's Gameplan or the Today page's week grid. Add a photo to show your work.
 3. **Play it with friends** in a GoalLeague. Each GoalWeek you face one league mate in the **GoalWeek Matchup**, a fantasy-football-style pager: swipe between matchups, see both players' tasks day by day where the players would be, each side's band, its projected band on current pace, and the points each would take if the week ended now. Same band? It's a photo finish, settled by percent of plan.
-4. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
+4. **Take on a Challenge**: one simple rule for a set time, together (10,000 steps a day, a dry month, Lent, a 75-day checklist). Four types (Daily, Weekly, Abstain, Target), templates or build your own, strict or flexible, ranked by completion in a gold Standings table, never stars. Public GoalLeagues and Challenges can be found and joined from the GoalLeagues tab, and a GoalLeague owner can start a side Challenge for their league.
+5. **Keep it honest and keep it going**: open matchups, proof for big weeks, disputes, a minimum pace set by code, cheers and comments on posts, streaks, recaps, badges and season awards.
 
 ## Who it's for
 

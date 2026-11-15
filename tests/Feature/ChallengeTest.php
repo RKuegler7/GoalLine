@@ -193,6 +193,16 @@ class ChallengeTest extends TestCase
         $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('Done today')->assertSee('1/7');
     }
 
+    public function test_the_help_center_explains_challenges_and_public_listings(): void
+    {
+        $this->actingAs($this->avery)->get(route('help'))->assertOk()
+            ->assertSeeInOrder(['Challenges', 'What is a Challenge?', 'What are the four types?', 'How long can a Challenge be?', 'How does the Lent template work?', 'What are strict and flexible?', 'How are Challenges ranked?', 'How is a Challenge different from a GoalLeague?'])
+            ->assertSee('How do public GoalLeagues and Challenges work?')
+            ->assertSee('never change a GoalLeague');
+
+        $this->actingAs($this->avery)->get(route('help', ['context' => 'challenge-ranking']))->assertOk()->assertSee('id="help-challenge-ranking"', false)->assertSee('data-help-focus', false);
+    }
+
     public function test_the_goalleagues_page_lists_challenges_and_offers_templates_when_there_are_none(): void
     {
         $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('No Challenges yet.')->assertSee('Lent')->assertSee('Build your own');
