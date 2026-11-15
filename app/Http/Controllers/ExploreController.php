@@ -9,6 +9,7 @@ use App\Models\League;
 use App\Models\User;
 use App\Models\UserMute;
 use App\PostVisibility;
+use App\Services\PublicListings;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -42,17 +43,9 @@ class ExploreController extends Controller
         $viewer = $request->user();
         $before = $request->integer('before') ?: null;
 
-        $leagues = $before ? collect() : League::query()
-            ->where('is_public', true)
-            ->whereDate('ends_on', '>=', now()->toDateString())
-            ->whereHas('commissioner', fn (Builder $owner) => $owner->where('demo_sandbox', $viewer->demo_sandbox))
-            ->whereNotIn('commissioner_id', UserMute::where('user_id', $viewer->id)->select('muted_user_id'))
-            ->withCount('members')
-            ->orderBy('starts_on')
-            ->limit(self::PAGE_SIZE)
-            ->get()
-            ->filter(fn (League $league) => $league->isJoinable())
-            ->values();
+        // The same public listings as the GoalLeagues tab (PublicListings): one query, one set of privacy rules.
+        $leagues = $before ? collect() : PublicListings::leagues($viewer, [], self::PAGE_SIZE);
+        $challenges = $before ? collect() : PublicListings::challenges($viewer, [], self::PAGE_SIZE);
 
         $posts = Highlight::query()
             ->visibleTo($viewer)
@@ -66,6 +59,8 @@ class ExploreController extends Controller
         return view('highlights.explore', [
             'leagues' => $leagues,
             'memberOf' => $viewer->leagues()->pluck('leagues.id')->flip(),
+            'challenges' => $challenges,
+            'challengeMemberOf' => $viewer->challenges()->pluck('challenges.id')->flip(),
             'posts' => $posts,
             'hasMore' => $posts->count() === self::PAGE_SIZE,
             'inspiration' => $before ? [] : self::INSPIRATION,

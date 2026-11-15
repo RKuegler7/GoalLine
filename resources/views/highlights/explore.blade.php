@@ -41,31 +41,21 @@
                 @else
                     <ul class="mt-2 grid gap-2 sm:grid-cols-2" data-public-leagues>
                         @foreach ($leagues as $league)
-                            <li class="flex flex-col justify-between rounded-2xl border border-line bg-white px-4 py-3" data-public-league>
-                                <div>
-                                    <p class="eyebrow text-[11px] text-ink/70">
-                                        {{ App\Http\Controllers\ExploreController::categoryLabel($league->category) }}
-                                        @if ($demo) &middot; Example @endif
-                                    </p>
-                                    <p class="mt-0.5 text-[16px] font-bold text-club [overflow-wrap:anywhere]">{{ $league->name }}</p>
-                                    <p class="text-[13px] text-ink/75">{{ $league->members_count }} {{ Str::plural('member', $league->members_count) }} of {{ App\Models\League::MAX_MEMBERS }} &middot; {{ App\Http\Controllers\ExploreController::weekLabel($league) }}</p>
-                                    @if ($league->description)
-                                        <p class="mt-1 line-clamp-2 text-[13px] text-ink/80">{{ $league->description }}</p>
-                                    @endif
-                                </div>
-                                @if (isset($memberOf[$league->id]))
-                                    <a href="{{ route('leagues.show', $league) }}" class="mt-2 inline-flex min-h-11 items-center justify-center rounded-full border border-club/30 px-4 text-sm font-semibold text-club">You're in · Open</a>
-                                @else
-                                    <form method="POST" action="{{ route('explore.join', $league) }}" class="mt-2">
-                                        @csrf
-                                        <button type="submit" class="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-grass px-4 text-sm font-bold whitespace-nowrap text-ink hover:brightness-105" data-join-public>Join</button>
-                                    </form>
-                                @endif
-                            </li>
+                            <x-public-league-card :league="$league" :member="isset($memberOf[$league->id])" :example="$demo" />
                         @endforeach
                     </ul>
                 @endif
             </section>
+            @if ($challenges->isNotEmpty())
+                <section aria-labelledby="explore-challenges">
+                    <h2 id="explore-challenges" class="eyebrow text-gold-ink">Public Challenges you can join</h2>
+                    <ul class="mt-2 grid gap-2 sm:grid-cols-2" data-public-challenges>
+                        @foreach ($challenges as $challenge)
+                            <x-public-challenge-card :challenge="$challenge" :member="isset($challengeMemberOf[$challenge->id])" :example="$demo" />
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
         @endif
 
         {{-- From the community: only posts their authors made Public (Explore). --}}

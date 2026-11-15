@@ -21,6 +21,7 @@
 
         {{-- Your GoalLeagues: right at the top. --}}
         <section data-segment-panel="leagues" @if ($tab !== 'leagues') hidden @endif aria-label="Your GoalLeagues">
+            @include('partials.public-row', ['kind' => 'leagues', 'id' => 'find-public-leagues', 'title' => 'Find a public GoalLeague', 'items' => $publicLeagues, 'seeAll' => route('leagues.browse'), 'empty' => 'No public GoalLeagues to join right now. Start one and make it public, or check back soon.'])
             @if ($snapshots->isEmpty())
                 @include('partials.start-league-cta')
             @else
@@ -35,6 +36,7 @@
 
         {{-- Challenges: completion, never stars. --}}
         <section data-segment-panel="challenges" @if ($tab !== 'challenges') hidden @endif aria-label="Challenges">
+            @include('partials.public-row', ['kind' => 'challenges', 'id' => 'find-public-challenges', 'title' => 'Find a public Challenge', 'items' => $publicChallenges, 'seeAll' => route('challenges.browse'), 'empty' => 'No public Challenges to join right now. Start one and make it public.'])
             @if ($challenges->isEmpty())
                 <div class="rounded-2xl border border-gold/60 bg-white px-4 py-5 text-center" data-challenges-empty>
                     <p class="text-[17px] font-bold text-ink">No Challenges yet.</p>

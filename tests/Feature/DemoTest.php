@@ -7,7 +7,6 @@ use App\GoalWeekResult;
 use App\Jobs\GenerateRoadmap;
 use App\Jobs\RefinePlan;
 use App\MatchupOutcome;
-use App\Models\Challenge;
 use App\Models\Dispute;
 use App\Models\GoalIntake;
 use App\Models\GroupTask;
@@ -77,7 +76,7 @@ class DemoTest extends TestCase
         $this->assertSame(5, $running->fresh()->results->pluck('week')->unique()->count()); // Weeks 1 to 5 scored.
 
         foreach ([route('leagues.index'), route('leagues.feed', $running), route('highlights.index'), route('friends.index'), route('inbox'),
-            route('profile.show'), route('challenges.show', Challenge::sole()), route('goals.show', $visitor->goals()->first())] as $page) {
+            route('profile.show'), route('challenges.show', $visitor->challenges()->first()), route('goals.show', $visitor->goals()->first())] as $page) {
             $this->get($page)->assertOk();
         }
 

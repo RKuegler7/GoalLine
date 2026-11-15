@@ -19,6 +19,7 @@ use App\Services\GroupTasks;
 use App\Services\LeagueSnapshot;
 use App\Services\LeagueTable;
 use App\Services\MatchupBoard;
+use App\Services\PublicListings;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,9 @@ class LeagueController extends Controller
             'challengeInvites' => ChallengeInvite::where('invitee_id', $user->id)->whereNull('accepted_at')->whereNull('declined_at')
                 ->whereHas('challenge', fn ($challenges) => $challenges->whereDate('ends_on', '>=', Challenge::today()->toDateString()))
                 ->with('challenge.creator', 'inviter')->latest()->get(),
+            // Public ones to discover (PublicListings, the same as Explore), leaving out any you're already in.
+            'publicLeagues' => PublicListings::leagues($user, [], PublicListings::ROW + 4)->whereNotIn('id', $user->leagues()->pluck('leagues.id')->all())->take(PublicListings::ROW)->values(),
+            'publicChallenges' => PublicListings::challenges($user, [], PublicListings::ROW + 4)->whereNotIn('id', $user->challenges()->pluck('challenges.id')->all())->take(PublicListings::ROW)->values(),
             'tab' => in_array($request->query('tab'), ['leagues', 'challenges', 'invites'], true) ? $request->query('tab') : 'leagues',
             'challenges' => $request->user()->challenges()
                 ->with(['checkIns' => fn ($checkIns) => $checkIns->where('user_id', $request->user()->id)])

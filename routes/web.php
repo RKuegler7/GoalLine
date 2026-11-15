@@ -55,6 +55,7 @@ use App\Http\Controllers\PlanMaterialController;
 use App\Http\Controllers\PlanRefinementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileFriendsController;
+use App\Http\Controllers\PublicListingController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\ResultCardController;
 use App\Http\Controllers\RoadmapController;
@@ -278,6 +279,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/goals/{goal}/plan-versions/{version}/restore', [PlanRefinementController::class, 'restore'])->name('goals.plan-versions.restore')->can('update', 'goal');
 
     Route::get('/challenges/create', [ChallengeController::class, 'create'])->name('challenges.create');
+    Route::get('/challenges/browse', [PublicListingController::class, 'challenges'])->name('challenges.browse')->middleware('throttle:60,1');
     Route::post('/challenges', [ChallengeController::class, 'store'])->name('challenges.store')->middleware(['verified', 'throttle:10,60']);
     Route::post('/challenges/find', [ChallengeController::class, 'find'])->name('challenges.find')->middleware('throttle:20,1');
     Route::get('/challenges/join/{code}', [ChallengeController::class, 'join'])->name('challenges.join')->middleware('throttle:20,1');
@@ -299,6 +301,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/leagues', [LeagueController::class, 'index'])->name('leagues.index');
     Route::get('/leagues/create', [LeagueController::class, 'create'])->name('leagues.create');
+    Route::get('/leagues/browse', [PublicListingController::class, 'leagues'])->name('leagues.browse')->middleware('throttle:60,1');
     Route::post('/leagues', [LeagueController::class, 'store'])->name('leagues.store')->middleware(['verified', 'throttle:10,60']);
     Route::get('/leagues/{league}', [LeagueController::class, 'show'])->name('leagues.show')->can('view', 'league');
     Route::post('/leagues/{league}/group-tasks', [GroupTaskController::class, 'store'])->name('leagues.group-tasks.store')->can('view', 'league')->middleware(['verified', 'throttle:10,1']);

@@ -345,6 +345,28 @@ class DemoWorld
             }
         }
 
+        // Public Challenges to find in the GoalLeagues tab and Explore (examples, in this demo world only).
+        $publicChallenges = [
+            [$ana, '10,000 steps a day', Challenge::TARGET, ['label' => 'Steps', 'threshold' => 10000, 'unit' => 'steps', 'per' => 'day', 'max' => 100000], $nextMonday, $nextMonday->addDays(29), [$ana, $chloe], 3],
+            [$ben, 'Read 20 pages a day', Challenge::TARGET, ['label' => 'Pages', 'threshold' => 20, 'unit' => 'pages', 'per' => 'day', 'max' => 500], $this->today->subDays(6), $this->today->addDays(23), [$ben, $dev], 3],
+            [$chloe, 'Workout 4 times a week', Challenge::WEEKLY, ['label' => 'Workout', 'times' => 4], $this->today->subDays(9), $this->today->addDays(20), [$chloe, $ana], 0],
+        ];
+
+        foreach ($publicChallenges as [$owner, $title, $type, $rules, $starts, $ends, $members, $misses]) {
+            $challenge = new Challenge(['title' => $title, 'type' => $type, 'rules' => $rules, 'starts_on' => $starts, 'ends_on' => $ends, 'allowed_misses' => $misses, 'is_public' => true, 'target_days' => 1]);
+            $challenge->creator()->associate($owner)->save();
+
+            foreach ($members as $index => $member) {
+                $challenge->members()->create(['user_id' => $member->id]);
+
+                for ($day = $starts; $day->lt($this->today); $day = $day->addDay()) {
+                    if (($day->day + $index) % 4 !== 0) {
+                        $challenge->checkIns()->create(['user_id' => $member->id, 'checked_on' => $day, 'value' => $type === Challenge::TARGET ? $rules['threshold'] + 5 * $index : null]);
+                    }
+                }
+            }
+        }
+
         $posts = [
             [$ana, HighlightKind::GreatWeek, 'Ironman 70.3 in June', 'Past the line this GoalWeek', 'First open-water swim of the year. 1,500m and still smiling.', 'Swim', '1,500 m · open water', '#0369A1', '#176B45', 2],
             [$ben, HighlightKind::MilestoneHit, 'Pass the bar exam', 'Milestone: first full practice test', '200 questions, one sitting. 71% on the first try.', 'Practice test', '142 of 200', '#1E2922', '#D4AC58', 3],
@@ -785,7 +807,7 @@ class DemoWorld
     private function challenge(User $creator, array $members): void
     {
         $startsOn = $this->today->subDays(12);
-        $challenge = new Challenge(['title' => '10K steps a day', 'description' => 'Every day for three weeks. Walks count, runs count, pacing on calls counts.', 'starts_on' => $startsOn, 'ends_on' => $startsOn->addDays(20), 'target_days' => 21]);
+        $challenge = new Challenge(['title' => '10K steps a day', 'description' => 'Every day for three weeks. Walks count, runs count, pacing on calls counts.', 'starts_on' => $startsOn, 'ends_on' => $startsOn->addDays(20), 'target_days' => 16, 'rules' => ['items' => ['Walk 10,000 steps']], 'allowed_misses' => 5]);
         $challenge->creator()->associate($creator)->save();
 
         foreach ($members as $index => $member) {
