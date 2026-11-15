@@ -29,7 +29,7 @@ class ProfileCustomizationTest extends TestCase
         $this->actingAs(User::factory()->create())->get($user->profileUrl())->assertSee('Chasing the CPA.')->assertDontSee('Edit profile');
     }
 
-    public function test_league_visibility_shows_the_profile_only_to_league_mates(): void
+    public function test_league_visibility_shows_the_full_profile_only_to_league_mates(): void
     {
         $user = User::factory()->create(['profile_visibility' => ProfileVisibility::Leagues, 'bio' => 'League eyes only.']);
         $mate = User::factory()->create();
@@ -38,11 +38,12 @@ class ProfileCustomizationTest extends TestCase
         $league->members()->create(['user_id' => $user->id]);
         $league->members()->create(['user_id' => $mate->id]);
 
-        $this->actingAs($mate)->get($user->profileUrl())->assertSee('League eyes only.');
-        $this->actingAs($stranger)->get($user->profileUrl())->assertSee('This profile is private')->assertDontSee('League eyes only.');
+        $this->actingAs($mate)->get($user->profileUrl())->assertSee('League eyes only.')->assertSee('data-profile-chips', false);
+        // A stranger sees the header (name and bio, to know it's the right person) but none of the profile below it.
+        $this->actingAs($stranger)->get($user->profileUrl())->assertSee('This account is private')->assertSee('League eyes only.')->assertDontSee('data-profile-chips', false);
     }
 
-    public function test_private_profiles_are_only_visible_to_their_owner(): void
+    public function test_private_profiles_show_only_their_header_to_others(): void
     {
         $user = User::factory()->create(['profile_visibility' => ProfileVisibility::Private, 'bio' => 'Just for me.']);
         $mate = User::factory()->create();
@@ -50,7 +51,7 @@ class ProfileCustomizationTest extends TestCase
         $league->members()->create(['user_id' => $user->id]);
         $league->members()->create(['user_id' => $mate->id]);
 
-        $this->actingAs($mate)->get($user->profileUrl())->assertSee('This profile is private');
+        $this->actingAs($mate)->get($user->profileUrl())->assertSee('This account is private')->assertDontSee('data-profile-chips', false);
         $this->actingAs($user)->get($user->profileUrl())->assertSee('Just for me.')->assertSee('Edit profile');
     }
 

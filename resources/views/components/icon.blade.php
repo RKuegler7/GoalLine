@@ -14,6 +14,10 @@
         @case('highlights')
             <path d="M12 3.8l2.3 5 5.4.6-4 3.7 1.1 5.3L12 15.7l-4.8 2.7 1.1-5.3-4-3.7 5.4-.6z" />
             @break
+        @case('lock')
+            <rect x="5" y="10.5" width="14" height="9.5" rx="2" />
+            <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
+            @break
         @case('calendar')
             <rect x="4" y="5.5" width="16" height="14.5" rx="2" />
             <path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" />

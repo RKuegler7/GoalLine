@@ -302,7 +302,7 @@ class DemoTest extends TestCase
         $this->get(route('people.search', ['q' => 'real@example.com']))->assertDontSee('Real Person');
         $this->post(route('friends.request', $real))->assertNotFound();
         $this->post(route('friends.store'), ['who' => 'real.person'])->assertSessionHasErrors('who');
-        $this->get($real->profileUrl())->assertViewIs('profile.private');
+        $this->get($real->profileUrl())->assertNotFound(); // Another world: not even the header.
 
         $study = $visitor->leagues()->where('name', '4.0 This Fall')->sole();
         $this->post(route('leagues.invites.store', $study), ['who' => 'friend@example.com'])->assertSessionHasErrorsIn('invite', 'who');
@@ -314,7 +314,7 @@ class DemoTest extends TestCase
         $this->assertStringEndsWith('@demo.goalline.invalid', $visitor->fresh()->email);
 
         // And real members can't see into a demo.
-        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Red Dufour')->sole()->profileUrl())->assertViewIs('profile.private');
+        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Red Dufour')->sole()->profileUrl())->assertNotFound();
         $this->actingAs($real)->get(route('people.search', ['q' => 'dufour']))->assertDontSee('Red Dufour');
         // A friendly "not found" that reveals nothing about the demo league.
         $this->actingAs($real)->get(route('leagues.join', $study->invite_code))->assertOk()->assertSee('find that invite')->assertDontSee($study->name);

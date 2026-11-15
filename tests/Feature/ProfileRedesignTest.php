@@ -55,7 +55,7 @@ class ProfileRedesignTest extends TestCase
             ->assertSee('1 mutual friend')
             // Photo and counts, then the name, @username, the whole bio, location and "Why I'm here", then the button.
             ->assertSeeInOrder(['data-profile-counts', 'Corey Magro', '@'.$owner->username, 'Chasing a sub-4 marathon.', 'Washington, DC', "Why I'm here:", 'My first marathon', 'Add friend', 'Running', 'Coding'], false)
-            ->assertSee('gl-field relative overflow-hidden rounded-2xl', false)
+            ->assertSee('gl-field-rows relative overflow-hidden rounded-2xl', false)
             ->assertSee('text-gold-light tabular-nums', false)
             ->assertDontSee('Goals done')
             ->assertSeeInOrder(['About', 'Goals', 'Highlights', 'Stats', 'Trophy case', 'History'])
@@ -175,13 +175,29 @@ class ProfileRedesignTest extends TestCase
         $this->actingAs($user)->get(route('profile.edit'))->assertOk()->assertDontSee('name="cover"', false)->assertDontSee('Cover photo');
     }
 
-    public function test_private_profiles_stay_calm_and_limited(): void
+    public function test_private_accounts_show_who_they_are_and_a_friend_button_but_nothing_more(): void
     {
-        $private = User::factory()->create(['profile_visibility' => 'private', 'bio' => 'Hidden bio']);
+        $private = User::factory()->create(['name' => 'Priya Shah', 'profile_visibility' => 'private', 'bio' => 'Thesis by May.', 'location' => 'Hidden town']);
         $private->forceFill(['why_here' => 'Hidden reason'])->save();
+        Goal::factory()->for($private)->create(['title' => 'Secret goal title']);
+        $viewer = User::factory()->create();
 
-        $this->actingAs(User::factory()->create())->get($private->profileUrl())->assertOk()
-            ->assertSee('This profile is private')->assertDontSee('Hidden bio')->assertDontSee('Hidden reason')->assertDontSee($private->email);
+        // Instagram style: the header (photo, name, @username, bio, counts) and a way to add them, then a lock.
+        $this->actingAs($viewer)->get($private->profileUrl())->assertOk()
+            ->assertSee('data-profile-header', false)
+            ->assertSee('Priya Shah')->assertSee('@'.$private->username)->assertSee('Thesis by May.')
+            ->assertSeeInOrder(['data-count="friends"', 'Friends', 'data-count="goals"', 'Goals', 'data-count="medals"', 'Medals'], false)
+            ->assertSee('Add friend')
+            ->assertSee('This account is private')->assertSee('(private account)')
+            ->assertDontSee('Hidden reason')->assertDontSee('Hidden town')->assertDontSee('Secret goal title')
+            ->assertDontSee('data-profile-chips', false)->assertDontSee($private->email);
+
+        // A friend request can be sent from there.
+        $this->actingAs($viewer)->post(route('friends.request', $private))->assertRedirect();
+        $this->actingAs($viewer)->get($private->profileUrl())->assertSee('Request sent');
+
+        // Another GoalLine world (a demo visitor) can't look a real member up at all.
+        $this->actingAs(User::factory()->create(['demo_sandbox' => 'world-9']))->get($private->profileUrl())->assertNotFound();
     }
 
     public function test_the_demo_people_have_rich_profiles(): void

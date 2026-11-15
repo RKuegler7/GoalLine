@@ -45,8 +45,23 @@ class ProfileController extends Controller
      */
     public function showUser(Request $request, User $user): View
     {
+        // Someone from another GoalLine world (say a demo visitor and a real member) can't look anyone up.
+        abort_unless($request->user()->sharesWorldWith($user), 404);
+
         if (Gate::denies('viewProfile', $user)) {
-            return view('profile.private', ['user' => $user]);
+            // A private account still shows its header (photo, name, @username, bio, counts and the friend button), so
+            // people know they've found the right person and can add them; never goals, posts, stats or history.
+            $viewer = $request->user();
+
+            return view('profile.private', [
+                'user' => $user,
+                'counts' => [
+                    ['Friends', $user->friendIds()->count(), null, 'friends'],
+                    ['Goals', $user->goals()->inPlay()->count() + $user->challenges()->whereDate('ends_on', '>=', Challenge::today()->toDateString())->count(), null, 'goals'],
+                    ['Medals', $user->medals()->where('type', '!=', MedalType::GoalAchieved->value)->count(), null, 'medals'],
+                ],
+                'mutualFriends' => $viewer->friendIds()->intersect($user->friendIds())->count(),
+            ]);
         }
 
         $viewer = $request->user();

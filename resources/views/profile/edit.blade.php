@@ -115,6 +115,7 @@
 
             <fieldset>
                 <legend class="mb-2 block text-sm font-medium text-ink/80">Who can see my profile details</legend>
+                <p class="mb-2 text-sm text-ink/70">Your photo, name, @username, bio and counts always show, so people can find and add you.</p>
                 <div class="space-y-2.5">
                     @foreach (App\ProfileVisibility::cases() as $visibility)
                         <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-line px-4 py-3 transition hover:border-club/40 has-checked:border-club has-checked:bg-mint">
