@@ -89,6 +89,10 @@ sequenceDiagram
 | Disputes and held points | **Code**, ruled by people | `Disputes` |
 | Fair play limits (no backfill, range checks) and who sees check-ins | **Code** | `CheckInController`, `HabitController`, `RoadmapTask`, `FairPlay` |
 | AI spending caps | **Code** | `AiBudget` |
+| Challenges: types, modes, completion, Standings, Lent dates | **Code** | `ChallengeProgress`, `ChallengeBuilder`, `ChallengeTemplates`, `Lent`, `ChallengeDisputeController` |
+| Public GoalLeagues and Challenges (Explore and the GoalLeagues tab) | **Code** | `PublicListings` |
+| Standings table columns and ★ For / Against | **Code** | `LeagueStats` |
+| Judge's tour (demo only) and the build stamp | **Code** | `JudgeTour`, `TrackJudgeTour`, `BuildStamp`, `goalline:deploy-zip` |
 | Share cards | **Code** | `ResultCardData`, `ResultCards` |
 | Demo coach | **Saved samples**, no live AI | `DemoCoach` |
 
@@ -102,4 +106,4 @@ More on each AI job, its checks and its fallbacks: [AI.md](AI.md). Reliability a
 - `app/Console/Commands` and `routes/console.php`: the scheduled jobs (reminders every 15 minutes, settling leagues hourly, closing group-task votes, pruning demos) and `goalline:preflight`.
 - `resources/views`: Blade pages and components (`components/`), one shared layout for the app shell.
 - `resources/js`: `shell.js` (Turbo app shell), `live.js` (in-place forms), `celebrate.js`, `loader.js`, `cards.js`.
-- `tests/Feature`: 600+ PHPUnit tests. `qa/`: the Playwright suite, the smoke test and the QA report.
+- `tests/Feature`: about 880 PHPUnit tests. `qa/`: the Playwright suite (`qa/e2e`), the smoke test and the QA report.

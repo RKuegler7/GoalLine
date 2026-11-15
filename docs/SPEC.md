@@ -147,6 +147,30 @@ The question this answers: "If a player asks the AI for an easy plan, what stops
 
 Each kind of email can be paused on its own with an environment switch, off in production unless set to `true`: `GOALLINE_EMAIL_REMINDERS`, `GOALLINE_EMAIL_NUDGES` (nudges and "Show your work"), `GOALLINE_EMAIL_RECAPS` (the weekly recap, GoalWeek results, league and Challenge recaps, coach tips), `GOALLINE_EMAIL_NOTIFICATIONS` (everything else) and `GOALLINE_PUSH`. A paused email still lands in the Inbox. Verification, password reset and league invites sent by email always go. Demo accounts never get email. The rules live in `App\Outbound`.
 
+## The Standings table
+
+"Table" is the default Standings view (`x-standings-table`, numbers from `LeagueTable` and `LeagueStats`): Rank, Player (sticky), Stars (the ranking column), W-D-L, Line ★, Matchup ★, Best week and Last 5 (small circles in the week's band colour with its W, D or L), then, swiping sideways inside the table's own box, Avg % of plan, current and best run on the line, photo finish wins, weeks in each band, and ★ For, ★ Against and +/− (stars in weeks with a real opponent; for interest only, never ranking). A heading sorts in place (`?col=` without scripts) and "Reset to official order" returns to Stars, then Line ★, then Past-the-Line weeks. A row opens the player's season in a sheet. "League stats" shows the league highlights and the viewer's season chart.
+
+## Challenges
+
+A Challenge is one simple rule for a set time, scored by completion (`ChallengeProgress`), never stars, and never part of GoalLeague results or Standings.
+
+- **Types:** Daily (a checklist; a day counts when every rule is ticked), Weekly (X times a week, or every chosen weekday, counted in 7-day blocks from the start; a short last block caps the target), Abstain ("Stayed on track" counts; "Slipped today" is a miss, worded kindly) and Target (a number per day, or added up per week; above the owner's "most anyone could log" is refused, and above 5 × the target asks "Are you sure?").
+- **Durations:** 7, 30, 40, 75 or 365 days, a calendar month, Lent (Ash Wednesday to Holy Saturday, from the date of Easter by the anonymous Gregorian algorithm), or custom dates up to 400 days. The default start is the next Monday. Kickoff is 12:00 a.m. New York time on the start date, and the rules lock then; after kickoff only the name, description and visibility can change.
+- **Modes:** strict (every miss restarts the streak and is counted as a restart) or flexible (the first 0 to 10 misses are forgiven and don't break the streak). Sundays off makes Sundays rest days. Today and yesterday stay open and never break a streak.
+- **Check-ins:** today or yesterday only, never before kickoff, after the end or in the future, enforced on the server. An optional proof photo (location data removed) added the same day earns Verified. Any other member can dispute a check-in from the last 7 days; the owner upholds (the check-in no longer counts) or dismisses.
+- **Standings:** Completion % (completed of required days or weeks; rest days excluded), then current streak, then completed count; members level on all three share a place. Columns: Done, Record ("38 of 40 days"), Completion, Streak, Best, Restarts (strict) or Misses used (flexible), Last 5, Verified, Joined. Finished means completed at least the required count minus the allowed misses.
+- **Joining:** invite code and link, in-app invites by @username, or the public list; the join page shows the rules to confirm first. An optional member cap is enforced under a lock. A GoalLeague owner can start a **side Challenge** for that league: members opt in from the league page, and it's never public.
+- **Milestones:** a 7- or 30-day (or week) streak, halfway and complete play the celebration in gold.
+
+## Public GoalLeagues and Challenges
+
+GoalLeagues and Challenges are Private by default. An owner can make theirs Public; it then appears under "Find a public GoalLeague" / "Find a public Challenge" at the top of the GoalLeagues tab (with "See all" lists: search, category or type, starting soon or under way, size, length; 60 requests a minute) and in Explore, from one query (`PublicListings`). Only items with room that aren't over, only from the viewer's own world (demo visitors see only demo examples), never from muted owners, never side Challenges. Cards show the name, kind, members and cap, dates, length and the owner's name; never emails, notes, intake answers or plans. Joining uses the normal flows.
+
+## Profiles
+
+The header (photo, name, @username, bio, and Friends, Goals and Medals counts, where Goals is current goals plus current Challenges) shows to anyone signed in to the same GoalLine world, even on a private account, with the friend button, so people can find and add each other. "Who can see my profile details" (everyone, friends and league mates, or only you) decides who sees the rest: location, "Why I'm here", interests, goals (each with its own visibility), Highlights, Stats, Trophy case and History. Someone in another world (a demo visitor and a real member) can't open the profile at all. Cover photos are no longer shown or uploaded.
+
 ## Moving around
 
 - **Five main tabs** (Clubhouse, GoalLeagues, Matchups, Highlights, My Locker) never show Back, and are always tappable. Tapping the tab you're on scrolls to the top, then resets it to its top level (Clubhouse > History goes back to Now).
@@ -227,7 +251,9 @@ Each member gets up to 20 coach requests a day. The whole app is capped at $2 a 
 | post_reports | Reported posts for the league owner |
 | proof_requests | "Show your work" requests |
 | friendships | Friend requests and accepted friends |
-| challenges / challenge_members / challenge_check_ins | Day-streak challenges between friends |
+| challenges / challenge_members / challenge_check_ins | Challenges (type, rules, mode, allowed misses, Sundays off, public, cap, side Challenge's league), members, and check-ins (done, slipped or voided; a number; checklist ticks; proof) |
+| challenge_invites / challenge_disputes | In-app Challenge invites, and disputes the owner decides |
+| user_mutes | People you've muted |
 | nudges | Friendly nudges between friends and league mates |
 | user_badges | Badges and season awards |
 | notifications | The Inbox |

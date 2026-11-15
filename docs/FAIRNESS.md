@@ -54,6 +54,14 @@ This answers the obvious question: "If a player asks the AI for an easy plan, wh
 - **Posts can be reported.** A reported post is hidden from the person who reported it, and the league owner sees the report and can take the post down.
 - **Leagues are invite-only and small.** Members join by invite link, code, or a personal invite. A league works best with 12 or fewer people who know each other, and social accountability does a lot of the work.
 
+## 7. Challenges follow the same rules
+
+- **Completion, never stars.** A Challenge is scored by how many required days (or weeks) you completed, by code, and never changes a GoalLeague's stars or Standings.
+- **No backfill, no head starts.** Check-ins open at kickoff (12:00 a.m. New York time) and work for today or yesterday only, never future days, checked on the server.
+- **Rules lock at kickoff.** After that, only the name, description and visibility can change.
+- **Numbers are range-checked.** A Target number above the owner's limit is refused, and an unusual one asks "Are you sure?".
+- **Proof and disputes.** A photo added the same day earns the Verified check. Any member can dispute a recent check-in; the owner decides, and an upheld dispute takes it off.
+
 ## What GoalLine can't do
 
 No app can prove someone really studied for an hour or ran those miles. GoalLine's approach is to make honest play the easy default. Plans can't drop below the pace the deadline needs, they lock when the week starts, the past can't be edited, big claims need evidence, any check-in can be questioned, and everything is visible to the people you're playing with. Faking a week means padding a plan the whole league can see, posting under your own name, and still only gaining about a point. The real reward is reaching the goal itself, and nobody gets there by faking check-ins.
