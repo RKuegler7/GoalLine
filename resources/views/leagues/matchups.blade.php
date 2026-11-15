@@ -122,10 +122,10 @@
                                     <span class="text-xs text-ink/70">vs</span>
                                 @endif
                                 <span @class(['min-w-0', 'text-right' => $sideIndex === 1])>
-                                    <span @class(['block truncate', 'font-semibold text-club' => $side && $side['outcome']->isWin(), 'text-ink' => ! $side || ! $side['outcome']->isWin()])>
+                                    <span @class(['block [overflow-wrap:anywhere]', 'font-semibold text-club' => $side && $side['outcome']->isWin(), 'text-ink' => ! $side || ! $side['outcome']->isWin()])>
                                         {{ $side ? $side['member']->user->name : 'Bye week' }}
                                     </span>
-                                    <span class="block truncate text-[11px] text-ink/70 tabular-nums">
+                                    <span class="block text-[11px] [overflow-wrap:anywhere] text-ink/70 tabular-nums">
                                         @if ($side)
                                             {{ $side['percentLabel'] ?? 'No GoalWeek' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
                                         @else

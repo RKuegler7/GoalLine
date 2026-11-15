@@ -40,9 +40,13 @@ class ProfileRedesignTest extends TestCase
 
         $page = $this->actingAs($viewer)->get($owner->profileUrl())->assertOk();
         $page->assertSee('data-profile-counts', false)
-            ->assertSeeInOrder(['data-count="friends"', '2', 'Friends', 'data-count="goals-completed"', '1', 'Goals done', 'data-count="medals"', '1', 'Medals', 'data-count="weeks-on-the-line"', 'On the line'], false)
+            ->assertSee('data-profile-header', false)
+            ->assertSeeInOrder(['data-count="friends"', '2', 'Friends', 'data-count="goals-completed"', '1', 'Goals done', 'data-count="medals"', '1', 'Medals'], false)
+            ->assertDontSee('data-count="weeks-on-the-line"', false)
             ->assertSee('1 mutual friend')
-            ->assertSeeInOrder(['Corey Magro', 'Add friend', 'Chasing a sub-4 marathon.', "Why I'm here:", 'My first marathon', 'Running', 'Coding'], false)
+            // Photo and counts, then the name, @username, the whole bio, location and "Why I'm here", then the button.
+            ->assertSeeInOrder(['data-profile-counts', 'Corey Magro', '@'.$owner->username, 'Chasing a sub-4 marathon.', 'Washington, DC', "Why I'm here:", 'My first marathon', 'Add friend', 'Running', 'Coding'], false)
+            ->assertSee('text-gold-ink tabular-nums', false)
             ->assertSeeInOrder(['About', 'Goals', 'Highlights', 'Stats', 'Trophy case', 'History'])
             ->assertSee('Joined '.$owner->created_at->format('F Y'));
     }
@@ -53,13 +57,34 @@ class ProfileRedesignTest extends TestCase
 
         $html = $this->actingAs(User::factory()->create())->get($owner->profileUrl())->assertOk()->getContent();
 
-        preg_match('/<h1[^>]*data-profile-name[^>]*>/', $html, $heading);
-        $this->assertStringContainsString('line-clamp-3', $heading[0]);
+        preg_match('/<h2[^>]*data-profile-name[^>]*>/', $html, $heading);
+        $this->assertStringNotContainsString('line-clamp', $heading[0]);
         $this->assertStringContainsString('[overflow-wrap:anywhere]', $heading[0]);
         $this->assertStringNotContainsString('truncate', $heading[0]);
         $this->assertStringContainsString('王小明', $html);
         // The Add friend button sits on its own row under the name, never beside it.
         $this->assertGreaterThan(strpos($html, 'data-profile-name'), strpos($html, 'data-profile-actions'));
+    }
+
+    public function test_a_full_length_bio_shows_whole_and_profiles_without_a_bio_or_photo_still_read_well(): void
+    {
+        $bio = str_repeat('Training for my first marathon while finishing my thesis, one page and one mile a day. ', 2);
+        $bio = substr($bio, 0, 160);
+        $owner = User::factory()->create(['bio' => $bio, 'profile_visibility' => 'everyone']);
+
+        $html = $this->actingAs(User::factory()->create())->get($owner->profileUrl())->assertOk()->getContent();
+        preg_match('/<p[^>]*data-profile-bio[^>]*>(.*?)<\/p>/s', $html, $shown);
+        $this->assertSame($bio, html_entity_decode(trim($shown[1]), ENT_QUOTES));
+        $this->assertStringNotContainsString('line-clamp', $shown[0]);
+        $this->assertStringNotContainsString('truncate', $shown[0]);
+
+        // No bio and no photo: initials in the avatar, no empty bio line for visitors.
+        $plain = User::factory()->create(['bio' => null, 'avatar_path' => null, 'profile_visibility' => 'everyone']);
+        $this->actingAs(User::factory()->create())->get($plain->profileUrl())->assertOk()
+            ->assertDontSee('data-profile-bio', false)
+            ->assertDontSee('Add a short bio')
+            ->assertSee('data-profile-header', false);
+        $this->actingAs($plain)->get(route('profile.show'))->assertSee('Add a short bio')->assertSee('My Locker');
     }
 
     public function test_each_goal_shows_only_to_who_its_owner_chose(): void
@@ -114,7 +139,7 @@ class ProfileRedesignTest extends TestCase
         $this->assertNull($user->fresh()->interests);
     }
 
-    public function test_avatar_and_cover_uploads_are_validated_stripped_and_served_through_the_app(): void
+    public function test_avatar_uploads_are_validated_and_stripped_and_cover_photos_are_no_longer_shown(): void
     {
         Storage::fake('uploads');
         $user = User::factory()->create(['profile_visibility' => 'everyone']);
@@ -133,8 +158,10 @@ class ProfileRedesignTest extends TestCase
             $this->assertStringNotContainsString('GPS-38.9072N', $stored);
         }
 
-        $this->get($user->coverUrl())->assertOk();
-        $this->actingAs(User::factory()->create())->get($user->profileUrl())->assertSee($user->coverUrl(), false)->assertDontSee($user->cover_path);
+        // A stored cover stays stored, but no profile shows it any more, and Edit profile has no cover upload.
+        $this->actingAs(User::factory()->create())->get($user->profileUrl())->assertDontSee($user->coverUrl(), false)->assertDontSee('data-profile-cover', false)->assertDontSee($user->cover_path);
+        $this->actingAs($user)->get(route('profile.show'))->assertDontSee($user->coverUrl(), false);
+        $this->actingAs($user)->get(route('profile.edit'))->assertOk()->assertDontSee('name="cover"', false)->assertDontSee('Cover photo');
     }
 
     public function test_private_profiles_stay_calm_and_limited(): void
@@ -152,7 +179,7 @@ class ProfileRedesignTest extends TestCase
         $red = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Red Dufour')->sole();
 
         $this->get($red->profileUrl())->assertOk()
-            ->assertSee('Sub-3:45 or bust')->assertSee('Outdoors')->assertSee($red->coverUrl(), false)
+            ->assertSee('Sub-3:45 or bust')->assertSee('Outdoors')->assertDontSee('data-profile-cover', false)
             ->assertSee('Run a marathon under 3:45 by March');
     }
 }

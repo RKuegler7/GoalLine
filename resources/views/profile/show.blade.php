@@ -1,4 +1,4 @@
-{{-- A member's profile (My Locker on your own). The top is who they are: cover, photo, name, a tappable counts row,
+{{-- A member's profile (My Locker on your own). The top is who they are: photo, a tappable counts row, name, bio,
      bio and identity, current goals. Heavier data (stats, trophy case, history) lives lower, in sections reachable by
      the sticky chips. Friends are mutual (both agree), so there's one Friends list, never Followers and Following:
      those would be the same people. Every number comes from the same services as the standings and History. --}}
@@ -19,81 +19,75 @@
 
 <x-layouts.app :title="$user->name.' · GoalLine'">
     <x-slot:hero>
-        {{-- Cover (or the green field), with the photo overlapping it. --}}
-        <div class="relative h-28 overflow-hidden sm:h-36" data-profile-cover>
-            @if ($user->coverUrl())
-                <img src="{{ $user->coverUrl() }}" alt="" loading="lazy" decoding="async" class="absolute inset-0 size-full object-cover">
-                <div class="absolute inset-0 bg-linear-to-t from-club/80 to-transparent" aria-hidden="true"></div>
-            @else
-                <x-field-backdrop class="absolute inset-0 size-full" />
+        <x-page-header :title="$isOwn ? 'My Locker' : $user->name" />
+    </x-slot:hero>
+
+    {{-- The header, Instagram style: the photo on the left with three tappable counts beside it, then the name (never
+         cut off), @username, the whole bio, location and "Why I'm here", then one full-width button. No cover photo. --}}
+    <section class="rounded-2xl border border-line bg-white px-4 py-4" aria-label="{{ $user->name }}" data-profile-header>
+        <div class="flex items-center gap-4">
+            <x-avatar :user="$user" class="size-24 shrink-0 text-[28px] ring-2 ring-gold/60 ring-offset-2" />
+            <nav aria-label="{{ $user->name }} at a glance" class="grid min-w-0 flex-1 grid-cols-3 gap-1" data-profile-counts>
+                @foreach ([
+                    ['Friends', $friendCount, '#profile-friends', 'friends'],
+                    ['Goals done', $completed->count(), '#trophy-case', 'goals-completed'],
+                    ['Medals', $medals->count(), '#trophy-case', 'medals'],
+                ] as [$label, $value, $href, $key])
+                    {{-- In-page links: just a scroll, never a page visit (a visit would redraw the page and close what's open). --}}
+                    <a href="{{ $href }}" data-turbo="false" @if ($key === 'friends') data-open-friends @endif data-count="{{ $key }}"
+                        class="flex min-h-14 flex-col items-center justify-center rounded-xl px-0.5 py-1 text-center hover:bg-gold-light/30">
+                        <span class="text-[24px] leading-none font-extrabold text-gold-ink tabular-nums">{{ $value }}</span>
+                        <span class="mt-1 text-[12px] leading-tight font-semibold text-ink">{{ $label }}</span>
+                    </a>
+                @endforeach
+            </nav>
+        </div>
+
+        <div class="mt-3 min-w-0" data-profile-identity>
+            <h2 class="text-[19px] leading-tight font-bold text-ink [overflow-wrap:anywhere]" data-profile-name>{{ $user->name }}</h2>
+            <p class="text-[13px] text-ink/75 [overflow-wrap:anywhere]">{{ '@'.$user->username }}</p>
+            @if ($user->bio)
+                <p class="mt-1.5 text-[15px] leading-snug text-ink [overflow-wrap:anywhere] whitespace-pre-line" data-profile-bio>{{ $user->bio }}</p>
+            @elseif ($isOwn)
+                <p class="mt-1.5 text-[14px] text-ink/70">Add a short bio so friends know what you're chasing.</p>
+            @endif
+            @if ($user->location)
+                <p class="mt-1 text-[13px] text-ink/75 [overflow-wrap:anywhere]" data-profile-location>{{ $user->location }}</p>
+            @endif
+            @if ($user->why_here)
+                <p class="mt-1 text-[14px] text-ink/85 [overflow-wrap:anywhere]"><span class="font-semibold text-club">Why I'm here:</span> {{ $user->why_here }}</p>
             @endif
         </div>
 
-        <div class="relative mx-auto max-w-5xl px-4 pb-4">
-            <div class="-mt-10 flex items-end justify-between gap-3">
-                <x-avatar :user="$user" tone="light" class="size-20 shrink-0 text-2xl ring-4 ring-club" />
-                <div class="flex shrink-0 flex-wrap items-center justify-end gap-1.5 pb-1">
-                    @if ($isOwn)
-                        <a href="{{ route('profile.edit') }}" class="gl-tap relative inline-flex min-h-9 items-center rounded-full bg-ivory px-3 text-[13px] font-semibold text-club transition hover:bg-white">Edit profile</a>
-                        <form method="POST" action="{{ route('logout') }}" class="md:hidden">
-                            @csrf
-                            <button type="submit" class="gl-tap relative min-h-9 rounded-full px-2 text-[13px] font-semibold text-ivory/85 hover:text-ivory">Log out</button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-
-            {{-- The name never gets cut off: it wraps (up to three lines) and only then ends in an ellipsis. --}}
-            <div class="mt-2 min-w-0" data-profile-identity>
-                @if ($isOwn)
-                    <p class="eyebrow text-[11px] text-mint">My Locker</p>
-                @endif
-                <h1 class="line-clamp-3 text-[22px] leading-tight font-bold tracking-tight [overflow-wrap:anywhere] text-ivory md:text-[26px]" data-profile-name>{{ $user->name }}</h1>
-                <p class="mt-0.5 text-[13px] text-ivory/85 [overflow-wrap:anywhere]">
-                    {{ '@'.$user->username }}@if ($user->location) &middot; {{ $user->location }}@endif
-                </p>
-            </div>
-
-            @unless ($isOwn)
-                {{-- Compact: the relationship button and Nudge side by side under the name, one short line below. --}}
-                <div class="mt-3" data-profile-actions>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <x-friend-button :user="$user" tone="light" />
-                        <x-nudge-button :user="$user" tone="light" />
-                        @if (App\Models\UserMute::where('user_id', auth()->id())->where('muted_user_id', $user->id)->exists())
-                            <form method="POST" action="{{ route('users.mute', $user) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="min-h-11 rounded-full border border-ivory/60 px-4 text-sm font-semibold text-ivory hover:bg-ivory/10" data-unmute>Muted &middot; Unmute</button>
-                            </form>
-                        @endif
+        <div class="mt-3" data-profile-actions>
+            @if ($isOwn)
+                <a href="{{ route('profile.edit') }}" class="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-line bg-ivory px-4 text-[14px] font-semibold text-ink hover:border-club/40">Edit profile</a>
+                <form method="POST" action="{{ route('logout') }}" class="mt-1 text-center md:hidden">
+                    @csrf
+                    <button type="submit" class="min-h-11 px-3 text-[13px] font-semibold text-ink/70 hover:text-ink">Log out</button>
+                </form>
+            @else
+                <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+                    {{-- The relationship button fills the row (Accept and Decline split it). --}}
+                    <div class="min-w-0 [&_details]:w-full [&_form]:w-full [&_button]:w-full [&_summary]:w-full [&_summary]:justify-center">
+                        <x-friend-button :user="$user" />
                     </div>
-                    <p class="mt-1 text-[11px] text-ivory/80" data-friend-note>Friends can see your League + friends posts.</p>
+                    <x-nudge-button :user="$user" />
                 </div>
-            @endunless
+                @if (App\Models\UserMute::where('user_id', auth()->id())->where('muted_user_id', $user->id)->exists())
+                    <form method="POST" action="{{ route('users.mute', $user) }}" class="mt-2">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="min-h-11 w-full rounded-full border border-line px-4 text-sm font-semibold text-ink hover:bg-ivory" data-unmute>Muted &middot; Unmute</button>
+                    </form>
+                @endif
+                <p class="mt-1 text-[12px] text-ink/70" data-friend-note>Friends can see your League + friends posts.</p>
+                @if ($mutualFriends > 0)
+                    <p class="text-[13px] text-ink/75" data-mutual-friends>{{ $mutualFriends }} mutual {{ Str::plural('friend', $mutualFriends) }}</p>
+                @endif
+            @endif
         </div>
-    </x-slot:hero>
-
-    {{-- Counts: always at the top, each one tappable. --}}
-    <nav aria-label="{{ $user->name }} at a glance" class="-mt-1 grid grid-cols-4 gap-1.5" data-profile-counts>
-        @foreach ([
-            ['Friends', $friendCount, '#profile-friends', 'friends'],
-            ['Goals done', $completed->count(), '#trophy-case', 'goals-completed'],
-            ['Medals', $medals->count(), '#trophy-case', 'medals'],
-            ['On the line', $stats->weeksOnTheLine(), '#stats', 'weeks-on-the-line'],
-        ] as [$label, $value, $href, $key])
-            {{-- In-page links: just a scroll, never a page visit (a visit would redraw the page and close what's open). --}}
-            <a href="{{ $href }}" data-turbo="false" @if ($key === 'friends') data-open-friends @endif data-count="{{ $key }}"
-                class="flex min-h-14 flex-col items-center justify-center rounded-xl border border-line bg-white px-1 py-1.5 text-center hover:border-club/40">
-                <span class="text-[18px] leading-tight font-bold text-ink tabular-nums">{{ $value }}</span>
-                <span class="text-[11px] leading-tight font-semibold text-ink/70">{{ $label }}</span>
-            </a>
-        @endforeach
-    </nav>
-    @if (! $isOwn && $mutualFriends > 0)
-        <p class="mt-1.5 text-center text-[13px] text-ink/75" data-mutual-friends>{{ $mutualFriends }} mutual {{ Str::plural('friend', $mutualFriends) }}</p>
-    @endif
-
+    </section>
     {{-- Section chips: stay at the top while scrolling. --}}
     <nav aria-label="Profile sections" class="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mt-3 flex gap-1.5 overflow-x-auto bg-ivory px-4 py-2 [scrollbar-width:none] md:top-16" data-profile-chips>
         @foreach ($sections as [$id, $label])
@@ -104,19 +98,9 @@
     {{-- About: bio and identity, then friends and shared leagues. --}}
     <section id="about" class="mt-3 scroll-mt-28 space-y-3" aria-labelledby="about-title">
         <h2 id="about-title" class="sr-only">About</h2>
-        @if ($user->bio || $user->why_here || $user->interests || $isOwn)
+        @if ($user->interests || $isOwn || $user->created_at)
             <div class="rounded-2xl border border-line bg-white px-4 py-3" data-profile-about>
-                @if ($user->bio)
-                    <p class="text-[15px] text-ink [overflow-wrap:anywhere]">{{ $user->bio }}</p>
-                @elseif ($isOwn)
-                    <p class="text-[14px] text-ink/70">Add a short bio so friends know what you're chasing. <a href="{{ route('profile.edit') }}" class="font-semibold text-club hover:underline">Edit profile</a></p>
-                @endif
-                @if ($user->why_here)
-                    <p class="mt-2 text-[14px] text-ink/80"><span class="font-semibold text-club">Why I'm here:</span> {{ $user->why_here }}</p>
-                @endif
-                <p class="mt-2 text-[13px] text-ink/70">
-                    @if ($user->location){{ $user->location }} &middot; @endif Joined {{ $user->created_at->format('F Y') }}
-                </p>
+                <p class="text-[13px] text-ink/70">Joined {{ $user->created_at->format('F Y') }}</p>
                 @if ($user->interests)
                     <ul class="mt-2 flex flex-wrap gap-1.5" aria-label="Interests" data-profile-interests>
                         @foreach ($user->interests as $interest)
@@ -161,8 +145,8 @@
                 @php $leagueRows = $isOwn ? $stats->leagues()->map(fn ($league) => ['league' => $league, 'goal' => null]) : $mutualLeagues; @endphp
                 @forelse ($leagueRows as $row)
                     <a href="{{ route('leagues.show', $row['league']) }}" class="flex min-h-11 items-center justify-between gap-3 hover:text-club" @unless ($isOwn) data-mutual-leagues @endunless>
-                        <span class="truncate font-medium text-ink">{{ $row['league']->name }}</span>
-                        <span class="shrink-0 truncate text-[13px] text-ink/70">{{ $row['goal'] ? '“'.Str::limit($row['goal'], 28).'”' : $row['league']->status()->label() }}</span>
+                        <span class="min-w-0 font-medium text-ink [overflow-wrap:anywhere]">{{ $row['league']->name }}</span>
+                        <span class="min-w-0 text-right text-[13px] text-ink/70 [overflow-wrap:anywhere]">{{ $row['goal'] ? '“'.$row['goal'].'”' : $row['league']->status()->label() }}</span>
                     </a>
                 @empty
                     <p class="mt-2 text-[14px] text-ink/70">{{ $isOwn ? 'Not in a GoalLeague yet.' : 'No GoalLeagues in common yet.' }}</p>
@@ -251,7 +235,7 @@
                 ['League record', implode('–', $stats->leagueRecord())],
             ] as [$label, $value])
                 <div class="rounded-xl border border-line bg-white px-2.5 py-2">
-                    <dt class="truncate text-[11px] font-semibold text-ink/70">{{ $label }}</dt>
+                    <dt class="text-[11px] [overflow-wrap:anywhere] font-semibold text-ink/70">{{ $label }}</dt>
                     <dd class="text-[16px] leading-tight font-bold text-ink tabular-nums">{{ $value }}</dd>
                 </div>
             @endforeach
@@ -335,7 +319,7 @@
                 @foreach ($history['leagues'] as $row)
                     <li class="flex items-center justify-between gap-3 px-4 py-2.5">
                         <span class="min-w-0">
-                            <span class="block truncate text-[14px] font-semibold text-ink">{{ $row['league']->name }}</span>
+                            <span class="block text-[14px] [overflow-wrap:anywhere] font-semibold text-ink">{{ $row['league']->name }}</span>
                             <span class="block text-[12px] text-ink/70">GoalLeague &middot; {{ $row['league']->ends_on->format('M Y') }}@if ($row['outcome']) &middot; {{ $row['outcome'] }}@endif</span>
                         </span>
                         @if ($row['rank'])
@@ -346,7 +330,7 @@
                 @foreach ($history['challenges'] as $row)
                     <li class="flex items-center justify-between gap-3 px-4 py-2.5">
                         <span class="min-w-0">
-                            <span class="block truncate text-[14px] font-semibold text-ink">{{ $row['challenge']->title }}</span>
+                            <span class="block text-[14px] [overflow-wrap:anywhere] font-semibold text-ink">{{ $row['challenge']->title }}</span>
                             <span class="block text-[12px] text-ink/70">Challenge &middot; {{ $row['challenge']->ends_on->format('M Y') }}{{ $row['finished'] ? ' · Finished it' : '' }}</span>
                         </span>
                         @if ($row['rank'])

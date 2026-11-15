@@ -10,9 +10,9 @@
         @csrf
         @method('PUT')
 
-        {{-- Photos. --}}
+        {{-- Photo. --}}
         <section class="space-y-6 rounded-2xl border border-line bg-white p-4 sm:p-6">
-            <h2 class="eyebrow text-club">Photos</h2>
+            <h2 class="eyebrow text-club">Photo</h2>
 
             <div class="flex items-center gap-5">
                 <x-avatar :user="$user" class="size-20 text-2xl" />
@@ -32,29 +32,6 @@
                 </div>
             </div>
 
-            <div>
-                <p class="mb-1.5 text-sm font-medium text-ink/80">Cover photo</p>
-                <div class="relative h-28 overflow-hidden rounded-xl bg-club">
-                    @if ($user->coverUrl())
-                        <img src="{{ $user->coverUrl() }}" alt="Current cover photo" class="size-full object-cover">
-                    @else
-                        <x-field-backdrop class="absolute inset-0 size-full" />
-                        <span class="eyebrow absolute bottom-2 left-3 text-[11px] text-ivory/80">Default: the field</span>
-                    @endif
-                </div>
-                <label for="cover" class="sr-only">Cover photo</label>
-                <input id="cover" name="cover" type="file" accept="image/jpeg,image/png,image/webp" data-crop="cover"
-                    class="mt-3 block w-full text-sm text-ink/70 file:mr-4 file:rounded-lg file:border-0 file:bg-mint file:px-4 file:py-2 file:text-sm file:font-semibold file:text-club hover:file:bg-grass/20">
-                <p class="mt-1.5 text-sm text-ink/70">A wide photo works best: a finish line, your desk, your team. JPG, PNG, or WebP, up to 5 MB. Camera and location data are removed.</p>
-                @error('cover')
-                    <p class="mt-1.5 text-sm text-red-700">{{ $message }}</p>
-                @enderror
-                @if ($user->cover_path)
-                    <label class="mt-2 flex items-center gap-2 text-sm text-ink/70">
-                        <input type="checkbox" name="remove_cover" value="1" class="accent-club"> Go back to the field
-                    </label>
-                @endif
-            </div>
         </section>
 
         {{-- About you. --}}
