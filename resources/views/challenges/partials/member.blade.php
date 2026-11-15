@@ -10,9 +10,9 @@
 
 <div class="space-y-3" data-challenge-member>
     <header class="flex items-center gap-3 pr-10">
-        <x-avatar :user="$user" class="size-12 text-[15px]" />
+        <a href="{{ $user->profileUrl() }}" class="shrink-0 rounded-full" aria-hidden="true" tabindex="-1" data-member-profile-photo><x-avatar :user="$user" class="size-12 text-[15px]" /></a>
         <div class="min-w-0">
-            <h2 id="challenge-member-title" class="truncate text-[19px] leading-tight font-bold text-ink">{{ $user->name }}</h2>
+            <h2 id="challenge-member-title" class="text-[19px] leading-tight font-bold text-ink [overflow-wrap:anywhere]"><a href="{{ $user->profileUrl() }}" class="hover:text-gold-ink hover:underline" data-member-profile>{{ $user->name }}</a></h2>
             <p class="text-[13px] text-ink/75 tabular-nums">Place {{ $row['rank'] }} &middot; {{ $row['completed'] }} of {{ $row['total'] }} {{ Str::plural($unit, $row['total']) }} &middot; {{ $row['percent'] }}%</p>
         </div>
     </header>

@@ -16,9 +16,9 @@
     {{-- This season's top three medals, once the season is complete. --}}
     @php $playerMedals = App\Models\Medal::where('league_id', $league->id)->where('user_id', $member->user_id)->get()->sortBy(fn ($medal) => $medal->rank())->take(3)->values(); @endphp
     <section class="gl-field flex items-center gap-3 rounded-xl px-3 py-3 text-ivory">
-        <x-avatar :user="$member->user" tone="light" class="size-14 text-lg ring-3 ring-ivory/70" />
+        <a href="{{ $member->user->profileUrl() }}" class="shrink-0 rounded-full" aria-hidden="true" tabindex="-1"><x-avatar :user="$member->user" tone="light" class="size-14 text-lg ring-3 ring-ivory/70" /></a>
         <div class="min-w-0">
-            <h2 id="player-sheet-title" class="truncate text-[19px] leading-tight font-extrabold">{{ $name }}</h2>
+            <h2 id="player-sheet-title" class="text-[19px] leading-tight font-extrabold [overflow-wrap:anywhere]"><a href="{{ $member->user->profileUrl() }}" class="hover:underline" data-member-profile>{{ $name }}</a></h2>
             @if ($member->team_name)
                 <p class="truncate text-xs text-mint">{{ $member->user->name }}</p>
             @endif

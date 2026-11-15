@@ -30,7 +30,7 @@ return [
         'id' => 'getting-started',
         'title' => 'Getting started',
         'items' => [
-            ['id' => 'what-is-goalline', 'q' => 'What is GoalLine?', 'a' => 'A league for the goals you actually care about. You set a goal and a date, answer a few questions, and get a plan of weekly GoalWeeks. You check in as you go, and each week you can play a friendly matchup with a friend, scored against your own plans.'],
+            ['id' => 'what-is-goalline', 'q' => 'What is GoalLine?', 'a' => 'An app built to help you commit to your goals and actually accomplish them. An AI coach turns your goal into a plan of weekly GoalWeeks, and then group accountability (your GoalLeague sees your check-ins), a game (stars, streaks and medals), friendly competition (a weekly Matchup with a friend, each against your own plan) and a quick daily check-in keep you going until it\'s done.'],
             ['id' => 'how-leagues-work', 'q' => 'How does a GoalLeague work?', 'a' => 'Everyone brings their own goal. Each week you face one league mate, and whoever finishes a bigger share of their own plan wins. Different goals play fine together because nobody is compared on raw effort, only on their own plan.'],
             ['id' => 'join', 'q' => 'How do I join with a code or a link?', 'a' => 'Open the invite link, or go to GoalLeagues and type the code. You can start from the league goal with one tap ("Use this goal"), make it your own, or bring a different goal. Then a few questions, and your plan.'],
             ['id' => 'late-join', 'q' => 'Can I join after the season starts?', 'a' => 'Yes, until the season ends. You play from the current week on (your first week is a bye: line stars only), and the weeks before you joined never count against you.'],

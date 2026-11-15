@@ -209,6 +209,31 @@ class ChallengeTest extends TestCase
         $this->assertSame('on Mon, Wed, Fri', $days->ruleSummary());
     }
 
+    public function test_names_and_photos_in_a_challenge_open_that_persons_profile(): void
+    {
+        $challenge = Challenge::factory()->for($this->avery, 'creator')->create(['starts_on' => '2026-10-19', 'ends_on' => '2026-10-25']);
+        $sam = User::factory()->create(['name' => 'Sam Okafor']);
+        $challenge->members()->create(['user_id' => $this->avery->id]);
+        $member = $challenge->members()->create(['user_id' => $sam->id]);
+
+        // The member sheet the Standings rows open: the name and photo link to the profile.
+        $this->actingAs($this->avery)->get(route('challenges.members.show', [$challenge, $member]), ['X-Requested-With' => 'XMLHttpRequest'])->assertOk()
+            ->assertSee('href="'.$sam->profileUrl().'" class="hover:text-gold-ink hover:underline" data-member-profile', false)
+            ->assertSee('data-member-profile-photo', false);
+        // The Challenge page's member list too.
+        $this->actingAs($this->avery)->get(route('challenges.show', $challenge))->assertOk()
+            ->assertSee('href="'.$sam->profileUrl().'"', false);
+        $this->actingAs($this->avery)->get($sam->profileUrl())->assertOk()->assertSee('Sam Okafor');
+    }
+
+    public function test_about_says_what_goalline_is_for(): void
+    {
+        $this->get(route('about'))->assertOk()
+            ->assertSee('Built to help you actually follow through')
+            ->assertSee('to help people commit to their goals and actually accomplish them')
+            ->assertSeeInOrder(['Group accountability.', 'Goals as a game.', 'Friendly competition.', 'A daily habit.']);
+    }
+
     public function test_the_help_center_explains_challenges_and_public_listings(): void
     {
         $this->actingAs($this->avery)->get(route('help'))->assertOk()

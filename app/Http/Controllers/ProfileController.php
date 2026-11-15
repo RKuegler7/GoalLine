@@ -67,6 +67,8 @@ class ProfileController extends Controller
             // Current goals the viewer may see (each goal's own visibility), never plan details, notes or answers.
             'currentGoals' => $user->goals()->inPlay()->with(['weeks', 'leagues'])->orderBy('target_date')->get()
                 ->filter(fn (Goal $goal) => $goal->isVisibleOnProfileTo($viewer))->values(),
+            // Challenges under way or starting soon, for the Goals count (current goals plus current Challenges).
+            'currentChallengeCount' => $user->challenges()->whereDate('ends_on', '>=', Challenge::today()->toDateString())->count(),
             // A Goal Achieved medal from a private Goal Day answer stays private.
             'medals' => $user->medals()->with('league', 'goal.result')->get()
                 ->reject(fn ($medal) => ! $viewer->is($user) && $medal->type === MedalType::GoalAchieved && ! $medal->goal?->result?->shared)

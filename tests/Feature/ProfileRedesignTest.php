@@ -3,11 +3,13 @@
 namespace Tests\Feature;
 
 use App\GoalVisibility;
+use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Goal;
 use App\Models\League;
 use App\Models\Medal;
 use App\Models\User;
+use App\RoadmapStatus;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -36,17 +38,26 @@ class ProfileRedesignTest extends TestCase
         $this->friends($owner, $mutual);
         $this->friends($viewer, $mutual);
         Goal::factory()->for($owner)->create(['title' => 'Learn to swim'])->complete();
+        // Goals counts what they're on now: current goals (each goal's own visibility) plus current Challenges.
+        $current = Goal::factory()->for($owner)->create(['title' => 'Run a half marathon', 'target_date' => now()->addMonths(3)]);
+        $current->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
+        $challenge = Challenge::factory()->for($owner, 'creator')->create(['starts_on' => now()->subDay(), 'ends_on' => now()->addDays(20)]);
+        $challenge->members()->create(['user_id' => $owner->id]);
+        $over = Challenge::factory()->for($owner, 'creator')->create(['starts_on' => now()->subDays(40), 'ends_on' => now()->subDays(10)]);
+        $over->members()->create(['user_id' => $owner->id]);
         Medal::create(['user_id' => $owner->id, 'type' => 'perfect_week', 'award_key' => 'perfect_week:test', 'awarded_at' => now()]);
 
         $page = $this->actingAs($viewer)->get($owner->profileUrl())->assertOk();
         $page->assertSee('data-profile-counts', false)
             ->assertSee('data-profile-header', false)
-            ->assertSeeInOrder(['data-count="friends"', '2', 'Friends', 'data-count="goals-completed"', '1', 'Goals done', 'data-count="medals"', '1', 'Medals'], false)
+            ->assertSeeInOrder(['data-count="friends"', '2', 'Friends', 'data-count="goals"', '2', 'Goals', 'data-count="medals"', '1', 'Medals'], false)
             ->assertDontSee('data-count="weeks-on-the-line"', false)
             ->assertSee('1 mutual friend')
             // Photo and counts, then the name, @username, the whole bio, location and "Why I'm here", then the button.
             ->assertSeeInOrder(['data-profile-counts', 'Corey Magro', '@'.$owner->username, 'Chasing a sub-4 marathon.', 'Washington, DC', "Why I'm here:", 'My first marathon', 'Add friend', 'Running', 'Coding'], false)
-            ->assertSee('text-gold-ink tabular-nums', false)
+            ->assertSee('gl-field relative overflow-hidden rounded-2xl', false)
+            ->assertSee('text-gold-light tabular-nums', false)
+            ->assertDontSee('Goals done')
             ->assertSeeInOrder(['About', 'Goals', 'Highlights', 'Stats', 'Trophy case', 'History'])
             ->assertSee('Joined '.$owner->created_at->format('F Y'));
     }

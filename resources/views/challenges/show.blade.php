@@ -128,8 +128,10 @@
                     <ul class="mt-2 divide-y divide-line">
                         @foreach ($challenge->members as $member)
                             <li class="flex items-center gap-2 py-1.5">
-                                <x-avatar :user="$member->user" class="size-8 text-[11px]" />
-                                <span class="min-w-0 flex-1 truncate text-[15px]">{{ $member->user->name }}{{ $member->user_id === $challenge->creator_id ? ' (owner)' : '' }}</span>
+                                <a href="{{ $member->user->profileUrl() }}" class="flex min-h-11 min-w-0 flex-1 items-center gap-2 hover:text-gold-ink" data-member-profile>
+                                    <x-avatar :user="$member->user" class="size-8 text-[11px]" />
+                                    <span class="min-w-0 text-[15px] [overflow-wrap:anywhere]">{{ $member->user->name }}{{ $member->user_id === $challenge->creator_id ? ' (owner)' : '' }}</span>
+                                </a>
                                 @if ($isOwner && $member->user_id !== $challenge->creator_id)
                                     <form method="POST" action="{{ route('challenges.members.destroy', [$challenge, $member]) }}" onsubmit="return confirm('Remove {{ e($member->user->name) }} from the Challenge? Their check-ins go too.')">
                                         @csrf

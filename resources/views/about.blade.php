@@ -35,7 +35,7 @@
 @push('head')
     @include('partials.share-meta', [
         'title' => 'About GoalLine · Get in line with your goals',
-        'description' => 'A league for real goals: an AI coach builds your plan, you check in daily, and you play a friendly weekly matchup with friends. How to play, scoring and fair play.',
+        'description' => 'GoalLine helps you commit to your goals and actually finish them: an AI-built plan, group accountability, stars and streaks, and a friendly weekly Matchup with friends. How to play, scoring and fair play.',
         'url' => App\ShareLink::route('about'),
     ])
     <style>
@@ -81,8 +81,16 @@
             {{-- 1. What it is --}}
             <section id="what" aria-labelledby="what-title">
                 <p class="eyebrow text-club">What GoalLine is</p>
-                <h2 id="what-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">A league for real goals</h2>
-                <p class="mt-3">GoalLine is a league for the goals you actually care about: the exam, the thesis, the race, the lift. An AI coach turns your goal into a dated plan of weekly GoalWeeks. You check in every day, and each week you play a friendly Matchup with a friend in your GoalLeague. The scoreboard is fun, but what matters most is hitting the goal.</p>
+                <h2 id="what-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">Built to help you actually follow through</h2>
+                <p class="mt-3">GoalLine was created for one reason: to help people commit to their goals and actually accomplish them. Most goals don't fail for lack of wanting. They fade because nobody is watching, progress is invisible, and nothing brings you back tomorrow. GoalLine is built to fix that.</p>
+                <p class="mt-3">An AI coach turns your goal (the exam, the thesis, the race, the lift) into a dated, week-by-week plan. Then four things keep you going:</p>
+                <ul class="mt-3 space-y-2" data-about-pillars>
+                    <li><span class="font-semibold text-ink">Group accountability.</span> Your GoalLeague sees your check-ins, and you see theirs. Showing up is easier when your people are counting on you.</li>
+                    <li><span class="font-semibold text-ink">Goals as a game.</span> Every GoalWeek earns stars, streaks, badges and medals, so steady progress feels like winning.</li>
+                    <li><span class="font-semibold text-ink">Friendly competition.</span> Each week you face a friend in a Matchup, each of you measured against your own plan, so different goals compete fairly.</li>
+                    <li><span class="font-semibold text-ink">A daily habit.</span> A quick check-in every day keeps the goal in front of you, one small step at a time.</li>
+                </ul>
+                <p class="mt-3">The scoreboard is fun, but the point is the goal itself: the exam passed, the race run, the thesis finished.</p>
             </section>
 
             {{-- 2. Mission --}}
