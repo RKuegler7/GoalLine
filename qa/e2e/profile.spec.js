@@ -80,7 +80,7 @@ test('a league mate profile from the standings, then my own', async ({ page }, t
     const name = page.locator('[data-profile-name]');
     await expect(name).toBeVisible();
     expect(await name.evaluate((element) => element.scrollWidth <= element.clientWidth + 1 && element.scrollHeight <= element.clientHeight + 1)).toBe(true);
-    await expect(page.locator('[data-profile-counts] [data-count]')).toHaveCount(4);
+    await expect(page.locator('[data-profile-counts] [data-count]')).toHaveCount(3); // Friends, Goals, Medals.
     await expect(page.locator('[data-profile-actions]')).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('profile-header.png') });
 
