@@ -18,7 +18,7 @@
                     @foreach ($goalDayPending as $pendingGoal)
                         <li>
                             <a href="{{ route('goal-day.show', $pendingGoal) }}" class="flex items-center justify-between gap-3 rounded-xl bg-gold px-3 py-2.5 text-ink hover:brightness-105" data-history-goal-day>
-                                <span class="min-w-0 truncate text-[15px] font-bold">Did you reach "{{ $pendingGoal->title }}"?</span>
+                                <span class="min-w-0 [overflow-wrap:anywhere] text-[15px] font-bold">Did you reach "{{ $pendingGoal->title }}"?</span>
                                 <span class="shrink-0 text-[13px] font-semibold">Check in &rarr;</span>
                             </a>
                         </li>
@@ -42,7 +42,7 @@
                         <li class="rounded-xl border border-line bg-white px-3 py-2.5" data-history-league>
                             <div class="flex items-start justify-between gap-3">
                                 <a href="{{ route('leagues.show', $league) }}" class="min-w-0">
-                                    <span class="block truncate text-[15px] font-bold text-club hover:underline">{{ $league->name }}</span>
+                                    <span class="block [overflow-wrap:anywhere] text-[15px] font-bold text-club hover:underline">{{ $league->name }}</span>
                                     <span class="block text-xs text-ink/70">{{ $league->starts_on->format('M j') }}&ndash;{{ $league->ends_on->format('M j, Y') }} &middot; {{ $row['record']['wins'] }}&ndash;{{ $row['record']['ties'] }}&ndash;{{ $row['record']['losses'] }}</span>
                                 </a>
                                 <span class="shrink-0 text-right">
@@ -78,7 +78,7 @@
                         <li class="px-3 py-2.5" data-history-goal>
                             <div class="flex items-center justify-between gap-3">
                                 <a href="{{ route('goals.show', $row['goal']) }}" class="min-w-0">
-                                    <span class="block truncate text-[15px] font-semibold text-ink hover:text-club hover:underline">{{ $row['goal']->title }}</span>
+                                    <span class="block [overflow-wrap:anywhere] text-[15px] font-semibold text-ink hover:text-club hover:underline">{{ $row['goal']->title }}</span>
                                     <span class="block text-xs text-ink/70">{{ $row['label'] }} &middot; {{ $row['on']?->format('M j, Y') }} &middot; {{ $row['goal']->points() }} {{ Str::plural('star', $row['goal']->points()) }}</span>
                                 </a>
                                 <span @class([
@@ -118,8 +118,8 @@
                         <li data-history-week>
                             <a href="{{ route('history.weeks.show', $week) }}" class="flex items-center gap-3 px-3 py-2.5 hover:bg-mint/40">
                                 <span class="min-w-0 flex-1">
-                                    <span class="block truncate text-[14px] font-semibold text-ink">{{ $week->goal->title }}</span>
-                                    <span class="block truncate text-xs text-ink/70">
+                                    <span class="block [overflow-wrap:anywhere] text-[14px] font-semibold text-ink">{{ $week->goal->title }}</span>
+                                    <span class="block [overflow-wrap:anywhere] text-xs text-ink/70">
                                         {{ $week->label() }} &middot; {{ $week->starts_on->format('M j') }}&ndash;{{ $week->ends_on->format('M j') }}
                                         @if ($row['match'])
                                             &middot; {{ App\Services\History::matchLabel($row['match']) }}

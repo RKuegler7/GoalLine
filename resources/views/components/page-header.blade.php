@@ -1,5 +1,5 @@
 {{-- The compact page header inside the app: an optional back link, the title (20px on phones, 24px on desktop), an
-     optional one-line subtitle, and small actions on the right. About 48px tall, so lists start right under it.
+     optional subtitle that wraps in full (never cut off), and small actions on the right.
      Use it in a page's hero slot: <x-slot:hero><x-page-header title="GoalLeagues">…actions…</x-page-header></x-slot:hero> --}}
 @props(['title', 'subtitle' => null, 'eyebrow' => null, 'back' => null, 'backLabel' => 'Back'])
 
@@ -10,11 +10,11 @@
             @php(request()->attributes->set('page_back', ['url' => $back, 'label' => $backLabel]))
         @endif
         @if ($eyebrow)
-            <p class="eyebrow truncate text-[11px] text-mint">{{ $eyebrow }}</p>
+            <p class="eyebrow [overflow-wrap:anywhere] text-[11px] text-mint">{{ $eyebrow }}</p>
         @endif
-        <h1 class="truncate font-serif text-[20px] leading-tight font-bold tracking-tight text-ivory md:text-[24px]">{{ $title }}</h1>
+        <h1 class="[overflow-wrap:anywhere] font-serif text-[20px] leading-tight font-bold tracking-tight text-ivory md:text-[24px]">{{ $title }}</h1>
         @if ($subtitle)
-            <p class="truncate text-[13px] text-ivory/85">{{ $subtitle }}</p>
+            <p class="[overflow-wrap:anywhere] text-[13px] text-ivory/85">{{ $subtitle }}</p>
         @endif
     </div>
     @if ($slot->isNotEmpty())

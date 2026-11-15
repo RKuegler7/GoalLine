@@ -21,7 +21,7 @@
         <div @class(['min-w-0', 'text-right' => $right])>
             <p @class(['flex max-w-[calc(100%-2.75rem)] items-center gap-1.5', 'ml-auto flex-row-reverse' => $right])>
                 <x-avatar :user="$side['member']->user" class="size-6 shrink-0 text-[11px]" />
-                <span class="truncate text-[13px] font-semibold text-ink">{{ $first($side) }}</span>
+                <span class="[overflow-wrap:anywhere] text-[13px] font-semibold text-ink">{{ $first($side) }}</span>
                 <span class="shrink-0 text-[11px] text-ink/70 tabular-nums" title="Wins, draws and losses this season">{{ $side['record']['wins'] }}&ndash;{{ $side['record']['ties'] }}&ndash;{{ $side['record']['losses'] }}</span>
             </p>
             <p @class(['mt-1 flex items-center gap-1.5', 'flex-row-reverse' => $right])>
@@ -30,7 +30,7 @@
                     <x-goalweek-result :result="$side['result']" :not-started="$side['notStarted']" compact class="min-w-0" />
                 @endif
             </p>
-            <p class="mt-0.5 truncate text-[11px] text-ink/70">
+            <p class="mt-0.5 [overflow-wrap:anywhere] text-[11px] text-ink/70">
                 @if (! $final && $side['projection']['band'])
                     <span title="Projected, on current pace">Proj. <span class="font-semibold text-ink">{{ $side['projection']['band']->label() }}</span></span> &middot;
                 @endif
@@ -41,9 +41,9 @@
 
     @if ($page['kind'] === 'bye')
         <div class="min-w-0 text-right">
-            <p class="ml-auto max-w-[calc(100%-2.75rem)] truncate text-[13px] font-semibold text-ink">Bye week</p>
+            <p class="ml-auto max-w-[calc(100%-2.75rem)] [overflow-wrap:anywhere] text-[13px] font-semibold text-ink">Bye week</p>
             <p class="mt-1 text-[20px] leading-none font-bold text-ink/70 tabular-nums">{{ $card['median'] === null ? '–' : round($card['median'], 1) }}</p>
-            <p class="mt-0.5 truncate text-[11px] text-ink/70">line stars only</p>
+            <p class="mt-0.5 [overflow-wrap:anywhere] text-[11px] text-ink/70">line stars only</p>
         </div>
     @endif
 </div>

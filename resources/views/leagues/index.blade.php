@@ -62,8 +62,8 @@
                 @php $challengeJoinUrl = route('challenges.join', $challengeInvite->challenge->invite_code); @endphp
                 <div class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-gold/60 bg-white px-3 py-2.5" data-challenge-invite>
                     <a href="{{ $challengeJoinUrl }}" class="min-w-0 flex-1">
-                        <span class="block truncate text-[15px] font-bold text-gold-ink">{{ $challengeInvite->challenge->title }}</span>
-                        <span class="block truncate text-[13px] text-ink/75">Challenge &middot; from {{ $challengeInvite->inviter?->name ?? $challengeInvite->challenge->creator->name }}</span>
+                        <span class="block [overflow-wrap:anywhere] text-[15px] font-bold text-gold-ink">{{ $challengeInvite->challenge->title }}</span>
+                        <span class="block [overflow-wrap:anywhere] text-[13px] text-ink/75">Challenge &middot; from {{ $challengeInvite->inviter?->name ?? $challengeInvite->challenge->creator->name }}</span>
                     </a>
                     <form method="POST" action="{{ route('challenges.invites.decline', $challengeInvite) }}">
                         @csrf
@@ -76,8 +76,8 @@
             @forelse ($invites as $invite)
                 <a href="{{ $invite->url() }}" class="mb-2 flex items-center justify-between gap-3 rounded-xl border border-club/30 bg-white px-3 py-2.5 hover:bg-mint/40">
                     <span class="min-w-0">
-                        <span class="block truncate text-[15px] font-bold text-club">{{ $invite->league->name }}</span>
-                        <span class="block truncate text-xs text-ink/70">From {{ $invite->league->commissioner->name }}</span>
+                        <span class="block [overflow-wrap:anywhere] text-[15px] font-bold text-club">{{ $invite->league->name }}</span>
+                        <span class="block [overflow-wrap:anywhere] text-xs text-ink/70">From {{ $invite->league->commissioner->name }}</span>
                     </span>
                     <span class="shrink-0 text-[13px] font-semibold text-club">Open <span aria-hidden="true">&rarr;</span></span>
                 </a>

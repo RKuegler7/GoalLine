@@ -22,8 +22,8 @@
 <a href="{{ route('leagues.show', $league) }}" data-league-card {{ $attributes->class('block rounded-xl border border-line bg-white px-3 py-2.5 transition hover:border-club/40') }}>
     <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
-            <p class="truncate text-[15px] font-bold text-club">{{ $league->name }}</p>
-            <p class="truncate text-xs text-ink/70">{{ $goal?->title ?? 'Pick your goal for this league' }}</p>
+            <p class="[overflow-wrap:anywhere] text-[15px] font-bold text-club">{{ $league->name }}</p>
+            <p class="[overflow-wrap:anywhere] text-xs text-ink/70">{{ $goal?->title ?? 'Pick your goal for this league' }}</p>
         </div>
         <div class="flex shrink-0 items-center gap-1.5">
             @if ($unread > 0)
@@ -63,7 +63,7 @@
     </p>
     @if ($matchup)
         {{-- Encouraging, never alarming: leading shows green, everything else stays neutral. --}}
-        <p class="mt-0.5 truncate text-xs text-ink/70"><span class="sr-only">GoalWeek {{ $league->currentWeek() }} Matchup: </span>{{ $matchup['opponent'] ? 'vs '.Str::before($matchup['opponent']->user->name, ' ') : 'Bye week' }}:
+        <p class="mt-0.5 [overflow-wrap:anywhere] text-xs text-ink/70"><span class="sr-only">GoalWeek {{ $league->currentWeek() }} Matchup: </span>{{ $matchup['opponent'] ? 'vs '.Str::before($matchup['opponent']->user->name, ' ') : 'Bye week' }}:
             <span @class(['font-semibold', 'text-club' => $matchup['outcome']->isWin(), 'text-ink' => ! $matchup['outcome']->isWin()])>{{ match ($matchup['outcome']) {
                 App\MatchupOutcome::Win => 'leading',
                 App\MatchupOutcome::CloseWin => 'ahead in a photo finish',

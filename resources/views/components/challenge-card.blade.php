@@ -16,12 +16,12 @@
 <li {{ $attributes->class('flex items-center gap-2 rounded-xl border border-gold/60 bg-white py-2 pr-2 pl-3') }} data-challenge-card="{{ $challenge->id }}">
     <a href="{{ route('challenges.show', $challenge) }}" class="min-w-0 flex-1">
         <span class="flex items-center justify-between gap-2">
-            <span class="truncate text-[15px] font-bold text-gold-ink">{{ $challenge->title }}</span>
+            <span class="[overflow-wrap:anywhere] text-[15px] font-bold text-gold-ink">{{ $challenge->title }}</span>
             <span class="shrink-0 text-[13px] font-semibold text-ink tabular-nums">{{ $progress['completed'] }}/{{ $progress['total'] }}</span>
         </span>
-        <span class="block truncate text-[13px] text-ink/75">{{ $challenge->typeLabel() }} &middot; {{ $challenge->ruleSummary() }}</span>
+        <span class="block [overflow-wrap:anywhere] text-[13px] text-ink/75">{{ $challenge->typeLabel() }} &middot; {{ $challenge->ruleSummary() }}</span>
         <x-progress-bar :percent="$progress['percent']" tone="gold" class="mt-1.5" :label="'Your progress in '.$challenge->title" />
-        <span class="mt-1 block truncate text-[13px] text-ink/75">
+        <span class="mt-1 block [overflow-wrap:anywhere] text-[13px] text-ink/75">
             @if (! $challenge->hasStarted())
                 Starts {{ $challenge->starts_on->format('D, M j') }}
             @elseif ($challenge->isOver())

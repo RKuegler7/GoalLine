@@ -154,9 +154,9 @@
     <main class="mx-auto max-w-5xl px-4 pt-4 pb-8 md:pt-6" data-help-context="{{ App\Http\Controllers\HelpController::CONTEXTS[request()->route()?->getName()] ?? '' }}"
         @if ($viewer->onboarded_at && $viewer->tour_completed_at === null) data-tour-pending @endif>
         @if ($viewer->isDemo())
-            {{-- One slim line, so the page starts right under it. --}}
+            {{-- A slim line (it wraps on narrow phones rather than cutting off), so the page starts right under it. --}}
             <div class="mb-3 flex items-center justify-between gap-2 rounded-xl border border-club/25 bg-mint px-3 py-1.5 text-[13px]" data-demo-banner>
-                <p class="min-w-0 truncate text-ink" title="Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.">
+                <p class="min-w-0 text-ink [overflow-wrap:anywhere]" title="Everyone here is pretend, so click anything. The coach uses saved sample answers, and this demo is deleted after {{ config('goalline.demo.ttl_hours') }} hours.">
                     <span class="eyebrow mr-1 rounded-full bg-club px-1.5 py-0.5 text-[11px] text-ivory">Demo mode</span> You're {{ Str::before($viewer->name, ' ') }}. All pretend, so tap anything.
                 </p>
                 <div class="flex shrink-0 items-center gap-3">

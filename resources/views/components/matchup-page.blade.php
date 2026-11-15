@@ -45,7 +45,7 @@
     <section data-region="matchup-{{ $card['home']['member']->id }}" @class(['rounded-xl border bg-white p-3', 'border-club/50' => $page['mine'], 'border-line' => ! $page['mine']])>
         <div class="flex items-center justify-between gap-2">
             <p class="eyebrow text-[11px] text-ink/70">{{ $eyebrow }}</p>
-            <p class="truncate text-[11px] text-ink/70">@if (! $final && $page['daysLeft'] > 0)<span class="font-semibold text-ink">{{ $page['daysLeft'] }} {{ Str::plural('day', $page['daysLeft']) }} left</span> &middot; @endif{{ $page['status'] }}</p>
+            <p class="[overflow-wrap:anywhere] text-[11px] text-ink/70">@if (! $final && $page['daysLeft'] > 0)<span class="font-semibold text-ink">{{ $page['daysLeft'] }} {{ Str::plural('day', $page['daysLeft']) }} left</span> &middot; @endif{{ $page['status'] }}</p>
         </div>
 
         @if ($page['kind'] === 'solo')
@@ -66,7 +66,7 @@
                     $targets = $side['targets'];
                 @endphp
                 <div @class(['min-w-0 text-[12px] text-ink/80', 'text-right' => $right]) data-player-detail>
-                    <p class="truncate text-[13px] font-semibold text-ink">
+                    <p class="[overflow-wrap:anywhere] text-[13px] font-semibold text-ink">
                         <a href="{{ $side['highlightsUrl'] }}" class="hover:text-club hover:underline" title="{{ $side['member']->user->name }}'s posts in {{ $league->name }}">{{ $first($side) }}</a>
                         <span class="font-normal text-ink/70">&middot; {{ $side['earned'] }} of {{ $side['planned'] }} pts</span>
                     </p>
@@ -151,7 +151,7 @@
         @if (count($sides) > 1)
             <div class="grid grid-cols-2 gap-2 border-b border-line px-2 py-1 text-[11px] font-semibold text-ink/70">
                 @foreach ($sides as $sideIndex => $side)
-                    <span @class(['truncate', 'text-right' => $sideIndex === 1])>{{ $first($side) }}</span>
+                    <span @class(['[overflow-wrap:anywhere]', 'text-right' => $sideIndex === 1])>{{ $first($side) }}</span>
                 @endforeach
             </div>
         @endif

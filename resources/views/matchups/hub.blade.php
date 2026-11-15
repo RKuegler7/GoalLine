@@ -66,7 +66,7 @@
                         @php($week = $goal->currentWeek())
                         <a href="{{ route('goals.show', $goal) }}" class="block rounded-xl border border-line bg-white px-3 py-2.5 hover:border-club/40">
                             <span class="flex items-center justify-between gap-2">
-                                <span class="truncate text-[15px] font-bold text-club">{{ $goal->title }}</span>
+                                <span class="[overflow-wrap:anywhere] text-[15px] font-bold text-club">{{ $goal->title }}</span>
                                 <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $week?->creditedPercent() ?? 0 }}%</span>
                             </span>
                             @if ($week)

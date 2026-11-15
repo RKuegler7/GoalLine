@@ -24,12 +24,12 @@
             @endswitch
         </span>
         <span class="min-w-0 flex-1">
-            <span class="block truncate text-[13px] leading-tight text-ink">{{ $task->description }}</span>
+            <span class="block truncate text-[13px] leading-tight text-ink" data-allow-truncate>{{ $task->description }}</span>
             <span class="flex items-center gap-1 text-[11px] leading-tight text-ink/70">
                 <span class="sr-only">{{ $row['statusLabel'] }} &middot;</span>
                 <span class="tabular-nums">{{ $row['points'] }} {{ Str::plural('pt', $row['points']) }}</span>
                 @if ($row['result'])
-                    <span class="truncate tabular-nums">&middot; {{ $row['result'] }}</span>
+                    <span class="truncate tabular-nums" data-allow-truncate>&middot; {{ $row['result'] }}</span>
                 @endif
                 @if ($row['bonus'])
                     <span class="rounded-full bg-gold/25 px-1 font-semibold text-ink">Bonus</span>

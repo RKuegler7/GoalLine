@@ -25,8 +25,8 @@
                     ['Record', $record['wins'].'–'.$record['ties'].'–'.$record['losses'], ''],
                 ] as [$label, $value, $unit])
                     <div class="rounded-lg bg-ivory/10 px-2 py-1.5 ring-1 ring-ivory/15 ring-inset">
-                        <dt class="truncate text-[11px] font-semibold text-mint">{{ $label }}</dt>
-                        <dd class="truncate text-[17px] leading-tight font-bold text-ivory tabular-nums">{{ $value }} <span class="text-[11px] font-medium text-ivory">{{ $unit }}</span></dd>
+                        <dt class="[overflow-wrap:anywhere] text-[11px] font-semibold text-mint">{{ $label }}</dt>
+                        <dd class="[overflow-wrap:anywhere] text-[17px] leading-tight font-bold text-ivory tabular-nums">{{ $value }} <span class="text-[11px] font-medium text-ivory">{{ $unit }}</span></dd>
                     </div>
                 @endforeach
             </dl>
@@ -53,14 +53,14 @@
                 <a href="{{ route('goal-day.show', $goalDayPending) }}" class="flex items-center justify-between gap-3 rounded-xl bg-gold px-3 py-2.5 text-ink hover:brightness-105" data-goal-day-prompt>
                     <span class="min-w-0">
                         <span class="eyebrow block text-[11px]">Goal Day</span>
-                        <span class="block truncate text-[15px] font-bold">Did you reach "{{ $goalDayPending->title }}"?</span>
+                        <span class="block [overflow-wrap:anywhere] text-[15px] font-bold">Did you reach "{{ $goalDayPending->title }}"?</span>
                     </span>
                     <span class="shrink-0 font-semibold">Check in &rarr;</span>
                 </a>
             @elseif ($goalDayUpcoming)
                 @php $daysToGoalDay = $goalDayUpcoming->daysRemaining(); @endphp
                 <a href="{{ route('goals.show', $goalDayUpcoming) }}" class="flex items-center justify-between gap-3 rounded-xl border border-gold bg-gold/15 px-3 py-2 text-[13px] text-ink hover:bg-gold/25" data-goal-day-banner>
-                    <span class="min-w-0 truncate"><span class="font-bold">Goal Day is in {{ $daysToGoalDay }} {{ Str::plural('day', $daysToGoalDay) }}</span> &middot; {{ $goalDayUpcoming->title }}</span>
+                    <span class="min-w-0 [overflow-wrap:anywhere]"><span class="font-bold">Goal Day is in {{ $daysToGoalDay }} {{ Str::plural('day', $daysToGoalDay) }}</span> &middot; {{ $goalDayUpcoming->title }}</span>
                     <span class="shrink-0 font-semibold text-club">Finish strong &rarr;</span>
                 </a>
             @endif
@@ -94,7 +94,7 @@
 
             @if ($shareable)
                 <a href="{{ $shareable['url'] }}" class="flex items-center justify-between gap-3 rounded-xl border border-gold/50 bg-gold/15 px-3 py-2 text-[13px] transition hover:bg-gold/25">
-                    <span class="flex min-w-0 items-center gap-2 text-ink"><x-icon name="highlights" class="size-4 shrink-0 text-ink/70" /> <span class="truncate">{{ $shareable['label'] }}</span></span>
+                    <span class="flex min-w-0 items-center gap-2 text-ink"><x-icon name="highlights" class="size-4 shrink-0 text-ink/70" /> <span class="[overflow-wrap:anywhere]">{{ $shareable['label'] }}</span></span>
                     <span class="shrink-0 font-semibold text-ink">Share &rarr;</span>
                 </a>
             @endif
@@ -121,7 +121,7 @@
                                     {{-- Its own region, so a check-in updates the band here without closing the details. --}}
                                     <span class="min-w-0 flex-1" data-region="goal-band-{{ $goal->id }}">
                                         <span class="flex items-center justify-between gap-2">
-                                            <span class="truncate text-[15px] font-bold text-club">{{ $goal->title }}</span>
+                                            <span class="[overflow-wrap:anywhere] text-[15px] font-bold text-club">{{ $goal->title }}</span>
                                             <span class="shrink-0 text-xs font-semibold text-ink tabular-nums">{{ $percent }}%</span>
                                         </span>
                                         @if ($week)
@@ -163,8 +163,8 @@
                         <a href="{{ $highlight->league_id ? route('leagues.feed', $highlight->league_id) : route('highlights.index') }}#highlight-{{ $highlight->id }}" class="flex items-center gap-2.5 px-3 py-2 hover:bg-mint/40">
                             <x-avatar :user="$highlight->user" class="size-7 shrink-0 text-[11px]" />
                             <span class="min-w-0 flex-1">
-                                <span class="block truncate text-[13px]"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/70">&middot; {{ $highlight->kind->label() }}</span></span>
-                                <span class="block truncate text-xs text-ink/70">{{ $highlight->isPost() ? $highlight->detail : $highlight->headline }}@if ($highlight->caption) &middot; &ldquo;{{ $highlight->caption }}&rdquo;@endif</span>
+                                <span class="block [overflow-wrap:anywhere] text-[13px]"><span class="font-semibold text-ink">{{ Str::before($highlight->user->name, ' ') }}</span> <span class="text-ink/70">&middot; {{ $highlight->kind->label() }}</span></span>
+                                <span class="block [overflow-wrap:anywhere] text-xs text-ink/70">{{ $highlight->isPost() ? $highlight->detail : $highlight->headline }}@if ($highlight->caption) &middot; &ldquo;{{ $highlight->caption }}&rdquo;@endif</span>
                             </span>
                             @if ($highlight->photoUrl())
                                 <img src="{{ $highlight->photoUrl() }}" alt="" class="size-10 shrink-0 rounded-lg object-cover" loading="lazy" width="40" height="40">
