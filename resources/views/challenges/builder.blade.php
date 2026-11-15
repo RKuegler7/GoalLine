@@ -152,7 +152,7 @@
                 <legend class="{{ $label }}">Duration</legend>
                 <select name="duration" aria-label="Duration" class="{{ $input }}" data-challenge-duration>
                     @foreach (App\Services\ChallengeBuilder::DURATIONS as $key => $name)
-                        <option value="{{ $key }}" @selected($duration === $key)>{{ $name }}</option>
+                        <option value="{{ $key }}" @selected((string) $duration === (string) $key)>{{ $name }}</option>
                     @endforeach
                 </select>
                 <div class="grid gap-2 sm:grid-cols-2">

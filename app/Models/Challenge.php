@@ -225,7 +225,7 @@ class Challenge extends Model
         $rules = $this->rules ?? [];
 
         return match ($this->type) {
-            self::WEEKLY => trim(($rules['label'] ?? '').' ').(! empty($rules['days'])
+            self::WEEKLY => (filled($rules['label'] ?? null) ? $rules['label'].' ' : '').(! empty($rules['days'])
                 ? 'on '.collect($rules['days'])->sort()->map(fn ($day) => Habit::DAY_NAMES[(int) $day] ?? '')->implode(', ')
                 : ($rules['times'] ?? 1).' '.(((int) ($rules['times'] ?? 1)) === 1 ? 'time' : 'times').' a week'),
             self::ABSTAIN => $rules['label'] ?? $this->title,

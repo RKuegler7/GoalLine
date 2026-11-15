@@ -193,6 +193,22 @@ class ChallengeTest extends TestCase
         $this->actingAs($this->avery)->get(route('leagues.index'))->assertSee('Done today')->assertSee('1/7');
     }
 
+    public function test_templates_fill_the_builder_with_their_own_duration_and_rules(): void
+    {
+        $this->actingAs($this->avery)->get(route('challenges.create', ['template' => 'workout-4']))->assertOk()
+            ->assertSee('<option value="30" selected', false)
+            ->assertDontSee('<option value="7" selected', false)
+            ->assertSee('value="Workout 4 times a week"', false);
+
+        $this->actingAs($this->avery)->get(route('challenges.create', ['template' => 'lent']))->assertOk()
+            ->assertSee('<option value="lent" selected', false);
+
+        $weekly = Challenge::factory()->for($this->avery, 'creator')->create(['type' => 'weekly', 'rules' => ['label' => 'Workout', 'times' => 4]]);
+        $this->assertSame('Workout 4 times a week', $weekly->ruleSummary());
+        $days = Challenge::factory()->for($this->avery, 'creator')->create(['type' => 'weekly', 'rules' => ['days' => [5, 1, 3]]]);
+        $this->assertSame('on Mon, Wed, Fri', $days->ruleSummary());
+    }
+
     public function test_the_help_center_explains_challenges_and_public_listings(): void
     {
         $this->actingAs($this->avery)->get(route('help'))->assertOk()

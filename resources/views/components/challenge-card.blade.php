@@ -39,7 +39,7 @@
             <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live class="shrink-0">
                 @csrf
                 <input type="hidden" name="return" value="list">
-                <input type="hidden" name="action" value="{{ $doneToday ? 'undo' : 'done' }}">
+                <input type="hidden" name="do" value="{{ $doneToday ? 'undo' : 'done' }}">
                 <button type="submit" @class([
                     'inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-[13px] font-semibold transition',
                     'bg-gold-light/50 text-ink' => $doneToday,

@@ -25,7 +25,7 @@
                 <li>
                     <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                         @csrf
-                        <input type="hidden" name="action" value="rule">
+                        <input type="hidden" name="do" value="rule">
                         <input type="hidden" name="rule" value="{{ $index }}">
                         <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                         <button type="submit" aria-pressed="{{ $ticked ? 'true' : 'false' }}" @class(['flex min-h-11 w-full items-center gap-2.5 rounded-xl border px-3 text-left text-[15px]', 'border-gold bg-gold-light/40 font-semibold text-ink' => $ticked, 'border-line bg-white text-ink hover:border-gold' => ! $ticked])>
@@ -46,7 +46,7 @@
         <div class="flex flex-wrap gap-2">
             <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                 @csrf
-                <input type="hidden" name="action" value="{{ $complete ? 'undo' : 'done' }}">
+                <input type="hidden" name="do" value="{{ $complete ? 'undo' : 'done' }}">
                 <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                 <button type="submit" aria-pressed="{{ $complete ? 'true' : 'false' }}" @class([$button, 'bg-gold text-ink' => ! $complete, 'border border-gold text-ink' => $complete])>
                     <x-icon name="check" class="size-4" /> {{ $complete ? 'Undo' : 'Stayed on track' }}
@@ -55,14 +55,14 @@
             @unless ($checkIn && ! $complete)
                 <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                     @csrf
-                    <input type="hidden" name="action" value="slipped">
+                    <input type="hidden" name="do" value="slipped">
                     <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                     <button type="submit" class="{{ $button }} border border-line text-ink/80 hover:border-ink/40">Slipped {{ $dayName }}</button>
                 </form>
             @else
                 <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
                     @csrf
-                    <input type="hidden" name="action" value="undo">
+                    <input type="hidden" name="do" value="undo">
                     <input type="hidden" name="date" value="{{ $day->toDateString() }}">
                     <button type="submit" class="{{ $button }} border border-line text-ink/80">Undo</button>
                 </form>
@@ -71,7 +71,7 @@
     @elseif ($challenge->type === App\Models\Challenge::TARGET)
         <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live class="flex flex-wrap items-end gap-2">
             @csrf
-            <input type="hidden" name="action" value="value">
+            <input type="hidden" name="do" value="value">
             <input type="hidden" name="date" value="{{ $day->toDateString() }}">
             @if ($confirm && $confirm['date'] === $day->toDateString())
                 <input type="hidden" name="confirmed" value="1">
@@ -97,7 +97,7 @@
         {{-- Daily with one rule, and Weekly: one tap. --}}
         <form method="POST" action="{{ route('challenges.check-in', $challenge) }}" data-live>
             @csrf
-            <input type="hidden" name="action" value="done">
+            <input type="hidden" name="do" value="done">
             <input type="hidden" name="date" value="{{ $day->toDateString() }}">
             <button type="submit" aria-pressed="{{ $complete ? 'true' : 'false' }}" @class([$button, 'w-full sm:w-auto', 'bg-gold text-ink' => ! $complete, 'border border-gold bg-gold-light/40 text-ink' => $complete])>
                 <x-icon name="check" class="size-4" /> {{ $complete ? 'Done '.$dayName.' · tap to undo' : 'I did it '.$dayName }}

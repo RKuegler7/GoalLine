@@ -46,7 +46,7 @@
     </div>
 
     <div class="relative">
-        <div class="gl-table-scroll overflow-x-auto overscroll-x-contain rounded-xl border border-gold/60 bg-white" data-table-scroll tabindex="0" role="region" aria-label="Challenge Standings. It scrolls sideways for more columns.">
+        <div class="gl-table-scroll relative overflow-x-auto overscroll-x-contain rounded-xl border border-gold/60 bg-white" data-table-scroll tabindex="0" role="region" aria-label="Challenge Standings. It scrolls sideways for more columns.">
             <table class="w-max min-w-full border-separate border-spacing-0 text-left text-[13px] tabular-nums">
                 <caption class="sr-only">Standings for {{ $challenge->title }}. {{ $official }}</caption>
                 <thead class="text-[13px] text-ink">

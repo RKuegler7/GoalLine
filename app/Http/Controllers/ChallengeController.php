@@ -248,13 +248,13 @@ class ChallengeController extends Controller
         abort_unless($challenge->members()->where('user_id', $user->id)->exists(), 403);
         $request->validate([
             'date' => ['nullable', 'date_format:Y-m-d'],
-            'action' => ['nullable', 'in:done,rule,slipped,value,undo'],
+            'do' => ['nullable', 'in:done,rule,slipped,value,undo'],
             'rule' => ['nullable', 'integer', 'min:0', 'max:7'],
         ]);
         $day = Challenge::day($request->input('date') ?: Challenge::today()->toDateString());
         abort_unless($challenge->isCheckableOn($day), 403, $challenge->hasStarted() ? 'Check-ins for that day are closed.' : 'This Challenge hasn\'t started yet.');
 
-        $action = $request->input('action', 'done');
+        $action = $request->input('do', 'done');
         $value = null;
 
         if ($action === 'value') {

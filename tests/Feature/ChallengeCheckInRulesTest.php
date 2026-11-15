@@ -75,11 +75,11 @@ class ChallengeCheckInRulesTest extends TestCase
     {
         $challenge = $this->challenge(['type' => 'daily', 'rules' => ['items' => ['Pray', 'Read']]]);
 
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'rule', 'rule' => 0]);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'rule', 'rule' => 0]);
         $this->assertFalse($challenge->fresh()->isCheckedIn($this->sam, Challenge::today()), 'One of two rules.');
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'rule', 'rule' => 1]);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'rule', 'rule' => 1]);
         $this->assertTrue($challenge->fresh()->load('checkIns')->isCheckedIn($this->sam, Challenge::today()));
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'rule', 'rule' => 5])->assertStatus(422);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'rule', 'rule' => 5])->assertStatus(422);
 
         $this->actingAs($this->sam)->get(route('challenges.show', $challenge))->assertOk()->assertSee('2 of 2 done today. This day counts.');
     }
@@ -88,12 +88,12 @@ class ChallengeCheckInRulesTest extends TestCase
     {
         $challenge = $this->challenge(['type' => 'abstain', 'rules' => ['label' => 'No sweets']]);
 
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'slipped'])
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'slipped'])
             ->assertSessionHas('status', 'Logged. One day doesn\'t undo the others. Back on track tomorrow.');
         $this->assertSame(ChallengeCheckIn::SLIPPED, $challenge->checkIns()->sole()->status);
         $this->actingAs($this->sam)->get(route('challenges.show', $challenge))->assertSee('one day, not the whole Challenge.');
 
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'done']);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'done']);
         $this->assertSame(ChallengeCheckIn::DONE, $challenge->checkIns()->sole()->status);
     }
 
@@ -101,21 +101,21 @@ class ChallengeCheckInRulesTest extends TestCase
     {
         $challenge = $this->challenge(['type' => 'target', 'rules' => ['label' => 'Steps', 'threshold' => 10000, 'unit' => 'steps', 'per' => 'day', 'max' => 100000]]);
 
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => 250000])->assertSessionHasErrors('value');
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => -5])->assertSessionHasErrors('value');
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => 60000])->assertSessionHas('challenge_confirm');
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => 250000])->assertSessionHasErrors('value');
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => -5])->assertSessionHasErrors('value');
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => 60000])->assertSessionHas('challenge_confirm');
         $this->assertSame(0, $challenge->checkIns()->count(), 'Unusual: asked first.');
 
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => 60000, 'confirmed' => 1]);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => 60000, 'confirmed' => 1]);
         $this->assertSame('60000.00', $challenge->checkIns()->sole()->value);
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => 8000]);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => 8000]);
         $this->assertFalse($challenge->fresh()->load('checkIns')->isCheckedIn($this->sam, Challenge::today()), 'Under the target.');
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['action' => 'value', 'value' => 12000]);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $challenge), ['do' => 'value', 'value' => 12000]);
         $this->assertTrue($challenge->fresh()->load('checkIns')->isCheckedIn($this->sam, Challenge::today()));
 
         // A number for a non-Target Challenge is refused.
         $daily = $this->challenge();
-        $this->actingAs($this->sam)->post(route('challenges.check-in', $daily), ['action' => 'value', 'value' => 5])->assertStatus(422);
+        $this->actingAs($this->sam)->post(route('challenges.check-in', $daily), ['do' => 'value', 'value' => 5])->assertStatus(422);
     }
 
     public function test_a_weekly_check_in_shows_progress_toward_the_week(): void

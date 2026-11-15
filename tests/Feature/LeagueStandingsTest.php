@@ -213,7 +213,7 @@ class LeagueStandingsTest extends TestCase
     {
         $html = $this->actingAs($this->members['Avery']->user)->get(route('leagues.standings', $this->league))->assertOk()->getContent();
 
-        $this->assertMatchesRegularExpression('/class="gl-table-scroll overflow-x-auto[^"]*" data-standings data-table-scroll/', $html);
+        $this->assertMatchesRegularExpression('/class="gl-table-scroll relative overflow-x-auto[^"]*" data-standings data-table-scroll/', $html);
         $this->assertStringContainsString('data-task-sheet aria-labelledby="player-sheet-title"', $html);
         $this->assertStringContainsString('data-task-sheet-open data-row-link', $html);
         $this->assertStringContainsString('data-swipe-hint', $html);

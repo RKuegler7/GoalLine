@@ -26,7 +26,7 @@
     </div>
 
     <div class="relative">
-        <div class="gl-table-scroll overflow-x-auto overscroll-x-contain rounded-xl border border-line bg-white" data-standings data-table-scroll tabindex="0" role="region" aria-label="Standings table. It scrolls sideways for more columns.">
+        <div class="gl-table-scroll relative overflow-x-auto overscroll-x-contain rounded-xl border border-line bg-white" data-standings data-table-scroll tabindex="0" role="region" aria-label="Standings table. It scrolls sideways for more columns.">
             <table class="w-max min-w-full border-separate border-spacing-0 text-left text-[13px] tabular-nums">
                 <caption class="sr-only">Standings for {{ $league->name }}. {{ $official }}</caption>
                 <thead class="text-[13px] text-ivory">
