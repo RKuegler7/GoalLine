@@ -10,8 +10,8 @@
     @php
         $tab = $errors->hasAny(['code', 'challenge_code']) ? 'invites' : $tab;
         $tabs = [
-            ['label' => 'GoalLeagues', 'segment' => 'leagues', 'count' => $snapshots->count(), 'active' => $tab === 'leagues'],
-            ['label' => 'Challenges', 'segment' => 'challenges', 'count' => $challenges->count(), 'active' => $tab === 'challenges'],
+            ['label' => 'GoalLeagues', 'segment' => 'leagues', 'count' => $snapshots->count(), 'active' => $tab === 'leagues', 'tone' => 'league'],
+            ['label' => 'Challenges', 'segment' => 'challenges', 'count' => $challenges->count(), 'active' => $tab === 'challenges', 'tone' => 'challenge'],
             ['label' => 'Invites', 'segment' => 'invites', 'count' => ($invites->count() + $challengeInvites->count()) ?: null, 'active' => $tab === 'invites'],
         ];
     @endphp

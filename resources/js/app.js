@@ -1492,6 +1492,9 @@ document.addEventListener('click', (event) => {
     group.querySelectorAll('[data-segment]').forEach((option) => {
         const active = option === button;
         option.setAttribute('aria-selected', active ? 'true' : 'false');
+        if (option.dataset.tone) {
+            return; // Coloured options style themselves from aria-selected.
+        }
         option.classList.toggle('bg-white', active);
         option.classList.toggle('text-club', active);
         option.classList.toggle('shadow-sm', active);
