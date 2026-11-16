@@ -101,7 +101,7 @@ class ReminderTest extends TestCase
         Notification::assertNotSentTo($user, GoalWeeksFinal::class);
 
         $this->at('2026-10-27 07:30'); // Tuesday: final.
-        Notification::assertSentTo($user, GoalWeeksFinal::class, fn (GoalWeeksFinal $final) => $final->results[0]['result'] === 'In line' && $final->results[0]['points'] === 1);
+        Notification::assertSentTo($user, GoalWeeksFinal::class, fn (GoalWeeksFinal $final) => $final->results[0]['result'] === 'In Line' && $final->results[0]['points'] === 1);
     }
 
     public function test_members_who_have_not_finished_signing_up_get_nothing(): void

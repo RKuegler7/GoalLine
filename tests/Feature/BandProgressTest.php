@@ -44,7 +44,7 @@ class BandProgressTest extends TestCase
 
         $this->assertNull(BandProgress::crossed($band(0.88), $band(0.89)), '89% is still Short.');
         $this->assertSame(GoalWeekResult::InLine, BandProgress::crossed($band(0.89), $band(0.90)));
-        $this->assertNull(BandProgress::crossed($band(0.99), $band(1.00)), '100% is still In line.');
+        $this->assertNull(BandProgress::crossed($band(0.99), $band(1.00)), '100% is still In Line.');
         $this->assertSame(GoalWeekResult::Past, BandProgress::crossed($band(1.00), $band(1.01)));
         $this->assertNull(BandProgress::crossed($band(1.48), $band(1.49)), '149% is still Past.');
         $this->assertSame(GoalWeekResult::Smashed, BandProgress::crossed($band(1.49), $band(1.50)));
@@ -84,7 +84,7 @@ class BandProgressTest extends TestCase
         // Back up again in the same week: no second celebration for the same band.
         $this->actingAs($this->goal->user)->post(route('roadmap.tasks.check', $last), ['intent' => 'done'])->assertSessionMissing('band_up');
 
-        // The next band still gets its own moment: the milestone (2 points) takes it to 22 of 22 (still In line),
+        // The next band still gets its own moment: the milestone (2 points) takes it to 22 of 22 (still In Line),
         // and a bonus task goes past the plan.
         $this->actingAs($this->goal->user)->post(route('goalweeks.milestone', $this->week), ['intent' => 'done'])->assertSessionMissing('band_up');
         $bonus = $this->week->tasks()->create(['position' => 30, 'description' => 'Extra session', 'is_bonus' => true]);

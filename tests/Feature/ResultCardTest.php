@@ -48,9 +48,9 @@ class ResultCardTest extends TestCase
     {
         return [
             'short of the line: calm, never red' => [5, false, 0, false, 'short', 'Showed up', '#fafaf5'],
-            'in line: green' => [8, true, 0, false, 'in_line', 'In line', '#43b96a'],
-            'past the line: gold' => [8, true, 2, false, 'past', 'Past the line', '#d4ac58'],
-            'smashed with proof: blue diamond' => [8, true, 5, true, 'smashed', 'Smashed the line', '#0369a1'],
+            'in line: green' => [8, true, 0, false, 'in_line', 'In Line', '#43b96a'],
+            'past the line: gold' => [8, true, 2, false, 'past', 'Past the Line', '#d4ac58'],
+            'smashed with proof: blue diamond' => [8, true, 5, true, 'smashed', 'Smashed the Line', '#0369a1'],
         ];
     }
 
@@ -75,7 +75,7 @@ class ResultCardTest extends TestCase
 
         if ($band === 'short') {
             $this->assertStringContainsString('Back on the line next week.', $svg);
-            $this->assertStringNotContainsString('Short of the line', $svg);
+            $this->assertStringNotContainsString('Short of the Line', $svg);
         }
     }
 
@@ -129,7 +129,7 @@ class ResultCardTest extends TestCase
 
         $payload = ResultCardData::for($home);
 
-        // Both In line (100% and 90%): a photo finish, and the higher percent takes the close win.
+        // Both In Line (100% and 90%): a photo finish, and the higher percent takes the close win.
         $this->assertSame('Run Club', $payload['league']);
         $this->assertSame('Week 1', $payload['weekLabel']);
         $this->assertSame(['outcome' => 'close_win', 'label' => 'Photo finish win', 'points' => 1, 'photoFinish' => true, 'bye' => false], $payload['match']);

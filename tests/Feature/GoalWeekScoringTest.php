@@ -135,8 +135,8 @@ class GoalWeekScoringTest extends TestCase
     public static function boundaries(): array
     {
         return [
-            'just short of In line' => [89.99, GoalWeekResult::Short],
-            'In line' => [90.0, GoalWeekResult::InLine],
+            'just short of In Line' => [89.99, GoalWeekResult::Short],
+            'In Line' => [90.0, GoalWeekResult::InLine],
             'the plan exactly' => [100.0, GoalWeekResult::InLine],
             'just past the plan' => [100.01, GoalWeekResult::Past],
             'just short of Smashed' => [149.99, GoalWeekResult::Past],
@@ -186,8 +186,8 @@ class GoalWeekScoringTest extends TestCase
             }
         }
 
-        $this->assertSame(0, min($totals), 'Short of the line and lost.');
-        $this->assertSame(5, max($totals), 'Smashed the line and beat a lower band.');
+        $this->assertSame(0, min($totals), 'Short of the Line and lost.');
+        $this->assertSame(5, max($totals), 'Smashed the Line and beat a lower band.');
         $this->assertSame(5, GoalWeekResult::Smashed->points() + MatchupOutcome::Win->points());
         $this->assertSame(4, GoalWeekResult::Smashed->points() + MatchupOutcome::CloseWin->points());
         $this->assertSame(0, GoalWeekResult::Short->points() + MatchupOutcome::CloseLoss->points());
@@ -235,7 +235,7 @@ class GoalWeekScoringTest extends TestCase
             '94.6% rounds down to 94' => [0.946, true, 94],
             '100% exactly' => [1.00, true, 100],
             '100.4% rounds down to 100' => [1.004, true, 100],
-            '100.5% is Past the line but still credits as 100' => [1.005, true, 100],
+            '100.5% is Past the Line but still credits as 100' => [1.005, true, 100],
             '101%' => [1.01, true, 101],
             '149.99% rounds down to 149' => [1.4999, true, 149],
             '150% verified' => [1.50, true, 150],
@@ -294,7 +294,9 @@ class GoalWeekScoringTest extends TestCase
         $this->travel(1)->days();
 
         $this->assertFalse($week->fresh('tasks')->isNotStarted());
-        $this->actingAs($goal->user)->get(route('goals.show', $goal))->assertSee('Short of the line');
+        // Short: a calm Fresh Mint box with the small red chip, never a red box.
+        $this->actingAs($goal->user)->get(route('goals.show', $goal))->assertSee('Short of the Line')
+            ->assertSee('mt-4 rounded-xl px-4 py-3 bg-mint', false)->assertDontSee('px-4 py-3 bg-red-50', false);
     }
 
     public function test_checking_off_tasks_the_milestone_and_bonus_work_moves_through_the_bands(): void
@@ -332,8 +334,9 @@ class GoalWeekScoringTest extends TestCase
 
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))
-            ->assertSee('In line, close call')
-            ->assertSee('Close call: 1 more point gets you safely in line.');
+            ->assertSee('In Line, close call')
+            ->assertSee('Close call: 1 more point gets you safely In Line.')
+            ->assertDontSee('bg-amber-100', false); // In Line is always In Line green; the close call is in words.
     }
 
     public function test_the_hint_counts_the_points_needed_to_go_beyond_100_percent(): void
@@ -343,7 +346,7 @@ class GoalWeekScoringTest extends TestCase
         [$goal, $week] = $this->goalWithWeek(today()->subDays(2), tasks: 18, done: 17, milestone: true);
         $this->assertSame(2, $week->pointsPastTheLine());
         $this->actingAs($goal->user)->get(route('goals.show', $goal))
-            ->assertSee('Earn 2 more points to get past the line.')
+            ->assertSee('Earn 2 more points to get Past the Line.')
             ->assertDontSee('Bonus work');
 
         // At exactly 100%, 1 more point is past.
@@ -425,7 +428,7 @@ class GoalWeekScoringTest extends TestCase
         $this->actingAs($goal->user)
             ->get(route('goals.show', $goal))
             ->assertSee('GoalWeek stars')
-            ->assertSee('In line');
+            ->assertSee('In Line');
     }
 
     /**

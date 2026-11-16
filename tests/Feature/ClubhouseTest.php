@@ -41,8 +41,8 @@ class ClubhouseTest extends TestCase
         $goal = Goal::factory()->for($user)->create(['target_date' => '2026-12-31']);
         $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready])->save();
 
-        // Three finished weeks, oldest first: Short, then two at In line or better. This week is in progress and empty.
-        // Twenty 1-point tasks plus the 2-point milestone make 22 planned points: 20 of 22 is 90.9% (In line), all 22 is 100%.
+        // Three finished weeks, oldest first: Short, then two at In Line or better. This week is in progress and empty.
+        // Twenty 1-point tasks plus the 2-point milestone make 22 planned points: 20 of 22 is 90.9% (In Line), all 22 is 100%.
         $weeks = [];
         foreach ([['2026-09-28', 0, false], ['2026-10-05', 20, false], ['2026-10-12', 20, true]] as $index => [$monday, $done, $milestone]) {
             $week = $goal->weeks()->create(['position' => $index + 1, 'starts_on' => $monday, 'ends_on' => Carbon::parse($monday)->addDays(6), 'focus' => 'Work', 'milestone' => 'Done']);
@@ -66,7 +66,7 @@ class ClubhouseTest extends TestCase
 
         $this->actingAs($user)->get(route('dashboard'))
             ->assertSeeText('2 weeks on the line')
-            ->assertSee('In line or better: 90% of your plan or more')
+            ->assertSee('In Line or better: 90% of your plan or more')
             ->assertDontSee('Start your line this week');
 
         $this->actingAs($user)->get(route('profile.show'))->assertSee('Weeks on the line');
@@ -133,7 +133,7 @@ class ClubhouseTest extends TestCase
 
         $this->actingAs($goal->user)
             ->get(route('dashboard'))
-            ->assertSee('Past the line in GoalWeek 1')
+            ->assertSee('Past the Line in GoalWeek 1')
             ->assertSee(route('highlights.create', ['week' => $week]), false);
     }
 

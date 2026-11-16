@@ -279,7 +279,7 @@ class HighlightController extends Controller
         }
 
         $result = $week->result();
-        abort_unless(in_array($result, [GoalWeekResult::Past, GoalWeekResult::Smashed], true), 403, 'Share GoalWeeks where you got past or smashed the line.');
+        abort_unless(in_array($result, [GoalWeekResult::Past, GoalWeekResult::Smashed], true), 403, 'Share GoalWeeks that finished Past the Line or Smashed the Line.');
 
         return [
             'kind' => HighlightKind::GreatWeek,

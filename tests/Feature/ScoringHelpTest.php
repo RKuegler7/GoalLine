@@ -79,7 +79,7 @@ class ScoringHelpTest extends TestCase
 
         // An example from a real league row.
         $this->actingAs($user)->get(route('leagues.standings', $league))
-            ->assertSeeText('Your latest league week, week 1: In line (1 line star) + Photo finish win (1 matchup star) = 2 stars.');
+            ->assertSeeText('Your latest league week, week 1: In Line (1 line star) + Photo finish win (1 matchup star) = 2 stars.');
     }
 
     public function test_the_button_is_on_the_matchup_and_goal_week_screens(): void

@@ -52,6 +52,7 @@ class MatchupPagerTest extends TestCase
 
         $response = $this->actingAs($viewer->user)->get(route('leagues.matchups', $league))->assertOk()
             ->assertSee('Your Matchup')
+            ->assertSee('data-screen-title>Matchup</span>', false) // The top bar: just "Matchup", never cut off.
             ->assertSeeText('1 of 2')
             ->assertDontSee($other->members->first()->user->name);
         $this->assertSame(2, substr_count($response->getContent(), 'data-pager-page '));
@@ -332,9 +333,9 @@ class MatchupPagerTest extends TestCase
         $this->actingAs($member->user)->get(route('leagues.matchups', $league))->assertOk()
             ->assertSee('data-pager-sticky', false)
             ->assertSee('data-day-controls', false)
-            ->assertSeeText('5 more points to In line')
+            ->assertSeeText('5 more points to In Line')
             ->assertSeeText('(about 5 tasks)')
-            ->assertSeeText('To reach Past the line: 8 points')
+            ->assertSeeText('To reach Past the Line: 8 points')
             ->assertSeeText('15 done');
     }
 

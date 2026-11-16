@@ -53,7 +53,7 @@ class WeeklyRecapTest extends TestCase
         $this->assertSame('2026-10-21', $recap->bestDay()['date']->toDateString());
         $this->assertSame(1, $recap->cheersReceived());
         $this->assertTrue($recap->badgesEarned()->contains('badge', Badge::FirstStep)); // Earned automatically by this week's first check-in.
-        $this->assertSame('In line', $recap->goalWeeks()->first()['result']->label());
+        $this->assertSame('In Line', $recap->goalWeeks()->first()['result']->label());
         $this->assertSame('Your week: 4 check-ins on 3 days, 1 star.', $recap->headline());
     }
 

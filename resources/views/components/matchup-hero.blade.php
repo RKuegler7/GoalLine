@@ -52,7 +52,7 @@
                     <span class="mt-2 text-[17px] leading-tight font-extrabold text-ivory sm:text-xl">The line</span>
                     <span class="mt-0.5 text-xs font-semibold text-mint">Solo season</span>
                     <span class="mt-2 text-[30px] leading-none font-extrabold text-ivory/90 tabular-nums">{{ (int) round(App\GoalWeekResult::IN_LINE_AT * 100) }}%</span>
-                    <span class="mt-1.5 text-[11px] text-ivory/90">to be In line</span>
+                    <span class="mt-1.5 text-[11px] text-ivory/90">to be In Line</span>
                 @endif
             </div>
         @endforeach

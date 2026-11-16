@@ -82,7 +82,7 @@ class SeasonRecap
         }
 
         if ($streak = $leader(fn (LeagueMember $member) => $this->longestInLineRun($results->get($member->user_id, collect())), min(3, $weeks))) {
-            $awards[] = ['badge' => Badge::IronStreak, 'member' => $streak['member'], 'detail' => $streak['score'].' GoalWeeks in line in a row'];
+            $awards[] = ['badge' => Badge::IronStreak, 'member' => $streak['member'], 'detail' => $streak['score'].' GoalWeeks In Line in a row'];
         }
 
         if ($smasher = $leader(fn (LeagueMember $member) => $results->get($member->user_id, collect())->where('result', GoalWeekResult::Smashed)->count(), 1)) {

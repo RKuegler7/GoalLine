@@ -1,4 +1,4 @@
-<x-layouts.app :title="'GoalWeek '.$week.' Matchup · '.$league->name">
+<x-layouts.app :title="'Matchup · GoalWeek '.$week.' · '.$league->name">
     <x-slot:hero>
         <x-page-header :title="'GoalWeek '.$week.' Matchup'" :back="route('leagues.show', $league)" :back-label="$league->name"
             :subtitle="$league->weekStartsOn($week)->format('M j').'–'.$league->weekEndsOn($week)->format('M j').' · '.($final ? 'Final' : 'Live')">
@@ -127,7 +127,7 @@
                                     </span>
                                     <span class="block text-[11px] [overflow-wrap:anywhere] text-ink/70 tabular-nums">
                                         @if ($side)
-                                            {{ $side['percentLabel'] ?? 'No GoalWeek' }} &middot; {{ $side['result']?->label() ?? 'Short of the line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
+                                            {{ $side['percentLabel'] ?? 'No GoalWeek' }} &middot; {{ $side['result']?->label() ?? 'Short of the Line' }}{{ $side['outcome']->isPhotoFinish() ? ' · photo finish' : '' }}
                                         @else
                                             Bye: line stars only
                                         @endif

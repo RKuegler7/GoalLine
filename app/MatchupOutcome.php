@@ -127,6 +127,6 @@ enum MatchupOutcome: string
      */
     public static function tieEncouragement(): string
     {
-        return 'You both did the whole plan. Go past the line to pull ahead.';
+        return 'You both did the whole plan. Go Past the Line to pull ahead.';
     }
 }

@@ -74,8 +74,8 @@ class MatchupHeroTest extends TestCase
     public static function boundaries(): array
     {
         return [
-            'just short of In line' => [89, 90],
-            'In line to the plan' => [99, 100],
+            'just short of In Line' => [89, 90],
+            'In Line to the plan' => [99, 100],
             'the plan to Past' => [100, 101],
             'Past to Smashed' => [149, 150],
         ];
@@ -109,10 +109,10 @@ class MatchupHeroTest extends TestCase
     public function test_the_line_has_a_text_alternative_for_each_player(): void
     {
         $this->assertSame(
-            'Ryan is at 82%, Short of the line; needs 2 more points to reach In line.',
+            'Ryan is at 82%, Short of the Line; needs 2 more points to reach In Line.',
             MatchupLine::describe('Ryan', ['percent' => 82, 'result' => GoalWeekResult::Short, 'next' => ['band' => GoalWeekResult::InLine, 'points' => 2]]),
         );
-        $this->assertSame('Ryan is at 160%, Smashed the line.', MatchupLine::describe('Ryan', ['percent' => 160, 'result' => GoalWeekResult::Smashed, 'next' => null]));
+        $this->assertSame('Ryan is at 160%, Smashed the Line.', MatchupLine::describe('Ryan', ['percent' => 160, 'result' => GoalWeekResult::Smashed, 'next' => null]));
 
         $league = $this->league(['Avery Lane', 'Sam Park']);
         $this->week($league->members[0], 4, 1);

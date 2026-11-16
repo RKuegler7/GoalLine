@@ -6,7 +6,7 @@
     $name = $member->displayName();
     $bandLabels = [
         App\GoalWeekResult::Short->value => 'Short',
-        App\GoalWeekResult::InLine->value => 'In line',
+        App\GoalWeekResult::InLine->value => 'In Line',
         App\GoalWeekResult::Past->value => 'Past',
         App\GoalWeekResult::Smashed->value => 'Smashed',
     ];

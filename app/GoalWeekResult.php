@@ -91,10 +91,10 @@ enum GoalWeekResult: string
     public function label(): string
     {
         return match ($this) {
-            self::Short => 'Short of the line',
-            self::InLine => 'In line',
-            self::Past => 'Past the line',
-            self::Smashed => 'Smashed the line',
+            self::Short => 'Short of the Line',
+            self::InLine => 'In Line',
+            self::Past => 'Past the Line',
+            self::Smashed => 'Smashed the Line',
         };
     }
 

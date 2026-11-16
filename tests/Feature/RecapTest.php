@@ -79,7 +79,7 @@ class RecapTest extends TestCase
         $this->assertSame(['Avery', '12 stars, 4–0–0'], $awards[Badge::Champion->value]);
         $this->assertSame(['Blake', '6 line stars'], $awards[Badge::Mvp->value]);
         $this->assertSame(['Casey', 'Climbed from 4th to 2nd'], $awards[Badge::ComebackPlayer->value]);
-        $this->assertSame(['Avery', '4 GoalWeeks in line in a row'], $awards[Badge::IronStreak->value]);
+        $this->assertSame(['Avery', '4 GoalWeeks In Line in a row'], $awards[Badge::IronStreak->value]);
         $this->assertSame(['Blake', '2 smashed GoalWeeks'], $awards[Badge::SmashMachine->value]);
     }
 

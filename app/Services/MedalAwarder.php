@@ -206,14 +206,14 @@ class MedalAwarder
             if ($streakTier) {
                 $add($member, MedalType::Streak, config('medals.streak_tiers')[$streakTier], [
                     'tier_label' => "{$streakTier} weeks",
-                    'detail' => "{$run} GoalWeeks in line or better in a row",
+                    'detail' => "{$run} GoalWeeks In Line or better in a row",
                 ]);
             }
 
             $inLine = $mine->filter(fn (LeagueResult $result) => $result->result !== GoalWeekResult::Short)->count();
 
             if ($mine->count() >= config('medals.consistency_min_weeks') && $inLine / $mine->count() >= config('medals.consistency_share')) {
-                $add($member, MedalType::Consistency, null, ['detail' => "In line or better in {$inLine} of {$mine->count()} weeks"]);
+                $add($member, MedalType::Consistency, null, ['detail' => "In Line or better in {$inLine} of {$mine->count()} weeks"]);
             }
 
             $photoWins = $mine->where('outcome', MatchupOutcome::CloseWin)->count();

@@ -1,5 +1,6 @@
-{{-- A GoalWeek result pill with its line stars, or a neutral "Not started" on day one. Short is red, In line green,
-     Past the line a golden shine, Smashed a blue diamond. A Smashed week waiting on proof says so. --}}
+{{-- A GoalWeek result pill with its line stars, or a neutral "Not started" on day one. Short is red, In Line always
+     In Line green (a close call says so in words), Past the Line a golden shine, Smashed a blue diamond. A Smashed week
+     waiting on proof says so. --}}
 @props(['result', 'closeCall' => false, 'notStarted' => false, 'needsProof' => false, 'compact' => false])
 
 @if ($notStarted)
@@ -13,8 +14,7 @@
             'px-2.5 py-1' => ! $compact,
             'px-1.5 py-0.5 tracking-[0.04em]' => $compact,
             'bg-red-50 text-red-700' => $result === App\GoalWeekResult::Short,
-            'bg-amber-100 text-amber-800' => $result === App\GoalWeekResult::InLine && $closeCall,
-            'bg-grass text-ink' => $result === App\GoalWeekResult::InLine && ! $closeCall,
+            'bg-grass text-ink' => $result === App\GoalWeekResult::InLine,
             'bg-gradient-to-r from-gold via-[#f0dca4] to-gold text-ink shadow-sm' => $result === App\GoalWeekResult::Past,
             'bg-sky-700 text-white shadow-sm' => $result === App\GoalWeekResult::Smashed,
         ])>
@@ -23,7 +23,7 @@
             @endif
             @if ($compact)
                 {{-- Tight spaces show the short name; the full one is there for screen readers (and the colour says it). --}}
-                <span aria-hidden="true">{{ match ($result) { App\GoalWeekResult::Short => 'Short', App\GoalWeekResult::InLine => 'In line', App\GoalWeekResult::Past => 'Past', App\GoalWeekResult::Smashed => 'Smashed' } }}</span>
+                <span aria-hidden="true">{{ match ($result) { App\GoalWeekResult::Short => 'Short', App\GoalWeekResult::InLine => 'In Line', App\GoalWeekResult::Past => 'Past', App\GoalWeekResult::Smashed => 'Smashed' } }}</span>
                 <span class="sr-only">{{ $result->label() }}{{ $closeCall ? ', close call' : '' }}</span>
             @else
                 {{ $result->label() }}{{ $closeCall ? ', close call' : '' }}

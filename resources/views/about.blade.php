@@ -209,7 +209,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="mt-3 text-sm">In line under {{ $rules->closeCallBelow() }}% shows as a close call. A Smashed week counts in full only with proof on a check-in that week or your opponent&rsquo;s confirmation; until then it&rsquo;s credited as Past the line.</p>
+                <p class="mt-3 text-sm">In Line under {{ $rules->closeCallBelow() }}% shows as a close call. A Smashed week counts in full only with proof on a check-in that week or your opponent&rsquo;s confirmation; until then it&rsquo;s credited as Past the line.</p>
 
                 <h3 class="mt-8 font-serif text-xl font-bold tracking-tight text-ink">Matchup stars</h3>
                 <p class="mt-2">In a GoalLeague you also face one league mate each week. The higher band wins outright. In the same band it&rsquo;s a <strong class="text-ink">photo finish</strong>: the higher credited percent of plan takes it, and exactly equal percents are a tie.</p>

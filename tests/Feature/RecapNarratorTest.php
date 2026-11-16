@@ -54,7 +54,7 @@ class RecapNarratorTest extends TestCase
         $this->assertSame(3, $facts['active_days']);
         $this->assertSame('Wednesday', $facts['best_day']);
         $this->assertSame(1, $facts['line_points']);
-        $this->assertSame([['goal' => 'Run a 10K', 'result' => 'In line', 'line_points' => 1, 'percent_of_plan' => 100]], $facts['goals']);
+        $this->assertSame([['goal' => 'Run a 10K', 'result' => 'In Line', 'line_points' => 1, 'percent_of_plan' => 100]], $facts['goals']);
         $this->assertStringContainsString('<week>', RecapNarrator::brief($facts));
     }
 

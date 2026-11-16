@@ -76,11 +76,11 @@ enum Badge: string
     {
         return match ($this) {
             self::FirstStep => 'Checked in for the first time.',
-            self::InLine => 'Finished a GoalWeek in line.',
-            self::PastTheLine => 'Finished a GoalWeek past the line.',
-            self::Smashed => 'Smashed the line in a GoalWeek.',
-            self::OnARoll => self::ON_A_ROLL_WEEKS.' GoalWeeks in line in a row.',
-            self::IronWill => self::IRON_WILL_WEEKS.' GoalWeeks in line in a row.',
+            self::InLine => 'Finished a GoalWeek In Line.',
+            self::PastTheLine => 'Finished a GoalWeek Past the Line.',
+            self::Smashed => 'Smashed the Line in a GoalWeek.',
+            self::OnARoll => self::ON_A_ROLL_WEEKS.' GoalWeeks In Line in a row.',
+            self::IronWill => self::IRON_WILL_WEEKS.' GoalWeeks In Line in a row.',
             self::HabitHero => self::HABIT_HERO_CHECK_INS.' habit check-ins.',
             self::Finisher => 'Crossed the GoalLine on a goal.',
             self::TeamPlayer => 'Joined a GoalLeague.',

@@ -12,7 +12,7 @@
     $position = fn (float $value) => round(min(max($value, 0), $max) / $max * 100, 2);
     $ticks = [
         // 90% and 100% sit close together, so their labels hang off opposite sides of the tick instead of overlapping.
-        ['value' => (int) round(App\GoalWeekResult::IN_LINE_AT * 100), 'label' => 'In line', 'align' => '-translate-x-full pr-0.5'],
+        ['value' => (int) round(App\GoalWeekResult::IN_LINE_AT * 100), 'label' => 'In Line', 'align' => '-translate-x-full pr-0.5'],
         ['value' => (int) round(App\GoalWeekResult::PAST_ABOVE * 100), 'label' => 'Past', 'align' => 'pl-0.5'],
         ['value' => (int) round(App\GoalWeekResult::SMASHED_AT * 100), 'label' => 'Smashed', 'align' => '-translate-x-1/2'],
     ];

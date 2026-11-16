@@ -155,7 +155,7 @@ class MatchupBoard
     public static function verdict(array $home, ?array $away, ?float $median, bool $final, ?float $medianPercent = null): string
     {
         $name = fn (array $side) => $side['member']->user->name;
-        $band = fn (array $side) => $side['result']?->label() ?? 'Short of the line';
+        $band = fn (array $side) => $side['result']?->label() ?? 'Short of the Line';
         $outcome = $home['outcome'];
 
         if ($away === null) {

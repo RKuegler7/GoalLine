@@ -19,12 +19,12 @@
 
     $nudge = match (true) {
         $notStarted => 'New GoalWeek. Trust the process: check off your first task to get going.',
-        $result === App\GoalWeekResult::Short => 'Earn '.$morePoints($week->pointsTo(App\GoalWeekResult::IN_LINE_AT)).' to get in line. One more day on the line.',
-        $closeCall => 'Close call: '.$morePoints($week->pointsToSafety()).' gets you safely in line.',
-        $result === App\GoalWeekResult::InLine => 'Earn '.$morePoints($week->pointsPastTheLine()).' to get past the line. Beating a task\'s number and extra days on a weekly habit count.',
+        $result === App\GoalWeekResult::Short => 'Earn '.$morePoints($week->pointsTo(App\GoalWeekResult::IN_LINE_AT)).' to get In Line. One more day on the line.',
+        $closeCall => 'Close call: '.$morePoints($week->pointsToSafety()).' gets you safely In Line.',
+        $result === App\GoalWeekResult::InLine => 'Earn '.$morePoints($week->pointsPastTheLine()).' to get Past the Line. Beating a task\'s number and extra days on a weekly habit count.',
         $needsProof => 'You reached Smashed! Show your work on a check-in, or ask your opponent to confirm, so it counts in full.',
-        $result === App\GoalWeekResult::Past => 'Past the line! '.ucfirst($morePoints($week->pointsTo(App\GoalWeekResult::SMASHED_AT))).' smashes it.',
-        $result === App\GoalWeekResult::Smashed => 'You smashed the line this GoalWeek.',
+        $result === App\GoalWeekResult::Past => 'Past the Line! '.ucfirst($morePoints($week->pointsTo(App\GoalWeekResult::SMASHED_AT))).' smashes it.',
+        $result === App\GoalWeekResult::Smashed => 'You Smashed the Line this GoalWeek.',
         default => null,
     };
 @endphp
@@ -178,7 +178,7 @@
         <div @class([
             'mt-4 rounded-xl px-4 py-3',
             'bg-amber-50' => $closeCall,
-            'bg-red-50' => $short,
+            'bg-mint' => $short,
             'bg-ivory' => ! $closeCall && ! $short,
         ])>
             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -187,7 +187,7 @@
             </div>
             <x-goal-progress class="mt-3" :percent="$week->completionShare() * 100" label="Planned points earned this GoalWeek" :name="'week-'.$week->id" />
             @if ($nudge)
-                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-red-700' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
+                <p @class(['mt-2 text-sm', 'text-amber-800' => $closeCall, 'text-ink/75' => $short, 'text-ink/70' => ! $closeCall && ! $short])>
                     {{ $nudge }}
                     @if (in_array($result, [App\GoalWeekResult::Past, App\GoalWeekResult::Smashed], true))
                         <a href="{{ route('highlights.create', ['week' => $week]) }}" class="ml-1 font-semibold text-club hover:underline">Share this GoalWeek</a>

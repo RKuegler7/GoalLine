@@ -204,9 +204,9 @@ class ProfileRedesignTest extends TestCase
     {
         Storage::fake('uploads');
         $this->get(route('demo'));
-        $peter = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Peter Kilpatrick')->sole();
+        $red = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Red Dufour')->sole();
 
-        $this->get($peter->profileUrl())->assertOk()
+        $this->get($red->profileUrl())->assertOk()
             ->assertSee('Early miles, then the day')->assertSee('Reading')->assertDontSee('data-profile-cover', false)
             ->assertSee('Finish a spring marathon');
 

@@ -188,7 +188,7 @@
                     @foreach (array_filter([
                         ['Total stars', $stats['totalStars'], null],
                         ['Best week', $stats['bestWeek'] ? $stats['bestWeek']['stars'].' ★' : '—', $stats['bestWeek'] ? $stats['bestWeek']['label'].' · '.$stats['bestWeek']['percent'].'%' : null],
-                        ['Longest streak', $stats['longestStreak'], Str::plural('week', $stats['longestStreak']).' in line+'],
+                        ['Longest streak', $stats['longestStreak'], Str::plural('week', $stats['longestStreak']).' In Line+'],
                         $finish ? ['Finish', $ordinal($finish['rank']), 'of '.$finish['size']] : null,
                         ['Tasks done', $stats['tasksDone'], null],
                         ['Proof posts', $stats['proofPosts'], null],

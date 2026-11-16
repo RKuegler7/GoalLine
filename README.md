@@ -8,7 +8,7 @@
 
 **Live app:** https://ddhxw7holo4vs.cloudfront.net
 
-**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world and play as **Ryan Kuegler**, alongside the Busch School crew (Peter Kilpatrick, Andrew Abela, Jack Yoest, and Tim and Steph Busch). Two GoalLeagues are mid-season (**Marathon by March** and **SIE Exam Study Prep**) with a live Matchup, last season's finale is ready to preview, and three Challenges are running or waiting (Read 10 pages a day, Morning and Evening Prayer, and Lent 2027). **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
+**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world and play as **Ryan Kuegler**, alongside five made-up league mates (Red Dufour, Jane Mullen, Joe Maloney, Jack Carlini and Jill Conway). Two GoalLeagues are mid-season (**Marathon by March** and **SIE Exam Study Prep**) with a live Matchup, last season's finale is ready to preview, and three Challenges are running or waiting (Read 10 pages a day, Morning and Evening Prayer, and Lent 2027). **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
 
 **Demo video:** DEMO_VIDEO_LINK *(coming)*
 

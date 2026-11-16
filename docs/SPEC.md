@@ -200,11 +200,11 @@ The header (photo, name, @username, bio, and Friends, Goals and Medals counts, w
 Judges never type a username or password.
 
 - **One click:** "Try the demo" on the landing page and the login page signs the visitor into a fresh, isolated copy of the same demo world. Every judge sees the same starting point, and nobody can affect anyone else's copy.
-- **The world:** the visitor is Ryan Kuegler, with the Busch School crew as league mates and friends (Peter Kilpatrick, Andrew Abela, Jack Yoest, and Tim and Steph Busch), always shown doing well, in two GoalLeagues in GoalWeek 6 (Marathon by March, of 20, and SIE Exam Study Prep, of 14), with a live Matchup. Made-up strangers appear only in Explore. It includes:
+- **The world:** the visitor is Ryan Kuegler, with made-up league mates and friends (Red Dufour, Jane Mullen, Joe Maloney, Jack Carlini and Jill Conway), always shown doing well, in two GoalLeagues in GoalWeek 6 (Marathon by March, of 20, and SIE Exam Study Prep, of 14), with a live Matchup. Made-up strangers appear only in Explore. It includes:
   - intake answers behind Ryan's plans, every plan at or above its minimum pace, and a plan-floor note on next week's SIE plan;
   - check-ins with and without proof (drawn placeholder images, no downloads) and posts with cheers;
   - a friend request, a group task waiting on Ryan's vote, and three Challenges: Read 10 pages a day, Morning and Evening Prayer (every day for a year), and Lent 2027 (Sundays off, locked until Ash Wednesday, what to give up "TBD");
-  - a Smashed week with proof that counts in full (Peter), and one without proof credited as Past with "Needs proof" (Steph's SIE week);
+  - a Smashed week with proof that counts in full (Red), and one without proof credited as Past with "Needs proof" (Jill's SIE week);
   - a disputed check-in for Ryan to settle, and a lighter week ("Grading week");
   - last season, SIE Exam Study Prep · Season 1, finished with Goal Day answered and medals awarded, for the finale preview.
 - **Ryan's photo:** a file at `resources/demo/ryan-kuegler.jpg` becomes the visitor's photo (location and camera data removed); without it, initials.

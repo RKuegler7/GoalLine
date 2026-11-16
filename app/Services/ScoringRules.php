@@ -139,7 +139,7 @@ class ScoringRules
      */
     public function tableOrder(): array
     {
-        return ['Total stars (line stars plus matchup stars)', 'Then line stars', 'Then Past-the-Line weeks (Past the line or Smashed)'];
+        return ['Total stars (line stars plus matchup stars)', 'Then line stars', 'Then Past-the-Line weeks (Past the Line or Smashed the Line)'];
     }
 
     /**

@@ -9,7 +9,7 @@
 import { onPage } from './shell';
 
 const COPY = {
-    in_line: { title: "You're on the line.", detail: 'In line this GoalWeek. One more day at a time.' },
+    in_line: { title: "You're on the line.", detail: 'In Line this GoalWeek. One more day at a time.' },
     past: { title: 'Past the Line.', detail: 'More than the plan. That\'s the process paying off.' },
     smashed: { title: 'Smashed it.', detail: 'Well past the plan this GoalWeek.' },
 };

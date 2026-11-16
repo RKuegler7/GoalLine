@@ -54,7 +54,7 @@ class WeeklyStarsTest extends TestCase
         $first = $rows[$members[0]->user_id];
         $second = $rows[$members[1]->user_id];
 
-        // 100.4% is Past the line, 99.6% In line: a higher band wins outright, 2 matchup stars to 0.
+        // 100.4% is Past the Line, 99.6% In Line: a higher band wins outright, 2 matchup stars to 0.
         $this->assertSame([MatchupOutcome::Win, 2, 2], [$first->outcome, $first->matchup_points, $first->result_points]);
         $this->assertSame([MatchupOutcome::Loss, 0, 1], [$second->outcome, $second->matchup_points, $second->result_points]);
         $this->assertSame(4, $first->result_points + $first->matchup_points);

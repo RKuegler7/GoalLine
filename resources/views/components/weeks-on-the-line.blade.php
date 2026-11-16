@@ -15,7 +15,7 @@
     </summary>
     <div class="absolute left-0 z-20 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl bg-white px-3 py-2.5 text-[13px] leading-snug text-ink shadow-lg ring-1 ring-line" role="note">
         <p class="font-semibold text-club">Weeks on the line</p>
-        <p class="mt-1 text-ink/80">GoalWeeks in a row that finished In line or better: {{ (int) round(App\GoalWeekResult::IN_LINE_AT * 100) }}% of your plan or more. This week counts once it's final.</p>
+        <p class="mt-1 text-ink/80">GoalWeeks in a row that finished In Line or better: {{ (int) round(App\GoalWeekResult::IN_LINE_AT * 100) }}% of your plan or more. This week counts once it's final.</p>
         @if ($best !== null)
             <p class="mt-1 text-ink/70">Your best run: {{ $best }} {{ Str::plural('week', $best) }}.</p>
         @endif

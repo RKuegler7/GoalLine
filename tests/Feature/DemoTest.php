@@ -107,15 +107,15 @@ class DemoTest extends TestCase
         $lastWeek = fn (string $goal) => RoadmapWeek::whereHas('goal', fn ($goals) => $goals->where('title', $goal))
             ->whereDate('starts_on', '2026-10-19')->sole();
 
-        $peter = $lastWeek('Finish a spring marathon');
-        $this->assertSame(GoalWeekResult::Smashed, $peter->result());
-        // Peter got there the way any player can: more than planned on his numbers, with a photo on the long run.
-        $this->assertTrue($peter->tasks->contains(fn ($task) => $task->result_value > $task->result_target && $task->isVerified()));
+        $red = $lastWeek('Finish a spring marathon');
+        $this->assertSame(GoalWeekResult::Smashed, $red->result());
+        // Red got there the way any player can: more than planned on his numbers, with a photo on the long run.
+        $this->assertTrue($red->tasks->contains(fn ($task) => $task->result_value > $task->result_target && $task->isVerified()));
         $this->assertSame(0, RoadmapTask::where('is_bonus', true)->count(), 'No bonus tasks: players can\'t add them.');
 
-        $steph = $lastWeek('Pass the SIE before spring');
-        $this->assertTrue($steph->needsProofForSmashed());
-        $this->assertSame(GoalWeekResult::Past, $steph->result());
+        $jill = $lastWeek('Pass the SIE before spring');
+        $this->assertTrue($jill->needsProofForSmashed());
+        $this->assertSame(GoalWeekResult::Past, $jill->result());
     }
 
     public function test_the_demo_seasons_show_wins_photo_finishes_and_the_capped_credit(): void
@@ -125,21 +125,21 @@ class DemoTest extends TestCase
             ->where('week', $week)->whereHas('user', fn ($users) => $users->where('name', $name))->sole();
         $row = fn ($result) => [$result->result->value, $result->outcome, $result->result_points, $result->matchup_points];
 
-        // A higher band wins outright: Peter's proven Smashed week, 3 line + 2 match.
-        $this->assertSame(['smashed', MatchupOutcome::Win, 3, 2], $row($result('Marathon by March', 5, 'Peter Kilpatrick')));
-        // Both In line at exactly 100%: a photo-finish tie, 1 each.
-        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Peter Kilpatrick')));
-        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Steph Busch')));
-        // Both In line, 100% beats 90%: a photo finish win for 1 matchup star, and 0 for the loss.
-        $this->assertSame(['in_line', MatchupOutcome::CloseWin, 1, 1], $row($result('SIE Exam Study Prep', 1, 'Andrew Abela')));
-        $this->assertSame(['in_line', MatchupOutcome::CloseLoss, 1, 0], $row($result('SIE Exam Study Prep', 1, 'Jack Yoest')));
-        // Steph's unproven 150%+ SIE week is credited as Past at 149%.
-        $steph = RoadmapWeek::whereHas('goal', fn ($goals) => $goals->where('title', 'Pass the SIE before spring'))->whereDate('starts_on', '2026-10-19')->sole();
-        $this->assertSame(149, $steph->creditedPercent());
-        $this->assertSame('past', $result('SIE Exam Study Prep', 5, 'Steph Busch')->result->value);
+        // A higher band wins outright: Red's proven Smashed week, 3 line + 2 match.
+        $this->assertSame(['smashed', MatchupOutcome::Win, 3, 2], $row($result('Marathon by March', 5, 'Red Dufour')));
+        // Both In Line at exactly 100%: a photo-finish tie, 1 each.
+        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Red Dufour')));
+        $this->assertSame(['in_line', MatchupOutcome::Tie, 1, 1], $row($result('Marathon by March', 2, 'Jill Conway')));
+        // Both In Line, 100% beats 90%: a photo finish win for 1 matchup star, and 0 for the loss.
+        $this->assertSame(['in_line', MatchupOutcome::CloseWin, 1, 1], $row($result('SIE Exam Study Prep', 1, 'Jane Mullen')));
+        $this->assertSame(['in_line', MatchupOutcome::CloseLoss, 1, 0], $row($result('SIE Exam Study Prep', 1, 'Joe Maloney')));
+        // Jill's unproven 150%+ SIE week is credited as Past at 149%.
+        $jill = RoadmapWeek::whereHas('goal', fn ($goals) => $goals->where('title', 'Pass the SIE before spring'))->whereDate('starts_on', '2026-10-19')->sole();
+        $this->assertSame(149, $jill->creditedPercent());
+        $this->assertSame('past', $result('SIE Exam Study Prep', 5, 'Jill Conway')->result->value);
 
         $this->get(route('leagues.matchups', [League::where('name', 'SIE Exam Study Prep')->sole(), 1]))->assertOk()
-            ->assertSee('Photo finish: both In line. Andrew Abela takes the photo finish, 100% to 90%.');
+            ->assertSee('Photo finish: both In Line. Jane Mullen takes the photo finish, 100% to 90%.');
     }
 
     public function test_the_seeder_builds_one_demo_world_with_a_known_sign_in_and_can_run_again(): void
@@ -228,8 +228,8 @@ class DemoTest extends TestCase
         $doneToday = fn (User $person) => $person->goals()->first()->weeks()->whereDate('starts_on', '2026-11-09')->sole()
             ->tasks()->whereDate('completed_at', '2026-11-09')->count();
 
-        $peter = User::where('demo_sandbox', $sandbox)->where('name', 'Peter Kilpatrick')->sole();
-        $this->assertSame(1, $doneToday($peter), 'Peter ran first thing this morning.');
+        $red = User::where('demo_sandbox', $sandbox)->where('name', 'Red Dufour')->sole();
+        $this->assertSame(1, $doneToday($red), 'Red ran first thing this morning.');
         $this->assertSame(0, $doneToday($visitor), 'The visitor still has today to do.');
 
         $running = $visitor->leagues()->where('name', 'Marathon by March')->sole();
@@ -321,8 +321,8 @@ class DemoTest extends TestCase
         $this->assertStringEndsWith('@demo.goalline.invalid', $visitor->fresh()->email);
 
         // And real members can't see into a demo.
-        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Peter Kilpatrick')->sole()->profileUrl())->assertNotFound();
-        $this->actingAs($real)->get(route('people.search', ['q' => 'kilpatrick']))->assertDontSee('Peter Kilpatrick');
+        $this->actingAs($real)->get(User::where('demo_sandbox', $visitor->demo_sandbox)->where('name', 'Red Dufour')->sole()->profileUrl())->assertNotFound();
+        $this->actingAs($real)->get(route('people.search', ['q' => 'dufour']))->assertDontSee('Red Dufour');
         // A friendly "not found" that reveals nothing about the demo league.
         $this->actingAs($real)->get(route('leagues.join', $study->invite_code))->assertOk()->assertSee('find that invite')->assertDontSee($study->name);
     }

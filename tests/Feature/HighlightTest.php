@@ -52,7 +52,7 @@ class HighlightTest extends TestCase
         $this->actingAs($goal->user)->get(route('highlights.create', ['milestone' => $week->id]))->assertForbidden();
 
         $great = $this->weekWith($goal, done: 2, of: 2, milestone: true, position: 2, bonus: 1);
-        $this->actingAs($goal->user)->get(route('highlights.create', ['week' => $great->id]))->assertOk()->assertSee('Past the line');
+        $this->actingAs($goal->user)->get(route('highlights.create', ['week' => $great->id]))->assertOk()->assertSee('Past the Line');
         $this->actingAs($goal->user)->get(route('highlights.create', ['milestone' => $great->id]))->assertOk()->assertSee('Hit a milestone');
     }
 

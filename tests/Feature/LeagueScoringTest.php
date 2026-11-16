@@ -75,7 +75,7 @@ class LeagueScoringTest extends TestCase
 
         $runnerUp = $standings->last();
         $this->assertSame([0, 1, 1], [$runnerUp['wins'], $runnerUp['ties'], $runnerUp['losses']]);
-        $this->assertSame(1 + 0 + 1 + 1, $runnerUp['total'], 'In line and lost to a higher band earns just the 1 line point.');
+        $this->assertSame(1 + 0 + 1 + 1, $runnerUp['total'], 'In Line and lost to a higher band earns just the 1 line point.');
 
         $record = (new ProfileStats($alex->user))->leagueRecord();
         $this->assertSame(['wins' => 1, 'ties' => 1, 'losses' => 0], $record);
@@ -165,11 +165,11 @@ class LeagueScoringTest extends TestCase
             ->assertSee('GoalWeek 1 Matchup')
             ->assertSee('Your Matchup')
             ->assertSee('Live')
-            ->assertSee("{$first->user->name} leads: Past the line beats In line.")
+            ->assertSee("{$first->user->name} leads: Past the Line beats In Line.")
             ->assertSeeText('125%')
             ->assertSeeText('if it ended now, +4 stars')
             ->assertSeeText('2 line + 2 matchup · Win')
-            ->assertSee('1 more point to Past the line')
+            ->assertSee('1 more point to Past the Line')
             ->assertSee('Scoreboard')
             ->assertSee('data-pager-page', false);
 
@@ -192,7 +192,7 @@ class LeagueScoringTest extends TestCase
         $this->actingAs($home->user)->get(route('leagues.show', $league))->assertSee(route('leagues.matchups', [$league, 1]));
         $this->actingAs($home->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
             ->assertSee('Final')
-            ->assertSee("{$home->user->name} won: Smashed the line beats Short of the line.")
+            ->assertSee("{$home->user->name} won: Smashed the Line beats Short of the Line.")
             ->assertSeeText('+5 stars');
     }
 
@@ -208,8 +208,8 @@ class LeagueScoringTest extends TestCase
     {
         $league = $this->league(members: 2, startsOn: '2026-10-05', endsOn: '2026-10-11');
         [$alex, $blair] = $league->members->all();
-        $this->weekOf($alex, '2026-10-05', planned: 10, earned: 10);  // 100%, In line
-        $this->weekOf($blair, '2026-10-05', planned: 10, earned: 9);  // 90%, In line
+        $this->weekOf($alex, '2026-10-05', planned: 10, earned: 10);  // 100%, In Line
+        $this->weekOf($blair, '2026-10-05', planned: 10, earned: 9);  // 90%, In Line
 
         $this->travelTo('2026-10-21');
         $table = new LeagueTable($league->fresh());
@@ -225,7 +225,7 @@ class LeagueScoringTest extends TestCase
 
         $this->actingAs($alex->user)->get(route('leagues.matchups', [$league, 1]))->assertOk()
             ->assertSee('Photo finish')
-            ->assertSee("Photo finish: both In line. {$alex->user->name} takes the photo finish, 100% to 90%.")
+            ->assertSee("Photo finish: both In Line. {$alex->user->name} takes the photo finish, 100% to 90%.")
             ->assertSeeText('1 line + 1 matchup · Photo finish win')
             ->assertSeeText('1 line + 0 matchup · Loss');
     }
@@ -244,7 +244,7 @@ class LeagueScoringTest extends TestCase
         $this->assertSame([MatchupOutcome::Tie, 1, 2], $this->settled($league, $alex));
         $this->assertSame([MatchupOutcome::Tie, 1, 2], $this->settled($league, $blair));
         $this->actingAs($alex->user)->get(route('leagues.matchups', [$league, 1]))
-            ->assertSee('Photo finish: both In line. Tie at 95%.');
+            ->assertSee('Photo finish: both In Line. Tie at 95%.');
     }
 
     public function test_a_fraction_of_a_percent_decides_a_photo_finish(): void

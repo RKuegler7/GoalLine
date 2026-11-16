@@ -49,7 +49,7 @@ class MatchupLine
     public static function markers(): array
     {
         return array_map(fn (array $marker) => $marker + ['position' => self::position($marker['percent'])], [
-            ['percent' => (int) round(GoalWeekResult::IN_LINE_AT * 100), 'label' => 'In line', 'key' => 'in_line'],
+            ['percent' => (int) round(GoalWeekResult::IN_LINE_AT * 100), 'label' => 'In Line', 'key' => 'in_line'],
             ['percent' => (int) round(GoalWeekResult::PAST_ABOVE * 100), 'label' => 'Plan', 'key' => 'plan'],
             ['percent' => (int) round(GoalWeekResult::SMASHED_AT * 100), 'label' => 'Smashed', 'key' => 'smashed'],
         ]);

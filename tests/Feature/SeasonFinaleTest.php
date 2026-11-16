@@ -257,7 +257,7 @@ class SeasonFinaleTest extends TestCase
         app(MedalAwarder::class)->forLeague($this->league);
         $this->assertTrue(Medal::where('user_id', $this->people['Blake']->id)->where('type', MedalType::SmashedIt)->exists());
 
-        // A settled dispute takes Blake's Smashed weeks down to In line.
+        // A settled dispute takes Blake's Smashed weeks down to In Line.
         $this->league->results()->where('user_id', $this->people['Blake']->id)->where('result', GoalWeekResult::Smashed)
             ->update(['result' => GoalWeekResult::InLine, 'result_points' => GoalWeekResult::InLine->points()]);
         app(MedalAwarder::class)->forLeague($this->league->fresh());

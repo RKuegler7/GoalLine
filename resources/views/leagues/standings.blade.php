@@ -70,7 +70,7 @@
                     </div>
                     <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" class="mx-auto mt-2 h-auto w-full max-w-xl" role="img" aria-labelledby="season-chart">
                         {{-- Guide lines at In line and the plan, labelled at the left: the plan above its line, In line below. --}}
-                        @foreach ([[(int) round(App\GoalWeekResult::IN_LINE_AT * 100), 9, 'In line'], [100, -3, 'Plan']] as [$guide, $offset, $name])
+                        @foreach ([[(int) round(App\GoalWeekResult::IN_LINE_AT * 100), 9, 'In Line'], [100, -3, 'Plan']] as [$guide, $offset, $name])
                             <line x1="8" x2="{{ $chartWidth - 8 }}" y1="{{ $y($guide) }}" y2="{{ $y($guide) }}" stroke="#e5e2d8" stroke-width="1" />
                             <text x="8" y="{{ $y($guide) + $offset }}" font-size="8" fill="#5f6b63">{{ $name }} {{ $guide }}%</text>
                         @endforeach

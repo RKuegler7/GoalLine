@@ -92,7 +92,7 @@
                                 @endphp
                                 <li class="font-semibold text-club">{{ $side['next']['points'] }} more {{ Str::plural('point', $side['next']['points']) }} to {{ $side['next']['band']->label() }}@if ($goal && $targets['left'] > 0) <span class="font-normal text-ink/70">({{ $goal['more'] ? 'all '.$targets['left'].' '.Str::plural('task', $targets['left']).', plus habit days or the milestone' : 'about '.$goal['tasks'].' '.Str::plural('task', $goal['tasks']) }})</span>@endif</li>
                                 @if ($side['next']['band'] === App\GoalWeekResult::InLine)
-                                    <li>To reach Past the line: {{ $pts($targets['past']['points']) }}</li>
+                                    <li>To reach Past the Line: {{ $pts($targets['past']['points']) }}</li>
                                 @endif
                             @elseif (! $final && $side['result'] === App\GoalWeekResult::Smashed)
                                 <li class="font-semibold text-club">Top band. Keep the streak going.</li>

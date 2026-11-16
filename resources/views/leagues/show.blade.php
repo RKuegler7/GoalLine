@@ -126,7 +126,7 @@
                     <a href="{{ route('goals.show', $me->goal) }}" class="mt-1 block font-serif text-lg font-bold text-club hover:underline tracking-tight">{{ $me->goal->title }}</a>
                     <p class="text-xs text-ink/70">By {{ $me->goal->target_date->format('M j, Y') }} &middot; {{ $me->goal->isActive() ? 'in progress' : $me->goal->status->value }}</p>
                 @else
-                    <p class="mt-1 text-sm text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as short of the line.</p>
+                    <p class="mt-1 text-sm text-ink/70">You don't have a goal in this league right now, so your GoalWeeks count as Short of the Line.</p>
                 @endif
             </div>
             @if ($me->goal?->isActive())

@@ -41,7 +41,7 @@
                     ['Avg % of plan', $s['avgPercent'] !== null ? $s['avgPercent'].'%' : '—'],
                     ['On the line', $s['weeksOnLine'].' now · best '.$s['bestWeeksOnLine']],
                     ['Smashed · Past', $s['bands']['smashed'].' · '.$s['bands']['past']],
-                    ['In line · Short', $s['bands']['in_line'].' · '.$s['bands']['short']],
+                    ['In Line · Short', $s['bands']['in_line'].' · '.$s['bands']['short']],
                     ['Best week', $s['bestWeek'] ? $s['bestWeek']['weeklyPoints'].' ★ (week '.$s['bestWeek']['week'].')' : '—'],
                 ] as [$label, $value])
                     <div class="rounded-lg bg-ivory px-2.5 py-2 ring-1 ring-line ring-inset">
