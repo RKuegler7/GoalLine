@@ -12,8 +12,6 @@
 
 **Demo video:** DEMO_VIDEO_LINK *(coming)*
 
-> **The 20-second pitch:** Every player is scored against their own plan by plain code, not AI. Big claims need proof or your opponent's sign-off, and plans can't drop below the minimum pace the deadline requires.
-
 <table>
   <tr>
     <td align="center" width="25%"><img src="public/images/og-goalline.jpg" alt="The GoalLine landing page: Get in line with your goals" width="220"><br><sub><b>Landing page</b></sub></td>
