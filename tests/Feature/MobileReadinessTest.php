@@ -51,6 +51,9 @@ class MobileReadinessTest extends TestCase
         foreach (File::files(resource_path('views/components/layouts')) as $layout) {
             $html = $layout->getContents();
 
+            // Signed in or out, the top bar sits below the status bar (clock, battery) in the Home Screen app.
+            $this->assertStringContainsString('pt-[env(safe-area-inset-top)]', $html, $layout->getFilename());
+
             $this->assertStringNotContainsString('min-h-screen', $html, "{$layout->getFilename()} should use min-h-dvh.");
             $this->assertStringContainsString('min-h-dvh', $html, $layout->getFilename());
             $this->assertStringContainsString('env(safe-area-inset-bottom)', $html, $layout->getFilename());
