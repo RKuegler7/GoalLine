@@ -122,9 +122,9 @@ test('Challenges: build, check in by type, Standings, and public lists', async (
         await page.screenshot({ path: shot(testInfo, 'public-leagues'), fullPage: true });
         const name = (await row.locator('[data-public-league] p.text-club').first().textContent()).trim();
         await row.locator('[data-join-public]').first().click();
-        await page.waitForLoadState('networkidle');
+        // Join goes through the invite link to the goal step: wait for that page, not just the tap.
+        await page.waitForURL(/\/(join|invite)\//);
         await expect(page.locator('body')).toContainText(name);
-        expect(page.url()).toMatch(/\/(join|invite|leagues)\//);
     });
 
     await test.step('Lent template: Ash Wednesday to Holy Saturday, Sundays off, kickoff state', async () => {

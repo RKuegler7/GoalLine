@@ -160,7 +160,7 @@ php artisan migrate --seed
 composer run dev
 ```
 
-Then open http://localhost:8000 and tap **Try the demo**, or sign in as **john.cardinal@demo.goalline.invalid** with the password **password** (`php artisan db:seed` rebuilds that world, dated to today). Without an `ANTHROPIC_API_KEY` everything works and the coach uses its built-in fallbacks. Emails go to `storage/logs/laravel.log`.
+Then open http://localhost:8000 and tap **Try the demo**, or sign in as **ryan.kuegler@demo.goalline.invalid** with the password **password** (`php artisan db:seed` rebuilds that world, dated to today). Without an `ANTHROPIC_API_KEY` everything works and the coach uses its built-in fallbacks. Emails go to `storage/logs/laravel.log`.
 
 ## What testers said
 

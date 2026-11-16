@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Clock;
 use App\GoalCategory;
 use App\HighlightKind;
+use App\Lent;
 use App\Models\Challenge;
 use App\Models\Friendship;
 use App\Models\Goal;
@@ -41,7 +42,7 @@ class DemoWorld
     /**
      * The visitor's name in the demo.
      */
-    public const VISITOR_NAME = 'John Cardinal';
+    public const VISITOR_NAME = 'Ryan Kuegler';
 
     /**
      * The sandbox of the demo world made by the database seeder, so re-running the seeder replaces it.
@@ -67,25 +68,12 @@ class DemoWorld
     ];
 
     /**
-     * A week of a 4.0 semester, Monday to Sunday.
+     * A week of SIE exam prep, Monday to Sunday (the live league and last season's).
      */
-    private const STUDY_WEEK = [
-        ['Organic Chem problem set', 2, null, null],
-        ['Read Econ chapter and take notes', 1, null, null],
-        ['Calc office hours', 1, null, null],
-        ['Spanish flashcards', 1, 50, 'cards'],
-        ['History essay', 2, 500, 'words'],
-        ['Review the week\'s lecture notes', 1, null, null],
-        ['Plan next week\'s study blocks', 1, null, null],
-    ];
-
-    /**
-     * A week of CPA exam prep, Monday to Sunday.
-     */
-    private const CPA_WEEK = [
+    private const SIE_WEEK = [
         ['Practice questions, 40', 1, 40, 'questions'],
         ['Read and outline one chapter', 1, null, null],
-        ['Timed simulation', 2, null, null],
+        ['Timed practice set', 2, null, null],
         ['Flashcards', 1, null, null],
         ['Review missed questions', 1, null, null],
         ['Mock exam block', 2, null, null],
@@ -93,7 +81,7 @@ class DemoWorld
     ];
 
     /**
-     * How long the finished CPA season ran.
+     * How long last season of SIE Exam Study Prep ran.
      */
     private const FINISHED_SEASON_WEEKS = 6;
 
@@ -117,45 +105,44 @@ class DemoWorld
         $seasonStart = $this->monday->subWeeks(self::WEEKS_PLAYED);
 
         $visitor = DB::transaction(function () use ($seasonStart) {
-            $you = $this->person(self::VISITOR_NAME, 'Training for my first marathon and chasing a 4.0. One more day on the line.');
-            $red = $this->person('Red Dufour', 'Marathon #3. Coffee first, then miles.');
-            $tim = $this->person('Tim Busch', 'Couch to marathon. Somehow it\'s working.');
+            // The Busch School crew, only ever shown doing well: the visitor is Ryan, with his league mates and friends.
+            $you = $this->person(self::VISITOR_NAME, "West Chester | DC | Catholic Men's Soccer | Finance and Sales at the Busch School of Business. Building GoalLine.");
+            $peter = $this->person('Peter Kilpatrick', 'Catholic University. Miles before meetings.');
+            $tim = $this->person('Tim Busch', "Couch to marathon. Somehow it's working.");
             $steph = $this->person('Steph Busch', 'Trail runner. Slow and steady.');
-            $mary = $this->person('Mary Mullen', 'Pre-med. Mullen Library regular.');
-            $pat = $this->person('Pat Caldwell', 'Busch School of Business. Coffee minor.');
-            $kate = $this->person('Kate Gibbons', 'Dean\'s list or bust.');
-            $fran = $this->person('Fran Flather', 'Writing a novel, one page at a time.');
+            $andrew = $this->person('Andrew Abela', 'Busch School of Business. Back in exam prep with the students.');
+            $jack = $this->person('Jack Yoest', 'Busch School professor. Studying alongside my class this winter.');
 
             // Rich profiles for the people judges will open.
-            $this->identity($you, 'First marathon and a 4.0, one GoalWeek at a time', ['Running', 'Studying', 'Exams', 'Faith'], '#176B45', '#43B96A');
-            $this->identity($red, 'Sub-3:45 or bust', ['Running', 'Cycling', 'Outdoors'], '#1E2922', '#176B45');
+            $you->forceFill(['location' => 'Washington, DC'])->save();
+            $this->identity($you, 'Building GoalLine, one GoalWeek at a time', ['Soccer', 'Running', 'Finance', 'Faith'], '#176B45', '#43B96A');
+            $this->identity($peter, 'Early miles, then the day', ['Running', 'Faith', 'Reading'], '#1E2922', '#176B45');
             $this->identity($tim, 'Proving couch to marathon works', ['Running', 'Cooking'], '#43B96A', '#176B45');
             $this->identity($steph, 'Trails, hills and long Saturdays', ['Running', 'Outdoors', 'Yoga'], '#176B45', '#1E2922');
-            $this->identity($mary, 'Med school, here I come', ['Studying', 'Exams', 'Reading'], '#D4AC58', '#176B45');
-            $this->identity($pat, 'Straight A\'s and a CPA by summer', ['Studying', 'Career', 'Lifting'], '#1E2922', '#D4AC58');
-            $this->identity($kate, 'Dean\'s List, then the world', ['Studying', 'Languages', 'Music'], '#176B45', '#D4AC58');
-            $this->identity($fran, 'A page a day until it\'s a book', ['Writing', 'Reading', 'Art'], '#D4AC58', '#1E2922');
+            $this->identity($andrew, 'Business as a force for good', ['Business', 'Faith', 'Reading'], '#D4AC58', '#176B45');
+            $this->identity($jack, 'Teaching, and learning with my students', ['Teaching', 'Business', 'Reading'], '#1E2922', '#D4AC58');
+            $this->photoFor($you, resource_path('demo/ryan-kuegler.jpg'));
 
-            // Two GoalLeagues, three weeks played, this week's matchup live.
-            $running = $this->league('Marathon by March', 'Everyone training for a spring marathon. Long runs on Saturdays.', GoalCategory::Fitness, $red, $seasonStart, $seasonStart->addWeeks(20)->subDay());
-            $study = $this->league('4.0 This Fall', 'Straight A\'s this semester. Show the work, not just the grade.', GoalCategory::Academic, $you, $seasonStart, $seasonStart->addWeeks(14)->subDay());
+            // Two GoalLeagues, five weeks played, this week's Matchup live.
+            $running = $this->league('Marathon by March', 'Everyone training for a spring marathon. Long runs on Saturdays.', GoalCategory::Fitness, $peter, $seasonStart, $seasonStart->addWeeks(20)->subDay());
+            $study = $this->league('SIE Exam Study Prep', 'Getting ready for the SIE together. Show the work, not just the score.', GoalCategory::Academic, $you, $seasonStart, $seasonStart->addWeeks(14)->subDay());
 
             $marathonTarget = $this->today->setMonth(3)->setDay(15)->addYears($this->today->month >= 3 ? 1 : 0);
-            $finals = $seasonStart->addWeeks(14)->subDay();
+            $examDay = $seasonStart->addWeeks(14)->subDay();
 
             // How each person's weeks went: [tasks done, milestone hit, bonus tasks], for the weeks already played.
-            // Last week Red and Kate both reached Smashed (150%+): Red with proof, Kate without, so Kate's counts as Past.
+            // Last week Peter and Steph both reached Smashed (150%+): Peter with proof, Steph without, so hers counts as Past.
             $runners = [
                 [$you, 'Run the DC Marathon by March', [[5, true, 0], [6, true, 0], [6, true, 0], [7, true, 1], [7, true, 0]], 1],
-                [$red, 'Run a marathon under 3:45 by March', [[6, true, 1], [7, true, 0], [7, true, 2], [7, true, 1], [7, true, 5]], 0],
+                [$peter, 'Finish a spring marathon', [[6, true, 1], [7, true, 0], [7, true, 2], [7, true, 1], [7, true, 5]], 0],
                 [$tim, 'Finish my first marathon in March', [[4, false, 0], [5, true, 0], [5, false, 0], [6, true, 0], [7, true, 1]], 1],
                 [$steph, 'Run the Shamrock Marathon this spring', [[6, true, 0], [6, true, 1], [6, true, 0], [4, false, 0], [6, true, 0]], 0],
             ];
             $students = [
-                [$you, 'Get a 4.0 GPA this fall', [[6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 1]], 1],
-                [$mary, 'Ace Organic Chem and keep a 4.0', [[7, true, 0], [6, true, 0], [7, true, 1], [7, true, 0], [6, true, 0]], 0],
-                [$pat, 'Get straight A\'s this semester', [[6, true, 0], [5, true, 0], [5, true, 0], [6, true, 0], [5, false, 0]], 1],
-                [$kate, 'Make the Dean\'s List this fall', [[5, true, 0], [6, true, 1], [6, true, 0], [7, true, 2], [7, true, 6]], 0],
+                [$you, 'Pass the SIE exam', [[6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 1]], 1],
+                [$andrew, 'Pass the SIE this winter', [[7, true, 0], [6, true, 0], [7, true, 1], [7, true, 0], [6, true, 0]], 0],
+                [$jack, 'Pass the SIE with my students', [[6, true, 0], [5, true, 0], [5, true, 0], [6, true, 0], [5, false, 0]], 1],
+                [$steph, 'Pass the SIE before spring', [[5, true, 0], [6, true, 1], [6, true, 0], [7, true, 2], [7, true, 6]], 0],
             ];
 
             $goals = [];
@@ -164,37 +151,38 @@ class DemoWorld
                 $running->members()->create(['user_id' => $person->id, 'goal_id' => $goals['run'][$person->id]->id]);
             }
             foreach ($students as [$person, $title, $history, $missedThisWeek]) {
-                $goals['study'][$person->id] = $this->goal($person, $title, GoalCategory::Academic, $finals, self::STUDY_WEEK, $history, $missedThisWeek, 'Study', 0);
+                $goals['study'][$person->id] = $this->goal($person, $title, GoalCategory::Academic, $examDay, self::SIE_WEEK, $history, $missedThisWeek, 'Study', 0);
                 $study->members()->create(['user_id' => $person->id, 'goal_id' => $goals['study'][$person->id]->id]);
             }
 
             // Each league's shared goal, the template new members start from.
             $running->forceFill(['goal_title' => 'Run a spring marathon', 'goal_target_date' => $marathonTarget, 'goal_description' => 'Any 26.2 this spring. Long runs on Saturdays.', 'goal_target_result' => 'Finish strong'])->save();
-            $study->forceFill(['goal_title' => 'Finish the semester with a 4.0', 'goal_target_date' => $finals, 'goal_description' => 'Every class, every week. Show the work, not just the grade.'])->save();
+            $study->forceFill(['goal_title' => 'Pass the SIE exam', 'goal_target_date' => $examDay, 'goal_description' => 'Study blocks every week. Show the work, not just the score.', 'goal_target_result' => 'A 70 or higher'])->save();
 
             // A daily habit, a personal task the league can see, and last week's results scored.
             $this->habit($goals['run'][$you->id], 'Stretch', 5, 10);
             $this->personalTask($goals['run'][$you->id], 'Ice bath after the long run', 1);
             $this->personalTask($goals['run'][$tim->id], 'Walk 20 minutes on rest days', 1);
-            $this->proofLastWeek($goals['run'][$red->id], 'Extra miles', '6.2 mi · Sunday shakeout');
+            $this->proofLastWeek($goals['run'][$peter->id], 'Extra miles', '6.2 mi · Sunday shakeout');
             (new LeagueTable($running->fresh()))->settle();
             (new LeagueTable($study->fresh()))->settle();
 
-            // Last term's finished season: Goal Day answered, medals awarded, ready for the finale preview.
-            $this->finishedSeason($you, $mary, $pat, $kate, $seasonStart);
+            // Last season of SIE Exam Study Prep: Goal Day answered, medals awarded, ready for the finale preview.
+            $this->finishedSeason($you, $andrew, $jack, $steph, $seasonStart);
 
-            $this->friends($you, [$red, $mary, $pat, $fran]);
-            $this->friends($red, [$tim, $steph]);
+            $this->friends($you, [$peter, $andrew, $jack, $tim]);
+            $this->friends($peter, [$tim, $steph]);
+            $this->friends($tim, [$steph]);
             Friendship::create(['requester_id' => $steph->id, 'addressee_id' => $you->id]);
 
-            $this->posts($you, $red, $tim, $steph, $mary, $pat, $fran, $running, $study, $goals);
+            $this->posts($you, $peter, $tim, $steph, $andrew, $jack, $running, $study, $goals);
             $this->exploreExamples($seasonStart);
-            $this->planHonesty($goals, $you, $pat, $running);
-            $groupTask = $this->groupTask($running, $red, [$red, $tim]);
-            $this->challenge($tim, [$you, $tim, $red, $mary]);
-            $this->chat($running, [[$red, 'Week '.(self::WEEKS_PLAYED + 1).', let\'s go. Who\'s in for the river trail on Saturday?', 26], [$tim, 'In. Bringing gels for everyone.', 25], [$steph, 'Count me in. Slow pace please, my calves remember last week.', 20], [$red, 'Proposed a group task for next week. Vote in the Group tasks section.', 3]]);
-            $this->chat($study, [[$mary, 'Midterms in two weeks. Office hours are the cheat code.', 30], [$kate, 'Mullen 3rd floor tonight if anyone wants a study buddy.', 9], [$pat, 'Saving me a seat?', 8]]);
-            $this->inbox($you, $red, $mary, $steph, $groupTask);
+            $this->planHonesty($goals, $you, $jack, $running);
+            $groupTask = $this->groupTask($running, $peter, [$peter, $tim]);
+            $this->challenges($you, $peter, $tim, $steph, $andrew, $jack);
+            $this->chat($running, [[$peter, 'Week '.(self::WEEKS_PLAYED + 1).", let's go. Who's in for the river trail on Saturday?", 26], [$tim, 'In. Bringing gels for everyone.', 25], [$steph, 'Count me in. Slow pace please, my calves remember last week.', 20], [$peter, 'Proposed a group task for next week. Vote in the Group tasks section.', 3]]);
+            $this->chat($study, [[$andrew, 'Practice exam Friday. Timed, like the real thing.', 30], [$jack, 'My class is taking it too. Friendly competition.', 9], [$steph, 'Saving me a seat in Maloney?', 8]]);
+            $this->inbox($you, $peter, $andrew, $steph, $groupTask);
 
             return $you;
         });
@@ -203,28 +191,28 @@ class DemoWorld
     }
 
     /**
-     * A finished season for History and the finale preview: "CPA Prep League · Season 1", six weeks that ended before
-     * this season began. Goal Day is answered (the visitor passed FAR, verified by Mary's confirm), medals are
-     * awarded by code from the settled table, and two Goal Day results are in the league's news.
+     * A finished season for History and the finale preview: "SIE Exam Study Prep · Season 1", six weeks that ended
+     * before this season began. Goal Day is answered by everyone (the visitor's verified by Andrew's confirm), medals
+     * are awarded by code from the settled table, and the results are in the league's news.
      */
-    private function finishedSeason(User $you, User $mary, User $pat, User $kate, CarbonImmutable $before): League
+    private function finishedSeason(User $you, User $andrew, User $jack, User $steph, CarbonImmutable $before): League
     {
         $endsOn = $before->subWeek()->endOfWeek(CarbonImmutable::SUNDAY)->startOfDay();
         $startsOn = $endsOn->subWeeks(self::FINISHED_SEASON_WEEKS)->addDay();
-        $league = $this->league('CPA Prep League · Season 1', 'Four friends, four CPA sections, six weeks of study blocks.', GoalCategory::Career, $you, $startsOn, $endsOn);
+        $league = $this->league('SIE Exam Study Prep · Season 1', 'Four of us, one exam, six weeks of study blocks.', GoalCategory::Career, $you, $startsOn, $endsOn);
 
         // [person, goal, weekly history [tasks done, milestone, bonus], Goal Day answer]
         $season = [
-            [$you, 'Pass the FAR section of the CPA exam', [[6, true, 0], [7, true, 0], [7, true, 1], [5, true, 0], [7, true, 6], [7, true, 1]], ['achieved', 'Passed FAR with an 84', 'Mock exams under a timer', 'Sunday study blocks with the league']],
-            [$mary, 'Pass the AUD section of the CPA exam', [[7, true, 0], [6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 0]], ['achieved', 'Passed AUD with an 81', 'Simulations', 'Office hours, every week']],
-            [$pat, 'Pass the REG section of the CPA exam', [[5, true, 0], [6, true, 0], [4, false, 0], [6, true, 0], [6, true, 0], [5, true, 0]], ['partly', 'Exam moved to next month', 'Tax law memorization', 'Flashcards on the train']],
-            [$kate, 'Pass the BAR section of the CPA exam', [[6, true, 0], [5, false, 0], [6, true, 0], [7, true, 1], [5, true, 0], [6, true, 0]], ['short', null, null, null]],
+            [$you, 'Score 80+ on a full SIE practice exam', [[6, true, 0], [7, true, 0], [7, true, 1], [5, true, 0], [7, true, 6], [7, true, 1]], ['achieved', 'Scored an 84 on the full practice exam', 'Timing on the long sections', 'Sunday study blocks with the league']],
+            [$andrew, 'Finish the full SIE content review', [[7, true, 0], [6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 0]], ['achieved', 'Every chapter reviewed and outlined', 'Fitting study around the day', 'Early mornings before meetings']],
+            [$jack, 'Score 75+ on every SIE practice set', [[5, true, 0], [6, true, 0], [4, false, 0], [6, true, 0], [6, true, 0], [5, true, 0]], ['partly', 'Five of six sets above 75', 'Options questions', 'Studying alongside my students']],
+            [$steph, 'Learn the SIE basics in six weeks', [[6, true, 0], [5, false, 0], [6, true, 0], [7, true, 1], [5, true, 0], [6, true, 0]], ['achieved', 'Through every module', 'Municipal securities', 'Flashcards on the go']],
         ];
 
         $goals = [];
 
         foreach ($season as [$person, $title, $history]) {
-            $goal = $person->goals()->create(['title' => $title, 'category' => GoalCategory::Career, 'target_date' => $endsOn, 'target_result' => 'A 75 or higher', 'why' => 'The last steps to a CPA license.']);
+            $goal = $person->goals()->create(['title' => $title, 'category' => GoalCategory::Career, 'target_date' => $endsOn, 'target_result' => 'Ready for exam day', 'why' => 'Ready for the SIE, together.']);
             $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready, 'plan_source' => 'coach', 'plan_accepted_at' => $startsOn->subDays(3), 'created_at' => $startsOn->subDays(3)])->saveQuietly();
 
             foreach ($history as $index => [$done, $milestone, $bonus]) {
@@ -236,7 +224,7 @@ class DemoWorld
                     'focus' => 'Study blocks and practice questions',
                     'milestone' => 'Score 75%+ on a timed practice set',
                 ]);
-                $this->playPastWeek($week, $this->tasksFor($week, self::CPA_WEEK, $index, 0), $done, $milestone, $bonus);
+                $this->playPastWeek($week, $this->tasksFor($week, self::SIE_WEEK, $index, 0), $done, $milestone, $bonus);
             }
 
             app(PlanFloor::class)->setFloors($goal->fresh());
@@ -246,7 +234,7 @@ class DemoWorld
 
         (new LeagueTable($league->fresh()))->settle();
 
-        // Goal Day answers. Kate keeps hers private, so it never shows in the league's news.
+        // Goal Day answers, all shared with the league.
         $goalDay = app(GoalDay::class);
 
         foreach ($season as [$person, , , [$outcome, $actual, $hardest, $helped]]) {
@@ -255,27 +243,27 @@ class DemoWorld
                 'actual_result' => $actual,
                 'hardest_part' => $hardest,
                 'helped_most' => $helped,
-                'shared' => $person->isNot($kate),
+                'shared' => true,
             ]);
         }
 
-        $goalDay->confirm($goals[$you->id]->fresh()->result, $mary);
+        $goalDay->confirm($goals[$you->id]->fresh()->result, $andrew);
 
         // Highlights from that season, for the finale's reel (their photos double as proof).
         $daysAgo = (int) $endsOn->diffInDays($this->today) + 3;
         $mock = $this->post($you, $goals[$you->id], $league, 'Mock exam block', PostVisibility::League,
-            'Four-hour mock under a timer. Brain is fried, score is up.', 'Mullen Library', 'Mock exam', '78% · up from 64%', '#176B45', '#D4AC58', $daysAgo);
-        $sim = $this->post($you, $goals[$you->id], $league, 'Timed simulation', PostVisibility::League,
-            'Simulations finally clicking. Sunday study block with the crew.', null, 'Simulation', '5 of 5 · 42 minutes', '#1E2922', '#176B45', $daysAgo + 7);
+            'Full practice exam under a timer. Brain is fried, score is up.', 'Busch School, Maloney Hall', 'Mock exam', '78% · up from 64%', '#176B45', '#D4AC58', $daysAgo);
+        $set = $this->post($you, $goals[$you->id], $league, 'Timed practice set', PostVisibility::League,
+            'Practice sets finally clicking. Sunday study block with the crew.', null, 'Practice set', '38 of 45 · 42 minutes', '#1E2922', '#176B45', $daysAgo + 7);
 
-        foreach ([[$mock, [$mary, $pat, $kate]], [$sim, [$mary]]] as [$post, $fans]) {
+        foreach ([[$mock, [$andrew, $jack, $steph]], [$set, [$andrew]]] as [$post, $fans]) {
             foreach ($fans as $fan) {
                 $post->cheers()->create(['user_id' => $fan->id]);
             }
         }
 
         // League mates cheered the shared results.
-        foreach ([[$you, [$mary, $pat, $kate]], [$mary, [$you, $pat]], [$pat, [$you, $mary]]] as [$author, $fans]) {
+        foreach ([[$you, [$andrew, $jack, $steph]], [$andrew, [$you, $jack]], [$jack, [$you, $andrew]], [$steph, [$you, $andrew]]] as [$author, $fans]) {
             $post = $author->highlights()->where('kind', HighlightKind::GoalDay)->first();
 
             foreach ($fans as $fan) {
@@ -284,6 +272,36 @@ class DemoWorld
         }
 
         return $league;
+    }
+
+    /**
+     * A demo person's own photo, from a file in resources/demo (location and camera data removed, like any upload).
+     * Without the file they keep their initials.
+     */
+    private function photoFor(User $person, string $file): void
+    {
+        if (! is_file($file)) {
+            return;
+        }
+
+        $images = app(ProofImage::class);
+        $bytes = (string) file_get_contents($file);
+        $type = $images->detectType($bytes);
+
+        if ($type === null) {
+            return;
+        }
+
+        $clean = match ($type) {
+            'jpg' => $images->stripJpeg($bytes),
+            'png' => $images->stripPng($bytes),
+            'webp' => $images->stripWebp($bytes),
+        };
+        $path = "avatars/demo-{$person->id}-".Str::lower(Str::random(8)).'.'.$type;
+
+        if ($this->store(User::AVATAR_DISK, $path, $clean)) {
+            $person->forceFill(['avatar_path' => $path, 'avatar_mime_type' => StoredPhoto::typeFor($path)])->save();
+        }
     }
 
     /**
@@ -471,8 +489,8 @@ class DemoWorld
                 'position' => $offset + self::WEEKS_PLAYED + 1,
                 'starts_on' => $starts,
                 'ends_on' => $starts->addDays(6),
-                'focus' => $focusWord === 'Run' ? 'Build the base: easy miles and a longer long run' : 'Stay ahead of every class',
-                'milestone' => $focusWord === 'Run' ? 'Finish a '.(10 + ($offset + self::WEEKS_PLAYED) * $stepUp).'-mile long run' : 'Every assignment in on time',
+                'focus' => $focusWord === 'Run' ? 'Build the base: easy miles and a longer long run' : 'Steady SIE study blocks',
+                'milestone' => $focusWord === 'Run' ? 'Finish a '.(10 + ($offset + self::WEEKS_PLAYED) * $stepUp).'-mile long run' : 'Score 75%+ on a timed practice set',
             ]);
 
             $tasks = $this->tasksFor($week, $template, $offset + self::WEEKS_PLAYED, $stepUp);
@@ -594,19 +612,19 @@ class DemoWorld
 
     /**
      * Plan honesty, so it can be seen: intake answers behind the visitor's plans, every plan's minimum pace, the
-     * visitor's next study week raised to its floor (with the note), Pat's lighter week for midterms, and a friendly
+     * visitor's next study week raised to its floor (with the note), Jack's lighter week for grading, and a friendly
      * dispute from the visitor's opponent on one of their check-ins.
      *
      * @param  array<string, array<int, Goal>>  $goals
      */
-    private function planHonesty(array $goals, User $you, User $pat, League $running): void
+    private function planHonesty(array $goals, User $you, User $jack, League $running): void
     {
         foreach (['run' => GoalCategory::Fitness, 'study' => GoalCategory::Academic] as $key => $category) {
             $intake = $goals[$key][$you->id]->intake()->create();
             $intake->useQuestions(IntakeQuestions::fallback($category, $category === GoalCategory::Fitness), GoalIntake::SOURCE_FALLBACK);
             $intake->answer(IntakeQuestions::answers($intake->questions, $category === GoalCategory::Fitness
                 ? ['experience' => ['value' => 'Some experience'], 'starting_point' => ['value' => '18 miles a week, longest run 10'], 'days' => ['value' => '5'], 'health' => ['value' => 'None']]
-                : ['hours' => ['value' => 15], 'weakest' => ['value' => 'Organic Chem mechanisms'], 'best_time' => ['value' => 'Evenings']]));
+                : ['hours' => ['value' => 10], 'weakest' => ['value' => 'Options and municipal securities'], 'best_time' => ['value' => 'Early mornings']]));
         }
 
         $planFloor = app(PlanFloor::class);
@@ -617,8 +635,8 @@ class DemoWorld
         $nextStudy->tasks()->where('position', '>', 1)->get()->each->delete();
         $planFloor->raise($nextStudy);
 
-        $patWeek = $goals['study'][$pat->id]->weeks()->whereDate('starts_on', $this->monday)->sole();
-        $patWeek->forceFill(['lighter_at' => $this->monday->subDays(2), 'lighter_reason' => 'Midterms week'])->save();
+        $jackWeek = $goals['study'][$jack->id]->weeks()->whereDate('starts_on', $this->monday)->sole();
+        $jackWeek->forceFill(['lighter_at' => $this->monday->subDays(2), 'lighter_reason' => 'Grading week'])->save();
 
         // The visitor's opponent asks about a check-in that has no photo yet. The visitor can settle it.
         $runWeeks = $goals['run'][$you->id]->weeks()->with('tasks')->get();
@@ -675,38 +693,29 @@ class DemoWorld
     }
 
     /**
-     * Check-in posts with photos, a finished goal, cheers, and a comment or two.
+     * Check-in posts with photos, cheers, and a comment or two.
      *
      * @param  array<string, array<int, Goal>>  $goals
      */
-    private function posts(User $you, User $red, User $tim, User $steph, User $mary, User $pat, User $fran, League $running, League $study, array $goals): void
+    private function posts(User $you, User $peter, User $tim, User $steph, User $andrew, User $jack, League $running, League $study, array $goals): void
     {
-        $redLong = $this->post($red, $goals['run'][$red->id], $running, 'Long run', PostVisibility::LeagueFriends,
-            'Long run done along the river. Legs are toast, heart is full.', 'Rock Creek Park trail', 'Long run', '12.0 mi · 9:02 /mi', '#176B45', '#43B96A', 2);
+        $peterLong = $this->post($peter, $goals['run'][$peter->id], $running, 'Long run', PostVisibility::LeagueFriends,
+            'Long run done along the river before the day started. Legs are toast, heart is full.', 'Rock Creek Park trail', 'Long run', '12.0 mi · 9:02 /mi', '#176B45', '#43B96A', 2);
         $yourTempo = $this->post($you, $goals['run'][$you->id], $running, 'Tempo run', PostVisibility::LeagueFriends,
             'First tempo run that felt smooth. The process is working.', 'Riverside path', 'Tempo run', '5.0 mi · 8:41 /mi', '#1E2922', '#176B45', 1);
-        $maryStudy = $this->post($mary, $goals['study'][$mary->id], $study, 'Organic Chem problem set', PostVisibility::League,
-            'Library till close. Orgo set done, and I finally get stereochemistry.', 'Mullen Library, 3rd floor', 'Problem set 6', '24 of 24 done', '#D4AC58', '#176B45', 3);
-        $patCards = $this->post($pat, $goals['study'][$pat->id], $study, 'Spanish flashcards', PostVisibility::League,
-            'Fifty cards before breakfast. Small reps add up.', null, 'Spanish', '50 cards · 46 right', '#43B96A', '#1E2922', 1);
+        $andrewStudy = $this->post($andrew, $goals['study'][$andrew->id], $study, 'Practice questions, 40', PostVisibility::League,
+            'Forty practice questions before the first meeting. Options are starting to make sense.', 'Busch School, Maloney Hall', 'Practice set', '40 of 40 done', '#D4AC58', '#176B45', 3);
+        $jackCards = $this->post($jack, $goals['study'][$jack->id], $study, 'Flashcards', PostVisibility::League,
+            'Flashcards between classes. Small reps add up.', null, 'Flashcards', '50 cards · 46 right', '#43B96A', '#1E2922', 1);
 
-        $franWin = $fran->highlights()->create([
-            'kind' => HighlightKind::GoalCompleted,
-            'headline' => 'Finish the first draft of my novel',
-            'detail' => 'Completed '.$this->today->subDays(2)->format('F j, Y').' · 38 GoalWeek stars',
-            'caption' => '82,000 words. A page a day for eleven months. Thank you all for the cheers along the way.',
-        ]);
-        $this->photo($franWin, 'First draft', '82,000 words', '#D4AC58', '#1E2922');
-        $franWin->forceFill(['created_at' => now()->subDays(2)])->saveQuietly();
-
-        foreach ([[$redLong, [$you, $tim, $steph]], [$yourTempo, [$red, $steph, $tim]], [$maryStudy, [$you, $pat]], [$patCards, [$mary]], [$franWin, [$you, $red]]] as [$post, $fans]) {
+        foreach ([[$peterLong, [$you, $tim, $steph]], [$yourTempo, [$peter, $steph, $tim]], [$andrewStudy, [$you, $jack]], [$jackCards, [$andrew, $you]]] as [$post, $fans]) {
             foreach ($fans as $fan) {
                 $post->cheers()->create(['user_id' => $fan->id]);
             }
         }
 
         $yourTempo->comments()->create(['user_id' => $tim->id, 'body' => 'That pace though. Teach me your ways.']);
-        $redLong->comments()->create(['user_id' => $steph->id, 'body' => 'Saturday we go together!']);
+        $peterLong->comments()->create(['user_id' => $steph->id, 'body' => 'Saturday we go together!']);
     }
 
     private function post(User $author, Goal $goal, League $league, string $taskName, PostVisibility $visibility, string $caption, ?string $location, string $photoTitle, string $photoSubtitle, string $from, string $to, int $daysAgo): Highlight
@@ -802,23 +811,65 @@ class DemoWorld
     }
 
     /**
-     * @param  list<User>  $members  The first is the visitor; the creator runs it.
+     * The visitor's Challenges: reading 10 pages a day (under way), Morning and Evening Prayer every day for a year
+     * (under way), and Lent 2027, locked until Ash Wednesday with what to give up still to be decided.
      */
-    private function challenge(User $creator, array $members): void
+    private function challenges(User $you, User $peter, User $tim, User $steph, User $andrew, User $jack): void
     {
-        $startsOn = $this->today->subDays(12);
-        $challenge = new Challenge(['title' => '10K steps a day', 'description' => 'Every day for three weeks. Walks count, runs count, pacing on calls counts.', 'starts_on' => $startsOn, 'ends_on' => $startsOn->addDays(20), 'target_days' => 16, 'rules' => ['items' => ['Walk 10,000 steps']], 'allowed_misses' => 5]);
-        $challenge->creator()->associate($creator)->save();
+        // Read 10 pages a day: a Target, started 12 days ago, 30 days. Everyone misses the odd day; the visitor's
+        // today is still to do.
+        $readStart = $this->today->subDays(12);
+        $read = new Challenge([
+            'title' => 'Read 10 pages a day', 'description' => 'Any book counts. Ten pages, every day for a month.',
+            'type' => Challenge::TARGET, 'rules' => ['label' => 'Pages', 'threshold' => 10, 'unit' => 'pages', 'per' => 'day', 'max' => 300],
+            'starts_on' => $readStart, 'ends_on' => $readStart->addDays(29), 'mode' => Challenge::FLEXIBLE, 'allowed_misses' => 3,
+            'target_days' => 27,
+        ]);
+        $read->creator()->associate($jack)->save();
 
-        foreach ($members as $index => $member) {
-            $challenge->members()->create(['user_id' => $member->id]);
+        foreach ([$you, $jack, $andrew, $peter] as $index => $member) {
+            $read->members()->create(['user_id' => $member->id]);
 
-            for ($day = $startsOn; $day->lt($this->today); $day = $day->addDay()) {
-                // Everyone misses a day here and there; the visitor hasn't checked in today yet.
-                if (($day->day + $index) % 6 !== 0) {
-                    $challenge->checkIns()->create(['user_id' => $member->id, 'checked_on' => $day]);
+            for ($day = $readStart; $day->lt($this->today); $day = $day->addDay()) {
+                if (($day->day + $index) % 7 !== 0) {
+                    $read->checkIns()->create(['user_id' => $member->id, 'checked_on' => $day, 'value' => 10 + (($day->day + $index * 3) % 15)]);
                 }
             }
+        }
+
+        // Morning and Evening Prayer, every day for a year: a Daily checklist, started three weeks ago. A day counts
+        // when both are prayed.
+        $prayerStart = $this->today->subDays(20);
+        $prayer = new Challenge([
+            'title' => 'Morning and Evening Prayer', 'description' => 'Every day for a year. Morning Prayer to start the day, Evening Prayer to close it.',
+            'type' => Challenge::DAILY, 'rules' => ['items' => ['Morning Prayer', 'Evening Prayer']],
+            'starts_on' => $prayerStart, 'ends_on' => $prayerStart->addDays(364), 'mode' => Challenge::FLEXIBLE, 'allowed_misses' => 10,
+            'template' => 'reflection', 'target_days' => 355,
+        ]);
+        $prayer->creator()->associate($andrew)->save();
+
+        foreach ([$you, $andrew, $peter, $tim, $steph] as $index => $member) {
+            $prayer->members()->create(['user_id' => $member->id]);
+
+            for ($day = $prayerStart; $day->lt($this->today); $day = $day->addDay()) {
+                // Now and then only Morning Prayer made it in; never a whole day skipped.
+                $rules = ($day->day + $index) % 9 === 0 ? [0] : [0, 1];
+                $prayer->checkIns()->create(['user_id' => $member->id, 'checked_on' => $day, 'rules_done' => $rules]);
+            }
+        }
+
+        // Lent 2027: Ash Wednesday to Holy Saturday, Sundays off, locked until it starts. What to give up: TBD.
+        $year = Lent::yearFor($this->today);
+        $lent = new Challenge([
+            'title' => 'Lent '.$year, 'description' => 'Give something up together, Ash Wednesday to Holy Saturday. Sundays off.',
+            'type' => Challenge::ABSTAIN, 'rules' => ['label' => 'TBD'],
+            'starts_on' => Lent::ashWednesday($year), 'ends_on' => Lent::holySaturday($year), 'mode' => Challenge::FLEXIBLE, 'allowed_misses' => 0,
+            'sundays_off' => true, 'template' => 'lent', 'target_days' => 40,
+        ]);
+        $lent->creator()->associate($you)->save();
+
+        foreach ([$you, $peter, $andrew, $jack, $tim, $steph] as $member) {
+            $lent->members()->create(['user_id' => $member->id]);
         }
     }
 
@@ -833,15 +884,15 @@ class DemoWorld
         }
     }
 
-    private function inbox(User $you, User $red, User $mary, User $steph, GroupTask $groupTask): void
+    private function inbox(User $you, User $peter, User $andrew, User $steph, GroupTask $groupTask): void
     {
         $yourPost = $you->highlights()->first();
 
         foreach ([
             [new FriendRequested($steph), 2],
             [new GroupTaskProposed($groupTask), 4],
-            [new Nudged($mary), 7],
-            [new HighlightCheered($yourPost, $red), 20],
+            [new Nudged($andrew), 7],
+            [new HighlightCheered($yourPost, $peter), 20],
         ] as [$notification, $hoursAgo]) {
             // Sent as of a few hours ago, so the inbox reads like a real day.
             $now = Carbon::getTestNow();

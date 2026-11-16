@@ -142,7 +142,7 @@ test('Try the demo, end to end', async ({ page }, testInfo) => {
 
         await test.step('Send a friend request', () => qa.step('Send a friend request', async () => {
             await qa.review('Friends', '/friends');
-            await qa.review('People search', '/people/search?q=Tim');
+            await qa.review('People search', '/people/search?q=Ana');
             const add = page.locator('button', { hasText: 'Add friend' }).first();
             await qa.inPlace('Send a friend request', () => add.click());
             await expect(page.locator('button', { hasText: 'Request sent' }).first()).toBeVisible();

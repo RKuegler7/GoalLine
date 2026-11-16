@@ -11,7 +11,7 @@ class DemoSeeder extends Seeder
     /**
      * The seeded demo visitor's sign-in.
      */
-    public const EMAIL = 'john.cardinal@demo.goalline.invalid';
+    public const EMAIL = 'ryan.kuegler@demo.goalline.invalid';
 
     public const PASSWORD = 'password';
 

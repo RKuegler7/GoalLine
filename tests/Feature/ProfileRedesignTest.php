@@ -203,10 +203,15 @@ class ProfileRedesignTest extends TestCase
     public function test_the_demo_people_have_rich_profiles(): void
     {
         $this->get(route('demo'));
-        $red = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Red Dufour')->sole();
+        $peter = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Peter Kilpatrick')->sole();
 
-        $this->get($red->profileUrl())->assertOk()
-            ->assertSee('Sub-3:45 or bust')->assertSee('Outdoors')->assertDontSee('data-profile-cover', false)
-            ->assertSee('Run a marathon under 3:45 by March');
+        $this->get($peter->profileUrl())->assertOk()
+            ->assertSee('Early miles, then the day')->assertSee('Reading')->assertDontSee('data-profile-cover', false)
+            ->assertSee('Finish a spring marathon');
+
+        // The visitor is Ryan, with his own bio and location.
+        $this->get(route('profile.show'))->assertOk()
+            ->assertSee('Ryan Kuegler')->assertSee('Finance and Sales at the Busch School of Business')->assertSee('Washington, DC')
+            ->assertSee('Building GoalLine, one GoalWeek at a time');
     }
 }
