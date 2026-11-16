@@ -56,14 +56,16 @@ class DemoWorld
     private const WEEKS_PLAYED = 5;
 
     /**
-     * A week of marathon training, Monday to Sunday: [task, points, tracked number, unit].
+     * A week of marathon training, Monday to Sunday: [task, points, tracked number, unit, tracked in played weeks only].
+     * Played-only numbers are how the big weeks beat their plan; in this week and later ones those tasks stay a
+     * one-tap check, so the visitor always has a task to tap.
      */
     private const RUNNING_WEEK = [
         ['Easy run', 1, 4, 'miles'],
-        ['Strength and core, 30 minutes', 1, 30, 'minutes'],
+        ['Strength and core, 30 minutes', 1, 30, 'minutes', true],
         ['Tempo run', 1, 5, 'miles'],
         ['Easy run', 1, 3, 'miles'],
-        ['Mobility, 20 minutes', 1, 20, 'minutes'],
+        ['Mobility, 20 minutes', 1, 20, 'minutes', true],
         ['Long run', 2, 10, 'miles'],
         ['Foam roll and stretch', 1, null, null],
     ];
@@ -74,10 +76,10 @@ class DemoWorld
     private const SIE_WEEK = [
         ['Practice questions, 40', 1, 40, 'questions'],
         ['Read and outline one chapter', 1, null, null],
-        ['Timed practice set', 2, 40, 'questions'],
-        ['Flashcards', 1, 50, 'cards'],
-        ['Review missed questions', 1, 20, 'questions'],
-        ['Mock exam block', 2, 90, 'minutes'],
+        ['Timed practice set', 2, 40, 'questions', true],
+        ['Flashcards', 1, 50, 'cards', true],
+        ['Review missed questions', 1, 20, 'questions', true],
+        ['Mock exam block', 2, 90, 'minutes', true],
         ['Plan next week', 1, null, null],
     ];
 
@@ -105,7 +107,9 @@ class DemoWorld
         $this->monday = $this->today->startOfWeek(CarbonImmutable::MONDAY);
         $seasonStart = $this->monday->subWeeks(self::WEEKS_PLAYED);
 
-        $visitor = DB::transaction(function () use ($seasonStart) {
+        // Nothing is awarded while the world is built (no medal locks or INSERT IGNOREs inside this transaction): the
+        // sample season's finale and medals are written below as seeded data.
+        $visitor = MedalAwarder::whileSeeding(fn () => DB::transaction(function () use ($seasonStart) {
             // The Busch School crew, only ever shown doing well: the visitor is Ryan, with his league mates and friends.
             $you = $this->person(self::VISITOR_NAME, "West Chester | DC | Catholic Men's Soccer | Finance and Sales at the Busch School of Business. Building GoalLine.");
             $peter = $this->person('Peter Kilpatrick', 'Catholic University. Miles before meetings.');
@@ -187,7 +191,7 @@ class DemoWorld
             $this->inbox($you, $peter, $andrew, $steph, $groupTask);
 
             return $you;
-        });
+        }));
 
         return $visitor;
     }
@@ -226,7 +230,7 @@ class DemoWorld
                     'focus' => 'Study blocks and practice questions',
                     'milestone' => 'Score 75%+ on a timed practice set',
                 ]);
-                $this->playPastWeek($week, $this->tasksFor($week, self::SIE_WEEK, $index, 0), $done, $milestone, $extra);
+                $this->playPastWeek($week, $this->tasksFor($week, self::SIE_WEEK, $index, 0, played: true), $done, $milestone, $extra);
             }
 
             app(PlanFloor::class)->setFloors($goal->fresh());
@@ -234,7 +238,14 @@ class DemoWorld
             $goals[$person->id] = $goal;
         }
 
+        // Finished as seeded data: marked finished before the table settles, so the lazy season finale (awards, medals,
+        // notifications) never runs for it, then its awards and medals written directly.
+        $league->forceFill(['finalized_at' => now()])->save();
         (new LeagueTable($league->fresh()))->settle();
+        $league = $league->fresh();
+        (new SeasonRecap($league, new LeagueTable($league)))->seedFinale();
+        $medals = app(MedalAwarder::class);
+        $medals->seed($medals->desiredForLeague($league->fresh()) ?? []);
 
         // Goal Day answers, all shared with the league.
         $goalDay = app(GoalDay::class);
@@ -250,6 +261,10 @@ class DemoWorld
         }
 
         $goalDay->confirm($goals[$you->id]->fresh()->result, $andrew);
+
+        foreach ($goals as $goal) {
+            $medals->seed($medals->desiredForGoal($goal->fresh()));
+        }
 
         // Highlights from that season, for the finale's reel (their photos double as proof).
         $daysAgo = (int) $endsOn->diffInDays($this->today) + 3;
@@ -471,7 +486,7 @@ class DemoWorld
      * A goal with a roadmap: the weeks already played (as the history says), this week partway through, and two
      * weeks ahead.
      *
-     * @param  list<array{0: string, 1: int, 2: int|null, 3: string|null}>  $template
+     * @param  list<array{0: string, 1: int, 2: int|null, 3: string|null, 4?: bool}>  $template
      * @param  list<array{0: int, 1: bool, 2: int}>  $history
      */
     private function goal(User $owner, string $title, GoalCategory $category, CarbonImmutable $target, array $template, array $history, int $missedThisWeek, string $focusWord, int $stepUp): Goal
@@ -495,7 +510,7 @@ class DemoWorld
                 'milestone' => $focusWord === 'Run' ? 'Finish a '.(10 + ($offset + self::WEEKS_PLAYED) * $stepUp).'-mile long run' : 'Score 75%+ on a timed practice set',
             ]);
 
-            $tasks = $this->tasksFor($week, $template, $offset + self::WEEKS_PLAYED, $stepUp);
+            $tasks = $this->tasksFor($week, $template, $offset + self::WEEKS_PLAYED, $stepUp, played: $offset < 0);
 
             if ($offset < 0) {
                 [$done, $milestone, $extra] = $history[$offset + self::WEEKS_PLAYED];
@@ -509,14 +524,16 @@ class DemoWorld
     }
 
     /**
-     * @param  list<array{0: string, 1: int, 2: int|null, 3: string|null}>  $template
+     * @param  list<array{0: string, 1: int, 2: int|null, 3: string|null, 4?: bool}>  $template
      * @return list<RoadmapTask>
      */
-    private function tasksFor(RoadmapWeek $week, array $template, int $weekIndex, int $stepUp): array
+    private function tasksFor(RoadmapWeek $week, array $template, int $weekIndex, int $stepUp, bool $played): array
     {
         $tasks = [];
 
-        foreach ($template as $day => [$description, $points, $number, $unit]) {
+        foreach ($template as $day => $row) {
+            [$description, $points, $number, $unit] = $row;
+            $number = ($row[4] ?? false) && ! $played ? null : $number;
             $task = $week->tasks()->create(['position' => $day + 1, 'description' => $description, 'planned_on' => $week->starts_on->copy()->addDays($day)]);
             $task->forceFill(['points' => $points]);
 

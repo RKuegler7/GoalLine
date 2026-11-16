@@ -13,11 +13,16 @@ use App\Services\ErrorAlerts;
 use App\Services\LeagueTable;
 use App\Services\MedalAwarder;
 use Illuminate\Contracts\Cache\LockTimeoutException;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
+use PDOException;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -158,6 +163,85 @@ class MedalConcurrencyTest extends TestCase
 
         $this->artisan('goalline:check-medals', ['--fix' => true])->expectsOutputToContain('Finished seasons missing medals: 0')->assertSuccessful();
         $this->assertSame($count, Medal::count());
+    }
+
+    public function test_two_requests_finishing_the_season_at_once_give_one_set_of_medals_and_no_exception(): void
+    {
+        // The first request is mid-finale (holding the season lock) when the second arrives: the second skips quietly.
+        $lock = Cache::lock('exclusive:league-season:'.$this->league->id, 60);
+        $lock->get();
+        $this->settle();
+        $lock->release();
+
+        // Then both carry on: one finishes, the other finds it done.
+        $this->settle();
+        $this->settle();
+
+        $this->assertNotNull($this->league->fresh()->finalized_at);
+        $this->assertGreaterThan(0, Medal::count());
+        $this->assertSame(Medal::count(), Medal::distinct()->count('award_key'), 'Exactly one set: no medal twice.');
+        $this->assertSame(1, $this->league->messages()->where('body', 'like', 'The season is over.%')->count());
+    }
+
+    public function test_medals_are_never_inserted_inside_another_transaction(): void
+    {
+        $baseline = DB::transactionLevel(); // The test's own transaction.
+        $levels = [];
+        DB::listen(function (QueryExecuted $query) use (&$levels) {
+            if (preg_match('/^insert .*into "medals"/i', $query->sql)) {
+                $levels[] = DB::transactionLevel();
+            }
+        });
+
+        // Asked from inside a transaction: nothing is written until it commits.
+        DB::transaction(function () {
+            app(MedalAwarder::class)->forLeague($this->league->fresh());
+            $this->assertSame(0, Medal::count(), 'Waits for the surrounding transaction to commit.');
+        });
+        $this->assertGreaterThan(0, Medal::count());
+
+        // And the usual paths: finishing the season and re-checking medals.
+        Medal::query()->delete();
+        $this->settle();
+        app(MedalAwarder::class)->forLeague($this->league->fresh());
+
+        $this->assertNotEmpty($levels);
+        // Each insert runs in its own short, retried transaction (one level), never inside the caller's.
+        $this->assertSame([$baseline + 1], array_values(array_unique($levels)), 'Every medal insert ran outside any other transaction.');
+    }
+
+    public function test_medals_asked_for_in_a_transaction_that_rolls_back_are_not_awarded(): void
+    {
+        try {
+            DB::transaction(function () {
+                app(MedalAwarder::class)->forLeague($this->league->fresh());
+
+                throw new RuntimeException('The surrounding work failed.');
+            });
+        } catch (RuntimeException) {
+        }
+
+        $this->assertSame(0, Medal::count());
+    }
+
+    public function test_a_deadlock_on_the_medal_insert_is_a_warning_never_an_error(): void
+    {
+        Log::spy();
+        $this->app->instance(MedalAwarder::class, new class extends MedalAwarder
+        {
+            protected function insertMedals(array $rows): void
+            {
+                throw new QueryException('mysql', 'insert ignore into `medals` ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction'));
+            }
+        });
+
+        // No exception reaches the request, and nothing is reported (so no error email).
+        $this->settle();
+        app(MedalAwarder::class)->forLeague($this->league->fresh());
+
+        Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => $message === 'Concurrency: medals-already-awarded');
+        Log::shouldNotHaveReceived('error');
+        $this->assertNotNull($this->league->fresh()->finalized_at);
     }
 
     public function test_exclusive_work_can_re_enter_its_own_lock(): void

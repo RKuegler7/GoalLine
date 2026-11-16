@@ -13,6 +13,7 @@ use App\Models\LeagueResult;
 use App\Models\Medal;
 use App\Models\RoadmapWeek;
 use Illuminate\Support\Collection;
+use Throwable;
 
 class LeagueTable
 {
@@ -239,12 +240,22 @@ class LeagueTable
         // after the last week can trigger it at the same moment, so one request per league does the work and the
         // others skip it and read what it wrote. Each step also checks whether it's already done.
         if ($recap->isComplete() && $this->league->finalized_at === null) {
-            Atomic::exclusively('league-season:'.$this->league->id, function () use ($recap) {
-                // Medals once the season is complete, by the request that finished it (re-scoring re-checks them).
-                if ($recap->finalize()) {
-                    app(MedalAwarder::class)->forLeague($this->league);
+            try {
+                Atomic::exclusively('league-season:'.$this->league->id, function () use ($recap) {
+                    // Medals once the season is complete, by the request that finished it (re-scoring re-checks them).
+                    if ($recap->finalize()) {
+                        app(MedalAwarder::class)->forLeague($this->league);
+                    }
+                });
+            } catch (Throwable $exception) {
+                // Finishing a season is claimed once and safe to repeat; a deadlock here means another request is on
+                // it. A warning, never an error page or an error email.
+                if (! Atomic::isConcurrencyError($exception)) {
+                    throw $exception;
                 }
-            });
+
+                Atomic::noteContention('season-finale-busy', $exception, 'league-season:'.$this->league->id);
+            }
         }
     }
 

@@ -95,6 +95,39 @@ class SeasonRecap
     /**
      * Once the season is complete, hand out the awards (once), post them in the chat, and tell everyone.
      */
+    /**
+     * The finale for a demo's sample season, written as seeded data in the same step that builds it: marked finished,
+     * its awards given and announced, with no locks and no notifications. Only for a league that was just built.
+     */
+    public function seedFinale(): void
+    {
+        $this->league->forceFill(['finalized_at' => now()])->save();
+        $awards = $this->awards();
+
+        foreach ($awards as $award) {
+            $award['member']->user->badges()->create([
+                'badge' => $award['badge'],
+                'league_id' => $this->league->id,
+                'detail' => $award['detail'],
+                'earned_at' => now(),
+            ]);
+        }
+
+        $this->league->announce($this->finaleNews($awards));
+    }
+
+    /**
+     * The league news post when a season ends.
+     *
+     * @param  list<array<string, mixed>>  $awards
+     */
+    private function finaleNews(array $awards): string
+    {
+        $named = collect($awards)->map(fn (array $award) => $award['badge']->label().': '.$award['member']->user->name)->join('. ');
+
+        return 'The season is over. '.($named !== '' ? $named.'. ' : '').'The full season recap is on the league page.';
+    }
+
     public function finalize(): bool
     {
         if (! $this->isComplete()) {
@@ -116,8 +149,7 @@ class SeasonRecap
             $awarder->award($award['member']->user, $award['badge'], $this->league, $award['detail']);
         }
 
-        $named = collect($awards)->map(fn (array $award) => $award['badge']->label().': '.$award['member']->user->name)->join('. ');
-        $this->league->announce('The season is over. '.($named !== '' ? $named.'. ' : '').'The full season recap is on the league page.');
+        $this->league->announce($this->finaleNews($awards));
 
         Notification::send(
             $this->league->members->pluck('user'),

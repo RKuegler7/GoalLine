@@ -12,20 +12,67 @@ use App\Models\League;
 use App\Models\LeagueMember;
 use App\Models\LeagueResult;
 use App\Models\Medal;
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * Awards medals from settled results, by code, using the rules in config/medals.php. Idempotent: every medal has a key
  * (type + league or goal + person), so running it again changes nothing. League medals are worked out once the season
  * is complete and again only when a dispute re-scores a settled week, which can add or take away medals.
+ *
+ * Awarding never runs inside another transaction: it waits until the surrounding one commits, then runs under a
+ * per-league (or per-goal) lock so one request does it at a time. A deadlock or duplicate that survives the retries
+ * means another request already wrote the same medals, so it's logged as a warning, never shown or emailed.
  */
 class MedalAwarder
 {
     /**
+     * While true (building a demo world), nothing is awarded: the demo writes its medals itself, as seeded data.
+     */
+    private static bool $seeding = false;
+
+    /**
+     * Run demo-building work with awarding switched off.
+     *
+     * @template TReturn
+     *
+     * @param  Closure(): TReturn  $callback
+     * @return TReturn
+     */
+    public static function whileSeeding(Closure $callback): mixed
+    {
+        $was = self::$seeding;
+        self::$seeding = true;
+
+        try {
+            return $callback();
+        } finally {
+            self::$seeding = $was;
+        }
+    }
+
+    /**
      * Goal medals: Goal Achieved (Verified with proof or a confirm) and Proof Pro.
      */
     public function forGoal(Goal $goal): void
+    {
+        $this->afterCommit('goal-medals:'.$goal->id, function () use ($goal) {
+            if ($goal = $goal->fresh()) {
+                $this->sync(Medal::where('goal_id', $goal->id)->whereNull('league_id'), $this->desiredForGoal($goal));
+            }
+        });
+    }
+
+    /**
+     * The goal medals a goal has earned right now.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function desiredForGoal(Goal $goal): array
     {
         $desired = [];
         $result = $goal->result;
@@ -43,7 +90,7 @@ class MedalAwarder
             $desired[] = $this->goalMedal($goal, MedalType::ProofPro, null, ['detail' => "{$proofs} check-ins with proof on {$goal->title}"]);
         }
 
-        $this->sync(Medal::where('goal_id', $goal->id)->whereNull('league_id'), $desired);
+        return $desired;
     }
 
     /**
@@ -51,12 +98,40 @@ class MedalAwarder
      */
     public function forLeague(League $league): void
     {
+        $this->afterCommit('league-season:'.$league->id, function () use ($league) {
+            $desired = $this->desiredForLeague($league);
+
+            if ($desired !== null) {
+                $this->sync(Medal::where('league_id', $league->id), $desired);
+            }
+        });
+    }
+
+    /**
+     * Write medals worked out for brand-new data (a demo world being built): a plain insert, nothing to reconcile.
+     *
+     * @param  list<array<string, mixed>>  $desired
+     */
+    public function seed(array $desired): void
+    {
+        if ($desired !== []) {
+            Medal::insert($this->rows($desired));
+        }
+    }
+
+    /**
+     * The league medals a complete season has earned, or null while the season isn't complete.
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    public function desiredForLeague(League $league): ?array
+    {
         $league->loadMissing('results', 'members.user');
         $table = new LeagueTable($league);
         $recap = new SeasonRecap($league, $table);
 
         if (! $recap->isComplete()) {
-            return;
+            return null;
         }
 
         $standings = $table->standings()->values();
@@ -163,7 +238,7 @@ class MedalAwarder
             }
         }
 
-        $this->sync(Medal::where('league_id', $league->id), $desired);
+        return $desired;
     }
 
     /**
@@ -193,16 +268,7 @@ class MedalAwarder
         $keys = array_column($desired, 'award_key');
 
         if ($desired !== []) {
-            $rows = array_map(fn (array $medal) => [
-                ...$medal,
-                'type' => $medal['type'] instanceof MedalType ? $medal['type']->value : $medal['type'],
-                'metadata' => json_encode($medal['metadata']),
-                'awarded_at' => $now,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ], $desired);
-
-            Atomic::run(fn () => Medal::insertOrIgnore($rows));
+            $this->insertMedals($this->rows($desired));
         }
 
         // Tiers and details can change after a re-score: update the ones that differ, by their unique key.
@@ -222,6 +288,60 @@ class MedalAwarder
         if ($gone->isNotEmpty()) {
             Atomic::run(fn () => Medal::whereKey($gone->all())->delete());
         }
+    }
+
+    /**
+     * One INSERT that skips medals already there (the unique award_key decides), retried on a deadlock.
+     *
+     * @param  list<array<string, mixed>>  $rows
+     */
+    protected function insertMedals(array $rows): void
+    {
+        Atomic::run(fn () => Medal::insertOrIgnore($rows));
+    }
+
+    /**
+     * Award once the surrounding transaction (if any) has committed, one request at a time per key. Medals are
+     * idempotent: if a deadlock or duplicate survives the retries, another request already wrote them, so it's a
+     * logged warning, not an error.
+     *
+     * @param  Closure(): void  $work
+     */
+    private function afterCommit(string $key, Closure $work): void
+    {
+        if (self::$seeding) {
+            return;
+        }
+
+        DB::afterCommit(function () use ($key, $work) {
+            try {
+                Atomic::exclusively($key, $work, wait: 15);
+            } catch (Throwable $exception) {
+                if (! Atomic::isConcurrencyError($exception) && ! $exception instanceof UniqueConstraintViolationException) {
+                    throw $exception;
+                }
+
+                Atomic::noteContention('medals-already-awarded', $exception, $key);
+            }
+        });
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $desired
+     * @return list<array<string, mixed>>
+     */
+    private function rows(array $desired): array
+    {
+        $now = now();
+
+        return array_map(fn (array $medal) => [
+            ...$medal,
+            'type' => $medal['type'] instanceof MedalType ? $medal['type']->value : $medal['type'],
+            'metadata' => json_encode($medal['metadata']),
+            'awarded_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ], $desired);
     }
 
     /**

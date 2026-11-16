@@ -13,6 +13,7 @@ use App\Models\GoalIntake;
 use App\Models\GroupTask;
 use App\Models\Highlight;
 use App\Models\League;
+use App\Models\Medal;
 use App\Models\PlanRefinement;
 use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
@@ -24,8 +25,10 @@ use App\Services\DemoWorld;
 use App\Services\PlanEditor;
 use App\Services\RoadmapPlanner;
 use Database\Seeders\DemoSeeder;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
@@ -364,6 +367,59 @@ class DemoTest extends TestCase
         }
 
         $this->assertStringContainsString('The demo includes a few AI coaching requests', $budget->blockedReason($visitor));
+    }
+
+    public function test_five_demo_worlds_each_get_one_seeded_set_of_sample_medals_without_awarding(): void
+    {
+        // What deadlocked in production: INSERT IGNOREs into medals, or the season lock, while a demo was being built.
+        $awarding = [];
+        DB::listen(function (QueryExecuted $query) use (&$awarding) {
+            if (preg_match('/insert or ignore into "medals"|cache_locks/i', $query->sql)) {
+                $awarding[] = $query->sql;
+            }
+        });
+
+        $worlds = collect(range(1, 5))->map(fn () => app(DemoWorld::class)->create());
+
+        $this->assertSame([], $awarding, 'No awarding logic runs while a demo is built.');
+        $sets = $worlds->map(function (User $visitor) {
+            $league = $visitor->leagues()->where('name', 'SIE Exam Study Prep · Season 1')->sole();
+            $this->assertNotNull($league->finalized_at, 'Seeded as finished, so the lazy finale never runs for it.');
+            $this->assertSame(1, $league->messages()->where('body', 'like', 'The season is over.%')->count());
+
+            $medals = Medal::where('league_id', $league->id)->get();
+            $this->assertSame($medals->count(), $medals->pluck('award_key')->unique()->count(), 'One set: no medal twice.');
+
+            return $medals->map(fn (Medal $medal) => $medal->type->value.':'.$medal->user->name)->sort()->values()->all();
+        });
+
+        $this->assertNotEmpty($sets->first());
+        $this->assertCount(1, $sets->unique(), 'Every world gets the same sample medals.');
+
+        // Opening the league or the finale later (the lazy path) changes nothing and awards nothing.
+        $visitor = $worlds->first();
+        $league = $visitor->leagues()->where('name', 'SIE Exam Study Prep · Season 1')->sole();
+        $before = Medal::count();
+        $this->actingAs($visitor)->get(route('leagues.show', $league))->assertOk();
+        $this->actingAs($visitor)->get(route('leagues.recap', $league))->assertOk();
+        $this->assertSame($before, Medal::count());
+        $this->assertSame([], array_filter($awarding, fn (string $sql) => str_contains($sql, 'medals')));
+    }
+
+    public function test_the_visitor_always_has_a_one_tap_task_to_check_during_judging_week(): void
+    {
+        // Tuesday to Friday of judging week: the visitor's open tasks (today or yesterday) include one with no number to type,
+        // so the tour's "tap a task's check" always has something to tap.
+        foreach (['2026-11-17', '2026-11-18', '2026-11-19', '2026-11-20'] as $day) {
+            $this->travelTo(Carbon::parse($day.' 10:00', config('app.timezone')));
+            $visitor = app(DemoWorld::class)->create();
+
+            $oneTap = RoadmapTask::whereHas('week.goal', fn ($goals) => $goals->where('user_id', $visitor->id))
+                ->whereDate('planned_on', '<=', $day)->whereDate('planned_on', '>=', Carbon::parse($day)->subDay())
+                ->whereNull('completed_at')->where('result_required', false)->exists();
+
+            $this->assertTrue($oneTap, "A one-tap task to check on {$day}.");
+        }
     }
 
     public function test_the_demo_challenges_read_pray_and_wait_for_lent(): void
