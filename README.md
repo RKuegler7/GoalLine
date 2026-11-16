@@ -4,7 +4,9 @@
 
 [![tests](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml/badge.svg)](https://github.com/RKuegler7/GoalLine/actions/workflows/tests.yml)
 
-**Get in line with your goals: an app that helps you commit to a goal and actually finish it, through group accountability, a game you play every week, friendly competition and a quick daily check-in.**
+**Get in line with your goals. Stay on track for the life you want.**
+
+GoalLine helps students and young adults achieve meaningful goals, from passing professional exams to running marathons, by turning ambitious deadlines into personalized, AI-generated plans and manageable daily actions. Through friendly leagues where everyone competes against their own plan, GoalLine makes consistency more social, accountability more motivating, and long-term goals easier to follow through on.
 
 **Live app:** https://ddhxw7holo4vs.cloudfront.net
 
@@ -22,6 +24,22 @@
 </table>
 
 *Ryan Kuegler: CUA Busch School AI Vibe Coding Contest, Fall 2026*
+
+## Why I built GoalLine
+
+Think about the last big goal you set for yourself. Maybe it was passing an exam, running a marathon, or earning a certain GPA.
+
+Most of us know what we want to accomplish. The hard part isn't starting. It's staying consistent when motivation fades and nobody's watching.
+
+That's why I built **GoalLine**. It combines personalized AI planning with the accountability of your friends, turning meaningful goals into something you can work toward together.
+
+We all have things we want to achieve. But the life we want is built through the things we actually follow through on.
+
+And here's the most important part: **winning the league isn't the ultimate goal. Actually achieving your goal is.** The competition is the motivation. The real accomplishment is the reward.
+
+My philosophy is simple: **AI should support human ambition, not replace human judgment.** The AI drafts the plan and coaches you through it; plain, tested code keeps the score, and people settle every dispute.
+
+**Get in line with your goals. Stay on track for the life you want.**
 
 ## The problem
 
@@ -123,7 +141,7 @@ A **Challenge** is one simple rule for a set time, done together, in Championshi
 - Photos are re-encoded on the server, which strips location and camera data, and are served only to people allowed to see them. No GPS or maps.
 - People search shows only name, username and photo, never emails. A private account shows only its header (photo, name, @username, bio and counts) so friends can find you; goals, posts and stats stay hidden.
 - GoalLeagues and Challenges are Private by default; posts are never Public unless you choose it. Posts can be reported, and people can be muted.
-- Demo worlds are sealed off from real members: a demo visitor can't see, find or join anything real, never sends email and never calls the live AI.
+- Demo worlds are sealed off from real members: a demo visitor can't see, find or join anything real, never sends email and never calls the live AI. When an update changes the demo, older demo copies are retired automatically, so every visitor sees the current one.
 - AI spending is capped per member, per day and per month.
 - **Disclaimer:** GoalLine plans are general guidance, not medical advice. Physical goals always get an injury question, conservative progression and rest days.
 

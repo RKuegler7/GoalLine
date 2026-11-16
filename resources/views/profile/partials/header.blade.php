@@ -4,7 +4,7 @@
      they know they've found the right person and can send a friend request. $limited (a private account) leaves out
      the location and "Why I'm here", and the counts aren't links (there are no sections to jump to).
      Expects: $user, $isOwn, $counts ([label, value, #section, key]), $mutualFriends, $limited. --}}
-<section class="gl-field-rows relative overflow-hidden rounded-2xl px-4 py-4 text-ivory shadow-sm" aria-label="{{ $user->name }}" data-profile-header>
+<section class="relative overflow-hidden rounded-2xl bg-club px-4 py-4 text-ivory shadow-sm" aria-label="{{ $user->name }}" data-profile-header>
     <div class="flex items-center gap-4">
         <x-avatar :user="$user" tone="light" class="size-24 shrink-0 text-[28px] ring-3 ring-gold" />
         <nav aria-label="{{ $user->name }} at a glance" class="grid min-w-0 flex-1 grid-cols-3 gap-1" data-profile-counts>

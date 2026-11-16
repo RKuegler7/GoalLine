@@ -83,7 +83,10 @@ class DemoController extends Controller
     {
         $id = (int) $request->cookie(self::COOKIE);
 
-        return $id > 0 ? User::whereKey($id)->whereNotNull('demo_sandbox')->where('name', DemoWorld::VISITOR_NAME)->first() : null;
+        $visitor = $id > 0 ? User::whereKey($id)->whereNotNull('demo_sandbox')->where('name', DemoWorld::VISITOR_NAME)->first() : null;
+
+        // A world from before the demo last changed isn't brought back: this visit builds a current one.
+        return $visitor && DemoWorld::isCurrent($visitor) ? $visitor : null;
     }
 
     /**

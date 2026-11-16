@@ -156,7 +156,7 @@
                         ['Review and accept your plan', 'The coach drafts your GoalWeeks: a focus, a milestone and daily tasks. Nothing is final until you tap Accept.'],
                         ['Start or join a GoalLeague', 'Bring your goal into a league and invite friends with a link or code. Or keep it solo.'],
                         ['Check in daily', 'Tick off today\'s tasks and habits from Today\'s Gameplan. Add a photo to show your work.'],
-                        ['Open your weekly matchup', 'Swipe through the GoalWeek Matchup to see who\'s ahead and what each side needs for the next band.'],
+                        ['Open your weekly Matchup', 'Swipe through the GoalWeek Matchup to see who\'s ahead and what each side needs for the next band.'],
                         ['Read your weekly recap', 'Once a GoalWeek closes, the recap shows the scores, the Player of the Week, and your process.'],
                         ['Finish the season', 'The table crowns a Champion and hands out season awards. To go again, start a new GoalLeague and invite everyone back.'],
                     ] as $index => [$title, $body])

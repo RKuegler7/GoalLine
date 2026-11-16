@@ -37,7 +37,7 @@
     <dl class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4" data-player-stats>
         @foreach ([
             ['Total stars', $player['total'], 'line + matchup'],
-            ['Matchup stars', $player['matchPoints'], 'from matchups'],
+            ['Matchup stars', $player['matchPoints'], 'from Matchups'],
             ['Line stars', $player['linePoints'], 'from bands'],
             ['Avg % of plan', $player['avgPercent'] === null ? '–' : $player['avgPercent'].'%', 'across final weeks'],
             ['Best week', $player['bestWeek'] ? $player['bestWeek']['weeklyPoints'].' '.Str::plural('star', $player['bestWeek']['weeklyPoints']) : '–', $player['bestWeek'] ? 'Week '.$player['bestWeek']['week'].', '.$player['bestWeek']['percent'].'%' : 'none yet'],

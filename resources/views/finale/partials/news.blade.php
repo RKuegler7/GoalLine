@@ -8,7 +8,7 @@
         @php $post = $posts->get($shared->goal_id); @endphp
         <li class="rounded-xl bg-ivory px-3 py-2.5 ring-1 ring-line ring-inset" data-goal-day-result>
             <div class="flex items-start gap-2.5">
-                <x-avatar :user="$shared->user" />
+                <x-avatar :user="$shared->user" class="size-9 text-xs" />
                 <div class="min-w-0 flex-1">
                     <p class="text-[14px] font-semibold text-ink">{{ $shared->user->name }}</p>
                     <p class="truncate text-[13px] text-ink/75">{{ $shared->goal->title }}</p>

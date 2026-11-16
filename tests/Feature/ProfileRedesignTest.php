@@ -55,7 +55,7 @@ class ProfileRedesignTest extends TestCase
             ->assertSee('1 mutual friend')
             // Photo and counts, then the name, @username, the whole bio, location and "Why I'm here", then the button.
             ->assertSeeInOrder(['data-profile-counts', 'Corey Magro', '@'.$owner->username, 'Chasing a sub-4 marathon.', 'Washington, DC', "Why I'm here:", 'My first marathon', 'Add friend', 'Running', 'Coding'], false)
-            ->assertSee('gl-field-rows relative overflow-hidden rounded-2xl', false)
+            ->assertSee('relative overflow-hidden rounded-2xl bg-club', false)
             ->assertSee('text-gold-light tabular-nums', false)
             ->assertDontSee('Goals done')
             ->assertSeeInOrder(['About', 'Goals', 'Highlights', 'Stats', 'Trophy case', 'History'])

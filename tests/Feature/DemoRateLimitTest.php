@@ -30,7 +30,7 @@ class DemoRateLimitTest extends TestCase
 
         // Building a real demo world is slow; a stand-in visitor is enough to test the limits.
         $this->mock(DemoWorld::class, fn ($mock) => $mock->shouldReceive('create')->andReturnUsing(
-            fn () => User::factory()->create(['name' => DemoWorld::VISITOR_NAME, 'demo_sandbox' => (string) Str::uuid()]),
+            fn () => User::factory()->create(['name' => DemoWorld::VISITOR_NAME, 'demo_sandbox' => DemoWorld::VERSION.'-'.Str::lower(Str::random(32))]),
         ));
 
         Route::get('/_ip', fn () => request()->ip())->middleware('web');

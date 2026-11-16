@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Anthropic\Client;
 use App\GoalWeekResult;
+use App\Http\Controllers\DemoController;
 use App\Jobs\GenerateRoadmap;
 use App\Jobs\RefinePlan;
 use App\MatchupOutcome;
@@ -420,6 +421,22 @@ class DemoTest extends TestCase
 
             $this->assertTrue($oneTap, "A one-tap task to check on {$day}.");
         }
+    }
+
+    public function test_a_demo_from_before_the_demo_changed_is_retired_for_a_fresh_one(): void
+    {
+        // A visitor still signed in to a world an older version built (the old cast): sent to build a current one.
+        $old = User::factory()->create(['name' => DemoWorld::VISITOR_NAME, 'demo_sandbox' => 'an-older-world']);
+        $this->actingAs($old)->get(route('dashboard'))->assertRedirect(route('demo'));
+        $this->assertGuest();
+
+        // Coming back by the remembered-demo cookie: a fresh, current world, never the old one.
+        $this->withCookie(DemoController::COOKIE, (string) $old->id)->get(route('demo'))->assertRedirect(route('dashboard'));
+        $visitor = auth()->user();
+        $this->assertNotSame($old->id, $visitor->id);
+        $this->assertTrue(DemoWorld::isCurrent($visitor));
+        $this->assertLessThanOrEqual(36, strlen($visitor->demo_sandbox), 'Fits the demo_sandbox column (MySQL would refuse a longer one).');
+        $this->get(route('dashboard'))->assertOk();
     }
 
     public function test_the_demo_challenges_read_pray_and_wait_for_lent(): void

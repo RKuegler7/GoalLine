@@ -51,6 +51,12 @@ class DemoWorld
     public const SEEDED_SANDBOX = 'seeded';
 
     /**
+     * The demo world's version, the start of every sandbox id. Change it whenever the demo's people or data change:
+     * worlds built by an older version are then retired (RetireOutdatedDemo) and visitors get a fresh one.
+     */
+    public const VERSION = 'v3';
+
+    /**
      * Weeks of the season already played before this one.
      */
     private const WEEKS_PLAYED = 5;
@@ -102,7 +108,8 @@ class DemoWorld
      */
     public function create(?string $sandbox = null): User
     {
-        $this->sandbox = $sandbox ?? (string) Str::uuid();
+        // At most 36 characters (the column's size): the version, a dash and 32 random letters and digits.
+        $this->sandbox = $sandbox ?? self::VERSION.'-'.Str::lower(Str::random(32));
         $this->today = CarbonImmutable::instance(Clock::today());
         $this->monday = $this->today->startOfWeek(CarbonImmutable::MONDAY);
         $seasonStart = $this->monday->subWeeks(self::WEEKS_PLAYED);
@@ -420,6 +427,14 @@ class DemoWorld
             $this->photo($post, $photoTitle, $photoSubtitle, $from, $to);
             $post->forceFill(['created_at' => now()->subDays($daysAgo)->subHours(2)])->saveQuietly();
         }
+    }
+
+    /**
+     * Whether a demo account belongs to a world built by this version of the demo (the seeded local world always does).
+     */
+    public static function isCurrent(User $user): bool
+    {
+        return $user->demo_sandbox === self::SEEDED_SANDBOX || str_starts_with((string) $user->demo_sandbox, self::VERSION.'-');
     }
 
     /**

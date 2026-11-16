@@ -49,7 +49,10 @@
             @endif
             <span class="sr-only">{{ $habit->title }}, {{ $dayName }}: {{ $log ? 'logged' : 'log a number' }}</span>
         </summary>
-        <div class="absolute right-0 z-20 mt-1 w-60 rounded-xl border border-line bg-white p-3 shadow-lg">
+        {{-- On phones a panel across the screen, so it never runs off an edge wherever the button sits; from sm up, a
+             small pop-up under the button. --}}
+        <div class="fixed inset-x-4 top-1/3 z-50 rounded-xl border border-line bg-white p-3 shadow-lg sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-1 sm:w-60" data-habit-number-panel>
+            <p class="mb-2 text-[14px] font-semibold text-ink sm:hidden" aria-hidden="true">{{ $habit->title }} &middot; {{ ucfirst($dayName) }}</p>
             <form method="POST" action="{{ route('habits.log', $habit) }}" data-live class="flex items-center gap-1.5">
                 @csrf
                 <input type="hidden" name="date" value="{{ $day->toDateString() }}">
