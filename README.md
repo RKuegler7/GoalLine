@@ -173,7 +173,17 @@ Then open http://localhost:8000 and tap **Try the demo**, or sign in as **ryan.k
 
 ## What testers said
 
-TESTER_QUOTES
+> "I like the idea of competing with friends and incentivizing app interaction. It's easy to input data and gives pretty accurate milestones for goals. I like it."
+> — **Kelsey**, biology major, University of Alabama
+
+> "Really cool app. Great UX/UI and helpful towards actually completing a goal."
+> — **Max**, Certified Internal Auditor
+
+> "GoalLine is awesome. I started a marathon prep GoalLeague with my roommates for us to run one together in March."
+> — **Corey**, CUA engineer and soccer player
+
+> "It's a great way to hold yourself and friends accountable towards a shared goal. Great for bettering yourself and being productive."
+> — **Charlie**, aspiring CPA and CUA soccer player
 
 ## Built with AI
 
