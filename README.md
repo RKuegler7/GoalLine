@@ -8,7 +8,7 @@
 
 **Live app:** https://ddhxw7holo4vs.cloudfront.net
 
-**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world and play as **Ryan Kuegler**, alongside five made-up league mates (Red Dufour, Jane Mullen, Joe Maloney, Jack Carlini and Jill Conway). Two GoalLeagues are mid-season (**Marathon by March** and **SIE Exam Study Prep**) with a live Matchup, last season's finale is ready to preview, and three Challenges are running or waiting (Read 10 pages a day, Morning and Evening Prayer, and Lent 2027). **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
+**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world and play as **Ryan Kuegler**, alongside five made-up league mates. Two GoalLeagues are mid-season (**Marathon by March** and **SIE Exam Study Prep**) with a live Matchup, last season's finale is ready to preview, and three Challenges are running or waiting (Read 10 pages a day, Morning and Evening Prayer, and Lent 2027). **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
 
 **Demo video:** DEMO_VIDEO_LINK *(coming)*
 
@@ -21,7 +21,7 @@
   </tr>
 </table>
 
-*Kuegs: CUA Busch School AI Vibe Coding Contest, Fall 2026*
+*Ryan Kuegler: CUA Busch School AI Vibe Coding Contest, Fall 2026*
 
 ## The problem
 
@@ -41,7 +41,7 @@ Four things do the motivating: **group accountability** (your league sees your c
 
 ## Who it's for
 
-Students and friend groups working toward real goals with real deadlines: classmates studying for the SIE or the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts, a parish group keeping Lent. Small leagues of people who know each other work best (12 or fewer); Challenges can be bigger.
+Students and friend groups working toward real goals with real deadlines: classmates and coworkers studying for exams, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts, a parish group keeping Lent. Small leagues of people who know each other work best (12 or fewer); Challenges can be bigger. 
 
 ## How the AI works
 
