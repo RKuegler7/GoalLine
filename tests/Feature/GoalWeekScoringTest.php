@@ -336,6 +336,32 @@ class GoalWeekScoringTest extends TestCase
             ->assertSee('Close call: 1 more point gets you safely in line.');
     }
 
+    public function test_the_hint_counts_the_points_needed_to_go_beyond_100_percent(): void
+    {
+        // 18 tasks + milestone (2) = 20 planned; 19 earned is 95%. One more point only reaches exactly 100% (still In
+        // line), so getting past the line takes 2.
+        [$goal, $week] = $this->goalWithWeek(today()->subDays(2), tasks: 18, done: 17, milestone: true);
+        $this->assertSame(2, $week->pointsPastTheLine());
+        $this->actingAs($goal->user)->get(route('goals.show', $goal))
+            ->assertSee('Earn 2 more points to get past the line.')
+            ->assertDontSee('Bonus work');
+
+        // At exactly 100%, 1 more point is past.
+        $last = $week->tasks->last();
+        $last->forceFill(['completed_at' => now()])->saveQuietly();
+        $week = $week->fresh('tasks');
+        $this->assertSame(GoalWeekResult::InLine, $week->result());
+        $this->assertSame(1, $week->pointsPastTheLine());
+
+        // Beating a task's number: 8 of a planned 5 miles earns 1.6 points, so the week is past the line.
+        $last->trackNumber(5, 'miles');
+        $last->forceFill(['result_value' => 8])->saveQuietly();
+        $week = $week->fresh('tasks');
+        $this->assertSame(1.6, $week->tasks->last()->earnedPoints());
+        $this->assertSame(GoalWeekResult::Past, $week->result());
+        $this->assertSame(0, $week->pointsPastTheLine());
+    }
+
     public function test_tasks_members_add_are_personal_and_count_in_the_plan(): void
     {
         Queue::fake();

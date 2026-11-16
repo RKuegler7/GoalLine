@@ -8,7 +8,7 @@
 
 **Live app:** https://ddhxw7holo4vs.cloudfront.net
 
-**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world with friends, GoalLeagues mid-season, a live Matchup and Challenges. **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
+**Try the demo:** open the live app and tap **Try the demo**. One tap, no sign-up, no password: you get your own private copy of a demo world and play as **Ryan Kuegler**, alongside the Busch School crew (Peter Kilpatrick, Andrew Abela, Jack Yoest, and Tim and Steph Busch). Two GoalLeagues are mid-season (**Marathon by March** and **SIE Exam Study Prep**) with a live Matchup, last season's finale is ready to preview, and three Challenges are running or waiting (Read 10 pages a day, Morning and Evening Prayer, and Lent 2027). **Reset demo** in the banner starts it fresh, and the **Judge's tour** pill lists six things worth trying.
 
 **Demo video:** DEMO_VIDEO_LINK *(coming)*
 
@@ -27,7 +27,7 @@
 
 ## The problem
 
-Big goals with deadlines (the CPA exam, a spring marathon, a thesis) rarely fail at the start. They fade in the middle: motivation drops, progress is invisible, nobody notices a missed week, and nothing brings you back tomorrow. Accountability apps either nag you alone or rank you against people with completely different goals, which isn't fair and isn't fun.
+Big goals with deadlines (the SIE or CPA exam, a spring marathon, a thesis) rarely fail at the start. They fade in the middle: motivation drops, progress is invisible, nobody notices a missed week, and nothing brings you back tomorrow. Accountability apps either nag you alone or rank you against people with completely different goals, which isn't fair and isn't fun.
 
 ## What GoalLine does
 
@@ -43,7 +43,7 @@ Four things do the motivating: **group accountability** (your league sees your c
 
 ## Who it's for
 
-Students and friend groups working toward real goals with real deadlines: classmates studying for the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts, a parish group keeping Lent. Small leagues of people who know each other work best (12 or fewer); Challenges can be bigger.
+Students and friend groups working toward real goals with real deadlines: classmates studying for the SIE or the CPA, a running club training for a spring marathon, roommates chasing a 4.0, a writing group finishing drafts, a parish group keeping Lent. Small leagues of people who know each other work best (12 or fewer); Challenges can be bigger.
 
 ## How the AI works
 
@@ -71,12 +71,21 @@ Every goal page has a **"How this plan was built"** panel showing, for that plan
 
 Each GoalWeek, your share of your own plan sets your **band**, and the week is worth **0 to 5 stars**: line stars (0 to 3) plus matchup stars (0 to 2).
 
+**Percent of plan** = plan points earned ÷ plan points planned. The plan is each task (usually 1 point, some 2), each planned habit day (1) and the milestone (2).
+
 | Band | Share of your plan | Line stars |
 |---|---|---|
 | Short of the Line | under 90% | 0 |
 | In Line | 90% to 100% | 1 |
 | Past the Line | over 100%, under 150% | 2 |
 | Smashed the Line | 150% and up (needs proof or the opponent's OK) | 3 |
+
+**Getting past 100%.** Doing everything in the plan is exactly 100%, In Line. Two things go beyond it:
+
+- **Beat a task's number.** A task that tracks miles, pages or minutes earns in proportion: 8 miles on a 5-mile task earns 1.6 times its points, up to 3 times.
+- **Extra days on a weekly habit.** A 3-times-a-week habit done 4 times earns 4.
+
+Your own tasks (up to 3 a week, 15% of the plan's points, added by Tuesday night) and group tasks the league votes in count toward the plan *and* toward what you earn, so they keep you on pace but don't push you past it. The Matchup page shows exactly how many points get you In Line and Past the Line.
 
 | Matchup result | Matchup stars |
 |---|---|
@@ -94,7 +103,7 @@ GoalLine makes cheating visible, hard to do quietly, and not worth much. The pla
 - **Minimum pace (plan floor):** code sets each week's minimum from the goal type, deadline and answers. Plans can be harder, never easier. Two lighter weeks a season are allowed, at 70%, with a reason the league sees.
 - **Plan lock:** a week's plan locks when it starts.
 - **No check-ins before kickoff, no backfill:** today or yesterday only, enforced on the server.
-- **Range checks:** numbers must be sensible, and unusual ones get an "Are you sure?".
+- **Range checks:** a number must be between 0 and 3 times the plan, and anything over 1.5 times the plan or above your best gets an "Are you sure?". You set a task's number only before its week starts.
 - **Open check-ins:** both sides' check-ins, times and plan status are visible to the league.
 - **Proof for Smashed:** a 150%+ week counts as Smashed only with a photo or the opponent's confirmation.
 - **Disputes:** the opponent or league owner can question a check-in; its points are held until it's settled by proof, an explanation, a withdrawal or the owner's ruling. People decide, never the AI.
@@ -191,6 +200,7 @@ The reasoning is in [docs/DECISIONS.md](docs/DECISIONS.md).
 ## Known limitations
 
 - Check-ins are self-reported. GoalLine makes faking visible and not worth much, but it can't prove someone studied for an hour.
+- Players set their own task numbers before a week starts, so a low number is easier to beat. The 3-times cap, the "Are you sure?" check, proof for Smashed and disputes keep that in check, but don't prevent it.
 - The minimum-pace formulas are deliberate, documented rules of thumb, not a model of every goal.
 - GoalWeeks follow each member's own time zone, while Challenges and GoalLeague kickoffs use New York time, so people far from Eastern time can see days close a few hours apart.
 - When the coach rewords a task it moved between weeks, the refinement preview shows it as removed and added rather than moved.

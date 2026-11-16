@@ -467,6 +467,19 @@ class RoadmapWeek extends Model
     }
 
     /**
+     * How many more points put the GoalWeek past the line. Past the line means more than the plan, so reaching exactly
+     * 100% isn't enough: it's one point beyond that (9 of 10 needs 2, 10 of 10 needs 1). Zero once it's past.
+     */
+    public function pointsPastTheLine(): int
+    {
+        if (round($this->completionShare(), 4) > GoalWeekResult::PAST_ABOVE) {
+            return 0;
+        }
+
+        return max(1, (int) floor($this->plannedPoints() - $this->earnedPoints() + 0.0001) + 1);
+    }
+
+    /**
      * Who confirmed this week's Smashed result.
      *
      * @return BelongsTo<User, $this>

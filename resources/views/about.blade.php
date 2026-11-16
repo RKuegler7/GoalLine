@@ -172,7 +172,7 @@
             <section id="scoring" aria-labelledby="scoring-title">
                 <p class="eyebrow text-club">Scoring</p>
                 <h2 id="scoring-title" class="mt-2 font-serif text-3xl font-bold tracking-tight text-ink">Scored against your own plan</h2>
-                <p class="mt-3">Every GoalWeek has <strong class="text-ink">plan points</strong>: each task (usually 1), each planned habit day (1), and the milestone ({{ $rules->milestonePoints() }}). Your <strong class="text-ink">percent of plan</strong> is the plan points you earn divided by the plan points planned. Bonus tasks, extra habit days and beating a task&rsquo;s number push you past 100%.</p>
+                <p class="mt-3">Every GoalWeek has <strong class="text-ink">plan points</strong>: each task (usually 1), each planned habit day (1), and the milestone ({{ $rules->milestonePoints() }}). Your <strong class="text-ink">percent of plan</strong> is the plan points you earn divided by the plan points planned. Two things push you past 100%: <strong class="text-ink">beating a task&rsquo;s number</strong> (8 miles on a 5-mile task earns 1.6 times its points, up to {{ App\Models\RoadmapTask::DEFAULT_MAX_MULTIPLE }} times) and <strong class="text-ink">extra days on a weekly habit</strong> (a 3-times-a-week habit done 4 times earns 4). Your own tasks and group tasks add to the plan as well as to what you earn, so they keep you on pace but don&rsquo;t push you past it.</p>
 
                 <h3 class="mt-6 font-serif text-xl font-bold tracking-tight text-ink">The four weekly results</h3>
                 {{-- The meter: fixed height, widths from the thresholds. --}}
@@ -246,7 +246,7 @@
                         @if ($example['photoFinish'])
                             Both landed {{ Str::lower($avery['result']->label()) }}, so it&rsquo;s a photo finish: {{ $sam['percent'] > $avery['percent'] ? $sam['name'] : $avery['name'] }}&rsquo;s higher percent takes it.
                         @endif
-                        If {{ $whatIf['avery']['name'] }} had added {{ $whatIf['avery']['bonusDone'] }} bonus session and finished every task ({{ $whatIf['avery']['percent'] }}%, {{ Str::lower($whatIf['avery']['result']->label()) }}), the higher band wins outright: {{ $whatIf['avery']['name'] }} {{ $stars($whatIf['avery']['total']) }}, {{ $whatIf['sam']['name'] }} {{ $stars($whatIf['sam']['total']) }}.
+                        If {{ $whatIf['avery']['name'] }} had logged one extra habit day and finished every task ({{ $whatIf['avery']['percent'] }}%, {{ Str::lower($whatIf['avery']['result']->label()) }}), the higher band wins outright: {{ $whatIf['avery']['name'] }} {{ $stars($whatIf['avery']['total']) }}, {{ $whatIf['sam']['name'] }} {{ $stars($whatIf['sam']['total']) }}.
                     </p>
                 </div>
 

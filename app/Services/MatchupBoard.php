@@ -98,8 +98,7 @@ class MatchupBoard
 
         return match (true) {
             $share < GoalWeekResult::IN_LINE_AT => ['band' => GoalWeekResult::InLine, 'points' => $week->pointsTo(GoalWeekResult::IN_LINE_AT)],
-            // Past the line means more than the plan: one point beyond 100%.
-            $share <= GoalWeekResult::PAST_ABOVE => ['band' => GoalWeekResult::Past, 'points' => max(1, (int) floor($week->plannedPoints() - $week->earnedPoints() + 0.0001) + 1)],
+            $share <= GoalWeekResult::PAST_ABOVE => ['band' => GoalWeekResult::Past, 'points' => $week->pointsPastTheLine()],
             $share < GoalWeekResult::SMASHED_AT => ['band' => GoalWeekResult::Smashed, 'points' => $week->pointsTo(GoalWeekResult::SMASHED_AT)],
             default => null,
         };
@@ -123,8 +122,7 @@ class MatchupBoard
         $openPoints = (float) $open->sum('points');
         $perTask = $open->isEmpty() ? 1.0 : max(0.5, $openPoints / $open->count());
         $inLine = $share >= GoalWeekResult::IN_LINE_AT ? 0 : $week->pointsTo(GoalWeekResult::IN_LINE_AT);
-        // Past the line means more than the plan: one point beyond 100%, as in nextBand().
-        $past = $share > GoalWeekResult::PAST_ABOVE ? 0 : max(1, (int) floor($week->plannedPoints() - $week->earnedPoints() + 0.0001) + 1);
+        $past = $week->pointsPastTheLine();
         $estimate = fn (int $points) => [
             'points' => $points,
             'tasks' => (int) min($open->count(), ceil($points / $perTask)),

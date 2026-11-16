@@ -202,6 +202,7 @@ class ProfileRedesignTest extends TestCase
 
     public function test_the_demo_people_have_rich_profiles(): void
     {
+        Storage::fake('uploads');
         $this->get(route('demo'));
         $peter = User::where('demo_sandbox', auth()->user()->demo_sandbox)->where('name', 'Peter Kilpatrick')->sole();
 
@@ -209,7 +210,9 @@ class ProfileRedesignTest extends TestCase
             ->assertSee('Early miles, then the day')->assertSee('Reading')->assertDontSee('data-profile-cover', false)
             ->assertSee('Finish a spring marathon');
 
-        // The visitor is Ryan, with his own bio and location.
+        // The visitor is Ryan, with his own photo (from resources/demo), bio and location.
+        $this->assertStringStartsWith('avatars/demo-', auth()->user()->avatar_path);
+        Storage::disk(User::AVATAR_DISK)->assertExists(auth()->user()->avatar_path);
         $this->get(route('profile.show'))->assertOk()
             ->assertSee('Ryan Kuegler')->assertSee('Finance and Sales at the Busch School of Business')->assertSee('Washington, DC')
             ->assertSee('Building GoalLine, one GoalWeek at a time');

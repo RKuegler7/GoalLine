@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use LogicException;
 use Throwable;
 
 /**
@@ -59,10 +60,10 @@ class DemoWorld
      */
     private const RUNNING_WEEK = [
         ['Easy run', 1, 4, 'miles'],
-        ['Strength and core, 30 minutes', 1, null, null],
+        ['Strength and core, 30 minutes', 1, 30, 'minutes'],
         ['Tempo run', 1, 5, 'miles'],
         ['Easy run', 1, 3, 'miles'],
-        ['Mobility, 15 minutes', 1, null, null],
+        ['Mobility, 20 minutes', 1, 20, 'minutes'],
         ['Long run', 2, 10, 'miles'],
         ['Foam roll and stretch', 1, null, null],
     ];
@@ -73,10 +74,10 @@ class DemoWorld
     private const SIE_WEEK = [
         ['Practice questions, 40', 1, 40, 'questions'],
         ['Read and outline one chapter', 1, null, null],
-        ['Timed practice set', 2, null, null],
-        ['Flashcards', 1, null, null],
-        ['Review missed questions', 1, null, null],
-        ['Mock exam block', 2, null, null],
+        ['Timed practice set', 2, 40, 'questions'],
+        ['Flashcards', 1, 50, 'cards'],
+        ['Review missed questions', 1, 20, 'questions'],
+        ['Mock exam block', 2, 90, 'minutes'],
         ['Plan next week', 1, null, null],
     ];
 
@@ -130,7 +131,8 @@ class DemoWorld
             $marathonTarget = $this->today->setMonth(3)->setDay(15)->addYears($this->today->month >= 3 ? 1 : 0);
             $examDay = $seasonStart->addWeeks(14)->subDay();
 
-            // How each person's weeks went: [tasks done, milestone hit, bonus tasks], for the weeks already played.
+            // How each person's weeks went: [tasks done, milestone hit, extra points from beating the numbers], for the weeks
+            // already played.
             // Last week Peter and Steph both reached Smashed (150%+): Peter with proof, Steph without, so hers counts as Past.
             $runners = [
                 [$you, 'Run the DC Marathon by March', [[5, true, 0], [6, true, 0], [6, true, 0], [7, true, 1], [7, true, 0]], 1],
@@ -163,7 +165,7 @@ class DemoWorld
             $this->habit($goals['run'][$you->id], 'Stretch', 5, 10);
             $this->personalTask($goals['run'][$you->id], 'Ice bath after the long run', 1);
             $this->personalTask($goals['run'][$tim->id], 'Walk 20 minutes on rest days', 1);
-            $this->proofLastWeek($goals['run'][$peter->id], 'Extra miles', '6.2 mi · Sunday shakeout');
+            $this->proofLastWeek($goals['run'][$peter->id], 'Long run', 'Further than the plan');
             (new LeagueTable($running->fresh()))->settle();
             (new LeagueTable($study->fresh()))->settle();
 
@@ -201,7 +203,7 @@ class DemoWorld
         $startsOn = $endsOn->subWeeks(self::FINISHED_SEASON_WEEKS)->addDay();
         $league = $this->league('SIE Exam Study Prep · Season 1', 'Four of us, one exam, six weeks of study blocks.', GoalCategory::Career, $you, $startsOn, $endsOn);
 
-        // [person, goal, weekly history [tasks done, milestone, bonus], Goal Day answer]
+        // [person, goal, weekly history [tasks done, milestone, extra points from beating the numbers], Goal Day answer]
         $season = [
             [$you, 'Score 80+ on a full SIE practice exam', [[6, true, 0], [7, true, 0], [7, true, 1], [5, true, 0], [7, true, 6], [7, true, 1]], ['achieved', 'Scored an 84 on the full practice exam', 'Timing on the long sections', 'Sunday study blocks with the league']],
             [$andrew, 'Finish the full SIE content review', [[7, true, 0], [6, true, 0], [7, true, 0], [7, true, 0], [6, true, 0], [7, true, 0]], ['achieved', 'Every chapter reviewed and outlined', 'Fitting study around the day', 'Early mornings before meetings']],
@@ -215,7 +217,7 @@ class DemoWorld
             $goal = $person->goals()->create(['title' => $title, 'category' => GoalCategory::Career, 'target_date' => $endsOn, 'target_result' => 'Ready for exam day', 'why' => 'Ready for the SIE, together.']);
             $goal->forceFill(['roadmap_status' => RoadmapStatus::Ready, 'plan_source' => 'coach', 'plan_accepted_at' => $startsOn->subDays(3), 'created_at' => $startsOn->subDays(3)])->saveQuietly();
 
-            foreach ($history as $index => [$done, $milestone, $bonus]) {
+            foreach ($history as $index => [$done, $milestone, $extra]) {
                 $starts = $startsOn->addWeeks($index);
                 $week = $goal->weeks()->create([
                     'position' => $index + 1,
@@ -224,7 +226,7 @@ class DemoWorld
                     'focus' => 'Study blocks and practice questions',
                     'milestone' => 'Score 75%+ on a timed practice set',
                 ]);
-                $this->playPastWeek($week, $this->tasksFor($week, self::SIE_WEEK, $index, 0), $done, $milestone, $bonus);
+                $this->playPastWeek($week, $this->tasksFor($week, self::SIE_WEEK, $index, 0), $done, $milestone, $extra);
             }
 
             app(PlanFloor::class)->setFloors($goal->fresh());
@@ -496,8 +498,8 @@ class DemoWorld
             $tasks = $this->tasksFor($week, $template, $offset + self::WEEKS_PLAYED, $stepUp);
 
             if ($offset < 0) {
-                [$done, $milestone, $bonus] = $history[$offset + self::WEEKS_PLAYED];
-                $this->playPastWeek($week, $tasks, $done, $milestone, $bonus);
+                [$done, $milestone, $extra] = $history[$offset + self::WEEKS_PLAYED];
+                $this->playPastWeek($week, $tasks, $done, $milestone, $extra);
             } elseif ($offset === 0) {
                 $this->playThisWeek($tasks, $missedThisWeek, earlyBird: $missedThisWeek === 0);
             }
@@ -532,9 +534,11 @@ class DemoWorld
     /**
      * @param  list<RoadmapTask>  $tasks
      */
-    private function playPastWeek(RoadmapWeek $week, array $tasks, int $done, bool $milestone, int $bonus): void
+    private function playPastWeek(RoadmapWeek $week, array $tasks, int $done, bool $milestone, int $extra): void
     {
-        foreach (array_slice($tasks, 0, $done) as $task) {
+        $checkedOff = array_slice($tasks, 0, $done);
+
+        foreach ($checkedOff as $task) {
             $this->checkOff($task, CarbonImmutable::instance($task->planned_on)->setTime(rand(6, 20), rand(0, 59)));
         }
 
@@ -542,9 +546,38 @@ class DemoWorld
             $week->forceFill(['milestone_hit_at' => CarbonImmutable::instance($week->ends_on)->setTime(18, 0)])->save();
         }
 
-        for ($extra = 1; $extra <= $bonus; $extra++) {
-            $task = $week->tasks()->create(['position' => 20 + $extra, 'description' => 'Extra session', 'is_bonus' => true]);
-            $this->checkOff($task, CarbonImmutable::instance($week->ends_on)->subDays($extra)->setTime(12, 0));
+        $this->beatTheNumbers($checkedOff, $extra);
+    }
+
+    /**
+     * A big week the way players have one: more than planned on the tasks that track a number, which earns extra
+     * points (8 of a planned 5 miles earns 1.6 times). The extra is spread across those tasks, up to 1.5 times the
+     * plan each first, then up to twice.
+     *
+     * @param  list<RoadmapTask>  $tasks  Tasks already checked off.
+     */
+    private function beatTheNumbers(array $tasks, int $extra): void
+    {
+        $left = (float) $extra;
+
+        foreach ([1.5, 2.0] as $multiple) {
+            foreach ($tasks as $task) {
+                if ($left <= 0 || ! $task->result_required) {
+                    continue;
+                }
+
+                $earned = $task->points * $task->result_value / $task->result_target;
+                $add = min($left, $task->points * $multiple - $earned);
+
+                if ($add > 0) {
+                    $task->forceFill(['result_value' => round($task->result_target * ($earned + $add) / $task->points, 2)])->saveQuietly();
+                    $left -= $add;
+                }
+            }
+        }
+
+        if ($left > 0.001) {
+            throw new LogicException("A demo week asks for {$extra} extra points, more than its numbers can give.");
         }
     }
 
@@ -658,7 +691,8 @@ class DemoWorld
     private function proofLastWeek(Goal $goal, string $title, string $subtitle): void
     {
         $task = RoadmapTask::whereIn('roadmap_week_id', $goal->weeks()->whereDate('starts_on', $this->monday->subWeek())->select('id'))
-            ->where('is_bonus', true)->whereNotNull('completed_at')->firstOrFail();
+            ->whereNotNull('completed_at')->where('result_required', true)->whereColumn('result_value', '>', 'result_target')
+            ->orderByDesc('points')->firstOrFail();
         $path = "proofs/{$goal->id}/{$task->id}-demo.svg";
 
         if ($this->store(RoadmapTask::proofDisk(), $path, $this->drawing($title, $subtitle, '#1E2922', '#D4AC58'))) {
@@ -738,9 +772,9 @@ class DemoWorld
         $path = $this->photo($post, $photoTitle, $photoSubtitle, $from, $to);
         $post->forceFill(['created_at' => now()->subDays($daysAgo)->subHours(rand(1, 6))])->saveQuietly();
 
-        // The photo doubles as the task's proof, so the post shows Verified.
-        if ($path) {
-            $task?->forceFill(['proof_path' => $path, 'proof_mime_type' => 'image/svg+xml', 'proof_uploaded_at' => $post->created_at])->saveQuietly();
+        // The photo doubles as the task's proof, so the post shows Verified (a task that already has a photo keeps it).
+        if ($path && $task && $task->proof_path === null) {
+            $task->forceFill(['proof_path' => $path, 'proof_mime_type' => 'image/svg+xml', 'proof_uploaded_at' => $post->created_at])->saveQuietly();
         }
 
         return $post;

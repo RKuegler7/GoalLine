@@ -50,7 +50,7 @@ All math is plain, tested PHP (`GoalWeekResult`, `MatchupOutcome`, `RoadmapWeek`
 - Each planned habit day is 1 point.
 - The milestone is worth 2 points.
 - **Planned points** = non-bonus tasks + habit targets + milestone.
-- **Earned points** = every checked-off task (bonus tasks too) + every habit day logged + the milestone if hit.
+- **Earned points** = every checked-off task (a task that tracks a number earns points × result ÷ plan, from 0 to 3 times its points) + every habit day logged (a weekly habit can go beyond its target) + the milestone if hit. Personal and group tasks count in both planned and earned points. Players can't add bonus tasks; the engine still scores any from older data.
 - **Share** = earned ÷ planned.
 
 **Bands**

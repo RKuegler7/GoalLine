@@ -44,6 +44,23 @@ class ScoringHelpTest extends TestCase
         $this->assertStringContainsString("Line stars plus matchup stars: {$min} to {$max} stars a week.", $page);
     }
 
+    public function test_the_sheet_and_help_say_how_to_get_past_100_percent_without_bonus_tasks(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()
+            ->assertSee('Getting past 100%')
+            ->assertSee('earns 1.6 times its points, up to 3 times', false)
+            ->assertSee('Extra days on a weekly habit.');
+        $this->actingAs($user)->get(route('help'))->assertOk()
+            ->assertSee('How do I get past 100%?')
+            ->assertDontSee('bonus session');
+        $this->get(route('about'))->assertOk()
+            ->assertSee('Two things push you past 100%')
+            ->assertSee('logged one extra habit day')
+            ->assertDontSee('Bonus tasks');
+    }
+
     public function test_the_standings_stay_clean_with_one_button_and_one_sheet(): void
     {
         $user = User::factory()->create();

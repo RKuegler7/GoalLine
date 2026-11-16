@@ -21,7 +21,7 @@
         $notStarted => 'New GoalWeek. Trust the process: check off your first task to get going.',
         $result === App\GoalWeekResult::Short => 'Earn '.$morePoints($week->pointsTo(App\GoalWeekResult::IN_LINE_AT)).' to get in line. One more day on the line.',
         $closeCall => 'Close call: '.$morePoints($week->pointsToSafety()).' gets you safely in line.',
-        $result === App\GoalWeekResult::InLine => 'Earn '.$morePoints(max(1, $week->pointsTo(App\GoalWeekResult::PAST_ABOVE))).' to get past the line. Bonus work and beating your numbers count.',
+        $result === App\GoalWeekResult::InLine => 'Earn '.$morePoints($week->pointsPastTheLine()).' to get past the line. Beating a task\'s number and extra days on a weekly habit count.',
         $needsProof => 'You reached Smashed! Show your work on a check-in, or ask your opponent to confirm, so it counts in full.',
         $result === App\GoalWeekResult::Past => 'Past the line! '.ucfirst($morePoints($week->pointsTo(App\GoalWeekResult::SMASHED_AT))).' smashes it.',
         $result === App\GoalWeekResult::Smashed => 'You smashed the line this GoalWeek.',

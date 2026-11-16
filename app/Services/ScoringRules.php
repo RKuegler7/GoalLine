@@ -159,17 +159,18 @@ class ScoringRules
      */
     public function example(): array
     {
-        $avery = $this->player('Avery', tasks: 5, habitDays: 5, tasksDone: 4, habitDaysDone: 5, bonusDone: 0);
-        $sam = $this->player('Sam', tasks: 10, habitDays: 8, tasksDone: 9, habitDaysDone: 8, bonusDone: 0);
+        $avery = $this->player('Avery', tasks: 5, habitDays: 5, tasksDone: 4, habitDaysDone: 5);
+        $sam = $this->player('Sam', tasks: 10, habitDays: 8, tasksDone: 9, habitDaysDone: 8);
         [$avery, $sam] = $this->match($avery, $sam);
 
-        $averyBonus = $this->player('Avery', tasks: 5, habitDays: 5, tasksDone: 5, habitDaysDone: 5, bonusDone: 1);
-        [$averyBonus, $samAgain] = $this->match($averyBonus, $this->player('Sam', tasks: 10, habitDays: 8, tasksDone: 9, habitDaysDone: 8, bonusDone: 0));
+        // What if Avery finished every task and logged one extra habit day (6 of a planned 5)?
+        $averyExtra = $this->player('Avery', tasks: 5, habitDays: 5, tasksDone: 5, habitDaysDone: 6);
+        [$averyExtra, $samAgain] = $this->match($averyExtra, $this->player('Sam', tasks: 10, habitDays: 8, tasksDone: 9, habitDaysDone: 8));
 
         return [
             'players' => [$avery, $sam],
             'photoFinish' => $avery['outcome']->isPhotoFinish(),
-            'whatIf' => ['avery' => $averyBonus, 'sam' => $samAgain],
+            'whatIf' => ['avery' => $averyExtra, 'sam' => $samAgain],
         ];
     }
 
@@ -189,11 +190,11 @@ class ScoringRules
     /**
      * @return array<string, mixed>
      */
-    private function player(string $name, int $tasks, int $habitDays, int $tasksDone, int $habitDaysDone, int $bonusDone): array
+    private function player(string $name, int $tasks, int $habitDays, int $tasksDone, int $habitDaysDone): array
     {
         $milestone = $this->milestonePoints();
         $planned = $tasks + $habitDays + $milestone;
-        $earned = $tasksDone + $bonusDone + $habitDaysDone + $milestone;
+        $earned = $tasksDone + $habitDaysDone + $milestone;
         $share = $earned / $planned;
         $result = GoalWeekResult::score($share);
 
@@ -203,7 +204,6 @@ class ScoringRules
             'habitDays' => $habitDays,
             'tasksDone' => $tasksDone,
             'habitDaysDone' => $habitDaysDone,
-            'bonusDone' => $bonusDone,
             'milestone' => $milestone,
             'planned' => $planned,
             'earned' => $earned,

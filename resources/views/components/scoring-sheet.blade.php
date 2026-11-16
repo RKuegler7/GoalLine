@@ -48,6 +48,14 @@
             </table>
             <p class="mt-1 text-xs text-ink/70">{{ $bands[3]['label'] }} needs proof on a check-in or your opponent's OK to count in full; until then it counts as {{ $bands[2]['label'] }}.</p>
         </section>
+        <section aria-labelledby="scoring-past" data-scoring-past>
+            <h3 id="scoring-past" class="eyebrow text-[11px] text-club">Getting past 100%</h3>
+            <ul class="mt-1.5 list-disc space-y-1 pl-5 text-[13px] text-ink/80">
+                <li><span class="font-semibold text-ink">Beat a task&rsquo;s number.</span> 8 miles on a 5-mile task earns 1.6 times its points, up to {{ App\Models\RoadmapTask::DEFAULT_MAX_MULTIPLE }} times.</li>
+                <li><span class="font-semibold text-ink">Extra days on a weekly habit.</span> A 3-times-a-week habit done 4 times earns 4.</li>
+                <li>Your own tasks and group tasks add to the plan and to what you earn, so they keep you on pace but don&rsquo;t push you past it.</li>
+            </ul>
+        </section>
 
         <section aria-labelledby="scoring-match">
             <h3 id="scoring-match" class="eyebrow text-[11px] text-club">Matchup stars</h3>

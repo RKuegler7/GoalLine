@@ -14,6 +14,7 @@ use App\Models\GroupTask;
 use App\Models\Highlight;
 use App\Models\League;
 use App\Models\PlanRefinement;
+use App\Models\RoadmapTask;
 use App\Models\RoadmapWeek;
 use App\Models\User;
 use App\Notifications\Nudged;
@@ -105,7 +106,9 @@ class DemoTest extends TestCase
 
         $peter = $lastWeek('Finish a spring marathon');
         $this->assertSame(GoalWeekResult::Smashed, $peter->result());
-        $this->assertTrue($peter->tasks->contains(fn ($task) => $task->is_bonus && $task->isVerified()));
+        // Peter got there the way any player can: more than planned on his numbers, with a photo on the long run.
+        $this->assertTrue($peter->tasks->contains(fn ($task) => $task->result_value > $task->result_target && $task->isVerified()));
+        $this->assertSame(0, RoadmapTask::where('is_bonus', true)->count(), 'No bonus tasks: players can\'t add them.');
 
         $steph = $lastWeek('Pass the SIE before spring');
         $this->assertTrue($steph->needsProofForSmashed());
@@ -346,6 +349,7 @@ class DemoTest extends TestCase
         $this->assertSame(0, League::count());
         $this->assertSame([], Storage::disk('uploads')->allFiles('highlights'));
         $this->assertSame([], Storage::disk('uploads')->allFiles('proofs'));
+        $this->assertSame([], Storage::disk('uploads')->allFiles('avatars'));
     }
 
     public function test_demo_visitors_get_a_small_ai_allowance(): void
