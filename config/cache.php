@@ -45,6 +45,9 @@ return [
             'table' => env('DB_CACHE_TABLE', 'cache'),
             'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'),
             'lock_table' => env('DB_CACHE_LOCK_TABLE'),
+            // Never sweep expired locks while taking one: on MySQL that DELETE can deadlock with other requests taking
+            // locks at the same moment. Expired locks are taken over on their own, and a daily sweep clears the rest.
+            'lock_lottery' => [0, 100],
         ],
 
         'file' => [

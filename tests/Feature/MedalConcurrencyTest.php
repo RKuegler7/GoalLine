@@ -12,6 +12,8 @@ use App\Notifications\AdminAlert;
 use App\Services\ErrorAlerts;
 use App\Services\LeagueTable;
 use App\Services\MedalAwarder;
+use Closure;
+use Illuminate\Cache\Lock;
 use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Database\QueryException;
@@ -22,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schema;
+use Mockery;
 use PDOException;
 use RuntimeException;
 use Tests\TestCase;
@@ -242,6 +245,48 @@ class MedalConcurrencyTest extends TestCase
         Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => $message === 'Concurrency: medals-already-awarded');
         Log::shouldNotHaveReceived('error');
         $this->assertNotNull($this->league->fresh()->finalized_at);
+    }
+
+    public function test_taking_a_lock_never_sweeps_the_lock_table(): void
+    {
+        // The random sweep ("delete from cache_locks where expiration <= …") deadlocked in production.
+        $this->assertSame([0, 100], config('cache.stores.database.lock_lottery'));
+    }
+
+    public function test_a_deadlock_on_the_lock_table_is_busy_not_an_error(): void
+    {
+        Log::spy();
+        $deadlock = fn () => new QueryException('mysql', 'delete from `cache_locks` where `expiration` <= 1794873736', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction'));
+
+        // Taking the lock deadlocks: the work is skipped quietly, as if busy.
+        $taking = Mockery::mock(Lock::class);
+        $taking->shouldReceive('get')->andThrow($deadlock());
+        $releasing = Mockery::mock(Lock::class);
+        $releasing->shouldReceive('get')->andReturnUsing(function (Closure $work) use ($deadlock) {
+            $work();
+
+            throw $deadlock();
+        });
+        Cache::shouldReceive('lock')->andReturn($taking, $releasing);
+        $ran = false;
+        $this->assertNull(Atomic::exclusively('busy-table', function () use (&$ran) {
+            $ran = true;
+        }));
+        $this->assertFalse($ran);
+
+        // Releasing it deadlocks after the work finished: the work's result stands.
+        $this->assertSame('done', Atomic::exclusively('busy-release', fn () => 'done'));
+
+        Log::shouldHaveReceived('warning')->withArgs(fn (string $message) => $message === 'Concurrency: lock-deadlock')->twice();
+    }
+
+    public function test_a_deadlock_inside_the_work_is_still_raised(): void
+    {
+        $this->expectException(QueryException::class);
+
+        Atomic::exclusively('real-work', function () {
+            throw new QueryException('mysql', 'update `goals` ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock'));
+        });
     }
 
     public function test_exclusive_work_can_re_enter_its_own_lock(): void

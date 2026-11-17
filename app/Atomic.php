@@ -83,34 +83,52 @@ final class Atomic
         }
 
         $lock = Cache::lock('exclusive:'.$key, $seconds);
-        $callback = function () use ($callback, $key) {
+        $started = false;
+        $finished = false;
+        $result = null;
+        $callback = function () use ($callback, $key, &$started, &$finished, &$result) {
+            $started = true;
             self::$held[$key] = true;
 
             try {
-                return $callback();
+                $result = $callback();
+                $finished = true;
+
+                return $result;
             } finally {
                 unset(self::$held[$key]);
             }
         };
 
-        if ($wait === 0) {
-            $result = $lock->get($callback);
+        try {
+            if ($wait === 0) {
+                $outcome = $lock->get($callback);
 
-            if ($result === false) {
-                self::noteContention('skipped-busy', null, $key);
+                if ($outcome === false) {
+                    self::noteContention('skipped-busy', null, $key);
 
-                return null;
+                    return null;
+                }
+
+                return $outcome;
             }
 
-            return $result;
-        }
-
-        try {
             return $lock->block($wait, $callback);
         } catch (LockTimeoutException $exception) {
             self::noteContention('lock-timeout', $exception, $key);
 
             return null;
+        } catch (Throwable $exception) {
+            // A deadlock taking the lock (the work never started) or releasing it (the work already finished) is the
+            // lock table being busy, not a failure of the work: a warning, never an error. One inside the work is
+            // passed on as usual.
+            if (! self::isConcurrencyError($exception) || ($started && ! $finished)) {
+                throw $exception;
+            }
+
+            self::noteContention('lock-deadlock', $exception, $key);
+
+            return $finished ? $result : null;
         }
     }
 

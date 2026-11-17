@@ -1,5 +1,6 @@
 <?php
 
+use App\Atomic;
 use App\Models\League;
 use App\Models\RoadmapWeek;
 use App\Models\User;
@@ -9,6 +10,7 @@ use App\Services\DemoWorld;
 use App\Services\LeagueTable;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Schedule;
 use Minishlink\WebPush\VAPID;
@@ -25,6 +27,15 @@ Schedule::command('goalline:settle-leagues')->hourly()->withoutOverlapping();
 
 // Demo worlds are deleted after DEMO_TTL_HOURS.
 Schedule::call(fn () => DemoWorld::pruneExpired())->name('prune-demos')->hourly()->withoutOverlapping();
+
+// Expired cache locks, cleared once a day at a quiet hour (never while a request is taking a lock).
+Schedule::call(function () {
+    try {
+        DB::table('cache_locks')->where('expiration', '<=', now()->getTimestamp())->delete();
+    } catch (Throwable $exception) {
+        Atomic::isConcurrencyError($exception) ? Atomic::noteContention('lock-sweep-busy', $exception) : throw $exception;
+    }
+})->name('prune-cache-locks')->dailyAt('04:15');
 
 // Group task votes run 24 hours; settle the ones whose time is up.
 Schedule::command('goalline:close-group-votes')->everyFiveMinutes()->withoutOverlapping();
