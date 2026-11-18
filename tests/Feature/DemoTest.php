@@ -27,6 +27,7 @@ use App\Services\PlanEditor;
 use App\Services\RoadmapPlanner;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Mockery\MockInterface;
+use PDOException;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -185,6 +187,19 @@ class DemoTest extends TestCase
         $this->assertSame(0, User::where('demo_sandbox', $old)->count());
 
         @unlink($root);
+    }
+
+    public function test_a_demo_build_that_loses_a_deadlock_is_built_again(): void
+    {
+        $visitor = User::factory()->create(['name' => DemoWorld::VISITOR_NAME, 'demo_sandbox' => DemoWorld::VERSION.'-'.str_repeat('a', 32)]);
+        $deadlock = new QueryException('mysql', 'insert into `roadmap_tasks` ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock'));
+        $this->mock(DemoWorld::class, fn (MockInterface $mock) => $mock->shouldReceive('create')->twice()->andReturnUsing(
+            fn () => throw $deadlock,
+            fn () => $visitor,
+        ));
+
+        $this->get(route('demo'))->assertRedirect(route('dashboard'));
+        $this->assertTrue(auth()->user()->is($visitor));
     }
 
     public function test_a_demo_that_cant_be_built_shows_a_friendly_note_not_an_error(): void

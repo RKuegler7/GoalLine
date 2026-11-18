@@ -208,7 +208,7 @@ Judges never type a username or password.
   - a disputed check-in for Ryan to settle, and a lighter week ("Grading week");
   - last season, SIE Exam Study Prep · Season 1, finished with Goal Day answered and medals awarded, for the finale preview.
 - **Ryan's photo:** a file at `resources/demo/ryan-kuegler.jpg` becomes the visitor's photo (location and camera data removed); without it, initials.
-- **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips, captions and recap summaries), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. Demo starts and resets are limited to 10 an hour.
+- **Cost and safety:** the coach uses saved sample answers in demos (intake questions, plans, refinements, coach checks, tips, captions and recap summaries), so the demo never fails or spends money. `DEMO_LIVE_AI=true` switches to the real coach within a small allowance. Demo accounts can't send email, invite real emails or usernames, or see or reach real members. New demos are limited to 60 an hour per network address and 10 per browser; returning to your own demo or resetting it is never blocked.
 - **Demo mode banner** with "Reset demo", which rebuilds that visitor's copy.
 - **Cleanup:** demo worlds are deleted after `DEMO_TTL_HOURS` (24). Cleanup runs whenever a new demo starts or resets, so it never depends on the scheduler (an hourly scheduled cleanup also runs).
 - `php artisan db:seed` builds the same world locally (see the README).

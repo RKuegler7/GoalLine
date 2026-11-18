@@ -1,5 +1,6 @@
 <?php
 
+use App\Atomic;
 use App\Http\Controllers\HealthController;
 use App\Http\Middleware\EnsureOnboarded;
 use App\Http\Middleware\RetireOutdatedDemo;
@@ -10,6 +11,7 @@ use App\Http\Middleware\TrustCloudFront;
 use App\Http\Middleware\UsePublicAddress;
 use App\Http\Middleware\UseViewerTimezone;
 use App\Services\ErrorAlerts;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -43,6 +45,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // A save that still lost a database deadlock after its retries (many people at once): back to the same page
+        // with a calm note to try again, never an error page. It's still reported below.
+        $exceptions->render(function (QueryException $exception, Request $request) {
+            if (! $request->isMethod('GET') && ! $request->expectsJson() && Atomic::isConcurrencyError($exception)) {
+                return back()->with('status', 'Busy moment, so that didn\'t save. Please try again.');
+            }
+
+            return null;
+        });
 
         // Email the admins when something breaks: once every 15 minutes per distinct error, so a bad day isn't a flood.
         $exceptions->report(function (Throwable $exception) {

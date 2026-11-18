@@ -142,7 +142,7 @@ return [
         'ttl_hours' => (int) env('DEMO_TTL_HOURS', 24),
         // New demos an hour: per network address (generous, since a whole class or a judging session can share one),
         // per browser, and in total (protects cost). Coming back to a demo you already have never counts.
-        'starts_per_hour' => (int) env('DEMO_STARTS_PER_HOUR', 30),
+        'starts_per_hour' => (int) env('DEMO_STARTS_PER_HOUR', 60),
         'starts_per_hour_per_browser' => (int) env('DEMO_STARTS_PER_BROWSER', 10),
         'starts_per_hour_total' => (int) env('DEMO_STARTS_PER_HOUR_TOTAL', 400),
         // Demo visitors get the coach's saved sample answers, so the demo never fails or spends money. True uses the

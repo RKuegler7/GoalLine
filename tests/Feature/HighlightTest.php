@@ -74,6 +74,30 @@ class HighlightTest extends TestCase
         $this->assertSame(1, Highlight::count());
     }
 
+    public function test_post_a_highlight_with_nothing_picked_lists_the_moments_you_can_share(): void
+    {
+        $goal = Goal::factory()->create(['title' => 'Learn conversational Spanish']);
+        $this->weekWith($goal, done: 1, of: 2, milestone: false);
+        $great = $this->weekWith($goal, done: 2, of: 2, milestone: true, position: 2, bonus: 1);
+        $finished = Goal::factory()->for($goal->user)->create(['title' => 'Run a half marathon']);
+        $finished->complete();
+        $this->actingAs($goal->user)->post(route('highlights.store'), ['goal' => $finished->id]);
+
+        $this->actingAs($goal->user)->get(route('highlights.create'))
+            ->assertOk()
+            ->assertSee(route('highlights.create', ['week' => $great->id]), false)
+            ->assertSee(route('highlights.create', ['milestone' => $great->id]), false)
+            ->assertDontSee(route('highlights.create', ['goal' => $finished->id]), false)
+            ->assertDontSee(route('highlights.create', ['goal' => $goal->id]), false);
+    }
+
+    public function test_post_a_highlight_with_nothing_to_share_says_so_calmly(): void
+    {
+        $this->actingAs(User::factory()->create())->get(route('highlights.create'))
+            ->assertOk()
+            ->assertSee('Nothing to share yet');
+    }
+
     public function test_the_feed_shows_friends_and_league_mates_but_not_strangers(): void
     {
         $viewer = User::factory()->create();

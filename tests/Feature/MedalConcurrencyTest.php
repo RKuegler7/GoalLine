@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Mockery;
 use PDOException;
@@ -287,6 +288,15 @@ class MedalConcurrencyTest extends TestCase
         Atomic::exclusively('real-work', function () {
             throw new QueryException('mysql', 'update `goals` ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock'));
         });
+    }
+
+    public function test_a_save_that_loses_a_deadlock_goes_back_with_a_calm_note_not_an_error_page(): void
+    {
+        Route::middleware('web')->post('/_deadlock', fn () => throw new QueryException('mysql', 'update `roadmap_tasks` ...', [], new PDOException('SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock')));
+
+        $this->from('/somewhere')->post('/_deadlock')
+            ->assertRedirect('/somewhere')
+            ->assertSessionHas('status', 'Busy moment, so that didn\'t save. Please try again.');
     }
 
     public function test_exclusive_work_can_re_enter_its_own_lock(): void

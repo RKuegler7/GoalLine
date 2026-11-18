@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Atomic;
 use App\Models\User;
 use App\Services\DemoWorld;
 use App\Usage;
@@ -120,12 +121,24 @@ class DemoController extends Controller
      */
     private function build(Request $request, DemoWorld $world, string $status): RedirectResponse
     {
-        try {
-            $visitor = $world->create();
-        } catch (Throwable $exception) {
-            report($exception);
+        // Many visitors starting demos at once: if MySQL picks this build as a deadlock victim (it rolled back whole),
+        // build it again once before giving up.
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                $visitor = $world->create();
 
-            return redirect()->route('login')->with('status', 'The demo couldn\'t start just now. Please try again in a minute.');
+                break;
+            } catch (Throwable $exception) {
+                if ($attempt < 2 && Atomic::isConcurrencyError($exception)) {
+                    Atomic::noteContention('demo-build-retried', $exception);
+
+                    continue;
+                }
+
+                report($exception);
+
+                return redirect()->route('login')->with('status', 'The demo couldn\'t start just now. Please try again in a minute.');
+            }
         }
 
         return $this->signIn($request, $visitor, $status);

@@ -19,6 +19,7 @@ use App\Services\StoredPhoto;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
@@ -54,10 +55,15 @@ class HighlightController extends Controller
     }
 
     /**
-     * Preview a highlight before sharing it, with a caption and photo.
+     * Preview a highlight before sharing it, with a caption and photo. With nothing picked ("Post a highlight"),
+     * list the moments the member can share instead.
      */
     public function create(Request $request): View|RedirectResponse
     {
+        if (! $request->hasAny(['goal', 'week', 'milestone'])) {
+            return view('highlights.pick', ['achievements' => $this->shareableMoments($request->user())]);
+        }
+
         $draft = $this->draft($request);
 
         if ($existing = $this->alreadyShared($request->user(), $draft)) {
@@ -290,6 +296,42 @@ class HighlightController extends Controller
             'caption' => null,
             'goalPhoto' => null,
         ];
+    }
+
+    /**
+     * Every moment the member can share and hasn't yet, newest goal first: completed goals, hit milestones, and
+     * GoalWeeks that finished Past or Smashed the Line. Each link passes the same checks as the share page.
+     *
+     * @return Collection<int, array{label: string, title: string, url: string}>
+     */
+    private function shareableMoments(User $user): Collection
+    {
+        $shared = $user->highlights()->get(['kind', 'goal_id', 'roadmap_week_id']);
+        $isShared = fn (HighlightKind $kind, Goal $goal, ?RoadmapWeek $week = null) => $shared->contains(
+            fn (Highlight $highlight) => $highlight->kind === $kind && $highlight->goal_id === $goal->id && $highlight->roadmap_week_id === $week?->id,
+        );
+        $moments = collect();
+
+        foreach ($user->goals()->with('weeks.tasks', 'habits.logs')->latest()->get() as $goal) {
+            if ($goal->isCompleted() && ! $isShared(HighlightKind::GoalCompleted, $goal)) {
+                $moments->push(['label' => HighlightKind::GoalCompleted->label(), 'title' => $goal->title, 'url' => route('highlights.create', ['goal' => $goal->id])]);
+            }
+
+            foreach ($goal->weeks->sortByDesc('position') as $week) {
+                $week->setRelation('goal', $goal);
+                $title = $goal->title.' · '.$week->label();
+
+                if (in_array($week->result(), [GoalWeekResult::Past, GoalWeekResult::Smashed], true) && ! $isShared(HighlightKind::GreatWeek, $goal, $week)) {
+                    $moments->push(['label' => $week->result()->label(), 'title' => $title, 'url' => route('highlights.create', ['week' => $week->id])]);
+                }
+
+                if ($week->milestone_hit_at !== null && ! $isShared(HighlightKind::MilestoneHit, $goal, $week)) {
+                    $moments->push(['label' => HighlightKind::MilestoneHit->label(), 'title' => $title, 'url' => route('highlights.create', ['milestone' => $week->id])]);
+                }
+            }
+        }
+
+        return $moments;
     }
 
     /**
